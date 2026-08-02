@@ -21,14 +21,11 @@ test("missing acceptance criteria fail closed", () => {
 });
 
 test("invalid status fails closed", () => {
-  const mutated = backlog.replace("P1, IN_PROGRESS.", "P1, PARTIAL.");
+  const mutated = backlog.replace("P1, DONE.", "P1, PARTIAL.");
   assert.ok(validateBacklogText(mutated).some((error) => error.includes("öncelik/durum biçimi geçersiz")));
 });
 
 test("active task cannot omit its next action", () => {
-  const mutated = backlog.replace(
-    "- Sonraki adım: Kapsamlı dalı PR ile birleştir",
-    "- Sonraki adım: Yok; Kapsamlı dalı PR ile birleştir",
-  );
+  const mutated = backlog.replace("P1, DONE.", "P1, OPEN.");
   assert.ok(validateBacklogText(mutated).some((error) => error.includes("doğrulanabilir sonraki adımı")));
 });
