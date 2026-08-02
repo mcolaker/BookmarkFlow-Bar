@@ -5,6 +5,7 @@ Thank you for helping improve BookmarkFlow Bar. Clear, focused contributions are
 ## Before you begin
 
 - Search existing issues before creating a new one.
+- Read and follow the project [Code of Conduct](CODE_OF_CONDUCT.md).
 - Use the bug report template for defects and include exact reproduction steps.
 - Use the feature request template to explain the user problem before proposing an implementation.
 - Report security vulnerabilities privately according to [SECURITY.md](SECURITY.md).
@@ -53,4 +54,4 @@ Also verify the affected flow manually in Chrome, including keyboard behavior an
 - Preserve accessibility labels, keyboard navigation, safe URL handling, and the closed Shadow DOM boundary.
 - Avoid adding runtime dependencies unless the tradeoff is documented and justified.
 
-By submitting a contribution, you confirm that you have the right to submit the work and allow the project owner to review and incorporate it into BookmarkFlow Bar. Public visibility of this repository does not grant permission for unrelated reuse or redistribution; see [LICENSE.md](LICENSE.md).
+By participating, you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md). By submitting a contribution, you confirm that you have the right to submit the work and allow the project owner to review and incorporate it into BookmarkFlow Bar. Public visibility of this repository does not grant permission for unrelated reuse or redistribution; see [LICENSE.md](LICENSE.md).

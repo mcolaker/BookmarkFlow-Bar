@@ -54,3 +54,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: Backlog sözleşmesi, proje doğrulaması, public-tree, güvenlik regresyonu ve gerçek Chrome'da varsayılan arama sağlayıcısı akışı temiz olmalıdır. PR `validate` kontrolü terminal `success` vermeli, GitHub Pages gizlilik rotası yeni Limited Use metniyle HTTPS `200` dönmeli ve Dashboard yüklenen `0.1.36` sürümünü göstermelidir.
 - Sonraki adım: `v0.1.36` değişikliğini doğrula, korumalı `main` için PR üzerinden yayımla, yeni ZIP ve SHA-256 üret; ardından kullanıcı aynı Dashboard kaydına yeni paketi yükler ve geri döndürülemez inceleme gönderiminden önce son ekran görüntüsüyle onay verir.
 - Son güncelleme: 2026-08-02.
+
+## BF-GOV-002 - Katkı topluluğu davranış standardını yayımla
+
+- Öncelik ve durum: P2, IN_PROGRESS.
+- Kök neden ve kanıt: Herkese açık repo katkı rehberi ve özel güvenlik bildirim kanalı içeriyor ancak katılımcılardan beklenen davranış, özel ihlal bildirimi, gizlilik, yaptırım sorumluluğu ve kademeli müdahale standardını tek bir kamusal sözleşmede tanımlamıyordu.
+- Kabul kriteri: Contributor Covenant 3.0 temel alınarak BookmarkFlow Bar kapsamına uyarlanmış İngilizce `CODE_OF_CONDUCT.md` yayımlanır; beklenen ve yasak davranışlar, kapsam, özel bildirim kanalı, güvenlik bildirimi ayrımı, gizlilik, misilleme yasağı, yaptırım basamakları ve CC BY-SA 4.0 atfı açıkça tanımlanır; README ve katkı rehberi belgeye bağlanır.
+- Doğrulama kapısı: Backlog sözleşmesi, proje doğrulaması ve public-tree taraması temiz olmalı; korumalı `main` için açılan PR'ın `validate` kontrolü terminal `success` vermeli ve PR birleştirilmelidir.
+- Sonraki adım: Belgeleri yerel olarak doğrula, odaklı PR üzerinden yayımla; terminal CI ve merge kanıtını ekleyerek görevi `DONE` durumuna getir.
+- Son güncelleme: 2026-08-02.
