@@ -66,9 +66,9 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 
 ## BF-GOV-003 - GitHub Discussions ve destek katılım yolunu yayımla
 
-- Öncelik ve durum: P2, IN_PROGRESS.
+- Öncelik ve durum: P2, DONE.
 - Kök neden ve kanıt: Herkese açık repo Issues, katkı rehberi ve güvenlik politikası içeriyor ancak topluluk soruları ile fikirlerini iş kapsamına alınmış bir issue açmadan konuşabilecekleri GitHub Discussions kapalıydı; README desteği de katkı kanallarını ve kaynak-görünür lisans sınırlarını tek bir bölümde açıklamıyordu.
 - Kabul kriteri: Repo düzeyinde GitHub Discussions etkinleştirilir; README yıldız, sürüm takibi, Discussions, Issues, test, erişilebilirlik, yerelleştirme, dokümantasyon ve paylaşım yollarını açıkça sunar; güvenlik bildirimlerini özel kanala yönlendirir; fork ve katkıların `LICENSE.md` ile `CONTRIBUTING.md` koşullarına tabi olduğunu belirtir.
-- Doğrulama kapısı: GitHub repo API'si `has_discussions: true` döndürür; Discussions rotası erişilebilirdir; `validate-project` zorunlu destek metinlerini fail-closed doğrular; backlog sözleşmesi, public-tree, diff kontrolü ve PR `validate` işi temizdir.
-- Sonraki adım: Discussions'ı etkinleştir, README ve doğrulayıcıyı yayımla; PR ve ana dal CI kanıtlarını kaydettikten sonra görevi `DONE` yap.
+- Doğrulama kapısı: GitHub repo API'si `has_discussions: true` döndürdü ve herkese açık Discussions rotası HTTPS `200` verdi. Backlog doğrulaması, 5/5 sözleşme testi, `validate-project`, 68 dosyalık public-tree taraması, güvenlik regresyonu ve `git diff --check` temizdir. PR #8 `validate` kontrolü terminal `success` verdi ve `855d3a1d85a9c6a733c70a2a7752f87dbf2daf7f` merge commit'iyle `main` dalına birleştirildi; aynı commit için ana dal `Validate extension` çalışması `30755465039` ve Pages çalışması `30755464506` terminal `success` verdi.
+- Sonraki adım: Yok; yeni topluluk kanalı eklenirse README yönlendirmelerini, lisans sınırlarını ve fail-closed destek doğrulamasını birlikte güncelle.
 - Son güncelleme: 2026-08-02.
