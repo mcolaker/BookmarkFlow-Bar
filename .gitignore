@@ -1,0 +1,17 @@
+# Public repository allowlist. Generated browser profiles and release archives
+# stay outside Git even when new files are added to those directories.
+/*
+
+!/.gitignore
+!/README.md
+!/manifest.json
+!/icons/
+!/icons/**
+!/scripts/
+!/scripts/**
+!/src/
+!/src/**
+!/store/
+!/store/**
+!/LICENSE*
+!/SECURITY.md

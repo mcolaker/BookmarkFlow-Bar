@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BookmarkFlow - Klasor Birlestirme</title>
+    <link rel="stylesheet" href="bookmark-maintenance.css">
+  </head>
+  <body>
+    <main class="maintenance">
+      <header class="hero">
+        <span class="eyebrow">BOOKMARKFLOW BAKIM</span>
+        <h1>Ayni adli klasorleri birlestir</h1>
+        <p>Yalnizca bu cihazdaki klasorlerin icerigini Google hesabindaki ayni adli klasore tasir.</p>
+      </header>
+
+      <section class="notice" aria-label="Guvenlik bilgisi">
+        <strong>Veri kaybi korumasi</strong>
+        <p>Yer imleri silinmez. Yerel klasor ancak tum icerigi tasindiktan ve bos oldugu tekrar dogrulandiktan sonra kaldirilir.</p>
+      </section>
+
+      <section class="picker" aria-labelledby="pickerTitle">
+        <div class="picker-head">
+          <div>
+            <h2 id="pickerTitle">Rayda gosterilecek ek klasorler</h2>
+            <p>Klasorun Chrome'daki konumundan bagimsiz olarak sol veya sag klasor rayina sabitle.</p>
+          </div>
+          <button id="savePinnedFolders" class="primary" type="button">Ray secimini kaydet</button>
+        </div>
+        <label class="picker-search">
+          <span>Klasor ara</span>
+          <input id="folderFilter" type="search" autocomplete="off" spellcheck="false" placeholder="Ornek: SIK KULLANILANLAR">
+        </label>
+        <p id="pinnedStatus" class="status compact-status" role="status" aria-live="polite"></p>
+        <div id="folderPickerList" class="folder-picker-list" aria-label="Yer imi klasorleri"></div>
+      </section>
+
+      <section class="toolbar" aria-label="Birlestirme islemleri">
+        <button id="refresh" class="secondary" type="button">Yeniden tara</button>
+        <button id="merge" class="primary" type="button" disabled>Secilenleri Google hesabinda birlestir</button>
+      </section>
+
+      <p id="status" class="status" role="status" aria-live="polite">Yer imi klasorleri taraniyor...</p>
+      <div id="groups" class="groups" aria-label="Ayni adli klasorler"></div>
+    </main>
+
+    <script src="bookmark-maintenance.js"></script>
+  </body>
+</html>

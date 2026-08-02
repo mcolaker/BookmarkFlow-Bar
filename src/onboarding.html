@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BookmarkFlow Kurulum</title>
+    <link rel="stylesheet" href="onboarding.css">
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <div class="mark" aria-hidden="true">BF</div>
+        <div>
+          <p class="eyebrow">BookmarkFlow Bar</p>
+          <h1>Kurulumu 1 dakikada netlestir</h1>
+          <p class="lead">BookmarkFlow, Chrome Bookmark Bar klasorundeki kendi yer imlerini okur. Yer imi icerigi disari gonderilmez.</p>
+        </div>
+      </header>
+
+      <section class="summary" aria-label="Yer imi kaynagi">
+        <article>
+          <span class="mini-label">Kaynak</span>
+          <strong id="bookmarkSource">Bookmark Bar okunuyor</strong>
+          <p>Ayri import gerekmez; Chrome yer imlerini kullanir.</p>
+        </article>
+        <article>
+          <span class="mini-label">Gizlilik</span>
+          <strong>Yerel ayarlar</strong>
+          <p>Gorunum, renk ve site gizleme ayarlari Chrome storage icinde kalir.</p>
+        </article>
+        <article>
+          <span class="mini-label">Kontrol</span>
+          <strong>Klavye hazir</strong>
+          <p>Arama, gizleme ve yayinci modu kisayollarla yonetilebilir.</p>
+        </article>
+      </section>
+
+      <section class="section native-bar">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Tarayici cubugu</p>
+            <h2>Chrome'un kendi yer imi cubugunu kapat</h2>
+          </div>
+          <kbd class="shortcut-pill">Ctrl + Shift + B</kbd>
+        </div>
+        <div class="native-bar-body">
+          <p>BookmarkFlow, tarayicinin ust arayuzunu degistiremez. Chrome'da kendi yer imi cubugu gorunuyorsa sag tiklayip "Show bookmarks bar" isaretini kapat veya <kbd>Ctrl + Shift + B</kbd> kullan.</p>
+          <p>Brave'de bu kisayol yetmezse Settings > Appearance > Show bookmarks ayarini <strong>Never</strong> yap. Ayar "Only on new tab page" ise yer imi cubugu sadece yeni sekmede gorunmeye devam eder.</p>
+          <p>Bu islem yer imlerini silmez; BookmarkFlow ayni Bookmark Bar verisini okumaya devam eder.</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Profil</p>
+            <h2>Kullanim tarzini sec</h2>
+          </div>
+          <span class="hint">Sonradan popup icinden degistirebilirsin.</span>
+        </div>
+        <div id="profileGrid" class="profile-grid" aria-label="Ayar profilleri"></div>
+      </section>
+
+      <section class="section shortcuts">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Kisayollar</p>
+            <h2>Hizli kullanim</h2>
+          </div>
+          <button id="openShortcuts" class="secondary" type="button">Kisayollari duzenle</button>
+        </div>
+        <div class="shortcut-grid">
+          <div><span>Arama paleti</span><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>E</kbd></div>
+          <div><span>Bar ac / daralt</span><kbd>Alt</kbd><kbd>Shift</kbd><kbd>B</kbd></div>
+          <div><span>Gizle / geri getir</span><kbd>Alt</kbd><kbd>Shift</kbd><kbd>H</kbd></div>
+          <div><span>Yayinci modu</span><kbd>Alt</kbd><kbd>Shift</kbd><kbd>M</kbd></div>
+        </div>
+      </section>
+
+      <section class="section tour">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Ozellik turu</p>
+            <h2>BookmarkFlow hareketleri</h2>
+          </div>
+          <span class="hint">Demolar sahte test yer imleriyle kaydedildi.</span>
+        </div>
+        <div class="tour-grid">
+          <article class="tour-card">
+            <img src="assets/tour/bar-open-close.gif" loading="lazy" alt="BookmarkFlow barinin BF kisayoluyla acilip kapanmasi">
+            <div>
+              <strong>Bar ac / daralt</strong>
+              <p>BF dugmesi veya kisayol ile yer imi barini ihtiyac aninda ac.</p>
+            </div>
+          </article>
+          <article class="tour-card">
+            <img src="assets/tour/search-palette.gif" loading="lazy" alt="Yer imi arama paletinde arama ve klavye ile sonuc secimi">
+            <div>
+              <strong>Arama paleti</strong>
+              <p>Yer imlerini yazmaya basla, ok tuslariyla sec, Enter ile ac.</p>
+            </div>
+          </article>
+          <article class="tour-card">
+            <img src="assets/tour/folder-rail.gif" loading="lazy" alt="Sol klasor rayindan klasor acma ve klasor icerigini gorme">
+            <div>
+              <strong>Klasor rayi</strong>
+              <p>Klasorleri solda ayir, direkt yer imlerini yatay seritte tut.</p>
+            </div>
+          </article>
+          <article class="tour-card">
+            <img src="assets/tour/streamer-mode.gif" loading="lazy" alt="Yayinci modunda yer imi isimlerinin gizlenmesi">
+            <div>
+              <strong>Yayinci modu</strong>
+              <p>Video, sunum ve musteri gorusmelerinde isimleri ikon moduna al.</p>
+            </div>
+          </article>
+          <article class="tour-card">
+            <img src="assets/tour/context-actions.gif" loading="lazy" alt="Sag tik menusuyle yer imi duzenleme, tasima ve silme aksiyonlari">
+            <div>
+              <strong>Sag tik aksiyonlari</strong>
+              <p>Yer imlerini BookmarkFlow menusuyle duzenle, tasi veya sil.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <footer class="actions">
+        <p id="status" class="status" aria-live="polite"></p>
+        <div class="action-buttons">
+          <button id="openBookmarks" class="secondary" type="button">Chrome yer imleri</button>
+          <button id="applyProfile" class="primary" type="button">Secili profili uygula</button>
+          <button id="finish" class="secondary" type="button">Tamamla</button>
+        </div>
+      </footer>
+    </main>
+    <script src="settings.js"></script>
+    <script src="onboarding.js"></script>
+  </body>
+</html>

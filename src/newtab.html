@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BookmarkFlow</title>
+    <link rel="stylesheet" href="newtab.css">
+  </head>
+  <body>
+    <header class="nt-bookmarks" id="bookmarkBar" hidden>
+      <div class="nt-brand">BF</div>
+      <div class="nt-strip" id="bookmarkStrip" role="navigation" aria-label="Yer imleri"></div>
+      <div class="nt-actions">
+        <button class="nt-icon-button" id="addBookmark" type="button" title="Yer imi ekle" aria-label="Yer imi ekle">+</button>
+        <button class="nt-icon-button" id="scrollLeft" type="button" title="Sola kaydir" aria-label="Sola kaydir">&lsaquo;</button>
+        <button class="nt-icon-button" id="scrollRight" type="button" title="Saga kaydir" aria-label="Saga kaydir">&rsaquo;</button>
+      </div>
+      <aside class="nt-folder-rail" id="folderRail" aria-label="Klasorler" hidden>
+        <div class="nt-folder-rail-head">
+          <span>Klasorler</span>
+          <button class="nt-folder-rail-add" id="addFolder" type="button" title="Klasor ekle" aria-label="Klasor ekle">+</button>
+        </div>
+        <div class="nt-folder-rail-list" id="folderRailList"></div>
+      </aside>
+      <div class="nt-menu" id="folderMenu" hidden></div>
+      <div class="nt-context-menu" id="contextMenu" hidden></div>
+    </header>
+
+    <main class="nt-main">
+      <form class="nt-search" id="searchForm" role="search">
+        <label class="nt-search-label" for="searchInput">Google</label>
+        <div class="nt-search-box">
+          <input id="searchInput" type="search" autocomplete="off" spellcheck="false" placeholder="Google'da ara veya URL yaz">
+          <button type="submit">Ara</button>
+        </div>
+      </form>
+    </main>
+
+    <div class="nt-add" id="addDialog" hidden>
+      <form class="nt-add-panel" id="addForm" aria-label="Yer imi ekle">
+        <div class="nt-add-head">
+          <strong>Yer imi ekle</strong>
+          <button class="nt-add-close" id="addClose" type="button" title="Kapat" aria-label="Kapat">x</button>
+        </div>
+        <label class="nt-add-field">
+          <span>Baslik</span>
+          <input id="addTitle" type="text" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="nt-add-field">
+          <span>Adres</span>
+          <input id="addUrl" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
+        </label>
+        <p class="nt-add-status" id="addStatus" aria-live="polite"></p>
+        <div class="nt-add-actions">
+          <button class="nt-add-secondary" id="addCancel" type="button">Vazgec</button>
+          <button class="nt-add-primary" id="addSubmit" type="submit">Ekle</button>
+        </div>
+      </form>
+    </div>
+
+    <script src="settings.js"></script>
+    <script src="newtab.js"></script>
+  </body>
+</html>

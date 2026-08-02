@@ -1,0 +1,87 @@
+{
+  "manifest_version": 3,
+  "name": "BookmarkFlow Bar",
+  "version": "0.1.35",
+  "description": "Yer imlerini favicon ve isimleriyle ayarlanabilir satirli, ozel bir ust bar olarak gosterir.",
+  "permissions": [
+    "bookmarks",
+    "storage",
+    "favicon"
+  ],
+  "action": {
+    "default_title": "BookmarkFlow Bar",
+    "default_popup": "src/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "commands": {
+    "open-search": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+E",
+        "mac": "Ctrl+Shift+E"
+      },
+      "description": "BookmarkFlow arama paletini ac"
+    },
+    "toggle-bar": {
+      "suggested_key": {
+        "default": "Alt+Shift+B",
+        "mac": "Alt+Shift+B"
+      },
+      "description": "BookmarkFlow barini genislet veya daralt"
+    },
+    "hide-restore": {
+      "suggested_key": {
+        "default": "Alt+Shift+H",
+        "mac": "Alt+Shift+H"
+      },
+      "description": "BookmarkFlow'u gizle veya geri getir"
+    },
+    "toggle-streamer-mode": {
+      "suggested_key": {
+        "default": "Alt+Shift+M",
+        "mac": "Alt+Shift+M"
+      },
+      "description": "BookmarkFlow yayinci modunu ac veya kapat"
+    }
+  },
+  "chrome_url_overrides": {
+    "newtab": "src/newtab.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "src/settings.js",
+        "src/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "_favicon/*",
+        "src/content.css",
+        "src/newtab.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
