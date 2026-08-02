@@ -39,9 +39,9 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 
 ## BF-REL-001 - Profesyonel global GitHub sürümünü yayımla
 
-- Öncelik ve durum: P1, IN_PROGRESS.
+- Öncelik ve durum: P1, DONE.
 - Kök neden ve kanıt: Genel repo kaynak kodu içeriyordu ancak global ürün sunumu, kalıcı gizlilik URL'si, erişilebilir iki dilli arayüz, açık lisans duruşu, korumalı ana dal ve indirilebilir sürüm paketi eksikti.
 - Kabul kriteri: Kapsamlı İngilizce ürün sayfası, gizlilik/destek rotaları, açık lisans bildirimi, mağaza metinleri, doğrulanmış sürüm ZIP'i ve SHA-256 özeti yayımlanır; yalnız `BookmarkFlow-Bar` reposunun `main` dalı korunur.
-- Doğrulama kapısı: Yerel doğrulamalar, GitHub Actions, Pages build ve release asset doğrulaması terminal başarı verir; repo dışına yazılmaz.
-- Sonraki adım: Kapsamlı dalı PR ile birleştir, Pages'i etkinleştir, `main` korumasını doğrula ve `v0.1.35` sürümünü yayımla.
+- Doğrulama kapısı: PR #3 için `validate` işi terminal `success` verdi ve `main` dalına birleştirildi. GitHub Pages build/deploy başarılı oldu; ürün ve gizlilik rotaları HTTPS üzerinden `200` döndürdü. `main` için zorunlu `validate`, güncel dal, PR, konuşma çözümü, admin uygulaması, force-push ve silme engelleri API ile doğrulandı. Private Vulnerability Reporting etkin; `v0.1.35` release ZIP'i ve SHA-256 dosyası `uploaded` durumda, GitHub asset digest'i `443197420831d42d467a5d4dc2bfa5f50eaba3b6f07c644ec8638facbded4bb5` değeriyle yerel özeti doğruluyor.
+- Sonraki adım: Yok; sonraki sürümde manifest sürümünü artır, aynı kapıları çalıştır ve yeni etiket/paket özeti üret.
 - Son güncelleme: 2026-08-02.
