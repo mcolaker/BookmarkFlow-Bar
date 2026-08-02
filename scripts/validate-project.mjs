@@ -175,6 +175,18 @@ for (const path of requiredPresentationFiles) {
   }
 }
 
+const readmeSource = readFileSync(join(root, "README.md"), "utf8");
+for (const requiredSupportContent of [
+  "## How to support",
+  "https://github.com/09mc/BookmarkFlow-Bar/discussions",
+  "LICENSE.md",
+  "SECURITY.md",
+]) {
+  if (!readmeSource.includes(requiredSupportContent)) {
+    throw new Error(`README.md: missing required support content: ${requiredSupportContent}`);
+  }
+}
+
 console.log(
   `Validated manifest v${manifest.version}, ${JavaScriptFiles.length} JavaScript files, ${requiredLocales.length} locales, and ${requiredPresentationFiles.length} presentation files.`,
 );

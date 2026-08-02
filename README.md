@@ -20,6 +20,7 @@
   <a href="#feature-tour">Feature tour</a> ·
   <a href="#install-from-source">Install</a> ·
   <a href="#privacy-by-design">Privacy</a> ·
+  <a href="#how-to-support">Support</a> ·
   <a href="https://09mc.github.io/BookmarkFlow-Bar/">Website</a> ·
   <a href="CONTRIBUTING.md">Contribute</a>
 </p>
@@ -173,7 +174,22 @@ Maintainers can create a versioned extension ZIP and SHA-256 checksum from a rel
 - Sites with complex fixed headers may require the **Push page content** or **Place below overlapping headers** setting.
 - Folder merge detection uses bookmark synchronization metadata available in Chrome 134 and later.
 
-## Contributing and support
+## How to support
+
+If BookmarkFlow improves your daily browsing, you can support its development in several meaningful ways:
+
+- **Star the repository** to help more Chrome users discover the project.
+- **Watch releases** to follow verified packages and important product updates.
+- **Join [GitHub Discussions](https://github.com/09mc/BookmarkFlow-Bar/discussions)** to ask questions, share workflows, suggest ideas, and help other users.
+- **Report reproducible bugs or focused feature requests** through [GitHub Issues](https://github.com/09mc/BookmarkFlow-Bar/issues).
+- **Test new releases** and contribute accessibility, localization, documentation, or narrowly scoped code improvements.
+- **Share BookmarkFlow** with people who want faster bookmark access without moving their library to a separate service.
+
+For security vulnerabilities, do not open a public issue or discussion. Follow the private reporting process in [SECURITY.md](SECURITY.md).
+
+Forking this repository does not grant permission to redistribute, relicense, publish modified versions, or use BookmarkFlow commercially. Forks and contributions must comply with [LICENSE.md](LICENSE.md) and [CONTRIBUTING.md](CONTRIBUTING.md); uses outside those terms require prior written permission from the copyright owner.
+
+## Contributing
 
 Bug reports and focused improvements are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md) before participating. Use the repository's issue templates for reproducible bugs and feature proposals. Please report security concerns privately as described in [SECURITY.md](SECURITY.md).
 

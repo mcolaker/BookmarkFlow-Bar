@@ -63,3 +63,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node scripts/validate-backlog.mjs`, 5/5 backlog sözleşme testi, yedi zorunlu sunum dosyasını kapsayan `validate-project`, 68 dosyalık public-tree taraması ve `git diff --check` temizdir. PR #6 `validate` kontrolü terminal `success` verdi ve `ca17c3c8fe49342d2fb83c6a59a4fac5a6089367` merge commit'iyle `main` dalına birleştirildi; aynı commit için ana dal `validate` çalışması da terminal `success` verdi.
 - Sonraki adım: Yok; gelecekte topluluk iletişim kanalı veya moderasyon sorumlusu değişirse belgeyi, bağlantıları ve özel bildirim rotasını birlikte güncelle.
 - Son güncelleme: 2026-08-02.
+
+## BF-GOV-003 - GitHub Discussions ve destek katılım yolunu yayımla
+
+- Öncelik ve durum: P2, IN_PROGRESS.
+- Kök neden ve kanıt: Herkese açık repo Issues, katkı rehberi ve güvenlik politikası içeriyor ancak topluluk soruları ile fikirlerini iş kapsamına alınmış bir issue açmadan konuşabilecekleri GitHub Discussions kapalıydı; README desteği de katkı kanallarını ve kaynak-görünür lisans sınırlarını tek bir bölümde açıklamıyordu.
+- Kabul kriteri: Repo düzeyinde GitHub Discussions etkinleştirilir; README yıldız, sürüm takibi, Discussions, Issues, test, erişilebilirlik, yerelleştirme, dokümantasyon ve paylaşım yollarını açıkça sunar; güvenlik bildirimlerini özel kanala yönlendirir; fork ve katkıların `LICENSE.md` ile `CONTRIBUTING.md` koşullarına tabi olduğunu belirtir.
+- Doğrulama kapısı: GitHub repo API'si `has_discussions: true` döndürür; Discussions rotası erişilebilirdir; `validate-project` zorunlu destek metinlerini fail-closed doğrular; backlog sözleşmesi, public-tree, diff kontrolü ve PR `validate` işi temizdir.
+- Sonraki adım: Discussions'ı etkinleştir, README ve doğrulayıcıyı yayımla; PR ve ana dal CI kanıtlarını kaydettikten sonra görevi `DONE` yap.
+- Son güncelleme: 2026-08-02.
