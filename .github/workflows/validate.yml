@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - "agent/**"
   pull_request:
 
 permissions:
@@ -35,14 +34,15 @@ jobs:
       - name: Verify public repository safety
         run: node scripts/verify-public-tree.mjs
 
+      - name: Install Chromium for extension regressions
+        run: npx --yes playwright@1.55.0 install chromium
+
       - name: Run English Chrome security and localization regression
         env:
           BOOKMARKFLOW_CHROME_LANG: en
-          BOOKMARKFLOW_HEADLESS: "0"
-        run: xvfb-run -a node scripts/security-regression.mjs
+        run: node scripts/security-regression.mjs
 
       - name: Run Turkish Chrome security and localization regression
         env:
           BOOKMARKFLOW_CHROME_LANG: tr
-          BOOKMARKFLOW_HEADLESS: "0"
-        run: xvfb-run -a node scripts/security-regression.mjs
+        run: node scripts/security-regression.mjs

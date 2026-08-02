@@ -260,8 +260,14 @@ async function findChrome() {
 }
 
 async function findPlaywrightChromium() {
-  if (process.platform !== "win32" || !process.env.LOCALAPPDATA) return [];
-  const root = path.join(process.env.LOCALAPPDATA, "ms-playwright");
+  const root = process.platform === "win32" && process.env.LOCALAPPDATA
+    ? path.join(process.env.LOCALAPPDATA, "ms-playwright")
+    : process.platform === "darwin" && process.env.HOME
+      ? path.join(process.env.HOME, "Library", "Caches", "ms-playwright")
+      : process.env.HOME
+        ? path.join(process.env.HOME, ".cache", "ms-playwright")
+        : "";
+  if (!root) return [];
   let entries;
   try {
     entries = await fs.readdir(root, { withFileTypes: true });
@@ -269,10 +275,23 @@ async function findPlaywrightChromium() {
     return [];
   }
 
-  return entries
+  const chromiumRoots = entries
     .filter((entry) => entry.isDirectory() && /^chromium-\d+$/.test(entry.name))
-    .sort((left, right) => right.name.localeCompare(left.name, "en", { numeric: true }))
-    .map((entry) => path.join(root, entry.name, "chrome-win", "chrome.exe"));
+    .sort((left, right) => right.name.localeCompare(left.name, "en", { numeric: true }));
+
+  if (process.platform === "win32") {
+    return chromiumRoots.map((entry) => path.join(root, entry.name, "chrome-win", "chrome.exe"));
+  }
+  if (process.platform === "darwin") {
+    return chromiumRoots.flatMap((entry) => [
+      path.join(root, entry.name, "chrome-mac", "Chromium.app", "Contents", "MacOS", "Chromium"),
+      path.join(root, entry.name, "chrome-mac-arm64", "Chromium.app", "Contents", "MacOS", "Chromium")
+    ]);
+  }
+  return chromiumRoots.flatMap((entry) => [
+    path.join(root, entry.name, "chrome-linux", "chrome"),
+    path.join(root, entry.name, "chrome-linux64", "chrome")
+  ]);
 }
 
 async function startHostileServer() {
