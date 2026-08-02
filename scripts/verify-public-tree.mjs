@@ -56,8 +56,13 @@ const scanPatterns = [
   { label: "AWS access key", value: /\bAKIA[0-9A-Z]{16}\b/u },
 ];
 
+const extensionlessTextFiles = new Set(["DCO", "NOTICE"]);
+
 for (const path of publicFiles) {
-  if (path === "scripts/verify-public-tree.mjs" || !textExtensions.has(extname(path).toLowerCase())) {
+  if (
+    path === "scripts/verify-public-tree.mjs"
+    || (!textExtensions.has(extname(path).toLowerCase()) && !extensionlessTextFiles.has(path))
+  ) {
     continue;
   }
 

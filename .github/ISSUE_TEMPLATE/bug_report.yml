@@ -7,13 +7,13 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to report a problem. Do not include personal bookmarks, credentials, or browser profile data.
+        Thanks for taking the time to report a problem. Use [GitHub Discussions](https://github.com/mcolaker/BookmarkFlow-Bar/discussions) for questions that are not reproducible defects. Do not include personal bookmarks, credentials, or browser profile data.
   - type: input
     id: version
     attributes:
       label: BookmarkFlow version
       description: Find the version in manifest.json or on the Chrome extensions page.
-      placeholder: "0.1.36"
+      placeholder: "0.1.37"
     validations:
       required: true
   - type: input

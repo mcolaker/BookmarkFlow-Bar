@@ -164,8 +164,16 @@ const requiredPresentationFiles = [
   "README.md",
   "CODE_OF_CONDUCT.md",
   "CONTRIBUTING.md",
+  "DCO",
+  "GOVERNANCE.md",
+  "LICENSE.md",
+  "NOTICE",
+  "ROADMAP.md",
   "SECURITY.md",
+  "SUPPORT.md",
+  "TRADEMARKS.md",
   "CHANGELOG.md",
+  "docs/ASSET_PROVENANCE.md",
   "docs/assets/bookmarkflow-hero.jpg",
   "store/listing-en.md",
 ];
@@ -180,8 +188,12 @@ const readmeSource = readFileSync(join(root, "README.md"), "utf8");
 for (const requiredSupportContent of [
   "## How to support",
   "https://github.com/mcolaker/BookmarkFlow-Bar/discussions",
+  "GOVERNANCE.md",
   "LICENSE.md",
+  "ROADMAP.md",
   "SECURITY.md",
+  "SUPPORT.md",
+  "TRADEMARKS.md",
 ]) {
   if (!readmeSource.includes(requiredSupportContent)) {
     throw new Error(`README.md: missing required support content: ${requiredSupportContent}`);
@@ -191,9 +203,14 @@ for (const requiredSupportContent of [
 for (const canonicalLinkFile of [
   ".github/ISSUE_TEMPLATE/config.yml",
   "CODE_OF_CONDUCT.md",
+  "CONTRIBUTING.md",
+  "GOVERNANCE.md",
   "LICENSE.md",
   "README.md",
+  "ROADMAP.md",
   "SECURITY.md",
+  "SUPPORT.md",
+  "TRADEMARKS.md",
   "docs/index.html",
   "docs/privacy/index.html",
   "store/listing-en.md",

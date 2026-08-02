@@ -25,3 +25,11 @@ Bu dosya Codex için ana proje giriş sözleşmesidir. Ürün davranışı için
 - Kaynak değişikliğinde önce `node scripts/validate-project.mjs`, ardından `node scripts/verify-public-tree.mjs` çalıştır. Güvenlik veya tarayıcı davranışı etkileniyorsa `node scripts/security-regression.mjs` ve gerçek Chrome doğrulaması da zorunludur.
 - Görünür UI değişikliği klavye, açık/koyu arka plan, ilgili viewport ve Chrome extension reload kanıtı olmadan tamamlanmış sayılmaz.
 - Stage ve commit kapsamı yalnız bu işe ait dosyalardan oluşur; tarayıcı profili, yerel extension verisi, kişisel bookmark/geçmiş, output, paket veya secret eklenmez.
+
+## Açık kaynak ve yayın bütünlüğü
+
+- Proje kodu `LICENSE.md` içindeki Apache License 2.0 koşullarıyla yayımlanır. `NOTICE` yalnız gerekli telif ve atıf bildirimlerini, `TRADEMARKS.md` ise kod lisansından ayrı marka kullanım sınırlarını tanımlar; Apache lisans haklarını marka metniyle daraltma.
+- Katkılar yalnız Apache-2.0 altında, ek veya farklı koşul olmadan alınır. Her katkı commit'i `DCO` metnindeki Developer Certificate of Origin 1.1 beyanına uygun geçerli bir `Signed-off-by` satırı taşımalıdır.
+- Yeni veya değiştirilen görsel/binary varlıkların kaynağını, üretim yöntemini, hak durumunu ve doğrulama özetini `docs/ASSET_PROVENANCE.md` içinde kaydet. Kişisel bookmark, gerçek profil verisi veya belgesiz üçüncü taraf marka/içeriği yayın varlıklarında kullanma.
+- Yönetişim kararları `GOVERNANCE.md`, yön ve kapsam `ROADMAP.md`, kullanıcı/katkıcı destek rotaları `SUPPORT.md`, güvenlik bildirimleri `SECURITY.md` üzerinden yürütülür; bu belgeler arasındaki bağlantı ve sorumluluk sınırlarını birlikte güncelle.
+- Sürüm yayınında manifest sürümü, `v<manifest-sürümü>` etiketi, kaynak commit'i, arşiv adı ve SHA-256 özeti birebir eşleşmelidir. Chrome ZIP'i `LICENSE.md`, `NOTICE` ve `TRADEMARKS.md` dosyalarını içerir; bakım belgeleri ve yerel üretim çıktıları pakete girmez.

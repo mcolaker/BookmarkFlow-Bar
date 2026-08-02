@@ -55,4 +55,4 @@ Lower steps may be skipped when necessary to protect the community. Enforcement 
 
 This Code of Conduct is adapted from the [Contributor Covenant, version 3.0](https://www.contributor-covenant.org/version/3/0/), stewarded by the Organization for Ethical Source and licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
-This document is distributed under CC BY-SA 4.0. That attribution and license apply to this Code of Conduct only and do not change the proprietary source-available terms governing BookmarkFlow Bar software under [LICENSE.md](LICENSE.md).
+This document is distributed under CC BY-SA 4.0. That attribution and license apply to this Code of Conduct only. BookmarkFlow Bar software is licensed separately under [Apache License 2.0](LICENSE.md), and project marks are covered by [TRADEMARKS.md](TRADEMARKS.md).

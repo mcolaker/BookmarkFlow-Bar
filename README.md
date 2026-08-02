@@ -9,9 +9,11 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/actions/workflows/validate.yml"><img alt="Validation status" src="https://github.com/mcolaker/BookmarkFlow-Bar/actions/workflows/validate.yml/badge.svg?branch=main"></a>
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
   <img alt="Vanilla JavaScript" src="https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=111111">
-  <img alt="Version 0.1.36" src="https://img.shields.io/badge/version-0.1.36-F2C94C">
+  <img alt="Version 0.1.37" src="https://img.shields.io/badge/version-0.1.37-F2C94C">
+  <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
 
@@ -20,6 +22,8 @@
   <a href="#feature-tour">Feature tour</a> ·
   <a href="#install-from-source">Install</a> ·
   <a href="#privacy-by-design">Privacy</a> ·
+  <a href="ROADMAP.md">Roadmap</a> ·
+  <a href="GOVERNANCE.md">Governance</a> ·
   <a href="#how-to-support">Support</a> ·
   <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Website</a> ·
   <a href="CONTRIBUTING.md">Contribute</a>
@@ -157,14 +161,16 @@ With Node.js 20 or newer installed:
 ```bash
 node scripts/validate-backlog.mjs
 node --test scripts/backlog-contract.test.mjs
+node scripts/validate-open-source.mjs
+node --test scripts/open-source-contract.test.mjs scripts/dco-contract.test.mjs
 node scripts/validate-project.mjs
 node scripts/verify-public-tree.mjs
 node scripts/security-regression.mjs
 ```
 
-The first two checks are platform-independent. The browser regression check additionally requires a locally installed Chromium-based browser.
+The backlog, open-source, DCO, project, and public-tree checks are platform-independent. The browser regression check additionally requires a locally installed Chromium-based browser.
 
-Maintainers can create a versioned extension ZIP and SHA-256 checksum from a release tag with `node scripts/package-release.mjs v0.1.36`.
+Maintainers can create a versioned extension ZIP and SHA-256 checksum from a release tag with `node scripts/package-release.mjs v0.1.37`.
 
 ## Browser limitations
 
@@ -185,14 +191,14 @@ If BookmarkFlow improves your daily browsing, you can support its development in
 - **Test new releases** and contribute accessibility, localization, documentation, or narrowly scoped code improvements.
 - **Share BookmarkFlow** with people who want faster bookmark access without moving their library to a separate service.
 
-For security vulnerabilities, do not open a public issue or discussion. Follow the private reporting process in [SECURITY.md](SECURITY.md).
+For additional support routes, see [SUPPORT.md](SUPPORT.md). For security vulnerabilities, do not open a public issue or discussion; follow the private reporting process in [SECURITY.md](SECURITY.md).
 
-Forking this repository does not grant permission to redistribute, relicense, publish modified versions, or use BookmarkFlow commercially. Forks and contributions must comply with [LICENSE.md](LICENSE.md) and [CONTRIBUTING.md](CONTRIBUTING.md); uses outside those terms require prior written permission from the copyright owner.
+The source code is available under Apache License 2.0, including the rights to use, modify, and redistribute it under that license. Publicly distributed forks must use a distinct product identity and must not imply that they are official BookmarkFlow Bar builds; see [TRADEMARKS.md](TRADEMARKS.md).
 
 ## Contributing
 
-Bug reports and focused improvements are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md) before participating. Use the repository's issue templates for reproducible bugs and feature proposals. Please report security concerns privately as described in [SECURITY.md](SECURITY.md).
+Bug reports and focused improvements are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), the [Code of Conduct](CODE_OF_CONDUCT.md), and the [project governance](GOVERNANCE.md) before participating. Contributions use the [Developer Certificate of Origin](DCO). Use the repository's issue templates for reproducible bugs and feature proposals. Please report security concerns privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 
-BookmarkFlow Bar is proprietary source-available software. The repository may be inspected, evaluated, and contributed to, but reuse, redistribution, modification, and commercial use require prior written permission. See [LICENSE.md](LICENSE.md).
+BookmarkFlow Bar is open-source software licensed under [Apache License 2.0](LICENSE.md). Attribution information is in [NOTICE](NOTICE). The software license does not grant rights to the BookmarkFlow Bar, BF, or Maprins Games marks; see [TRADEMARKS.md](TRADEMARKS.md) for the official-build and brand policy.

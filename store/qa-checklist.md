@@ -145,3 +145,10 @@ Run this before submitting a new Chrome Web Store package.
 - Confirm no external analytics, tracking, or network calls were added.
 - Confirm `manifest.json` has only needed permissions.
 - Confirm the upload zip excludes `dist`, `store`, and any `.git` backup folders.
+- Confirm the source tag is exactly `v<manifest version>` and resolves to the reviewed commit used to create the package.
+- Confirm the manifest version, source tag, ZIP filename, release notes, and Chrome Web Store version are identical.
+- Confirm the ZIP contains `LICENSE.md`, `NOTICE`, and `TRADEMARKS.md`, while `DCO`, governance, roadmap, support, code-of-conduct, source documentation, and build scripts remain outside the runtime package.
+- Confirm Apache-2.0 code rights and the separate BookmarkFlow/Maprins Games trademark boundary are readable from the extracted package.
+- Confirm every shipped icon, tour image, and store/promotional image is covered by `docs/ASSET_PROVENANCE.md` and contains only synthetic test content or documented assets.
+- Confirm the extracted package contains no personal bookmark titles, URLs, profiles, credentials, tokens, local paths, or generated test output.
+- Recompute the ZIP SHA-256 digest and confirm it matches the `.sha256` file and the digest recorded for the immutable release tag.
