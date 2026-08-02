@@ -24,6 +24,10 @@ Do not include real personal bookmarks, credentials, tokens, browser profiles, o
 
 The project owner will assess the report, confirm whether it is reproducible, and coordinate a fix before public disclosure when appropriate. Please allow reasonable time for investigation and remediation.
 
+Security triage and disclosure decisions follow the maintainer responsibilities in [GOVERNANCE.md](GOVERNANCE.md). General support questions belong in [GitHub Discussions](https://github.com/mcolaker/BookmarkFlow-Bar/discussions), and planned product work belongs in public issues only after it fits the direction in [ROADMAP.md](ROADMAP.md). Neither route replaces Private Vulnerability Reporting for suspected security defects.
+
+Apache-2.0 licensing, the project trademark policy, and support expectations are documented separately in [LICENSE.md](LICENSE.md), [TRADEMARKS.md](TRADEMARKS.md), and [SUPPORT.md](SUPPORT.md). The open-source license does not change this coordinated disclosure process.
+
 ## Security boundaries
 
 The project intentionally:

@@ -4,6 +4,19 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
+## [0.1.37] — 2026-08-02
+
+### Added
+
+- Add public governance, roadmap, support, trademark, asset-provenance, and Developer Certificate of Origin policies.
+- Add fail-closed license, contribution, provenance, and DCO validation for pull requests.
+
+### Changed
+
+- License the project under Apache License 2.0 while preserving a separate official-brand and trademark policy.
+- Replace store and documentation artwork with reproducible, project-owned compositions that use only synthetic example content.
+- Strengthen release packaging so legal notices, manifest versions, release tags, and public-tree checks remain aligned.
+
 ## [0.1.36] — 2026-08-02
 
 ### Changed

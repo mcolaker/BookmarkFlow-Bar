@@ -4,6 +4,10 @@ title: "[Feature]: "
 labels:
   - enhancement
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Review the public [roadmap](https://github.com/mcolaker/BookmarkFlow-Bar/blob/main/ROADMAP.md) and [governance model](https://github.com/mcolaker/BookmarkFlow-Bar/blob/main/GOVERNANCE.md) first. Use [GitHub Discussions](https://github.com/mcolaker/BookmarkFlow-Bar/discussions) when an idea still needs exploration; open an issue when the problem and expected outcome are actionable.
   - type: textarea
     id: problem
     attributes:
@@ -29,6 +33,8 @@ body:
       label: Project fit
       options:
         - label: The proposal can preserve BookmarkFlow's local-first privacy model.
+          required: true
+        - label: I reviewed the public roadmap and contribution governance.
           required: true
         - label: I searched existing issues and did not find the same request.
           required: true

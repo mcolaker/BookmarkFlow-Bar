@@ -1,5 +1,14 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Questions and community ideas
+    url: https://github.com/mcolaker/BookmarkFlow-Bar/discussions
+    about: Ask for help or explore an idea before opening an actionable issue.
+  - name: Project roadmap
+    url: https://github.com/mcolaker/BookmarkFlow-Bar/blob/main/ROADMAP.md
+    about: Review the current direction before proposing actionable product work.
+  - name: Governance and contribution policy
+    url: https://github.com/mcolaker/BookmarkFlow-Bar/blob/main/GOVERNANCE.md
+    about: Learn how decisions, maintainer responsibilities, and contributions are handled.
   - name: Security vulnerability
     url: https://github.com/mcolaker/BookmarkFlow-Bar/security/advisories/new
     about: Report security issues privately. Do not open a public issue.
