@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - "agent/**"
   pull_request:
 
 permissions:
@@ -17,15 +16,28 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
 
       - name: Validate project structure and JavaScript
         run: node scripts/validate-project.mjs
 
+      - name: Validate canonical backlog contract
+        run: |
+          node scripts/validate-backlog.mjs
+          node --test scripts/backlog-contract.test.mjs
+
       - name: Verify public repository safety
         run: node scripts/verify-public-tree.mjs
+
+      - name: Install Chromium for extension regressions
+        run: npx --yes playwright@1.55.0 install chromium
+
+      - name: Run English Chrome security and localization regression
+        env:
+          BOOKMARKFLOW_CHROME_LANG: en
+        run: node scripts/security-regression.mjs

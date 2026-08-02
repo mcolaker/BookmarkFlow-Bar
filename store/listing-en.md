@@ -53,7 +53,7 @@ https://github.com/09mc/BookmarkFlow-Bar/issues
 
 ## Privacy policy URL
 
-Publish `store/privacy-policy.html` at a stable public HTTPS URL before submitting the extension, then place that URL here.
+https://09mc.github.io/BookmarkFlow-Bar/privacy/
 
 ## Single purpose statement
 

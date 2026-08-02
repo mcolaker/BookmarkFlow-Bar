@@ -11,7 +11,7 @@ Run this before submitting a new Chrome Web Store package.
 - On a fresh install, confirm `src/onboarding.html` opens automatically.
 - On a fresh install, confirm the folder rail is enabled on the left by default.
 - In the onboarding page, choose each profile and confirm the selected state changes.
-- Apply the Yayinci/Gizlilik profile and confirm streamer mode, one-row dense view, and hidden empty-search suggestions are saved.
+- Apply the **Streamer / privacy** profile and confirm streamer mode, one-row compact view, and hidden empty-search suggestions are saved.
 - Reopen the onboarding page from the popup and confirm it loads again.
 
 ## Normal website
@@ -27,11 +27,11 @@ Run this before submitting a new Chrome Web Store package.
 - Press `Alt + Shift + B` and confirm the bar expands/collapses.
 - Press `Alt + Shift + H` and confirm the bar hides/restores.
 - Press `Alt + Shift + M` and confirm streamer mode toggles bookmark labels.
-- Confirm the empty command palette does not list bookmarks when "Bos aramada onerileri gizle" is enabled.
+- Confirm the empty command palette does not list bookmarks when **Hide suggestions before typing** is enabled.
 - Click `+`, confirm the add-bookmark dialog opens with the current page title and URL.
 - Add a test bookmark and confirm it appears in the bar.
 - Add a URL that already exists in the same target and confirm the dialog stays open with a readable warning.
-- Click `Yine de ekle` after the duplicate warning and confirm a duplicate bookmark is created.
+- Click **Add anyway** after the duplicate warning and confirm a duplicate bookmark is created.
 - Open a folder, click `+`, add a test URL, and confirm it is created inside that folder.
 - Type a bookmark title and confirm results filter.
 - Press `ArrowDown` / `ArrowUp` and confirm the active search result changes.
@@ -44,10 +44,10 @@ Run this before submitting a new Chrome Web Store package.
 - Right-click the same folder, choose the default/clear swatch, and confirm it returns to the default folder color.
 - Drag a folder in the folder rail and confirm the yellow insertion marker and mouse-following ghost appear before release.
 - Release a dragged bookmark or folder and confirm the saved Chrome bookmark order actually changes.
-- Use "Bir onceye al" / "Bir sonraya al" on a test bookmark and confirm it moves one slot.
-- Use "En basa al" / "En sona al" on a test bookmark and confirm it moves to the edge.
-- Use "Adresi kopyala" and confirm the bookmark URL is copied.
-- Use "Yer imini sil" on a test bookmark and confirm it is removed from the bar after confirmation.
+- Use **Move earlier** / **Move later** on a test bookmark and confirm it moves one slot.
+- Use **Move to beginning** / **Move to end** on a test bookmark and confirm it moves to the edge.
+- Use **Copy address** and confirm the bookmark URL is copied.
+- Use **Delete bookmark** on a test bookmark and confirm it is removed from the bar after confirmation.
 - Click `x` and confirm the bar becomes a small BF restore button.
 - Click the small BF restore button and confirm the control group returns.
 
@@ -61,7 +61,7 @@ Run this before submitting a new Chrome Web Store package.
 ## Fixed header and admin pages
 
 - Open a URL containing `/wp-admin/`.
-- Confirm the bar docks to the bottom when "Cakisan ust panellerde alta al" is enabled.
+- Confirm the bar docks to the bottom when **Move below conflicting app bars** is enabled.
 - Confirm editor top controls remain clickable.
 - Open a fixed-header app such as TradingView.
 - Confirm the expanded bar docks to the bottom instead of covering the top app surface.
@@ -70,23 +70,23 @@ Run this before submitting a new Chrome Web Store package.
 
 - Open a login-like or payment-like host.
 - Confirm the bar remains visible by default.
-- Confirm the bar auto-hides only when "Giris/odeme sayfalarinda gizle" is enabled.
+- Confirm the bar auto-hides only when **Hide on sign-in and payment pages** is enabled.
 
 ## Popup
 
 - Confirm global enable/disable works.
-- Confirm "Kurulum rehberi" opens the onboarding page.
+- Confirm **Setup guide** opens the onboarding page.
 - Confirm row count changes expanded bar height.
 - Confirm dense view works.
-- Confirm folder rail switches between Kapali, Sol, and Sag.
+- Confirm folder rail switches between Off, Left, and Right.
 - Confirm streamer mode hides bookmark labels in the bar and folder menus.
 - Confirm empty-search suggestions can be hidden/shown.
-- Confirm "Sayfayi asagi it" works on regular pages.
-- Confirm "Bu sitede gizle" hides current site.
-- Confirm "Bu sitede goster" restores current site.
-- Confirm the shortcut guide appears and "Duzenle" opens `chrome://extensions/shortcuts`.
+- Confirm **Move page content down** works on regular pages.
+- Confirm **Hide on this site** hides the current site.
+- Confirm **Show on this site** restores the current site.
+- Confirm the shortcut guide appears and **Edit** opens `chrome://extensions/shortcuts`.
 - Confirm unassigned shortcuts display `-` instead of action-looking text.
-- Confirm "Ayni adli klasorleri birlestir" opens the maintenance page.
+- Confirm **Merge duplicate folders** opens the maintenance page.
 - With test folders of the same title in account and local bookmark storage, confirm both paths and item counts are shown before any write.
 - Confirm an unchecked duplicate group cannot be merged.
 - Merge a selected test group and confirm all children move to the account-synced target.
@@ -129,6 +129,16 @@ Run this before submitting a new Chrome Web Store package.
 - Confirm Google search navigation works.
 - Confirm bookmark strip appears.
 - Confirm folder menus open.
+
+## Localization and accessibility
+
+- Set Chrome's UI language to English, reload the extension, and confirm the manifest, popup, onboarding, new tab, overlay, dialogs, statuses, context actions, confirmations, errors, and ARIA labels are English.
+- Set Chrome's UI language to Turkish, reload the extension, and confirm the same surfaces are Turkish with correct Turkish characters.
+- Navigate every interactive surface using only the keyboard and confirm focus order is logical and the gold focus ring is always visible.
+- Test at 200% browser zoom and confirm primary actions, dialog controls, bookmark titles, folder rails, and status messages remain usable without two-dimensional page scrolling.
+- Enable reduced motion in the operating system and confirm scroll/transition/animation effects are suppressed without hiding state changes.
+- Check essential text and controls against WCAG AA contrast targets; do not approve the package based on visual inspection alone.
+- Confirm context-menu separators are announced as separators and disabled reordering actions cannot receive pointer or keyboard activation.
 
 ## Privacy and package
 

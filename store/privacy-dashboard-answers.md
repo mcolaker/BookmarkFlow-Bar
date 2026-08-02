@@ -37,6 +37,4 @@ BookmarkFlow Bar does not transfer user data to third parties except when the us
 
 ## Privacy policy URL
 
-Host `store/privacy-policy.html` on a public URL before submission. Suggested URL:
-
-https://maprins.games/privacy/bookmarkflow-bar/
+https://09mc.github.io/BookmarkFlow-Bar/privacy/

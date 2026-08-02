@@ -15,6 +15,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - BookmarkFlow new-tab workspace with Google search.
 - Onboarding profiles and an animated feature tour.
 - Streamer mode, per-site visibility controls, and optional sensitive-page hiding.
+- Chrome-native English and Turkish localization, with English as the default locale.
+- A public product page, stable privacy-policy URL, and GitHub support path.
+
+### Changed
+
+- Increased essential interface type and control sizes while preserving the compact power-user layout.
+- Grouped context-menu actions and strengthened keyboard focus visibility.
+- Added reduced-motion handling across the bookmark overlay, new-tab page, popup, onboarding, and maintenance tools.
+- Clarified the project's proprietary source-available licensing terms.
 
 ### Security
 

@@ -1,49 +1,50 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>BookmarkFlow - Klasor Birlestirme</title>
+    <title data-i18n="maintenanceTitle">BookmarkFlow — Folder Maintenance</title>
     <link rel="stylesheet" href="bookmark-maintenance.css">
   </head>
   <body>
     <main class="maintenance">
       <header class="hero">
-        <span class="eyebrow">BOOKMARKFLOW BAKIM</span>
-        <h1>Ayni adli klasorleri birlestir</h1>
-        <p>Yalnizca bu cihazdaki klasorlerin icerigini Google hesabindaki ayni adli klasore tasir.</p>
+        <span class="eyebrow" data-i18n="maintenanceEyebrow">BOOKMARKFLOW MAINTENANCE</span>
+        <h1 data-i18n="maintenanceHeading">Merge duplicate folders</h1>
+        <p data-i18n="maintenanceLead">Move the contents of device-only folders into same-named folders in your Google account.</p>
       </header>
 
-      <section class="notice" aria-label="Guvenlik bilgisi">
-        <strong>Veri kaybi korumasi</strong>
-        <p>Yer imleri silinmez. Yerel klasor ancak tum icerigi tasindiktan ve bos oldugu tekrar dogrulandiktan sonra kaldirilir.</p>
+      <section class="notice" aria-label="Safety information" data-i18n-aria-label="safetyInformation">
+        <strong data-i18n="dataLossProtection">Data-loss protection</strong>
+        <p data-i18n="dataLossProtectionDescription">Bookmarks are never deleted. A local folder is removed only after every item is moved and the folder is confirmed empty.</p>
       </section>
 
       <section class="picker" aria-labelledby="pickerTitle">
         <div class="picker-head">
           <div>
-            <h2 id="pickerTitle">Rayda gosterilecek ek klasorler</h2>
-            <p>Klasorun Chrome'daki konumundan bagimsiz olarak sol veya sag klasor rayina sabitle.</p>
+            <h2 id="pickerTitle" data-i18n="pinnedFolderHeading">Additional folders shown in the rail</h2>
+            <p data-i18n="pinnedFolderDescription">Pin a folder to the left or right rail regardless of its location in Chrome.</p>
           </div>
-          <button id="savePinnedFolders" class="primary" type="button">Ray secimini kaydet</button>
+          <button id="savePinnedFolders" class="primary" type="button" data-i18n="saveRailSelection">Save rail selection</button>
         </div>
         <label class="picker-search">
-          <span>Klasor ara</span>
-          <input id="folderFilter" type="search" autocomplete="off" spellcheck="false" placeholder="Ornek: SIK KULLANILANLAR">
+          <span data-i18n="searchFolders">Search folders</span>
+          <input id="folderFilter" type="search" autocomplete="off" spellcheck="false" placeholder="Example: FAVORITES" data-i18n-placeholder="exampleFolder">
         </label>
         <p id="pinnedStatus" class="status compact-status" role="status" aria-live="polite"></p>
-        <div id="folderPickerList" class="folder-picker-list" aria-label="Yer imi klasorleri"></div>
+        <div id="folderPickerList" class="folder-picker-list" aria-label="Bookmark folders" data-i18n-aria-label="bookmarkFolders"></div>
       </section>
 
-      <section class="toolbar" aria-label="Birlestirme islemleri">
-        <button id="refresh" class="secondary" type="button">Yeniden tara</button>
-        <button id="merge" class="primary" type="button" disabled>Secilenleri Google hesabinda birlestir</button>
+      <section class="toolbar" aria-label="Merge actions" data-i18n-aria-label="mergeActions">
+        <button id="refresh" class="secondary" type="button" data-i18n="rescan">Scan again</button>
+        <button id="merge" class="primary" type="button" disabled data-i18n="mergeSelected">Merge selected folders into Google account</button>
       </section>
 
-      <p id="status" class="status" role="status" aria-live="polite">Yer imi klasorleri taraniyor...</p>
-      <div id="groups" class="groups" aria-label="Ayni adli klasorler"></div>
+      <p id="status" class="status" role="status" aria-live="polite" data-i18n="scanningFolders">Scanning bookmark folders…</p>
+      <div id="groups" class="groups" aria-label="Duplicate folder groups" data-i18n-aria-label="duplicateFolderGroups"></div>
     </main>
 
+    <script src="i18n.js"></script>
     <script src="bookmark-maintenance.js"></script>
   </body>
 </html>

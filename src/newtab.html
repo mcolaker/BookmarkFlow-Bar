@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,16 +9,16 @@
   <body>
     <header class="nt-bookmarks" id="bookmarkBar" hidden>
       <div class="nt-brand">BF</div>
-      <div class="nt-strip" id="bookmarkStrip" role="navigation" aria-label="Yer imleri"></div>
+      <div class="nt-strip" id="bookmarkStrip" role="navigation" aria-label="Bookmarks" data-i18n-aria-label="bookmarks"></div>
       <div class="nt-actions">
-        <button class="nt-icon-button" id="addBookmark" type="button" title="Yer imi ekle" aria-label="Yer imi ekle">+</button>
-        <button class="nt-icon-button" id="scrollLeft" type="button" title="Sola kaydir" aria-label="Sola kaydir">&lsaquo;</button>
-        <button class="nt-icon-button" id="scrollRight" type="button" title="Saga kaydir" aria-label="Saga kaydir">&rsaquo;</button>
+        <button class="nt-icon-button" id="addBookmark" type="button" title="Add bookmark" aria-label="Add bookmark" data-i18n-title="addBookmark" data-i18n-aria-label="addBookmark">+</button>
+        <button class="nt-icon-button" id="scrollLeft" type="button" title="Scroll left" aria-label="Scroll left" data-i18n-title="scrollLeft" data-i18n-aria-label="scrollLeft">&lsaquo;</button>
+        <button class="nt-icon-button" id="scrollRight" type="button" title="Scroll right" aria-label="Scroll right" data-i18n-title="scrollRight" data-i18n-aria-label="scrollRight">&rsaquo;</button>
       </div>
-      <aside class="nt-folder-rail" id="folderRail" aria-label="Klasorler" hidden>
+      <aside class="nt-folder-rail" id="folderRail" aria-label="Folders" data-i18n-aria-label="folders" hidden>
         <div class="nt-folder-rail-head">
-          <span>Klasorler</span>
-          <button class="nt-folder-rail-add" id="addFolder" type="button" title="Klasor ekle" aria-label="Klasor ekle">+</button>
+          <span data-i18n="folders">Folders</span>
+          <button class="nt-folder-rail-add" id="addFolder" type="button" title="Add folder" aria-label="Add folder" data-i18n-title="addFolder" data-i18n-aria-label="addFolder">+</button>
         </div>
         <div class="nt-folder-rail-list" id="folderRailList"></div>
       </aside>
@@ -30,34 +30,35 @@
       <form class="nt-search" id="searchForm" role="search">
         <label class="nt-search-label" for="searchInput">Google</label>
         <div class="nt-search-box">
-          <input id="searchInput" type="search" autocomplete="off" spellcheck="false" placeholder="Google'da ara veya URL yaz">
-          <button type="submit">Ara</button>
+          <input id="searchInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search Google or type a URL" data-i18n-placeholder="newTabSearchPlaceholder">
+          <button type="submit" data-i18n="search">Search</button>
         </div>
       </form>
     </main>
 
     <div class="nt-add" id="addDialog" hidden>
-      <form class="nt-add-panel" id="addForm" aria-label="Yer imi ekle">
+      <form class="nt-add-panel" id="addForm" aria-label="Add bookmark" data-i18n-aria-label="addBookmark">
         <div class="nt-add-head">
-          <strong>Yer imi ekle</strong>
-          <button class="nt-add-close" id="addClose" type="button" title="Kapat" aria-label="Kapat">x</button>
+          <strong data-i18n="addBookmark">Add bookmark</strong>
+          <button class="nt-add-close" id="addClose" type="button" title="Close" aria-label="Close" data-i18n-title="close" data-i18n-aria-label="close">×</button>
         </div>
         <label class="nt-add-field">
-          <span>Baslik</span>
+          <span data-i18n="title">Title</span>
           <input id="addTitle" type="text" autocomplete="off" spellcheck="false">
         </label>
         <label class="nt-add-field">
-          <span>Adres</span>
+          <span data-i18n="address">Address</span>
           <input id="addUrl" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
         </label>
         <p class="nt-add-status" id="addStatus" aria-live="polite"></p>
         <div class="nt-add-actions">
-          <button class="nt-add-secondary" id="addCancel" type="button">Vazgec</button>
-          <button class="nt-add-primary" id="addSubmit" type="submit">Ekle</button>
+          <button class="nt-add-secondary" id="addCancel" type="button" data-i18n="cancel">Cancel</button>
+          <button class="nt-add-primary" id="addSubmit" type="submit" data-i18n="add">Add</button>
         </div>
       </form>
     </div>
 
+    <script src="i18n.js"></script>
     <script src="settings.js"></script>
     <script src="newtab.js"></script>
   </body>

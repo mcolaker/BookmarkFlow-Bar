@@ -4,6 +4,7 @@ const {
   isSafeBookmarkUrl,
   normalizeSettings
 } = BookmarkFlowConfig;
+const { t } = BookmarkFlowI18n;
 
 const NEWTAB_SCROLL_STORAGE_KEY = "bfNewTabScrollLeft";
 const SCROLL_SAVE_DELAY = 160;
@@ -159,8 +160,8 @@ function render() {
     const empty = document.createElement("div");
     empty.className = "nt-empty";
     empty.textContent = hasFolderRail && folders.length
-      ? "Direkt yer imi yok; klasorler rayda."
-      : "Bookmark bar klasoru bos.";
+      ? t("directBookmarksEmpty")
+      : t("bookmarkBarEmpty");
     elements.bookmarkStrip.append(empty);
   }
 
@@ -170,7 +171,7 @@ function render() {
   if (hasFolderRail && !folders.length) {
     const empty = document.createElement("div");
     empty.className = "nt-empty";
-    empty.textContent = "Klasor yok.";
+    empty.textContent = t("noFolders");
     elements.folderRailList.append(empty);
   }
 
@@ -275,7 +276,7 @@ function openAddBookmarkDialog() {
   elements.addDialog.dataset.parentId = suggestion.parentId || "";
   elements.addTitle.value = suggestion.title;
   elements.addUrl.value = suggestion.url;
-  renderAddBookmarkStatus(suggestion.status || (suggestion.url ? "" : "Eklenecek adresi yaz."), false);
+  renderAddBookmarkStatus(suggestion.status || (suggestion.url ? "" : t("enterAddressToAdd")), false);
   elements.addDialog.hidden = false;
   requestAnimationFrame(() => {
     (elements.addUrl.value ? elements.addTitle : elements.addUrl).focus();
@@ -296,13 +297,13 @@ async function handleAddBookmarkSubmit(event) {
   const parentId = elements.addDialog.dataset.parentId || "";
   const allowDuplicate = Boolean(elements.addDialog.dataset.duplicateUrl && areBookmarkUrlsEqual(elements.addDialog.dataset.duplicateUrl, url) && (elements.addDialog.dataset.duplicateParentId || "") === parentId);
   if (!url || !isSafeBookmarkUrl(url)) {
-    renderAddBookmarkStatus("Gecerli bir http, https veya mailto adresi gir.", true);
+    renderAddBookmarkStatus(t("validUrlRequired"), true);
     elements.addUrl.focus();
     return;
   }
 
   elements.addSubmit.disabled = true;
-  renderAddBookmarkStatus("Ekleniyor...", false);
+  renderAddBookmarkStatus(t("adding"), false);
 
   const response = await sendMessage({
     type: "BF_CREATE_BOOKMARK",
@@ -315,7 +316,7 @@ async function handleAddBookmarkSubmit(event) {
   elements.addSubmit.disabled = false;
 
   if (!response?.ok) {
-    renderAddBookmarkStatus(response?.error || "Yer imi eklenemedi.", true);
+    renderAddBookmarkStatus(response?.error || t("bookmarkAddFailed"), true);
     return;
   }
 
@@ -326,7 +327,7 @@ async function handleAddBookmarkSubmit(event) {
   }
 
   resetAddDuplicateState();
-  renderAddBookmarkStatus(parentId ? "Yer imi klasore eklendi." : "Yer imi eklendi.", false);
+  renderAddBookmarkStatus(parentId ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
   window.setTimeout(() => {
     closeAddBookmarkDialog();
     render();
@@ -341,21 +342,21 @@ function getAddBookmarkSuggestion() {
     title: url ? getHostname(url) : "",
     url: url && isSafeBookmarkUrl(url) ? url : "",
     parentId: folder && !folder.url ? folder.id : "",
-    status: folder && !folder.url ? `${folder.title || "Klasor"} klasorune eklenecek.` : ""
+    status: folder && !folder.url ? t("willAddToFolder", folder.title || t("folder")) : ""
   };
 }
 
 function markAddDuplicateState(url, parentId) {
   elements.addDialog.dataset.duplicateUrl = url;
   elements.addDialog.dataset.duplicateParentId = parentId || "";
-  elements.addSubmit.textContent = "Yine de ekle";
-  renderAddBookmarkStatus("Bu hedefte bu adres zaten var. Kopya olarak eklemek icin tekrar Ekle.", false);
+  elements.addSubmit.textContent = t("addAnyway");
+  renderAddBookmarkStatus(t("duplicateBookmarkPrompt"), false);
 }
 
 function resetAddDuplicateState() {
   delete elements.addDialog.dataset.duplicateUrl;
   delete elements.addDialog.dataset.duplicateParentId;
-  elements.addSubmit.textContent = "Ekle";
+  elements.addSubmit.textContent = t("add");
 }
 
 function renderAddBookmarkStatus(message, isError) {
@@ -440,9 +441,9 @@ function createTopLevelItem(node) {
   button.dataset.nodeId = node.id;
   button.dataset.ntReorderItem = "true";
   button.dataset.ntReorderScope = "top";
-  button.title = node.title || "Klasor";
+  button.title = node.title || t("folder");
   applyFolderColor(button, node.id);
-  button.append(createFolderIcon(), createTitle(node.title || "Klasor"));
+  button.append(createFolderIcon(), createTitle(node.title || t("folder")));
   button.addEventListener("click", (event) => {
     event.stopPropagation();
     toggleFolder(node.id, button).catch(() => {});
@@ -460,10 +461,10 @@ function createFolderRailItem(node) {
     button.dataset.ntReorderItem = "true";
     button.dataset.ntReorderScope = "top";
   }
-  button.title = node.title || "Klasor";
+  button.title = node.title || t("folder");
   button.classList.toggle("is-active", activeFolderId === node.id);
   applyFolderColor(button, node.id);
-  button.append(createFolderIcon(), createTitle(node.title || "Klasor"));
+  button.append(createFolderIcon(), createTitle(node.title || t("folder")));
   button.addEventListener("click", (event) => {
     event.stopPropagation();
     toggleFolder(node.id, button).catch(() => {});
@@ -602,7 +603,7 @@ function openBookmarkContextMenu(node, clientX, clientY) {
   const canMoveNext = Boolean(location && location.index < location.siblings.length - 1);
   contextMenuState = {
     nodeId: node.id,
-    title: node.title || (node.url ? getHostname(node.url) : "Klasor"),
+    title: node.title || (node.url ? getHostname(node.url) : t("folder")),
     url: node.url || "",
     isFolder
   };
@@ -610,29 +611,33 @@ function openBookmarkContextMenu(node, clientX, clientY) {
   elements.contextMenu.replaceChildren();
   if (node.url) {
     elements.contextMenu.append(
-      createContextMenuButton("open-bookmark-tab", "Yeni sekmede ac"),
-      createContextMenuButton("copy-bookmark-url", "Adresi kopyala"),
-      createContextMenuButton("rename-bookmark", "Adini duzenle")
+      createContextMenuButton("open-bookmark-tab", t("openInNewTab")),
+      createContextMenuButton("copy-bookmark-url", t("copyAddress")),
+      createContextMenuButton("rename-bookmark", t("renameBookmark"))
     );
   } else {
     elements.contextMenu.append(
-      createContextMenuButton("add-bookmark-to-folder", "Bu klasore yer imi ekle"),
-      createContextMenuButton("create-child-folder", "Alt klasor olustur"),
-      createContextMenuButton("rename-bookmark", "Klasoru yeniden adlandir"),
+      createContextMenuButton("add-bookmark-to-folder", t("addBookmarkToFolder")),
+      createContextMenuButton("create-child-folder", t("createChildFolder")),
+      createContextMenuButton("rename-bookmark", t("renameFolder")),
       createFolderColorPicker(node.id)
     );
   }
 
   if (location?.siblings.length > 1) {
     elements.contextMenu.append(
-      createContextMenuButton("move-bookmark-previous", "Bir onceye al", "", !canMovePrevious),
-      createContextMenuButton("move-bookmark-next", "Bir sonraya al", "", !canMoveNext),
-      createContextMenuButton("move-bookmark-first", "En basa al", "", !canMovePrevious),
-      createContextMenuButton("move-bookmark-last", "En sona al", "", !canMoveNext)
+      createContextMenuSeparator(),
+      createContextMenuButton("move-bookmark-previous", t("movePrevious"), "", !canMovePrevious),
+      createContextMenuButton("move-bookmark-next", t("moveNext"), "", !canMoveNext),
+      createContextMenuButton("move-bookmark-first", t("moveFirst"), "", !canMovePrevious),
+      createContextMenuButton("move-bookmark-last", t("moveLast"), "", !canMoveNext)
     );
   }
 
-  elements.contextMenu.append(createContextMenuButton("delete-bookmark", isFolder ? "Klasoru sil" : "Yer imini sil", "is-danger"));
+  elements.contextMenu.append(
+    createContextMenuSeparator(),
+    createContextMenuButton("delete-bookmark", isFolder ? t("deleteFolder") : t("deleteBookmark"), "is-danger")
+  );
   elements.contextMenu.style.left = `${clientX}px`;
   elements.contextMenu.style.top = `${clientY}px`;
   elements.contextMenu.hidden = false;
@@ -653,6 +658,13 @@ function createContextMenuButton(action, label, className = "", disabled = false
   return button;
 }
 
+function createContextMenuSeparator() {
+  const separator = document.createElement("div");
+  separator.className = "nt-context-separator";
+  separator.setAttribute("role", "separator");
+  return separator;
+}
+
 function createFolderColorPicker(nodeId) {
   const currentColor = getFolderColor(nodeId);
   const section = document.createElement("div");
@@ -660,7 +672,7 @@ function createFolderColorPicker(nodeId) {
 
   const label = document.createElement("span");
   label.className = "nt-context-colors-label";
-  label.textContent = "Renk";
+  label.textContent = t("color");
   section.append(label);
 
   const swatches = document.createElement("div");
@@ -673,7 +685,7 @@ function createFolderColorPicker(nodeId) {
     swatch.dataset.ntAction = `set-folder-color:${preset.value}`;
     swatch.style.setProperty("--nt-swatch-color", preset.value);
     swatch.title = preset.label;
-    swatch.setAttribute("aria-label", `${preset.label} klasor rengi`);
+    swatch.setAttribute("aria-label", t("folderColorAria", preset.label));
     swatch.classList.toggle("is-selected", currentColor === preset.value);
     swatches.append(swatch);
   });
@@ -682,8 +694,8 @@ function createFolderColorPicker(nodeId) {
   clear.type = "button";
   clear.className = "nt-context-swatch is-clear";
   clear.dataset.ntAction = "clear-folder-color";
-  clear.title = "Varsayilan";
-  clear.setAttribute("aria-label", "Varsayilan klasor rengi");
+  clear.title = t("clearColor");
+  clear.setAttribute("aria-label", t("clearColor"));
   clear.classList.toggle("is-selected", !currentColor);
   swatches.append(clear);
 
@@ -787,8 +799,8 @@ async function deleteContextBookmark() {
   }
 
   const message = state.isFolder
-    ? `"${state.title}" klasoru ve icindeki tum yer imleri silinsin mi?`
-    : `"${state.title}" yer imi silinsin mi?`;
+    ? t("confirmDeleteFolder", state.title)
+    : t("confirmDeleteBookmark", state.title);
   if (!window.confirm(message)) {
     return;
   }
@@ -806,7 +818,7 @@ async function deleteContextBookmark() {
     return;
   }
 
-  window.alert(response?.error || "Yer imi silinemedi.");
+  window.alert(response?.error || t("bookmarkDeleteFailed"));
 }
 
 async function renameContextBookmark() {
@@ -815,14 +827,14 @@ async function renameContextBookmark() {
     return;
   }
 
-  const nextTitle = window.prompt(state.isFolder ? "Klasor adi" : "Yer imi adi", state.title || "");
+  const nextTitle = window.prompt(state.isFolder ? t("folderName") : t("bookmarkName"), state.title || "");
   if (nextTitle === null) {
     return;
   }
 
   const title = nextTitle.trim();
   if (!title) {
-    window.alert("Ad bos olamaz.");
+    window.alert(t("nameRequired"));
     return;
   }
 
@@ -839,7 +851,7 @@ async function renameContextBookmark() {
     return;
   }
 
-  window.alert(response?.error || "Ad duzenlenemedi.");
+  window.alert(response?.error || t("bookmarkRenameFailed"));
 }
 
 function openAddBookmarkForContextFolder() {
@@ -872,7 +884,7 @@ async function setContextFolderColor(color) {
     return;
   }
 
-  window.alert(response?.error || "Klasor rengi kaydedilemedi.");
+  window.alert(response?.error || t("folderColorFailed"));
 }
 
 async function moveContextBookmarkByStep(direction) {
@@ -938,7 +950,7 @@ async function moveContextBookmark(location, target, placement) {
     return;
   }
 
-  window.alert(response?.error || "Yer imi tasinamadi.");
+  window.alert(response?.error || t("bookmarkMoveFailed"));
 }
 
 function handleBookmarkPointerDown(event) {
@@ -1033,7 +1045,7 @@ function finishBookmarkDrag(event) {
 
     if (state.targetId && state.targetId !== state.sourceId) {
       moveBookmark(state).catch((error) => {
-        window.alert(error?.message || "Yer imi tasinamadi.");
+        window.alert(error?.message || t("bookmarkMoveFailed"));
       });
     }
   }
@@ -1309,7 +1321,7 @@ async function moveBookmark(state) {
     });
 
   if (!response?.ok) {
-    window.alert(response?.error || "Yer imi tasinamadi.");
+    window.alert(response?.error || t("bookmarkMoveFailed"));
     return;
   }
 
@@ -1352,7 +1364,7 @@ function openFolderMenu(folderId, anchor) {
   if (!entries.length) {
     const empty = document.createElement("div");
     empty.className = "nt-empty";
-    empty.textContent = "Bu klasorde yer imi yok.";
+    empty.textContent = t("noBookmarksInFolder");
     elements.folderMenu.append(empty);
   } else {
     entries.slice(0, 120).forEach((entry) => {
@@ -1535,14 +1547,14 @@ function clamp(value, min, max) {
 
 async function createFolderFromPrompt(parentId = "") {
   closeContextMenu();
-  const title = window.prompt(parentId ? "Alt klasor adi" : "Yeni klasor adi", "Yeni klasor");
+  const title = window.prompt(parentId ? t("childFolderName") : t("newFolderName"), t("newFolderDefault"));
   if (title === null) {
     return;
   }
 
   const trimmedTitle = title.trim();
   if (!trimmedTitle) {
-    window.alert("Klasor adi bos olamaz.");
+    window.alert(t("folderNameRequired"));
     return;
   }
 
@@ -1552,7 +1564,7 @@ async function createFolderFromPrompt(parentId = "") {
     parentId
   });
   if (!response?.ok) {
-    window.alert(response?.error || "Klasor olusturulamadi.");
+    window.alert(response?.error || t("folderCreateFailed"));
     return;
   }
 
@@ -1613,7 +1625,7 @@ function handleDocumentClick(event) {
     event.preventDefault();
     event.stopPropagation();
     handleContextAction(actionButton.dataset.ntAction).catch((error) => {
-      window.alert(error?.message || "Islem tamamlanamadi.");
+      window.alert(error?.message || t("genericOperationFailed"));
     });
     return;
   }

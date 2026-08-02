@@ -13,6 +13,11 @@ const markerUrl = "https://private.example/bookmarkflow-security-marker";
 const injectedUrl = "https://attacker.example/bookmarkflow-synthetic-create";
 const localOnlyHost = "private-console.example";
 const overlayLegitimateUrl = "https://legitimate.example/bookmarkflow-overlay";
+const requestedLanguage = (process.env.BOOKMARKFLOW_CHROME_LANG || "en").toLowerCase().startsWith("tr") ? "tr" : "en";
+const expectedOnboardingHeading = {
+  en: "Set up your workspace in one minute",
+  tr: "Çalışma alanınızı bir dakikada kurun"
+};
 
 async function main() {
 const tourGeneratorSource = await fs.readFile(path.join(projectRoot, "scripts", "generate-tour-gifs.mjs"), "utf8");
@@ -24,25 +29,35 @@ const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), "bookmarkflow-securit
 const server = await startHostileServer();
 const debugPort = await getFreePort();
 const chrome = spawn(chromePath, [
-  "--headless=new",
+  ...(process.env.BOOKMARKFLOW_HEADLESS === "0" ? [] : ["--headless=new"]),
+  ...(process.platform === "linux" ? ["--no-sandbox", "--disable-dev-shm-usage"] : []),
   "--disable-gpu",
   "--disable-sync",
+  `--lang=${requestedLanguage}`,
   "--no-default-browser-check",
   "--no-first-run",
   `--remote-debugging-port=${debugPort}`,
   `--user-data-dir=${profileDir}`,
+  `--host-resolver-rules=MAP payment.example 127.0.0.1`,
   `--disable-extensions-except=${projectRoot}`,
   `--load-extension=${projectRoot}`,
   "about:blank"
 ], {
-  stdio: "ignore",
+  stdio: ["ignore", "ignore", "pipe"],
   windowsHide: true
+});
+let chromeStderr = "";
+chrome.stderr?.on("data", (chunk) => {
+  chromeStderr = `${chromeStderr}${chunk}`.slice(-4000);
 });
 
 let cdp;
 
 try {
-  const browserSocket = await waitForDebugger(debugPort);
+  const browserSocket = await waitForDebugger(debugPort, () => ({
+    exitCode: chrome.exitCode,
+    stderr: chromeStderr.trim()
+  }));
   cdp = await CdpClient.connect(browserSocket);
 
   const hostilePage = await createPage(cdp, server.url);
@@ -52,9 +67,15 @@ try {
   await waitFor(cdp, workerSession, `
     typeof chrome !== "undefined" &&
     Boolean(chrome.bookmarks && chrome.storage) &&
-    chrome.runtime.getManifest().name === "BookmarkFlow Bar" &&
+    chrome.i18n.getMessage("appName") === "BookmarkFlow Bar" &&
     typeof getState === "function"
   `);
+  const locale = await evaluate(cdp, workerSession, `({
+    language: chrome.i18n.getUILanguage().toLowerCase().startsWith("tr") ? "tr" : "en",
+    onboardingHeading: chrome.i18n.getMessage("onboardingHeading")
+  })`);
+  assert.equal(locale.language, requestedLanguage, `Chrome locale mismatch: requested ${requestedLanguage}, got ${locale.language}`);
+  assert.equal(locale.onboardingHeading, expectedOnboardingHeading[requestedLanguage], "Chrome i18n message does not match the requested locale");
 
   await evaluate(cdp, workerSession, `
     (async () => {
@@ -138,24 +159,74 @@ try {
 
   const newTab = await createPage(cdp, `chrome-extension://${extensionId}/src/newtab.html`);
   await waitFor(cdp, newTab, "document.readyState === 'complete' && !document.querySelector('#bookmarkBar').hidden");
+  const newTabLocale = await evaluate(cdp, newTab, `({
+    language: document.documentElement.lang,
+    folderLabel: document.querySelector('[data-i18n="folders"]')?.textContent
+  })`);
+  assert.equal(newTabLocale.language, requestedLanguage, "New-tab document language was not localized");
+  assert.equal(newTabLocale.folderLabel, chromeMessageFor(requestedLanguage, "Folders", "Klasörler"), "New-tab static copy was not localized");
+
+  const onboarding = await createPage(cdp, `chrome-extension://${extensionId}/src/onboarding.html`);
+  await waitFor(cdp, onboarding, "document.readyState === 'complete' && document.querySelector('[data-i18n=\"onboardingHeading\"]')?.textContent");
+  const onboardingLocale = await evaluate(cdp, onboarding, `({
+    language: document.documentElement.lang,
+    heading: document.querySelector('[data-i18n="onboardingHeading"]')?.textContent
+  })`);
+  assert.equal(onboardingLocale.language, requestedLanguage, "Onboarding document language was not localized");
+  assert.equal(onboardingLocale.heading, expectedOnboardingHeading[requestedLanguage], "Onboarding visible heading was not localized");
   await trustedClick(cdp, newTab, "#addBookmark");
   await waitFor(cdp, newTab, "!document.querySelector('#addDialog').hidden");
   await fillInput(cdp, newTab, "#addTitle", "Legitimate UI bookmark");
   await fillInput(cdp, newTab, "#addUrl", "https://legitimate.example/bookmarkflow-ui");
   await trustedClick(cdp, newTab, "#addSubmit");
-  await waitFor(cdp, newTab, "document.querySelector('#addStatus').textContent.includes('eklendi')");
+  await waitFor(cdp, newTab, "document.querySelector('#addStatus').textContent === chrome.i18n.getMessage('bookmarkAdded')");
   const legitimateCreated = await evaluate(cdp, workerSession, `
     (async () => (await chrome.bookmarks.search({ url: "https://legitimate.example/bookmarkflow-ui" })).length > 0)()
   `);
   assert.equal(legitimateCreated, true, "A trusted extension-page UI action no longer creates bookmarks");
 
+  await evaluate(cdp, workerSession, `chrome.storage.sync.set({ autoHideSensitiveSites: true })`);
+  const sensitivePage = await createPage(cdp, `http://payment.example:${server.port}/`);
+  await delay(750);
+  const sensitiveVisibility = await evaluate(cdp, sensitivePage, `({
+    host: window.location.hostname,
+    hostCount: document.querySelectorAll('[id^="bookmarkflow-bar-root"]').length,
+    extensionStylePresent: Boolean(document.getElementById("bookmarkflow-bar-page-style"))
+  })`);
+  assert.equal(sensitiveVisibility.host, "payment.example", "Sensitive-host smoke page did not resolve to the intended host");
+  assert.equal(sensitiveVisibility.hostCount, 1, "BookmarkFlow rendered on a sensitive host while auto-hide was enabled");
+
+  await evaluate(cdp, workerSession, `
+    Promise.all([
+      chrome.storage.sync.set({ autoHideSensitiveSites: false }),
+      chrome.storage.local.set({ disabledHosts: ["127.0.0.1"] })
+    ])
+  `);
+  await reloadAndWaitForDocument(cdp, hostilePage);
+  await delay(500);
+  const disabledHostVisibility = await evaluate(cdp, hostilePage, `({
+    hostCount: document.querySelectorAll('[id^="bookmarkflow-bar-root"]').length,
+    extensionStylePresent: Boolean(document.getElementById("bookmarkflow-bar-page-style"))
+  })`);
+  assert.equal(disabledHostVisibility.hostCount, 1, "BookmarkFlow rendered on a host disabled by the user");
+
   console.log(JSON.stringify({
     status: "pass",
+    locale: {
+      requested: requestedLanguage,
+      worker: locale,
+      newTab: newTabLocale,
+      onboarding: onboardingLocale
+    },
     disclosure,
     syntheticSubmitBlocked: !syntheticCreated,
     legitimateOverlayBookmarkCreate: "pass",
     localHostMigration: "pass",
     legitimateBookmarkCreate: "pass",
+    visibilityDecisions: {
+      sensitiveHost: sensitiveVisibility,
+      disabledHost: disabledHostVisibility
+    },
     profileDirOutsideProject: !profileDir.startsWith(`${projectRoot}${path.sep}`),
     tourProfileLocation: "os-temporary"
   }, null, 2));
@@ -167,6 +238,10 @@ try {
   await waitForProcessExit(chrome);
   await closeServer(server.instance);
   await removeTemporaryProfile(profileDir);
+}
+
+function chromeMessageFor(language, english, turkish) {
+  return language === "tr" ? turkish : english;
 }
 }
 
@@ -193,8 +268,14 @@ async function findChrome() {
 }
 
 async function findPlaywrightChromium() {
-  if (process.platform !== "win32" || !process.env.LOCALAPPDATA) return [];
-  const root = path.join(process.env.LOCALAPPDATA, "ms-playwright");
+  const root = process.platform === "win32" && process.env.LOCALAPPDATA
+    ? path.join(process.env.LOCALAPPDATA, "ms-playwright")
+    : process.platform === "darwin" && process.env.HOME
+      ? path.join(process.env.HOME, "Library", "Caches", "ms-playwright")
+      : process.env.HOME
+        ? path.join(process.env.HOME, ".cache", "ms-playwright")
+        : "";
+  if (!root) return [];
   let entries;
   try {
     entries = await fs.readdir(root, { withFileTypes: true });
@@ -202,10 +283,23 @@ async function findPlaywrightChromium() {
     return [];
   }
 
-  return entries
+  const chromiumRoots = entries
     .filter((entry) => entry.isDirectory() && /^chromium-\d+$/.test(entry.name))
-    .sort((left, right) => right.name.localeCompare(left.name, "en", { numeric: true }))
-    .map((entry) => path.join(root, entry.name, "chrome-win", "chrome.exe"));
+    .sort((left, right) => right.name.localeCompare(left.name, "en", { numeric: true }));
+
+  if (process.platform === "win32") {
+    return chromiumRoots.map((entry) => path.join(root, entry.name, "chrome-win", "chrome.exe"));
+  }
+  if (process.platform === "darwin") {
+    return chromiumRoots.flatMap((entry) => [
+      path.join(root, entry.name, "chrome-mac", "Chromium.app", "Contents", "MacOS", "Chromium"),
+      path.join(root, entry.name, "chrome-mac-arm64", "Chromium.app", "Contents", "MacOS", "Chromium")
+    ]);
+  }
+  return chromiumRoots.flatMap((entry) => [
+    path.join(root, entry.name, "chrome-linux", "chrome"),
+    path.join(root, entry.name, "chrome-linux64", "chrome")
+  ]);
 }
 
 async function startHostileServer() {
@@ -223,7 +317,7 @@ async function startHostileServer() {
     instance.listen(0, "127.0.0.1", resolve);
   });
   const address = instance.address();
-  return { instance, url: `http://127.0.0.1:${address.port}/` };
+  return { instance, port: address.port, url: `http://127.0.0.1:${address.port}/` };
 }
 
 async function closeServer(server) {
@@ -242,7 +336,7 @@ async function getFreePort() {
   return port;
 }
 
-async function waitForDebugger(port) {
+async function waitForDebugger(port, getDiagnostics = () => ({})) {
   const deadline = Date.now() + 15000;
   let lastError;
   while (Date.now() < deadline) {
@@ -255,9 +349,11 @@ async function waitForDebugger(port) {
     } catch (error) {
       lastError = error;
     }
+    if (getDiagnostics().exitCode !== null) break;
     await delay(100);
   }
-  throw new Error(`Chrome DevTools did not start: ${lastError?.message || "timeout"}`);
+  const diagnostics = getDiagnostics();
+  throw new Error(`Chrome DevTools did not start: ${lastError?.message || "timeout"}; diagnostics: ${JSON.stringify(diagnostics)}`);
 }
 
 async function createPage(cdp, url) {
@@ -295,6 +391,11 @@ async function reloadAndWaitForContentScript(cdp, sessionId) {
   await waitFor(cdp, sessionId, "document.readyState === 'complete'");
   await waitFor(cdp, sessionId, "Boolean(document.getElementById('bookmarkflow-bar-page-style'))");
   await waitFor(cdp, sessionId, "document.querySelectorAll('[id^=\"bookmarkflow-bar-root\"]').length >= 2");
+}
+
+async function reloadAndWaitForDocument(cdp, sessionId) {
+  await cdp.call("Page.reload", { ignoreCache: true }, sessionId);
+  await waitFor(cdp, sessionId, "document.readyState === 'complete'");
 }
 
 async function waitFor(cdp, sessionId, expression, timeoutMs = 10000) {

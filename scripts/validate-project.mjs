@@ -9,7 +9,8 @@ const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 
 const requiredManifestValues = {
   manifest_version: 3,
-  name: "BookmarkFlow Bar",
+  name: "__MSG_appName__",
+  default_locale: "en",
 };
 
 for (const [key, expected] of Object.entries(requiredManifestValues)) {
@@ -33,6 +34,90 @@ const referencedFiles = [
     ...(entry.css ?? []),
   ]),
 ].filter(Boolean);
+
+const localeRoot = join(root, "_locales");
+const requiredLocales = ["en", "tr"];
+const localeMessages = new Map();
+
+for (const locale of requiredLocales) {
+  const path = join(localeRoot, locale, "messages.json");
+  if (!existsSync(path)) {
+    throw new Error(`Missing required locale file: _locales/${locale}/messages.json`);
+  }
+  localeMessages.set(locale, JSON.parse(readFileSync(path, "utf8")));
+}
+
+const defaultMessages = localeMessages.get(manifest.default_locale);
+for (const [key, value] of Object.entries(manifest)) {
+  if (typeof value !== "string") continue;
+  const match = value.match(/^__MSG_([A-Za-z0-9_]+)__$/u);
+  if (match && !defaultMessages?.[match[1]]?.message) {
+    throw new Error(`manifest.json references a missing default-locale message: ${match[1]}`);
+  }
+}
+
+const defaultKeys = Object.keys(defaultMessages).sort();
+for (const [locale, messages] of localeMessages) {
+  const keys = Object.keys(messages).sort();
+  if (JSON.stringify(keys) !== JSON.stringify(defaultKeys)) {
+    const missing = defaultKeys.filter((key) => !keys.includes(key));
+    const extra = keys.filter((key) => !defaultKeys.includes(key));
+    throw new Error(`Locale ${locale} does not match en keys. Missing: ${missing.join(", ") || "none"}; extra: ${extra.join(", ") || "none"}`);
+  }
+}
+
+const usedMessageKeys = new Set();
+const manifestSource = JSON.stringify(manifest);
+for (const match of manifestSource.matchAll(/__MSG_([A-Za-z0-9_]+)__/gu)) {
+  usedMessageKeys.add(match[1]);
+}
+
+for (const directory of [join(root, "src")]) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    if (!entry.isFile() || ![".html", ".js"].includes(extname(entry.name))) continue;
+    const source = readFileSync(join(directory, entry.name), "utf8");
+    for (const match of source.matchAll(/\bt\(\s*["']([A-Za-z0-9_]+)["']/gu)) {
+      usedMessageKeys.add(match[1]);
+    }
+    for (const match of source.matchAll(/data-i18n(?:-[a-z-]+)?=["']([A-Za-z0-9_]+)["']/gu)) {
+      usedMessageKeys.add(match[1]);
+    }
+  }
+}
+
+const undefinedMessageKeys = [...usedMessageKeys].filter((key) => !defaultMessages[key]?.message).sort();
+if (undefinedMessageKeys.length) {
+  throw new Error(`Undefined localization keys: ${undefinedMessageKeys.join(", ")}`);
+}
+
+const extensionPages = [
+  "src/popup.html",
+  "src/newtab.html",
+  "src/onboarding.html",
+  "src/bookmark-maintenance.html"
+];
+for (const page of extensionPages) {
+  const source = readFileSync(join(root, page), "utf8");
+  if (!/<html\s+lang="en">/u.test(source)) {
+    throw new Error(`${page}: English must remain the source/default document language`);
+  }
+  if (!/<script\s+src="i18n\.js"><\/script>/u.test(source)) {
+    throw new Error(`${page}: missing i18n.js before page behavior scripts`);
+  }
+}
+
+for (const stylesheet of [
+  "src/content.css",
+  "src/newtab.css",
+  "src/popup.css",
+  "src/onboarding.css",
+  "src/bookmark-maintenance.css"
+]) {
+  const source = readFileSync(join(root, stylesheet), "utf8");
+  if (!/@media\s*\(prefers-reduced-motion:\s*reduce\)/u.test(source)) {
+    throw new Error(`${stylesheet}: missing reduced-motion support`);
+  }
+}
 
 for (const path of new Set(referencedFiles)) {
   if (!existsSync(join(root, path))) {
@@ -78,5 +163,5 @@ for (const path of requiredPresentationFiles) {
 }
 
 console.log(
-  `Validated manifest v${manifest.version}, ${JavaScriptFiles.length} JavaScript files, and ${requiredPresentationFiles.length} presentation files.`,
+  `Validated manifest v${manifest.version}, ${JavaScriptFiles.length} JavaScript files, ${requiredLocales.length} locales, and ${requiredPresentationFiles.length} presentation files.`,
 );
