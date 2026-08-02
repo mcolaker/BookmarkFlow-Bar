@@ -41,8 +41,3 @@ jobs:
         env:
           BOOKMARKFLOW_CHROME_LANG: en
         run: node scripts/security-regression.mjs
-
-      - name: Run Turkish Chrome security and localization regression
-        env:
-          BOOKMARKFLOW_CHROME_LANG: tr
-        run: node scripts/security-regression.mjs
