@@ -21,7 +21,7 @@
   <a href="#install-from-source">Install</a> ·
   <a href="#privacy-by-design">Privacy</a> ·
   <a href="#how-to-support">Support</a> ·
-  <a href="https://09mc.github.io/BookmarkFlow-Bar/">Website</a> ·
+  <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Website</a> ·
   <a href="CONTRIBUTING.md">Contribute</a>
 </p>
 
@@ -82,10 +82,10 @@ Streamer mode switches bookmark labels to an icon-focused presentation in the ba
 
 BookmarkFlow is currently distributed as an unpacked Chrome extension. Use a versioned release package for the most predictable installation.
 
-1. Download the latest source ZIP from [GitHub Releases](https://github.com/09mc/BookmarkFlow-Bar/releases), then extract it. Contributors can clone the repository instead:
+1. Download the latest source ZIP from [GitHub Releases](https://github.com/mcolaker/BookmarkFlow-Bar/releases), then extract it. Contributors can clone the repository instead:
 
    ```bash
-   git clone https://github.com/09mc/BookmarkFlow-Bar.git
+   git clone https://github.com/mcolaker/BookmarkFlow-Bar.git
    ```
 
 2. Open `chrome://extensions` in Chrome.
@@ -117,13 +117,13 @@ BookmarkFlow is designed to work with Chrome's existing bookmark system rather t
 - Only `http:`, `https:`, and `mailto:` bookmark URLs are rendered or opened.
 - The in-page interface runs inside a closed Shadow DOM to reduce interference from page styles and scripts.
 
-See the public [privacy policy](https://09mc.github.io/BookmarkFlow-Bar/privacy/), repository [privacy source](store/privacy-policy.md), and [security policy](SECURITY.md).
+See the public [privacy policy](https://mcolaker.github.io/BookmarkFlow-Bar/privacy/), repository [privacy source](store/privacy-policy.md), and [security policy](SECURITY.md).
 
 ## Languages and accessibility
 
 BookmarkFlow uses Chrome's native extension localization system. English is the default interface language, and Turkish is included as a complete additional locale. The interface follows the browser's UI language automatically.
 
-Keyboard navigation, visible focus states, reduced-motion preferences, semantic labels, and privacy-conscious empty search states are built into the main surfaces. Accessibility is treated as an ongoing product requirement; report a reproducible issue through [GitHub Issues](https://github.com/09mc/BookmarkFlow-Bar/issues).
+Keyboard navigation, visible focus states, reduced-motion preferences, semantic labels, and privacy-conscious empty search states are built into the main surfaces. Accessibility is treated as an ongoing product requirement; report a reproducible issue through [GitHub Issues](https://github.com/mcolaker/BookmarkFlow-Bar/issues).
 
 ## Permissions
 
@@ -180,8 +180,8 @@ If BookmarkFlow improves your daily browsing, you can support its development in
 
 - **Star the repository** to help more Chrome users discover the project.
 - **Watch releases** to follow verified packages and important product updates.
-- **Join [GitHub Discussions](https://github.com/09mc/BookmarkFlow-Bar/discussions)** to ask questions, share workflows, suggest ideas, and help other users.
-- **Report reproducible bugs or focused feature requests** through [GitHub Issues](https://github.com/09mc/BookmarkFlow-Bar/issues).
+- **Join [GitHub Discussions](https://github.com/mcolaker/BookmarkFlow-Bar/discussions)** to ask questions, share workflows, suggest ideas, and help other users.
+- **Report reproducible bugs or focused feature requests** through [GitHub Issues](https://github.com/mcolaker/BookmarkFlow-Bar/issues).
 - **Test new releases** and contribute accessibility, localization, documentation, or narrowly scoped code improvements.
 - **Share BookmarkFlow** with people who want faster bookmark access without moving their library to a separate service.
 

@@ -49,11 +49,11 @@ English
 
 ## Support URL
 
-https://github.com/09mc/BookmarkFlow-Bar/issues
+https://github.com/mcolaker/BookmarkFlow-Bar/issues
 
 ## Privacy policy URL
 
-https://09mc.github.io/BookmarkFlow-Bar/privacy/
+https://mcolaker.github.io/BookmarkFlow-Bar/privacy/
 
 ## Single purpose statement
 

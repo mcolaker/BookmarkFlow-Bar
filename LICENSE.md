@@ -12,4 +12,4 @@ The software is provided “as is,” without warranty of any kind, express or i
 
 For licensing inquiries that do not contain confidential information, open an issue in the official repository:
 
-https://github.com/09mc/BookmarkFlow-Bar/issues
+https://github.com/mcolaker/BookmarkFlow-Bar/issues

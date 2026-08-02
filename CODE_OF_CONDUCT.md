@@ -36,7 +36,7 @@ Report a possible Code of Conduct violation privately by emailing [contact@mapri
 
 Do not open a public GitHub issue for a private conduct report. Reports will be reviewed as promptly and impartially as possible, and identifying information will be shared only when necessary to investigate or address the incident. Retaliation against a person who makes a good-faith report is itself a violation.
 
-Security vulnerabilities are handled separately through [GitHub Private Vulnerability Reporting](https://github.com/09mc/BookmarkFlow-Bar/security/advisories/new), as described in [SECURITY.md](SECURITY.md). If a conduct report concerns the primary project maintainer or the listed reporting channel is unsafe to use, contact [GitHub Support](https://support.github.com/contact/report-abuse) for platform-level abuse reporting.
+Security vulnerabilities are handled separately through [GitHub Private Vulnerability Reporting](https://github.com/mcolaker/BookmarkFlow-Bar/security/advisories/new), as described in [SECURITY.md](SECURITY.md). If a conduct report concerns the primary project maintainer or the listed reporting channel is unsafe to use, contact [GitHub Support](https://support.github.com/contact/report-abuse) for platform-level abuse reporting.
 
 ## Enforcement responsibilities
 

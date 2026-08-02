@@ -7,7 +7,7 @@
 - Reload the extension in Chrome and test the final package.
 - Confirm `manifest.json` version is correct.
 - Confirm no private files are included in the upload zip.
-- Confirm `https://09mc.github.io/BookmarkFlow-Bar/privacy/` is publicly reachable.
+- Confirm `https://mcolaker.github.io/BookmarkFlow-Bar/privacy/` is publicly reachable.
 
 ## Chrome Web Store assets
 
@@ -30,8 +30,8 @@ Recommended:
 - Additional language: Turkish
 - English description: use `store/listing-en.md`
 - Turkish description: use `store/listing-tr.md`
-- Privacy policy URL: `https://09mc.github.io/BookmarkFlow-Bar/privacy/`
-- Support URL: `https://github.com/09mc/BookmarkFlow-Bar/issues`
+- Privacy policy URL: `https://mcolaker.github.io/BookmarkFlow-Bar/privacy/`
+- Support URL: `https://github.com/mcolaker/BookmarkFlow-Bar/issues`
 - Reviewer notes: use `store/reviewer-notes.md`
 - Permission justifications: use `store/permission-justifications.md`
 
