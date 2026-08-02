@@ -19,11 +19,22 @@ Thank you for helping improve BookmarkFlow Bar. Clear, focused contributions are
 
 No package installation or build step is required.
 
+## Interface copy and localization
+
+English is the default UI language and Turkish is the maintained additional locale. Put user-facing interface copy in Chrome localization messages rather than hard-coding it in HTML or JavaScript.
+
+- Add every message key to both `_locales/en/messages.json` and `_locales/tr/messages.json`.
+- Use `data-i18n` attributes for static HTML copy and `BookmarkFlowI18n.t()` for dynamic copy.
+- Preserve localized ARIA labels, titles, placeholders, status messages, confirmations, and errors—not only visible labels.
+- Run `node scripts/validate-project.mjs`; it rejects mismatched locale key sets and undefined message references.
+
 ## Validation
 
 Run these checks before opening a pull request:
 
 ```bash
+node scripts/validate-backlog.mjs
+node --test scripts/backlog-contract.test.mjs
 node scripts/validate-project.mjs
 node scripts/verify-public-tree.mjs
 node scripts/security-regression.mjs
@@ -42,4 +53,4 @@ Also verify the affected flow manually in Chrome, including keyboard behavior an
 - Preserve accessibility labels, keyboard navigation, safe URL handling, and the closed Shadow DOM boundary.
 - Avoid adding runtime dependencies unless the tradeoff is documented and justified.
 
-By submitting a contribution, you confirm that you have the right to submit the work. Public visibility of this repository does not grant a license for unrelated reuse or redistribution.
+By submitting a contribution, you confirm that you have the right to submit the work and allow the project owner to review and incorporate it into BookmarkFlow Bar. Public visibility of this repository does not grant permission for unrelated reuse or redistribution; see [LICENSE.md](LICENSE.md).

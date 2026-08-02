@@ -3,8 +3,12 @@
 /*
 
 !/.gitignore
+!/.gitattributes
 !/.github/
 !/.github/**
+!/AGENTS.md
+!/_locales/
+!/_locales/**
 !/CHANGELOG.md
 !/CONTRIBUTING.md
 !/README.md

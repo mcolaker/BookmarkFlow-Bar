@@ -20,6 +20,7 @@
   <a href="#feature-tour">Feature tour</a> ·
   <a href="#install-from-source">Install</a> ·
   <a href="#privacy-by-design">Privacy</a> ·
+  <a href="https://09mc.github.io/BookmarkFlow-Bar/">Website</a> ·
   <a href="CONTRIBUTING.md">Contribute</a>
 </p>
 
@@ -78,9 +79,9 @@ Streamer mode switches bookmark labels to an icon-focused presentation in the ba
 
 ## Install from source
 
-BookmarkFlow is currently distributed as an unpacked Chrome extension.
+BookmarkFlow is currently distributed as an unpacked Chrome extension. Use a versioned release package for the most predictable installation.
 
-1. Download this repository with **Code → Download ZIP**, then extract it—or clone it:
+1. Download the latest source ZIP from [GitHub Releases](https://github.com/09mc/BookmarkFlow-Bar/releases), then extract it. Contributors can clone the repository instead:
 
    ```bash
    git clone https://github.com/09mc/BookmarkFlow-Bar.git
@@ -115,7 +116,13 @@ BookmarkFlow is designed to work with Chrome's existing bookmark system rather t
 - Only `http:`, `https:`, and `mailto:` bookmark URLs are rendered or opened.
 - The in-page interface runs inside a closed Shadow DOM to reduce interference from page styles and scripts.
 
-See the full [privacy policy](store/privacy-policy.md) and [security policy](SECURITY.md).
+See the public [privacy policy](https://09mc.github.io/BookmarkFlow-Bar/privacy/), repository [privacy source](store/privacy-policy.md), and [security policy](SECURITY.md).
+
+## Languages and accessibility
+
+BookmarkFlow uses Chrome's native extension localization system. English is the default interface language, and Turkish is included as a complete additional locale. The interface follows the browser's UI language automatically.
+
+Keyboard navigation, visible focus states, reduced-motion preferences, semantic labels, and privacy-conscious empty search states are built into the main surfaces. Accessibility is treated as an ongoing product requirement; report a reproducible issue through [GitHub Issues](https://github.com/09mc/BookmarkFlow-Bar/issues).
 
 ## Permissions
 
@@ -132,12 +139,13 @@ BookmarkFlow uses Manifest V3, semantic HTML, CSS, and vanilla JavaScript. It ha
 
 ```text
 BookmarkFlow-Bar/
+├── _locales/                 English and Turkish Chrome translations
 ├── manifest.json              Extension entry point and permissions
 ├── icons/                     BF application icons
 ├── src/                       Popup, new tab, onboarding, and content UI
 ├── scripts/                   Local validation and regression checks
 ├── store/                     Store listing, privacy, and QA materials
-└── docs/assets/               Repository presentation assets
+└── docs/                      Public product and privacy pages
 ```
 
 ## Local validation
@@ -145,12 +153,16 @@ BookmarkFlow-Bar/
 With Node.js 20 or newer installed:
 
 ```bash
+node scripts/validate-backlog.mjs
+node --test scripts/backlog-contract.test.mjs
 node scripts/validate-project.mjs
 node scripts/verify-public-tree.mjs
 node scripts/security-regression.mjs
 ```
 
 The first two checks are platform-independent. The browser regression check additionally requires a locally installed Chromium-based browser.
+
+Maintainers can create a versioned extension ZIP and SHA-256 checksum from a release tag with `node scripts/package-release.mjs v0.1.35`.
 
 ## Browser limitations
 
@@ -166,4 +178,4 @@ Bug reports and focused improvements are welcome. Read [CONTRIBUTING.md](CONTRIB
 
 ## License
 
-No open-source license has been granted yet. The source is publicly visible for review and evaluation, but reuse, redistribution, and modification require the copyright owner's permission.
+BookmarkFlow Bar is proprietary source-available software. The repository may be inspected, evaluated, and contributed to, but reuse, redistribution, modification, and commercial use require prior written permission. See [LICENSE.md](LICENSE.md).

@@ -27,5 +27,20 @@ jobs:
       - name: Validate project structure and JavaScript
         run: node scripts/validate-project.mjs
 
+      - name: Validate canonical backlog contract
+        run: |
+          node scripts/validate-backlog.mjs
+          node --test scripts/backlog-contract.test.mjs
+
       - name: Verify public repository safety
         run: node scripts/verify-public-tree.mjs
+
+      - name: Run English Chrome security and localization regression
+        env:
+          BOOKMARKFLOW_CHROME_LANG: en
+        run: node scripts/security-regression.mjs
+
+      - name: Run Turkish Chrome security and localization regression
+        env:
+          BOOKMARKFLOW_CHROME_LANG: tr
+        run: node scripts/security-regression.mjs

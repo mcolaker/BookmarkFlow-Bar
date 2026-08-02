@@ -1,4 +1,4 @@
-importScripts("settings.js");
+importScripts("i18n.js", "settings.js");
 
 const {
   DEFAULT_SETTINGS,
@@ -12,6 +12,7 @@ const {
   normalizeSettings,
   normalizeSyncedSettings
 } = BookmarkFlowConfig;
+const { t } = BookmarkFlowI18n;
 
 const MESSAGE_GET_STATE = "BF_GET_STATE";
 const MESSAGE_MOVE_BOOKMARK = "BF_MOVE_BOOKMARK";
@@ -384,7 +385,7 @@ async function moveTopLevelBookmark(message) {
   if (!sourceId || !targetId || sourceId === targetId || sourceIndex < 0 || targetIndex < 0) {
     return {
       ok: false,
-      error: "Invalid bookmark move target."
+      error: t("bookmarkMoveInvalid")
     };
   }
 
@@ -416,14 +417,14 @@ async function moveBookmarkWithinParent(message) {
   if (!sourceId || !targetId || sourceId === targetId || !source || !target || source.parent !== target.parent) {
     return {
       ok: false,
-      error: "Invalid bookmark move target."
+      error: t("bookmarkMoveInvalid")
     };
   }
 
   if (parentId && source.parent.id !== parentId) {
     return {
       ok: false,
-      error: "Invalid bookmark parent."
+      error: t("bookmarkParentInvalid")
     };
   }
 
@@ -434,7 +435,7 @@ async function moveBookmarkWithinParent(message) {
   if (sourceIndex < 0 || targetIndex < 0) {
     return {
       ok: false,
-      error: "Invalid bookmark index."
+      error: t("bookmarkIndexInvalid")
     };
   }
 
@@ -479,7 +480,7 @@ async function deleteBookmark(message) {
   if (!nodeId || !target) {
     return {
       ok: false,
-      error: "Bookmark delete target was not found."
+      error: t("bookmarkDeleteTargetMissing")
     };
   }
 
@@ -503,7 +504,7 @@ async function createBookmark(message) {
   if (!url || !isSafeBookmarkUrl(url)) {
     return {
       ok: false,
-      error: "Gecerli bir http, https veya mailto adresi gir."
+      error: t("validUrlRequired")
     };
   }
 
@@ -513,7 +514,7 @@ async function createBookmark(message) {
   if (!createParent) {
     return {
       ok: false,
-      error: "Yer imi hedef klasoru bulunamadi."
+      error: t("bookmarkTargetFolderMissing")
     };
   }
 
@@ -548,7 +549,7 @@ async function createFolder(message) {
   if (!title) {
     return {
       ok: false,
-      error: "Klasor adi bos olamaz."
+      error: t("folderNameRequired")
     };
   }
 
@@ -558,7 +559,7 @@ async function createFolder(message) {
   if (!createParent) {
     return {
       ok: false,
-      error: "Klasor hedefi bulunamadi."
+      error: t("folderTargetMissing")
     };
   }
 
@@ -583,14 +584,14 @@ async function renameBookmark(message) {
   if (!nodeId || !target) {
     return {
       ok: false,
-      error: "Duzenlenecek oge bulunamadi."
+      error: t("renameTargetMissing")
     };
   }
 
   if (!title) {
     return {
       ok: false,
-      error: "Ad bos olamaz."
+      error: t("nameRequired")
     };
   }
 
@@ -608,7 +609,7 @@ async function setFolderColor(message) {
   if (!nodeId || !target || target.node.url) {
     return {
       ok: false,
-      error: "Renklendirilecek klasor bulunamadi."
+      error: t("folderColorTargetMissing")
     };
   }
 

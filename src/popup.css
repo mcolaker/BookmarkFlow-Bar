@@ -10,7 +10,7 @@
 }
 
 body {
-  width: 318px;
+  width: 360px;
   margin: 0;
   background: #11151d;
 }
@@ -42,7 +42,7 @@ h1 {
 p {
   margin-top: 4px;
   color: rgba(247, 249, 252, 0.62);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .switch {
@@ -112,7 +112,7 @@ p {
 .segments button,
 .primary,
 .secondary {
-  height: 34px;
+  min-height: 38px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 7px;
   background: rgba(255, 255, 255, 0.08);
@@ -198,7 +198,7 @@ p {
 }
 
 .link-button {
-  height: 24px;
+  min-height: 30px;
   padding: 0 9px;
   border: 1px solid rgba(242, 201, 76, 0.34);
   border-radius: 999px;
@@ -238,6 +238,22 @@ p {
     animation: none;
     box-shadow: 0 0 0 3px rgba(242, 201, 76, 0.16);
   }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+button:focus-visible,
+input:focus-visible + span,
+.switch input:focus-visible + span {
+  outline: 2px solid #f2c94c !important;
+  outline-offset: 2px;
 }
 
 .shortcut-list {

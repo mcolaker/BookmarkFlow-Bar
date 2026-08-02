@@ -1,4 +1,5 @@
 const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
+const { getLanguage, t } = BookmarkFlowI18n;
 
 const elements = {
   folderFilter: document.getElementById("folderFilter"),
@@ -68,7 +69,7 @@ function collectSelectableFolders(root) {
 
   visit(root, []);
   return folders.sort((left, right) => {
-    return Number(right.syncing) - Number(left.syncing) || left.title.localeCompare(right.title, "tr");
+    return Number(right.syncing) - Number(left.syncing) || left.title.localeCompare(right.title, getLanguage());
   });
 }
 
@@ -110,7 +111,7 @@ function renderFolderPicker() {
 
     const storage = document.createElement("span");
     storage.className = `folder-choice-storage${folder.syncing ? " is-account" : ""}`;
-    storage.textContent = folder.syncing ? "Google hesabi" : "Bu cihaz";
+    storage.textContent = folder.syncing ? t("googleAccount") : t("thisDevice");
 
     choice.append(checkbox, copy, storage);
     elements.folderPickerList.append(choice);
@@ -119,19 +120,19 @@ function renderFolderPicker() {
   if (!visibleFolders.length) {
     const empty = document.createElement("p");
     empty.className = "empty";
-    empty.textContent = "Bu aramayla eslesen klasor bulunamadi.";
+    empty.textContent = t("noMatchingFolders");
     elements.folderPickerList.append(empty);
   }
 }
 
 async function savePinnedFolders() {
   elements.savePinnedFolders.disabled = true;
-  renderPinnedStatus("Ray secimi kaydediliyor...");
+  renderPinnedStatus(t("savingRailSelection"));
   await chrome.storage.local.set({
     [FOLDER_RAIL_PINNED_STORAGE_KEY]: Array.from(pinnedFolderIds)
   });
   elements.savePinnedFolders.disabled = false;
-  renderPinnedStatus("Kaydedildi. Acik yeni sekme birkac saniye icinde yenilenecek.", "success");
+  renderPinnedStatus(t("railSelectionSaved"), "success");
 }
 
 function normalizePinnedFolderIds(value) {
@@ -155,16 +156,16 @@ function handlePinnedFolderError(error) {
 
 async function loadDuplicateGroups() {
   setBusy(true);
-  renderStatus("Yer imi klasorleri taraniyor...");
+  renderStatus(t("scanningFolders"));
 
   const [root] = await chrome.bookmarks.getTree();
   duplicateGroups = findAccountLocalDuplicateGroups(root);
   renderGroups(duplicateGroups);
 
   if (duplicateGroups.length) {
-    renderStatus(`${duplicateGroups.length} ayni adli Google hesabi / yerel klasor grubu bulundu.`);
+    renderStatus(t("duplicateGroupsFound", duplicateGroups.length));
   } else {
-    renderStatus("Birlestirilecek ayni adli Google hesabi / yerel klasor bulunamadi.", "success");
+    renderStatus(t("noDuplicateGroups"), "success");
   }
 
   setBusy(false);
@@ -210,7 +211,7 @@ function findAccountLocalDuplicateGroups(root) {
       };
     })
     .filter(Boolean)
-    .sort((left, right) => left.title.localeCompare(right.title, "tr"));
+    .sort((left, right) => left.title.localeCompare(right.title, getLanguage()));
 }
 
 function walkBookmarkTree(node, ancestors, folders) {
@@ -248,7 +249,7 @@ function countDescendants(node) {
 }
 
 function compareFolderCandidates(left, right) {
-  return right.totalCount - left.totalCount || left.path.localeCompare(right.path, "tr");
+  return right.totalCount - left.totalCount || left.path.localeCompare(right.path, getLanguage());
 }
 
 function compareMergeSources(left, right) {
@@ -259,7 +260,7 @@ function normalizeFolderTitle(title) {
   return String(title || "")
     .trim()
     .replace(/\s+/g, " ")
-    .toLocaleLowerCase("tr-TR");
+    .toLocaleLowerCase(getLanguage() === "tr" ? "tr-TR" : "en-US");
 }
 
 function renderGroups(groups) {
@@ -268,7 +269,7 @@ function renderGroups(groups) {
   if (!groups.length) {
     const empty = document.createElement("p");
     empty.className = "empty";
-    empty.textContent = "Chrome profilinde iki depolama alaninda bulunan ayni adli klasor yok.";
+    empty.textContent = t("noCrossStorageFolders");
     elements.groups.append(empty);
     return;
   }
@@ -281,7 +282,7 @@ function renderGroups(groups) {
     checkbox.className = "group-check";
     checkbox.type = "checkbox";
     checkbox.checked = group.selected;
-    checkbox.setAttribute("aria-label", `${group.title} klasorlerini sec`);
+    checkbox.setAttribute("aria-label", t("selectFolderGroup", group.title));
     checkbox.addEventListener("change", () => {
       group.selected = checkbox.checked;
       updateMergeButton();
@@ -297,13 +298,13 @@ function renderGroups(groups) {
     const count = document.createElement("span");
     count.className = "group-count";
     const movingCount = group.localFolders.reduce((total, folder) => total + folder.totalCount, 0);
-    count.textContent = `${group.localFolders.length} yerel klasor, ${movingCount} oge`;
+    count.textContent = t("localFolderItemCount", [group.localFolders.length, movingCount]);
     titleRow.append(title, count);
 
     const paths = document.createElement("div");
     paths.className = "paths";
-    appendFolderPaths(paths, "Google hesabinda", group.accountFolders);
-    appendFolderPaths(paths, "Yalnizca cihazda", group.localFolders);
+    appendFolderPaths(paths, t("inGoogleAccount"), group.accountFolders);
+    appendFolderPaths(paths, t("onThisDeviceOnly"), group.localFolders);
 
     body.append(titleRow, paths);
 
@@ -311,12 +312,12 @@ function renderGroups(groups) {
       const targetLabel = document.createElement("label");
       targetLabel.className = "target-label";
       const labelText = document.createElement("span");
-      labelText.textContent = "Hedef Google hesabi klasoru";
+      labelText.textContent = t("targetGoogleFolder");
       const select = document.createElement("select");
       group.accountFolders.forEach((folder) => {
         const option = document.createElement("option");
         option.value = folder.id;
-        option.textContent = `${folder.path} (${folder.totalCount} oge)`;
+        option.textContent = `${folder.path} (${t("itemCount", folder.totalCount)})`;
         option.selected = folder.id === group.targetId;
         select.append(option);
       });
@@ -340,7 +341,7 @@ function appendFolderPaths(container, label, folders) {
     rowLabel.className = "path-label";
     rowLabel.textContent = index === 0 ? label : "";
     const path = document.createElement("span");
-    path.textContent = `${folder.path} (${folder.totalCount} oge)`;
+    path.textContent = `${folder.path} (${t("itemCount", folder.totalCount)})`;
     row.append(rowLabel, path);
     container.append(row);
   });
@@ -352,21 +353,18 @@ async function mergeSelectedGroups() {
     return;
   }
 
-  const folderNames = selectedGroups.map((group) => group.title).join(", ");
   const movingCount = selectedGroups.reduce((groupTotal, group) => {
     return groupTotal + group.localFolders.reduce((folderTotal, folder) => folderTotal + folder.totalCount, 0);
   }, 0);
-  const approved = window.confirm(
-    `${folderNames} klasorlerindeki ${movingCount} oge Google hesabindaki ayni adli klasorlere tasinacak. ` +
-    "Yer imleri silinmeyecek; bos kalan yerel klasorler kaldirilacak. Devam edilsin mi?"
-  );
+  const localFolderCount = selectedGroups.reduce((total, group) => total + group.localFolders.length, 0);
+  const approved = window.confirm(t("mergeConfirmation", [movingCount, localFolderCount]));
 
   if (!approved) {
     return;
   }
 
   setBusy(true);
-  renderStatus("Secilen klasorler birlestiriliyor...");
+  renderStatus(t("mergingFolders"));
 
   await addPinnedFolderIds(selectedGroups.map((group) => group.targetId));
 
@@ -378,7 +376,7 @@ async function mergeSelectedGroups() {
   const failed = results.filter((result) => !result.ok);
   if (failed.length) {
     renderStatus(
-      `Bazi klasorler tamamlanamadi: ${failed.map((result) => `${result.title}: ${result.error}`).join(" | ")}`,
+      t("partialMergeFailed", failed.map((result) => `${result.title}: ${result.error}`).join(" | ")),
       "error"
     );
     setBusy(false);
@@ -388,7 +386,7 @@ async function mergeSelectedGroups() {
   const moved = results.reduce((total, result) => total + result.moved, 0);
   const removed = results.reduce((total, result) => total + result.removed, 0);
   await loadDuplicateGroups();
-  renderStatus(`${moved} oge tasindi; ${removed} bos yerel klasor kaldirildi.`, "success");
+  renderStatus(t("mergeComplete", [moved, removed]), "success");
 }
 
 async function addPinnedFolderIds(folderIds) {
@@ -412,7 +410,7 @@ async function mergeFolderGroup(group) {
     const target = nodesById.get(group.targetId);
 
     if (!isValidMergeTarget(target, group.key)) {
-      throw new Error("Google hesabi hedef klasoru artik bulunamiyor.");
+      throw new Error(t("mergeTargetMissing"));
     }
 
     for (const sourceSummary of group.localFolders) {
@@ -422,11 +420,11 @@ async function mergeFolderGroup(group) {
       const currentTarget = currentNodes.get(group.targetId);
 
       if (!isValidMergeSource(source, group.key) || !isValidMergeTarget(currentTarget, group.key)) {
-        throw new Error("Kaynak veya hedef klasor taramadan sonra degisti.");
+        throw new Error(t("mergeSourceChanged"));
       }
 
       if (containsNode(source, currentTarget.id)) {
-        throw new Error("Hedef klasor kaynak klasorun icinde olamaz.");
+        throw new Error(t("mergeTargetInsideSource"));
       }
 
       const children = [...(source.children || [])];
@@ -437,7 +435,7 @@ async function mergeFolderGroup(group) {
 
       const remainingChildren = await chrome.bookmarks.getChildren(source.id);
       if (remainingChildren.length !== 0) {
-        throw new Error("Yerel klasor bosalmadigi icin kaldirilmadi.");
+        throw new Error(t("mergeSourceNotEmpty"));
       }
 
       await chrome.bookmarks.remove(source.id);

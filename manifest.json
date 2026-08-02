@@ -1,15 +1,17 @@
 {
   "manifest_version": 3,
-  "name": "BookmarkFlow Bar",
+  "name": "__MSG_appName__",
   "version": "0.1.35",
-  "description": "Turn Chrome bookmarks into a customizable multi-row bar, search palette, and focused new-tab workspace.",
+  "description": "__MSG_appDescription__",
+  "default_locale": "en",
+  "homepage_url": "https://09mc.github.io/BookmarkFlow-Bar/",
   "permissions": [
     "bookmarks",
     "storage",
     "favicon"
   ],
   "action": {
-    "default_title": "BookmarkFlow Bar",
+    "default_title": "__MSG_appName__",
     "default_popup": "src/popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
@@ -27,28 +29,28 @@
         "default": "Ctrl+Shift+E",
         "mac": "Ctrl+Shift+E"
       },
-      "description": "Open the BookmarkFlow search palette"
+      "description": "__MSG_commandOpenSearch__"
     },
     "toggle-bar": {
       "suggested_key": {
         "default": "Alt+Shift+B",
         "mac": "Alt+Shift+B"
       },
-      "description": "Expand or collapse the BookmarkFlow bar"
+      "description": "__MSG_commandToggleBar__"
     },
     "hide-restore": {
       "suggested_key": {
         "default": "Alt+Shift+H",
         "mac": "Alt+Shift+H"
       },
-      "description": "Hide or restore BookmarkFlow"
+      "description": "__MSG_commandHideRestore__"
     },
     "toggle-streamer-mode": {
       "suggested_key": {
         "default": "Alt+Shift+M",
         "mac": "Alt+Shift+M"
       },
-      "description": "Turn BookmarkFlow streamer mode on or off"
+      "description": "__MSG_commandStreamerMode__"
     }
   },
   "chrome_url_overrides": {
@@ -60,6 +62,7 @@
         "<all_urls>"
       ],
       "js": [
+        "src/i18n.js",
         "src/settings.js",
         "src/content.js"
       ],

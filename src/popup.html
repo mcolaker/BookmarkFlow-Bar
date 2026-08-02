@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,24 +11,24 @@
       <header class="topline">
         <div>
           <h1>BookmarkFlow</h1>
-          <p>Yer imi ust bari</p>
+          <p data-i18n="popupSubtitle">Your bookmark workspace</p>
         </div>
-        <label class="switch" title="Ust bari ac veya kapat">
+        <label class="switch" title="Turn BookmarkFlow on or off" data-i18n-title="toggleExtensionTitle">
           <input id="enabled" type="checkbox">
           <span></span>
         </label>
       </header>
 
-      <button id="openOnboarding" class="primary setup-button" type="button">Kurulum rehberi</button>
+      <button id="openOnboarding" class="primary setup-button" type="button" data-i18n="setupGuide">Setup guide</button>
 
-      <label class="check" title="Normal web sitelerinde kucuk BF panelini gosterir; yeni sekme sayfasini etkilemez">
+      <label class="check" title="Show the compact BF panel on regular websites without changing the new-tab page" data-i18n-title="showOnSitesTitle">
         <input id="showOnSites" type="checkbox">
-        <span>Web sitelerinde goster</span>
+        <span data-i18n="showOnSites">Show on websites</span>
       </label>
 
       <section class="control">
-        <span class="label">Satir</span>
-        <div class="segments" role="group" aria-label="Satir sayisi">
+        <span class="label" data-i18n="rows">Rows</span>
+        <div class="segments" role="group" aria-label="Number of bookmark rows" data-i18n-aria-label="rowsAria">
           <button type="button" data-rows="1">1</button>
           <button type="button" data-rows="2">2</button>
           <button type="button" data-rows="3">3</button>
@@ -36,88 +36,89 @@
         </div>
       </section>
 
-      <label class="check" title="Daha fazla yer imini daha az alanda gosterir">
+      <label class="check" title="Fit more bookmarks into less space" data-i18n-title="compactViewTitle">
         <input id="compact" type="checkbox">
-        <span>Yogun gorunum</span>
+        <span data-i18n="compactView">Compact view</span>
       </label>
 
       <label class="check">
         <input id="offsetPage" type="checkbox">
-        <span>Sayfayi asagi it</span>
+        <span data-i18n="offsetPage">Move page content down</span>
       </label>
 
       <label class="check">
         <input id="showSearch" type="checkbox">
-        <span>Kalici arama</span>
+        <span data-i18n="persistentSearch">Persistent search</span>
       </label>
 
-      <label class="check" title="Arama paleti bosken yer imlerini listelemez">
+      <label class="check" title="Keep bookmarks hidden while the search palette is empty" data-i18n-title="hideEmptySuggestionsTitle">
         <input id="hideEmptySearchSuggestions" type="checkbox">
-        <span>Bos aramada onerileri gizle</span>
+        <span data-i18n="hideEmptySuggestions">Hide suggestions before typing</span>
       </label>
 
-      <label class="check" title="Yayin ve sunum icin yer imi isimlerini ikon moduna alir">
+      <label class="check" title="Replace bookmark names with icons during streams and presentations" data-i18n-title="streamerModeTitle">
         <input id="streamerMode" type="checkbox">
-        <span>Yayinci modu</span>
+        <span data-i18n="streamerMode">Streamer mode</span>
       </label>
 
       <section class="control">
-        <span class="label">Klasor rayi</span>
-        <div class="segments segments-three" role="group" aria-label="Klasor rayi konumu">
-          <button type="button" data-folder-rail="off">Kapali</button>
-          <button type="button" data-folder-rail="left">Sol</button>
-          <button type="button" data-folder-rail="right">Sag</button>
+        <span class="label" data-i18n="folderRail">Folder rail</span>
+        <div class="segments segments-three" role="group" aria-label="Folder rail position" data-i18n-aria-label="folderRailPosition">
+          <button type="button" data-folder-rail="off" data-i18n="off">Off</button>
+          <button type="button" data-folder-rail="left" data-i18n="left">Left</button>
+          <button type="button" data-folder-rail="right" data-i18n="right">Right</button>
         </div>
       </section>
 
-      <label class="check" title="Istege bagli: giris, odeme ve banka sayfalarinda bari gizler">
+      <label class="check" title="Optionally hide BookmarkFlow on sign-in, checkout, and banking pages" data-i18n-title="autoHideSensitiveTitle">
         <input id="autoHideSensitiveSites" type="checkbox">
-        <span>Giris/odeme sayfalarinda gizle</span>
+        <span data-i18n="autoHideSensitive">Hide on sign-in and payment pages</span>
       </label>
 
-      <label class="check" title="WordPress, TradingView gibi sabit ust panel kullanan sayfalarda genis bari alta alir">
+      <label class="check" title="Dock BookmarkFlow at the bottom on apps with fixed top navigation" data-i18n-title="avoidAppTopBarsTitle">
         <input id="avoidAppTopBars" type="checkbox">
-        <span>Cakisan ust panellerde alta al</span>
+        <span data-i18n="avoidAppTopBars">Move below conflicting app bars</span>
       </label>
 
       <section id="siteControl" class="site-control" hidden>
-        <span id="siteHost" class="label">Bu site</span>
-        <button id="toggleSite" class="secondary" type="button">Bu sitede gizle</button>
+        <span id="siteHost" class="label" data-i18n="thisSite">This site</span>
+        <button id="toggleSite" class="secondary" type="button" data-i18n="hideOnThisSite">Hide on this site</button>
         <p id="siteStatus" class="status"></p>
       </section>
 
       <section class="shortcuts" aria-labelledby="shortcutsTitle">
         <div class="shortcut-head">
-          <span id="shortcutsTitle" class="label">Kisayollar</span>
-          <button id="manageShortcuts" class="link-button" type="button">Duzenle</button>
+          <span id="shortcutsTitle" class="label" data-i18n="shortcuts">Shortcuts</span>
+          <button id="manageShortcuts" class="link-button" type="button" data-i18n="edit">Edit</button>
         </div>
         <dl class="shortcut-list">
           <div class="shortcut-row" data-command="open-search">
-            <dt>Arama paleti</dt>
+            <dt data-i18n="searchPalette">Search palette</dt>
             <dd><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>E</kbd></dd>
           </div>
           <div class="shortcut-row" data-command="toggle-bar">
-            <dt>Bari ac / daralt</dt>
+            <dt data-i18n="expandCollapseBar">Expand / collapse bar</dt>
             <dd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>B</kbd></dd>
           </div>
           <div class="shortcut-row" data-command="hide-restore">
-            <dt>Gizle / geri getir</dt>
+            <dt data-i18n="hideRestore">Hide / restore</dt>
             <dd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>H</kbd></dd>
           </div>
           <div class="shortcut-row" data-command="toggle-streamer-mode">
-            <dt>Yayinci modu</dt>
+            <dt data-i18n="streamerMode">Streamer mode</dt>
             <dd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>M</kbd></dd>
           </div>
           <div class="shortcut-row">
-            <dt>Chrome yer imleri</dt>
+            <dt data-i18n="chromeBookmarks">Chrome bookmarks</dt>
             <dd><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>O</kbd></dd>
           </div>
         </dl>
       </section>
 
-      <button id="openBookmarkMaintenance" class="secondary" type="button">Ayni adli klasorleri birlestir</button>
-      <button id="resetPosition" class="secondary subtle" type="button">Konumu sifirla</button>
+      <button id="openBookmarkMaintenance" class="secondary" type="button" data-i18n="mergeDuplicateFolders">Merge duplicate folders</button>
+      <button id="resetPosition" class="secondary subtle" type="button" data-i18n="resetPosition">Reset panel position</button>
     </main>
+    <script src="i18n.js"></script>
     <script src="settings.js"></script>
     <script src="popup.js"></script>
   </body>

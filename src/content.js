@@ -45,6 +45,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     normalizeHost,
     PANEL_POSITION_STORAGE_KEY
   } = BookmarkFlowConfig;
+  const { t } = BookmarkFlowI18n;
 
   let appState = null;
   let host = null;
@@ -107,7 +108,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (!hasExtensionContext()) {
       return Promise.resolve({
         ok: false,
-        error: "Extension context unavailable."
+        error: t("extensionContextUnavailable")
       });
     }
 
@@ -119,7 +120,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
             handleExtensionContextError(lastError);
             resolve({
               ok: false,
-              error: lastError.message || "Extension context unavailable."
+              error: lastError.message || t("extensionContextUnavailable")
             });
             return;
           }
@@ -130,7 +131,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         handleExtensionContextError(error);
         resolve({
           ok: false,
-          error: error?.message || "Extension context unavailable."
+          error: error?.message || t("extensionContextUnavailable")
         });
       }
     });
@@ -386,7 +387,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (!shouldRenderBar()) {
       return {
         ok: false,
-        error: "BookmarkFlow is not available on this page."
+        error: t("bookmarkFlowUnavailable")
       };
     }
 
@@ -429,7 +430,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     return {
       ok: false,
-      error: "Unknown BookmarkFlow command."
+      error: t("unknownCommand")
     };
   }
 
@@ -668,7 +669,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const app = document.createElement("div");
     app.className = "bf-app is-snoozed";
     app.innerHTML = `
-      <button class="bf-restore" type="button" data-bf-action="restore" data-bf-drag-handle="true" title="Surukle veya BookmarkFlow'u ac" aria-label="Surukle veya BookmarkFlow'u ac">BF</button>
+      <button class="bf-restore" type="button" data-bf-action="restore" data-bf-drag-handle="true" title="${escapeAttribute(t("dragOrOpen"))}" aria-label="${escapeAttribute(t("dragOrOpen"))}">BF</button>
     `;
 
     shadow.append(app);
@@ -700,26 +701,26 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     app.innerHTML = `
       <div class="bf-shell ${settings.compact ? "is-compact" : ""}" style="--bf-rows: ${settings.rows}">
         <div class="bf-layout">
-          <button class="bf-mark" type="button" data-bf-action="toggle-expanded" data-bf-drag-handle="true" title="Surukle veya BookmarkFlow'u genislet" aria-label="Surukle veya BookmarkFlow'u genislet">BF</button>
+          <button class="bf-mark" type="button" data-bf-action="toggle-expanded" data-bf-drag-handle="true" title="${escapeAttribute(t("dragOrExpand"))}" aria-label="${escapeAttribute(t("dragOrExpand"))}">BF</button>
           <div class="bf-main">
             <label class="bf-search" ${settings.showSearch ? "" : "hidden"}>
-              <input type="search" autocomplete="off" spellcheck="false" placeholder="Yer imi ara" value="${escapeAttribute(searchQuery)}">
+              <input type="search" autocomplete="off" spellcheck="false" placeholder="${escapeAttribute(t("bookmarkSearchShortPlaceholder"))}" value="${escapeAttribute(searchQuery)}">
             </label>
-            <div class="bf-grid" role="navigation" aria-label="Yer imleri"></div>
+            <div class="bf-grid" role="navigation" aria-label="${escapeAttribute(t("bookmarks"))}"></div>
           </div>
           <div class="bf-actions">
-            <button class="bf-control" type="button" data-bf-action="add-bookmark" title="Yer imi ekle" aria-label="Yer imi ekle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
-            <button class="bf-control" type="button" data-bf-action="open-search" title="Yer imi ara" aria-label="Yer imi ara"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
-            <button class="bf-control" type="button" data-bf-action="scroll-left" title="Sola kaydir" aria-label="Sola kaydir">&lsaquo;</button>
-            <button class="bf-control" type="button" data-bf-action="scroll-right" title="Saga kaydir" aria-label="Saga kaydir">&rsaquo;</button>
-            <button class="bf-control" type="button" data-bf-action="hide" title="Kucult" aria-label="Kucult">&times;</button>
+            <button class="bf-control" type="button" data-bf-action="add-bookmark" title="${escapeAttribute(t("addBookmark"))}" aria-label="${escapeAttribute(t("addBookmark"))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+            <button class="bf-control" type="button" data-bf-action="open-search" title="${escapeAttribute(t("bookmarkSearch"))}" aria-label="${escapeAttribute(t("bookmarkSearch"))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
+            <button class="bf-control" type="button" data-bf-action="scroll-left" title="${escapeAttribute(t("scrollLeft"))}" aria-label="${escapeAttribute(t("scrollLeft"))}">&lsaquo;</button>
+            <button class="bf-control" type="button" data-bf-action="scroll-right" title="${escapeAttribute(t("scrollRight"))}" aria-label="${escapeAttribute(t("scrollRight"))}">&rsaquo;</button>
+            <button class="bf-control" type="button" data-bf-action="hide" title="${escapeAttribute(t("collapse"))}" aria-label="${escapeAttribute(t("collapse"))}">&times;</button>
           </div>
         </div>
       </div>
-      <div class="bf-folder-rail" role="navigation" aria-label="Klasorler" ${hasFolderRail ? "" : "hidden"}>
+      <div class="bf-folder-rail" role="navigation" aria-label="${escapeAttribute(t("folders"))}" ${hasFolderRail ? "" : "hidden"}>
         <div class="bf-folder-rail-head">
-          <span>Klasorler</span>
-          <button class="bf-folder-rail-add" type="button" data-bf-action="create-folder" title="Klasor ekle" aria-label="Klasor ekle">+</button>
+          <span>${escapeHtml(t("folders"))}</span>
+          <button class="bf-folder-rail-add" type="button" data-bf-action="create-folder" title="${escapeAttribute(t("addFolder"))}" aria-label="${escapeAttribute(t("addFolder"))}">+</button>
         </div>
         <div class="bf-folder-rail-list"></div>
       </div>
@@ -727,31 +728,31 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       <div class="bf-results" hidden></div>
       <div class="bf-context-menu" hidden></div>
       <div class="bf-add" hidden>
-        <form class="bf-add-panel" aria-label="Yer imi ekle">
+        <form class="bf-add-panel" aria-label="${escapeAttribute(t("addBookmark"))}">
           <div class="bf-add-head">
-            <strong>Yer imi ekle</strong>
-            <button class="bf-command-close" type="button" data-bf-action="close-add-bookmark" title="Kapat" aria-label="Kapat">x</button>
+            <strong>${escapeHtml(t("addBookmark"))}</strong>
+            <button class="bf-command-close" type="button" data-bf-action="close-add-bookmark" title="${escapeAttribute(t("close"))}" aria-label="${escapeAttribute(t("close"))}">×</button>
           </div>
           <label class="bf-add-field">
-            <span>Baslik</span>
+            <span>${escapeHtml(t("title"))}</span>
             <input class="bf-add-title" type="text" autocomplete="off" spellcheck="false">
           </label>
           <label class="bf-add-field">
-            <span>Adres</span>
+            <span>${escapeHtml(t("address"))}</span>
             <input class="bf-add-url" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
           </label>
           <p class="bf-add-status" aria-live="polite"></p>
           <div class="bf-add-actions">
-            <button class="bf-add-secondary" type="button" data-bf-action="close-add-bookmark">Vazgec</button>
-            <button class="bf-add-primary" type="submit">Ekle</button>
+            <button class="bf-add-secondary" type="button" data-bf-action="close-add-bookmark">${escapeHtml(t("cancel"))}</button>
+            <button class="bf-add-primary" type="submit">${escapeHtml(t("add"))}</button>
           </div>
         </form>
       </div>
       <div class="bf-command" hidden>
-        <div class="bf-command-panel" role="dialog" aria-label="Yer imi arama">
+        <div class="bf-command-panel" role="dialog" aria-label="${escapeAttribute(t("bookmarkSearch"))}">
           <div class="bf-command-head">
-            <input class="bf-command-input" type="search" autocomplete="off" spellcheck="false" placeholder="Yer imi ara veya URL yaz">
-            <button class="bf-command-close" type="button" data-bf-action="close-search" title="Kapat" aria-label="Kapat">x</button>
+            <input class="bf-command-input" type="search" autocomplete="off" spellcheck="false" placeholder="${escapeAttribute(t("bookmarkSearchPlaceholder"))}">
+            <button class="bf-command-close" type="button" data-bf-action="close-search" title="${escapeAttribute(t("close"))}" aria-label="${escapeAttribute(t("close"))}">×</button>
           </div>
           <div class="bf-command-list"></div>
         </div>
@@ -770,8 +771,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const empty = document.createElement("div");
       empty.className = "bf-empty";
       empty.textContent = hasFolderRail && folders.length
-        ? "Direkt yer imi yok; klasorler rayda."
-        : "Bookmark bar klasoru bos.";
+        ? t("directBookmarksEmpty")
+        : t("bookmarkBarEmpty");
       grid.append(empty);
     }
 
@@ -782,7 +783,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (hasFolderRail && railList && !folders.length) {
       const empty = document.createElement("div");
       empty.className = "bf-empty";
-      empty.textContent = "Klasor yok.";
+      empty.textContent = t("noFolders");
       railList.append(empty);
     }
 
@@ -1386,7 +1387,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     const response = await sendMessage(message);
     if (!response?.ok) {
-      window.alert(response?.error || "Yer imi tasinamadi.");
+      window.alert(response?.error || t("bookmarkMoveFailed"));
       return;
     }
 
@@ -1728,8 +1729,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     const message = state.isFolder
-      ? `"${state.title}" klasoru ve icindeki tum yer imleri silinsin mi?`
-      : `"${state.title}" yer imi silinsin mi?`;
+      ? t("confirmDeleteFolder", state.title)
+      : t("confirmDeleteBookmark", state.title);
     if (!window.confirm(message)) {
       return;
     }
@@ -1747,7 +1748,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
-    window.alert(response?.error || "Yer imi silinemedi.");
+    window.alert(response?.error || t("bookmarkDeleteFailed"));
   }
 
   async function renameContextBookmark() {
@@ -1756,14 +1757,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
-    const nextTitle = window.prompt(state.isFolder ? "Klasor adi" : "Yer imi adi", state.title || "");
+    const nextTitle = window.prompt(state.isFolder ? t("folderName") : t("bookmarkName"), state.title || "");
     if (nextTitle === null) {
       return;
     }
 
     const title = nextTitle.trim();
     if (!title) {
-      window.alert("Ad bos olamaz.");
+      window.alert(t("nameRequired"));
       return;
     }
 
@@ -1780,7 +1781,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
-    window.alert(response?.error || "Ad duzenlenemedi.");
+    window.alert(response?.error || t("bookmarkRenameFailed"));
   }
 
   function openAddBookmarkForContextFolder() {
@@ -1795,14 +1796,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   async function createFolderFromPrompt(parentId = "") {
-    const title = window.prompt(parentId ? "Alt klasor adi" : "Yeni klasor adi", "Yeni klasor");
+    const title = window.prompt(parentId ? t("childFolderName") : t("newFolderName"), t("newFolderDefault"));
     if (title === null) {
       return;
     }
 
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
-      window.alert("Klasor adi bos olamaz.");
+      window.alert(t("folderNameRequired"));
       return;
     }
 
@@ -1822,7 +1823,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
-    window.alert(response?.error || "Klasor olusturulamadi.");
+    window.alert(response?.error || t("folderCreateFailed"));
   }
 
   async function setContextFolderColor(color) {
@@ -1844,7 +1845,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
-    window.alert(response?.error || "Klasor rengi kaydedilemedi.");
+    window.alert(response?.error || t("folderColorFailed"));
   }
 
   async function moveContextBookmarkByStep(direction) {
@@ -1915,7 +1916,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
-    window.alert(response?.error || "Yer imi tasinamadi.");
+    window.alert(response?.error || t("bookmarkMoveFailed"));
   }
 
   function openAddBookmarkDialog() {
@@ -1934,7 +1935,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     titleInput.value = suggestion.title;
     urlInput.value = suggestion.url;
     if (status) {
-      status.textContent = suggestion.status || (suggestion.url ? "" : "Bu sayfanin adresi eklenemiyor; adresi elle yaz.");
+      status.textContent = suggestion.status || (suggestion.url ? "" : t("pageAddressUnavailable"));
       status.classList.remove("is-error", "is-success");
       status.classList.toggle("is-success", Boolean(suggestion.status));
     }
@@ -1972,7 +1973,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const allowDuplicate = Boolean(dialog?.dataset.duplicateUrl && areBookmarkUrlsEqual(dialog.dataset.duplicateUrl, url) && (dialog.dataset.duplicateParentId || "") === parentId);
 
     if (!url || !isSafeBookmarkUrl(url)) {
-      renderAddBookmarkStatus("Gecerli bir http, https veya mailto adresi gir.", true);
+      renderAddBookmarkStatus(t("validUrlRequired"), true);
       urlInput?.focus();
       return;
     }
@@ -1981,7 +1982,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       submit.disabled = true;
     }
     if (status) {
-      status.textContent = "Ekleniyor...";
+      status.textContent = t("adding");
       status.classList.remove("is-error", "is-success");
     }
 
@@ -1998,7 +1999,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     if (!response?.ok) {
-      renderAddBookmarkStatus(response?.error || "Yer imi eklenemedi.", true);
+      renderAddBookmarkStatus(response?.error || t("bookmarkAddFailed"), true);
       return;
     }
 
@@ -2009,7 +2010,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     resetAddDuplicateState(dialog, submit);
-    renderAddBookmarkStatus(parentId ? "Yer imi klasore eklendi." : "Yer imi eklendi.", false);
+    renderAddBookmarkStatus(parentId ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
     window.setTimeout(() => {
       closeAddBookmarkDialog();
       renderFromState();
@@ -2022,9 +2023,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       dialog.dataset.duplicateParentId = parentId || "";
     }
     if (submit) {
-      submit.textContent = "Yine de ekle";
+      submit.textContent = t("addAnyway");
     }
-    renderAddBookmarkStatus("Bu hedefte bu adres zaten var. Kopya olarak eklemek icin tekrar Ekle.", false);
+    renderAddBookmarkStatus(t("duplicateBookmarkPrompt"), false);
   }
 
   function resetAddDuplicateState(dialog, submit) {
@@ -2033,7 +2034,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       delete dialog.dataset.duplicateParentId;
     }
     if (submit) {
-      submit.textContent = "Ekle";
+      submit.textContent = t("add");
     }
   }
 
@@ -2055,7 +2056,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       title: document.title || (url ? getHostname(url) : ""),
       url,
       parentId: folder && !folder.url ? folder.id : "",
-      status: folder && !folder.url ? `${folder.title || "Klasor"} klasorune eklenecek.` : ""
+      status: folder && !folder.url ? t("willAddToFolder", folder.title || t("folder")) : ""
     };
   }
 
@@ -2092,9 +2093,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     button.className = "bf-item is-folder";
     button.dataset.folderId = node.id;
     markTopLevelItem(button, node.id);
-    button.title = node.title || "Klasor";
+    button.title = node.title || t("folder");
     applyFolderColor(button, node.id);
-    button.append(createFolderIcon(), createTitle(node.title || "Klasor"));
+    button.append(createFolderIcon(), createTitle(node.title || t("folder")));
     return button;
   }
 
@@ -2108,10 +2109,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (node.parentId === appState?.bookmarkBar?.id) {
       markTopLevelItem(button, node.id);
     }
-    button.title = node.title || "Klasor";
+    button.title = node.title || t("folder");
     button.classList.toggle("is-active", activeFolderId === node.id);
     applyFolderColor(button, node.id);
-    button.append(createFolderIcon(), createTitle(node.title || "Klasor"));
+    button.append(createFolderIcon(), createTitle(node.title || t("folder")));
     return button;
   }
 
@@ -2245,7 +2246,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (!entries.length) {
       const empty = document.createElement("div");
       empty.className = "bf-empty";
-      empty.textContent = "Bu klasorde yer imi yok.";
+      empty.textContent = t("noBookmarksInFolder");
       menu.append(empty);
     } else {
       entries.slice(0, 120).forEach((entry) => {
@@ -2328,7 +2329,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const canMoveNext = Boolean(location && location.index < location.siblings.length - 1);
     contextMenuState = {
       nodeId: node.id,
-      title: node.title || (node.url ? getHostname(node.url) : "Klasor"),
+      title: node.title || (node.url ? getHostname(node.url) : t("folder")),
       url: node.url || "",
       isFolder
     };
@@ -2336,27 +2337,31 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     menu.replaceChildren();
     if (node.url) {
       menu.append(
-        createContextMenuButton("open-bookmark-tab", "Yeni sekmede ac"),
-        createContextMenuButton("copy-bookmark-url", "Adresi kopyala"),
-        createContextMenuButton("rename-bookmark", "Adini duzenle")
+        createContextMenuButton("open-bookmark-tab", t("openInNewTab")),
+        createContextMenuButton("copy-bookmark-url", t("copyAddress")),
+        createContextMenuButton("rename-bookmark", t("renameBookmark"))
       );
     } else {
       menu.append(
-        createContextMenuButton("add-bookmark-to-folder", "Bu klasore yer imi ekle"),
-        createContextMenuButton("create-child-folder", "Alt klasor olustur"),
-        createContextMenuButton("rename-bookmark", "Klasoru yeniden adlandir"),
+        createContextMenuButton("add-bookmark-to-folder", t("addBookmarkToFolder")),
+        createContextMenuButton("create-child-folder", t("createChildFolder")),
+        createContextMenuButton("rename-bookmark", t("renameFolder")),
         createFolderColorPicker(node.id)
       );
     }
     if (location?.siblings.length > 1) {
       menu.append(
-        createContextMenuButton("move-bookmark-previous", "Bir onceye al", "", !canMovePrevious),
-        createContextMenuButton("move-bookmark-next", "Bir sonraya al", "", !canMoveNext),
-        createContextMenuButton("move-bookmark-first", "En basa al", "", !canMovePrevious),
-        createContextMenuButton("move-bookmark-last", "En sona al", "", !canMoveNext)
+        createContextMenuSeparator(),
+        createContextMenuButton("move-bookmark-previous", t("movePrevious"), "", !canMovePrevious),
+        createContextMenuButton("move-bookmark-next", t("moveNext"), "", !canMoveNext),
+        createContextMenuButton("move-bookmark-first", t("moveFirst"), "", !canMovePrevious),
+        createContextMenuButton("move-bookmark-last", t("moveLast"), "", !canMoveNext)
       );
     }
-    menu.append(createContextMenuButton("delete-bookmark", isFolder ? "Klasoru sil" : "Yer imini sil", "is-danger"));
+    menu.append(
+      createContextMenuSeparator(),
+      createContextMenuButton("delete-bookmark", isFolder ? t("deleteFolder") : t("deleteBookmark"), "is-danger")
+    );
 
     menu.style.left = `${clientX}px`;
     menu.style.top = `${clientY}px`;
@@ -2378,6 +2383,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     return button;
   }
 
+  function createContextMenuSeparator() {
+    const separator = document.createElement("div");
+    separator.className = "bf-context-separator";
+    separator.setAttribute("role", "separator");
+    return separator;
+  }
+
   function createFolderColorPicker(nodeId) {
     const currentColor = getFolderColor(nodeId);
     const section = document.createElement("div");
@@ -2385,7 +2397,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     const label = document.createElement("span");
     label.className = "bf-context-colors-label";
-    label.textContent = "Renk";
+    label.textContent = t("color");
     section.append(label);
 
     const swatches = document.createElement("div");
@@ -2398,7 +2410,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       swatch.dataset.bfAction = `set-folder-color:${preset.value}`;
       swatch.style.setProperty("--bf-swatch-color", preset.value);
       swatch.title = preset.label;
-      swatch.setAttribute("aria-label", `${preset.label} klasor rengi`);
+      swatch.setAttribute("aria-label", t("folderColorAria", preset.label));
       swatch.classList.toggle("is-selected", currentColor === preset.value);
       swatches.append(swatch);
     });
@@ -2407,8 +2419,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     clear.type = "button";
     clear.className = "bf-context-swatch is-clear";
     clear.dataset.bfAction = "clear-folder-color";
-    clear.title = "Varsayilan";
-    clear.setAttribute("aria-label", "Varsayilan klasor rengi");
+    clear.title = t("clearColor");
+    clear.setAttribute("aria-label", t("clearColor"));
     clear.classList.toggle("is-selected", !currentColor);
     swatches.append(clear);
 
@@ -2453,7 +2465,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (!entries.length) {
       const empty = document.createElement("div");
       empty.className = "bf-empty";
-      empty.textContent = "Sonuc yok.";
+      empty.textContent = t("noResults");
       panel.append(empty);
     } else {
       entries.forEach((entry) => panel.append(createResultLink(entry)));
@@ -2513,7 +2525,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       commandActiveIndex = -1;
       const empty = document.createElement("div");
       empty.className = "bf-command-empty";
-      empty.textContent = "Aramaya baslayin. Bos ekranda yer imleri gizli.";
+      empty.textContent = t("searchEmptyPrivacy");
       list.append(empty);
       return;
     }
@@ -2532,7 +2544,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       commandActiveIndex = -1;
       const empty = document.createElement("div");
       empty.className = "bf-command-empty";
-      empty.textContent = "Sonuc yok.";
+      empty.textContent = t("noResults");
       list.append(empty);
       return;
     }
@@ -3007,6 +3019,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       .replace(/"/g, "&quot;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
+  }
+
+  function escapeHtml(value) {
+    return escapeAttribute(value);
   }
 
   function cssEscape(value) {

@@ -45,13 +45,13 @@ body {
 .nt-brand {
   display: grid;
   place-items: center;
-  width: 30px;
-  min-height: 30px;
+  width: 32px;
+  min-height: 32px;
   border: 1px solid rgba(242, 201, 76, 0.34);
   border-radius: 6px;
   background: rgba(242, 201, 76, 0.12);
   color: #f2c94c;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
 }
 
@@ -59,7 +59,7 @@ body {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: max-content;
-  grid-template-rows: repeat(var(--nt-used-rows), 30px);
+  grid-template-rows: repeat(var(--nt-used-rows), 32px);
   gap: 6px;
   min-width: 0;
   overflow-x: auto;
@@ -101,15 +101,15 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  height: 29px;
-  max-width: 176px;
+  height: 31px;
+  max-width: 188px;
   min-width: 48px;
   border: 1px solid #343b46;
   border-radius: 6px;
-  padding: 0 9px;
+  padding: 0 10px;
   background: #20252d;
   color: #eef1f6;
-  font-size: 12px;
+  font-size: 13px;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -333,10 +333,10 @@ body {
 .nt-context-menu {
   position: fixed;
   z-index: 80;
-  width: 224px;
-  padding: 6px;
+  width: 248px;
+  padding: 8px;
   border: 1px solid #303743;
-  border-radius: 8px;
+  border-radius: 10px;
   background: #181d24;
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.48);
 }
@@ -348,16 +348,22 @@ body {
 .nt-context-action {
   display: block;
   width: 100%;
-  height: 34px;
+  height: 38px;
   border: 0;
   border-radius: 6px;
-  padding: 0 9px;
+  padding: 0 12px;
   background: transparent;
   color: #eef1f6;
   cursor: pointer;
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
   text-align: left;
+}
+
+.nt-context-separator {
+  height: 1px;
+  margin: 6px 4px;
+  background: rgba(255, 255, 255, 0.09);
 }
 
 .nt-context-action:hover,
@@ -555,14 +561,42 @@ body {
 }
 
 .nt-add-close {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border: 1px solid #343b46;
   border-radius: 6px;
   background: #20252d;
   color: #cfd6e2;
   cursor: pointer;
   font: inherit;
+}
+
+.nt-bookmark:focus-visible,
+.nt-result:focus-visible,
+.nt-folder-rail-item:focus-visible,
+.nt-icon-button:focus-visible,
+.nt-folder-rail-add:focus-visible,
+.nt-context-action:focus-visible,
+.nt-context-swatch:focus-visible,
+.nt-add-close:focus-visible,
+.nt-add-field input:focus-visible,
+.nt-add-primary:focus-visible,
+.nt-add-secondary:focus-visible,
+.nt-search-box input:focus-visible,
+.nt-search-box button:focus-visible {
+  outline: 2px solid #f2c94c !important;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .nt-add-field {

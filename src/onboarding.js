@@ -2,6 +2,7 @@ const {
   SETUP_PROFILES,
   getSetupProfileSettings
 } = BookmarkFlowConfig;
+const { t } = BookmarkFlowI18n;
 
 const elements = {
   profileGrid: document.getElementById("profileGrid"),
@@ -14,16 +15,16 @@ const elements = {
 };
 
 const PROFILE_FACTS = Object.freeze({
-  balanced: ["2 satir", "Yogun", "Isimler gorunur"],
-  privacy: ["1 satir", "Ikon odakli", "Bos arama gizli"],
-  keyboard: ["Kalici arama", "Kisayol odakli", "2 satir"],
-  organized: ["Sol klasor rayi", "2 satir", "Klasor agirlikli"]
+  balanced: ["factTwoRows", "factCompact", "factNamesVisible"],
+  privacy: ["factOneRow", "factIconFocused", "factEmptySearchHidden"],
+  keyboard: ["factPersistentSearch", "factShortcutFocused", "factTwoRows"],
+  organized: ["factLeftFolderRail", "factTwoRows", "factFolderFocused"]
 });
 
 let selectedProfile = "privacy";
 
 init().catch((error) => {
-  renderStatus(error?.message || "Kurulum sayfasi acilamadi.", true);
+  renderStatus(error?.message || t("onboardingFailed"), true);
 });
 
 async function init() {
@@ -57,7 +58,7 @@ function renderProfiles() {
 
     const badge = document.createElement("span");
     badge.className = "profile-badge";
-    badge.textContent = profile.id === "privacy" ? "Onerilen" : "Profil";
+    badge.textContent = profile.id === "privacy" ? t("recommended") : t("profile");
 
     const title = document.createElement("strong");
     title.textContent = profile.label;
@@ -69,7 +70,7 @@ function renderProfiles() {
     facts.className = "profile-facts";
     (PROFILE_FACTS[profile.id] || []).forEach((fact) => {
       const item = document.createElement("span");
-      item.textContent = fact;
+      item.textContent = t(fact);
       facts.append(item);
     });
 
@@ -77,7 +78,7 @@ function renderProfiles() {
     button.addEventListener("click", () => {
       selectedProfile = profile.id;
       renderProfiles();
-      renderStatus(`${profile.label} profili secildi.`, false);
+      renderStatus(t("profileSelected", profile.label), false);
     });
     elements.profileGrid.append(button);
   });
@@ -88,7 +89,7 @@ async function renderBookmarkSource() {
   const children = state?.bookmarkBar?.children || [];
   const bookmarkCount = children.filter((node) => node.url).length;
   const folderCount = children.filter((node) => !node.url).length;
-  elements.bookmarkSource.textContent = `Bookmark Bar: ${bookmarkCount} yer imi, ${folderCount} klasor`;
+  elements.bookmarkSource.textContent = t("bookmarkSourceSummary", [bookmarkCount, folderCount]);
 }
 
 async function applySelectedProfile() {
@@ -98,12 +99,12 @@ async function applySelectedProfile() {
     bfOnboardingSeen: true,
     bfOnboardingProfile: profile.id
   });
-  renderStatus(`${profile.label} profili uygulandi.`, false);
+  renderStatus(t("profileApplied", profile.label), false);
 }
 
 async function finishOnboarding() {
   await chrome.storage.local.set({ bfOnboardingSeen: true });
-  renderStatus("Kurulum tamamlandi.", false);
+  renderStatus(t("setupComplete"), false);
   window.setTimeout(() => {
     window.close();
   }, 250);

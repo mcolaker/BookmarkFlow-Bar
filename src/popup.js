@@ -8,6 +8,7 @@ const {
   normalizeSettings,
   removeDisabledHost
 } = BookmarkFlowConfig;
+const { t } = BookmarkFlowI18n;
 
 const SHORTCUT_NUDGE_STORAGE_KEY = "bfShortcutNudgeSeen";
 
@@ -275,20 +276,20 @@ function renderSiteControl(settings) {
   controls.siteHost.textContent = activePage.host;
   controls.toggleSite.disabled = !settings.showOnSites;
   controls.toggleSite.textContent = !settings.showOnSites
-    ? "Web siteleri kapali"
+    ? t("websitesDisabled")
     : disabledByUser
-      ? "Bu sitede goster"
-      : "Bu sitede gizle";
+      ? t("showOnThisSite")
+      : t("hideOnThisSite");
 
   if (!settings.showOnSites) {
-    controls.siteStatus.textContent = "Normal web sitelerinde gizli; yeni sekme etkilenmez.";
+    controls.siteStatus.textContent = t("siteStatusWebsitesHidden");
   } else if (disabledByUser) {
-    controls.siteStatus.textContent = "Bu site manuel olarak gizli.";
+    controls.siteStatus.textContent = t("siteStatusManuallyHidden");
   } else if (autoHiddenSensitive) {
-    controls.siteStatus.textContent = "Giris/odeme kuralina takildigi icin otomatik gizli.";
+    controls.siteStatus.textContent = t("siteStatusSensitiveHidden");
   } else if (activePage.dockedBottom) {
-    controls.siteStatus.textContent = "Admin arayuzu algilandi; bar altta gosteriliyor.";
+    controls.siteStatus.textContent = t("siteStatusDockedBottom");
   } else {
-    controls.siteStatus.textContent = "Bu sitede gosteriliyor.";
+    controls.siteStatus.textContent = t("siteStatusVisible");
   }
 }

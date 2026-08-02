@@ -1,4 +1,5 @@
 (function () {
+  const { t } = BookmarkFlowI18n;
   const DEFAULT_SETTINGS = Object.freeze({
     enabled: true,
     showOnSites: true,
@@ -50,14 +51,14 @@
   ]);
 
   const FOLDER_COLOR_PRESETS = Object.freeze([
-    { label: "Sari", value: "#f2c94c" },
-    { label: "Mavi", value: "#4ea1ff" },
-    { label: "Yesil", value: "#41d17d" },
-    { label: "Mor", value: "#a78bfa" },
-    { label: "Kirmizi", value: "#ff6b6b" },
-    { label: "Turuncu", value: "#ff9f43" },
-    { label: "Camgobegi", value: "#22d3ee" },
-    { label: "Gri", value: "#94a3b8" }
+    { label: t("colorYellow"), value: "#f2c94c" },
+    { label: t("colorBlue"), value: "#4ea1ff" },
+    { label: t("colorGreen"), value: "#41d17d" },
+    { label: t("colorPurple"), value: "#a78bfa" },
+    { label: t("colorRed"), value: "#ff6b6b" },
+    { label: t("colorOrange"), value: "#ff9f43" },
+    { label: t("colorCyan"), value: "#22d3ee" },
+    { label: t("colorGray"), value: "#94a3b8" }
   ]);
 
   const FOLDER_COLOR_VALUES = Object.freeze(FOLDER_COLOR_PRESETS.map((preset) => preset.value));
@@ -65,8 +66,8 @@
   const SETUP_PROFILES = Object.freeze({
     balanced: Object.freeze({
       id: "balanced",
-      label: "Dengeli",
-      description: "Gunluk kullanim icin iki satirli, okunabilir ve sakin varsayilan.",
+      label: t("profileBalanced"),
+      description: t("profileBalancedDescription"),
       settings: Object.freeze({
         enabled: true,
         showOnSites: true,
@@ -83,8 +84,8 @@
     }),
     privacy: Object.freeze({
       id: "privacy",
-      label: "Yayinci / gizlilik",
-      description: "Video, sunum ve musteri gorusmelerinde isimleri azaltan ikon odakli profil.",
+      label: t("profilePrivacy"),
+      description: t("profilePrivacyDescription"),
       settings: Object.freeze({
         enabled: true,
         showOnSites: true,
@@ -101,8 +102,8 @@
     }),
     keyboard: Object.freeze({
       id: "keyboard",
-      label: "Klavye odakli",
-      description: "Arama kalici acik, kisa yollar ve hizli gecisler onde.",
+      label: t("profileKeyboard"),
+      description: t("profileKeyboardDescription"),
       settings: Object.freeze({
         enabled: true,
         showOnSites: true,
@@ -119,8 +120,8 @@
     }),
     organized: Object.freeze({
       id: "organized",
-      label: "Klasor rayi",
-      description: "Direkt yer imleri yatayda kalir, klasorler solda ayrilir.",
+      label: t("profileOrganized"),
+      description: t("profileOrganizedDescription"),
       settings: Object.freeze({
         enabled: true,
         showOnSites: true,
