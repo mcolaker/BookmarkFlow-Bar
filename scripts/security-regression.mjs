@@ -29,7 +29,7 @@ const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), "bookmarkflow-securit
 const server = await startHostileServer();
 const debugPort = await getFreePort();
 const chrome = spawn(chromePath, [
-  "--headless=new",
+  ...(process.env.BOOKMARKFLOW_HEADLESS === "0" ? [] : ["--headless=new"]),
   "--disable-gpu",
   "--disable-sync",
   `--lang=${requestedLanguage}`,
