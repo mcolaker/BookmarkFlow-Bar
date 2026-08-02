@@ -10,7 +10,7 @@ Security fixes are applied to the latest version on the `main` branch. Older sna
 
 Please do **not** open a public issue for a suspected vulnerability.
 
-Use [GitHub Private Vulnerability Reporting](https://github.com/09mc/BookmarkFlow-Bar/security/advisories/new) and include:
+Use [GitHub Private Vulnerability Reporting](https://github.com/mcolaker/BookmarkFlow-Bar/security/advisories/new) and include:
 
 - the affected version or commit;
 - a concise description of the impact;

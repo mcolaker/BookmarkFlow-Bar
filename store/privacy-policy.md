@@ -48,11 +48,11 @@ BookmarkFlow Bar can optionally hide on login, banking, payment, checkout, and w
 
 For privacy or security reports that may contain sensitive details, use GitHub Private Vulnerability Reporting:
 
-https://github.com/09mc/BookmarkFlow-Bar/security/advisories/new
+https://github.com/mcolaker/BookmarkFlow-Bar/security/advisories/new
 
 For general product support, open an issue without including personal bookmarks, browsing information, or credentials:
 
-https://github.com/09mc/BookmarkFlow-Bar/issues
+https://github.com/mcolaker/BookmarkFlow-Bar/issues
 
 ## Changes
 

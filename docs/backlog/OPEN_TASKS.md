@@ -72,3 +72,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: GitHub repo API'si `has_discussions: true` döndürdü ve herkese açık Discussions rotası HTTPS `200` verdi. Backlog doğrulaması, 5/5 sözleşme testi, `validate-project`, 68 dosyalık public-tree taraması, güvenlik regresyonu ve `git diff --check` temizdir. PR #8 `validate` kontrolü terminal `success` verdi ve `855d3a1d85a9c6a733c70a2a7752f87dbf2daf7f` merge commit'iyle `main` dalına birleştirildi; aynı commit için ana dal `Validate extension` çalışması `30755465039` ve Pages çalışması `30755464506` terminal `success` verdi.
 - Sonraki adım: Yok; yeni topluluk kanalı eklenirse README yönlendirmelerini, lisans sınırlarını ve fail-closed destek doğrulamasını birlikte güncelle.
 - Son güncelleme: 2026-08-02.
+
+## BF-GOV-004 - Kanonik GitHub sahibi ve Pages bağlantılarını uzlaştır
+
+- Öncelik ve durum: P1, IN_PROGRESS.
+- Kök neden ve kanıt: GitHub repo API'si kanonik sahibi `mcolaker` olarak döndürürken kaynak ve mağaza belgelerinde önceki `09mc` sahibi kalmıştı; GitHub repo bağlantıları yönlendirilse de `https://09mc.github.io/BookmarkFlow-Bar/` 404, `https://mcolaker.github.io/BookmarkFlow-Bar/` ise 200 döndü. Pages dağıtımı da geçiş sırasında eski OIDC audience değeri nedeniyle başarısız oldu.
+- Kabul kriteri: Manifest, README, yönetişim belgeleri, issue şablonu, Pages canonical/Open Graph bağlantıları, mağaza metinleri ve doğrulayıcı kanonik `mcolaker` repo/Pages adreslerini kullanır; geçmiş kanıt kaydı dışında eski `09mc` sahibi canlı bağlantı hedefi olarak kalmaz.
+- Doğrulama kapısı: `validate-project` canlı bağlantı yüzeylerinde eski repo/Pages URL'lerini fail-closed reddeder; repo API'si `mcolaker/BookmarkFlow-Bar` ve `has_discussions: true` döndürür; yeni ürün ile gizlilik rotaları HTTPS `200` verir; yerel kapılar, PR `validate`, ana dal CI ve en son Pages dağıtımı terminal `success` verir.
+- Sonraki adım: Kanonik URL geçişini yayımla; CI/Pages ve canlı URL kanıtlarını kaydettikten sonra görevi `DONE` yap; Chrome Web Store taslağındaki gizlilik ve destek URL'lerini yeni kanonik adreslerle uzlaştır.
+- Son güncelleme: 2026-08-02.

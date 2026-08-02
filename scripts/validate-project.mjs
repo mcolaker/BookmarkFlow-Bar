@@ -11,6 +11,7 @@ const requiredManifestValues = {
   manifest_version: 3,
   name: "__MSG_appName__",
   default_locale: "en",
+  homepage_url: "https://mcolaker.github.io/BookmarkFlow-Bar/",
 };
 
 for (const [key, expected] of Object.entries(requiredManifestValues)) {
@@ -178,12 +179,32 @@ for (const path of requiredPresentationFiles) {
 const readmeSource = readFileSync(join(root, "README.md"), "utf8");
 for (const requiredSupportContent of [
   "## How to support",
-  "https://github.com/09mc/BookmarkFlow-Bar/discussions",
+  "https://github.com/mcolaker/BookmarkFlow-Bar/discussions",
   "LICENSE.md",
   "SECURITY.md",
 ]) {
   if (!readmeSource.includes(requiredSupportContent)) {
     throw new Error(`README.md: missing required support content: ${requiredSupportContent}`);
+  }
+}
+
+for (const canonicalLinkFile of [
+  ".github/ISSUE_TEMPLATE/config.yml",
+  "CODE_OF_CONDUCT.md",
+  "LICENSE.md",
+  "README.md",
+  "SECURITY.md",
+  "docs/index.html",
+  "docs/privacy/index.html",
+  "store/listing-en.md",
+  "store/privacy-dashboard-answers.md",
+  "store/privacy-policy.html",
+  "store/privacy-policy.md",
+  "store/publish-checklist.md",
+]) {
+  const source = readFileSync(join(root, canonicalLinkFile), "utf8");
+  if (/https:\/\/(?:github\.com\/09mc|09mc\.github\.io)/u.test(source)) {
+    throw new Error(`${canonicalLinkFile}: contains a stale pre-rename GitHub URL`);
   }
 }
 

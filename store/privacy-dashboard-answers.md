@@ -37,4 +37,4 @@ BookmarkFlow Bar does not transfer user data to the developer or unrelated third
 
 ## Privacy policy URL
 
-https://09mc.github.io/BookmarkFlow-Bar/privacy/
+https://mcolaker.github.io/BookmarkFlow-Bar/privacy/
