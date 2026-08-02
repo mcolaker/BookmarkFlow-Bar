@@ -45,3 +45,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: PR #3 için `validate` işi terminal `success` verdi ve `main` dalına birleştirildi. GitHub Pages build/deploy başarılı oldu; ürün ve gizlilik rotaları HTTPS üzerinden `200` döndürdü. `main` için zorunlu `validate`, güncel dal, PR, konuşma çözümü, admin uygulaması, force-push ve silme engelleri API ile doğrulandı. Private Vulnerability Reporting etkin; `v0.1.35` release ZIP'i ve SHA-256 dosyası `uploaded` durumda, GitHub asset digest'i `443197420831d42d467a5d4dc2bfa5f50eaba3b6f07c644ec8638facbded4bb5` değeriyle yerel özeti doğruluyor.
 - Sonraki adım: Yok; sonraki sürümde manifest sürümünü artır, aynı kapıları çalıştır ve yeni etiket/paket özeti üret.
 - Son güncelleme: 2026-08-02.
+
+## BF-STORE-001 - Chrome Web Store inceleme gönderimini tamamla
+
+- Öncelik ve durum: P1, IN_PROGRESS.
+- Kök neden ve kanıt: Kullanıcı `v0.1.35` paketini doğru BookmarkFlow Bar kaydına yükledi; mağaza girişi, gizlilik, dağıtım ve test talimatları alanları ekran görüntüleri üzerinden dolduruldu. Yayın öncesi politika denetiminde yeni sekme aramasının Google'a sabitlendiği ve Chrome Web Store'un varsayılan arama tercihini korumak için Chrome Search API kullanımını zorunlu tuttuğu doğrulandı. Ayrıca Limited Use ve yerel sayfa başlığı/URL işleme açıklamalarının canlı gizlilik sayfasına çıkması gerekiyor.
+- Kabul kriteri: `v0.1.36` Chrome Search API ile kullanıcının mevcut varsayılan arama motorunu korur; izin, iki dil, mağaza açıklamaları, reviewer notları ve gizlilik politikası davranışla tutarlıdır; doğrulanmış ZIP aynı mağaza kaydına yüklenir; kullanıcı nihai gönderimi onayladıktan sonra inceleme durumu kanıtlanır.
+- Doğrulama kapısı: Backlog sözleşmesi, proje doğrulaması, public-tree, güvenlik regresyonu ve gerçek Chrome'da varsayılan arama sağlayıcısı akışı temiz olmalıdır. PR `validate` kontrolü terminal `success` vermeli, GitHub Pages gizlilik rotası yeni Limited Use metniyle HTTPS `200` dönmeli ve Dashboard yüklenen `0.1.36` sürümünü göstermelidir.
+- Sonraki adım: `v0.1.36` değişikliğini doğrula, korumalı `main` için PR üzerinden yayımla, yeni ZIP ve SHA-256 üret; ardından kullanıcı aynı Dashboard kaydına yeni paketi yükler ve geri döndürülemez inceleme gönderiminden önce son ekran görüntüsüyle onay verir.
+- Son güncelleme: 2026-08-02.

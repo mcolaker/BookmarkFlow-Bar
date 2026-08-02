@@ -25,7 +25,7 @@ Recommended:
 ## Dashboard fields
 
 - Name: BookmarkFlow Bar
-- Category: Productivity
+- Category: Workflow & Planning (İş Akışı ve Planlama)
 - Primary language: English
 - Additional language: Turkish
 - English description: use `store/listing-en.md`
@@ -40,11 +40,11 @@ Recommended:
 Create the release package from the final tag:
 
 ```bash
-node scripts/package-release.mjs v0.1.35
+node scripts/package-release.mjs v0.1.36
 ```
 
 Upload both generated files:
 
-`dist/bookmarkflow-bar-0.1.35.zip`
+`dist/bookmarkflow-bar-0.1.36.zip`
 
-`dist/bookmarkflow-bar-0.1.35.zip.sha256`
+`dist/bookmarkflow-bar-0.1.36.zip.sha256`

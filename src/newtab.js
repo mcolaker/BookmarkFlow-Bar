@@ -245,18 +245,33 @@ function tightenBookmarkRows(maxRows) {
   elements.bookmarkBar.style.setProperty("--nt-used-rows", String(Math.max(1, Math.min(rows, items.length || 1))));
 }
 
-function handleSearchSubmit(event) {
+async function handleSearchSubmit(event) {
   event.preventDefault();
   const value = elements.searchInput.value.trim();
+  elements.searchInput.setCustomValidity("");
 
   if (!value) {
     return;
   }
 
-  window.location.href = resolveSearchTarget(value);
+  const directTarget = resolveDirectNavigationTarget(value);
+  if (directTarget) {
+    window.location.href = directTarget;
+    return;
+  }
+
+  try {
+    await chrome.search.query({
+      text: value,
+      disposition: "CURRENT_TAB"
+    });
+  } catch {
+    elements.searchInput.setCustomValidity(t("webSearchUnavailable"));
+    elements.searchInput.reportValidity();
+  }
 }
 
-function resolveSearchTarget(value) {
+function resolveDirectNavigationTarget(value) {
   if (/^[a-z][a-z0-9+.-]*:\/\//i.test(value)) {
     return value;
   }
@@ -265,9 +280,7 @@ function resolveSearchTarget(value) {
     return `https://${value}`;
   }
 
-  const url = new URL("https://www.google.com/search");
-  url.searchParams.set("q", value);
-  return url.toString();
+  return "";
 }
 
 function openAddBookmarkDialog() {

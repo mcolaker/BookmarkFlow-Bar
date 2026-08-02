@@ -23,6 +23,18 @@ if (!/^\d+\.\d+\.\d+$/.test(manifest.version ?? "")) {
   throw new Error("manifest.json: version must use the x.y.z format");
 }
 
+if (!(manifest.permissions ?? []).includes("search")) {
+  throw new Error("manifest.json: the new-tab web search must declare the Chrome search permission");
+}
+
+const newTabSource = readFileSync(join(root, "src/newtab.js"), "utf8");
+if (!/chrome\.search\.query\s*\(/u.test(newTabSource)) {
+  throw new Error("src/newtab.js: web search must use Chrome's default-provider search API");
+}
+if (/google\.com\/search/iu.test(newTabSource)) {
+  throw new Error("src/newtab.js: web search must not hard-code a search provider");
+}
+
 const referencedFiles = [
   manifest.action?.default_popup,
   manifest.background?.service_worker,

@@ -19,7 +19,7 @@ The extension does not collect, transmit, sell, or share user data.
 
 Recommended disclosure:
 
-- Website content: not collected by the developer.
+- Website content: not collected by the developer. The current page title and URL are handled locally only to prefill the add-bookmark form opened by the user.
 - Browsing history: not collected by the developer.
 - User activity: not collected by the developer.
 - Personal communications: not collected by the developer.
@@ -33,7 +33,7 @@ Bookmark titles and URLs are accessed locally through the Chrome bookmarks permi
 
 BookmarkFlow Bar uses accessed data only to provide the visible bookmark bar, bookmark search, per-site visibility settings, and custom new tab experience.
 
-BookmarkFlow Bar does not transfer user data to third parties except when the user intentionally submits a search query from the new tab page, which navigates the browser to Google Search.
+BookmarkFlow Bar does not transfer user data to the developer or unrelated third parties. When the user intentionally submits a query from the new tab page, Chrome's Search API sends it to the default search provider already selected by the user.
 
 ## Privacy policy URL
 

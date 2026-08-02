@@ -62,7 +62,9 @@
   "siteStatusDockedBottom": { "message": "Uygulama tipi bir üst bar algılandı; BookmarkFlow altta gösteriliyor." },
   "siteStatusVisible": { "message": "BookmarkFlow bu sitede gösteriliyor." },
 
-  "newTabSearchPlaceholder": { "message": "Google'da arayın veya URL yazın" },
+  "webSearch": { "message": "Web'de Ara" },
+  "newTabSearchPlaceholder": { "message": "Web'de arayın veya URL yazın" },
+  "webSearchUnavailable": { "message": "Varsayılan arama motoru şu anda kullanılamıyor." },
   "addBookmark": { "message": "Yer imi ekle" },
   "addFolder": { "message": "Klasör ekle" },
   "scrollLeft": { "message": "Sola kaydır" },

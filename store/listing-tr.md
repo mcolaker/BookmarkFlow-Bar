@@ -32,15 +32,15 @@ One cikan ozellikler:
 - Yeni sekme yer imi seridi yatay kaydirma konumunu hatirlar.
 - WordPress admin ve TradingView gibi sabit ust/yan panel kullanan sayfalarda genis bari otomatik alta alabilir.
 - Istege bagli olarak giris, odeme ve banka sayfalarinda otomatik gizlenebilir.
-- Chrome yeni sekme sayfasini Google aramali BookmarkFlow sayfasi olarak degistirir.
+- Chrome yeni sekme sayfasini, varsayilan arama motorunu koruyan BookmarkFlow sayfasi olarak degistirir.
 
 Gizlilik:
 
-BookmarkFlow Bar yer imi verilerinizi gelistiriciye veya dis sunuculara gondermez. Genel gorunum ayarlari, tarayici senkronizasyonu aciksa Chrome Sync ile cihazlariniz arasinda eslenebilir; site bazli gizleme listeniz yalnizca bu cihazda tutulur. Yeni sekmedeki arama kutusu, sadece siz arama yaptiginizda Google Search sayfasina gider.
+BookmarkFlow Bar yer imi verilerinizi gelistiriciye veya dis sunuculara gondermez. Genel gorunum ayarlari, tarayici senkronizasyonu aciksa Chrome Sync ile cihazlariniz arasinda eslenebilir; site bazli gizleme listeniz yalnizca bu cihazda tutulur. Yeni sekmedeki arama kutusu, sadece siz arama yaptiginizda Chrome'da secili varsayilan arama motorunu kullanir.
 
 ## Category suggestion
 
-Productivity
+İş Akışı ve Planlama
 
 ## Language
 

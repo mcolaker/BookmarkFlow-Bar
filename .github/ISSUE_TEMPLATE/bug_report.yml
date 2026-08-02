@@ -13,7 +13,7 @@ body:
     attributes:
       label: BookmarkFlow version
       description: Find the version in manifest.json or on the Chrome extensions page.
-      placeholder: "0.1.35"
+      placeholder: "0.1.36"
     validations:
       required: true
   - type: input

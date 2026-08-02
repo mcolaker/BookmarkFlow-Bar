@@ -41,7 +41,7 @@ Chrome does not allow extensions to place content scripts on protected pages suc
 
 ## Suggested category
 
-Productivity
+Workflow & Planning
 
 ## Language
 
@@ -64,4 +64,5 @@ BookmarkFlow Bar improves access to and organization of the user's existing Chro
 - `bookmarks`: Reads and manages the user's bookmark tree for display, search, folders, and user-initiated bookmark actions.
 - `storage`: Saves layout, appearance, onboarding, visibility, and local folder/site preferences.
 - `favicon`: Displays Chrome-managed bookmark favicons without using an external icon service.
+- `search`: Sends user-submitted new-tab web searches to the default search provider already selected in Chrome.
 - `<all_urls>`: Shows the optional bookmark interface on ordinary websites selected by the user; Chrome-protected pages remain inaccessible.
