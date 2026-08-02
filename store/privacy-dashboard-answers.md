@@ -33,7 +33,7 @@ Bookmark titles and URLs are accessed locally through the Chrome bookmarks permi
 
 BookmarkFlow Bar uses accessed data only to provide the visible bookmark bar, bookmark search, per-site visibility settings, and custom new tab experience.
 
-BookmarkFlow Bar does not transfer user data to third parties except when the user intentionally submits a search query from the new tab page, which navigates the browser to Google Search.
+BookmarkFlow Bar does not transfer user data to the developer or unrelated third parties. When the user intentionally submits a query from the new tab page, Chrome's Search API sends it to the default search provider already selected by the user.
 
 ## Privacy policy URL
 

@@ -62,7 +62,9 @@
   "siteStatusDockedBottom": { "message": "An app-style top bar was detected, so BookmarkFlow is shown at the bottom." },
   "siteStatusVisible": { "message": "BookmarkFlow is visible on this site." },
 
-  "newTabSearchPlaceholder": { "message": "Search Google or type a URL" },
+  "webSearch": { "message": "Web Search" },
+  "newTabSearchPlaceholder": { "message": "Search the web or type a URL" },
+  "webSearchUnavailable": { "message": "The default search provider is currently unavailable." },
   "addBookmark": { "message": "Add bookmark" },
   "addFolder": { "message": "Add folder" },
   "scrollLeft": { "message": "Scroll left" },

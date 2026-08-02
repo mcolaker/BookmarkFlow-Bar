@@ -4,6 +4,14 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
+## [0.1.36] — 2026-08-02
+
+### Changed
+
+- Route new-tab web searches through Chrome's Search API so the user's existing default search provider is respected.
+- Replace Google-specific new-tab labels and store disclosures with provider-neutral wording.
+- Add the Chrome Web Store Limited Use statement and explicit local page-title/URL handling disclosure to the privacy policy.
+
 ## [0.1.35] — 2026-08-02
 
 ### Added

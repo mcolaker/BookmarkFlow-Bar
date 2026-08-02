@@ -11,7 +11,7 @@
 <p align="center">
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
   <img alt="Vanilla JavaScript" src="https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=111111">
-  <img alt="Version 0.1.35" src="https://img.shields.io/badge/version-0.1.35-F2C94C">
+  <img alt="Version 0.1.36" src="https://img.shields.io/badge/version-0.1.36-F2C94C">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
 
@@ -131,6 +131,7 @@ Keyboard navigation, visible focus states, reduced-motion preferences, semantic 
 | `bookmarks` | Read and manage the user's Chrome bookmark tree for the bar, search, folders, and context actions. |
 | `storage` | Save layout, appearance, onboarding, local site exclusions, and other extension preferences. |
 | `favicon` | Display Chrome-managed favicons beside bookmarks without contacting a third-party icon service. |
+| `search` | Send user-submitted new-tab web searches to the search provider already selected in Chrome. |
 | `<all_urls>` | Place the optional in-page bookmark interface on ordinary websites. Chrome-protected pages remain inaccessible to extensions. |
 
 ## Built with a small, auditable stack
@@ -162,7 +163,7 @@ node scripts/security-regression.mjs
 
 The first two checks are platform-independent. The browser regression check additionally requires a locally installed Chromium-based browser.
 
-Maintainers can create a versioned extension ZIP and SHA-256 checksum from a release tag with `node scripts/package-release.mjs v0.1.35`.
+Maintainers can create a versioned extension ZIP and SHA-256 checksum from a release tag with `node scripts/package-release.mjs v0.1.36`.
 
 ## Browser limitations
 

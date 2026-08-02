@@ -126,7 +126,7 @@ Run this before submitting a new Chrome Web Store package.
 - Confirm an account-synced folder with direct bookmarks remains visible even when it is nested outside the selected Bookmarks Bar root.
 - Click `+`, enter a URL, and confirm it is added to Bookmark Bar.
 - With a folder menu open, click `+`, enter a URL, and confirm it is added to that folder.
-- Confirm Google search navigation works.
+- Set a non-Google default search provider, submit a query from the new-tab page, and confirm Chrome's Search API uses that provider without changing the preference.
 - Confirm bookmark strip appears.
 - Confirm folder menus open.
 

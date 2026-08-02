@@ -34,7 +34,7 @@
         <p>The use of information received from Google APIs will adhere to the Chrome Web Store User Data Policy, including the Limited Use requirements.</p>
 
         <h2>Search behavior</h2>
-        <p>The custom new-tab page includes a search box. After the user submits a search query, the browser navigates to Google Search with that query. BookmarkFlow does not receive or store the query.</p>
+        <p>The custom new-tab page includes a search box that uses Chrome's Search API. After the user submits a query, Chrome sends it to the default search provider already selected by the user. BookmarkFlow does not choose or replace that provider and does not receive or store the query.</p>
         <p>The bookmark search palette can hide suggestions while its field is empty. Streamer mode can reduce visible bookmark text during screen sharing. These display preferences are handled locally.</p>
 
         <h2>Permissions</h2>
@@ -42,6 +42,7 @@
           <li><code>bookmarks</code>: reads the user's Bookmark Bar and bookmark folders, and performs bookmark changes only after explicit user actions.</li>
           <li><code>storage</code>: saves general display preferences and device-local per-site/folder choices.</li>
           <li><code>favicon</code>: displays Chrome-managed favicons for bookmark URLs.</li>
+          <li><code>search</code>: sends user-submitted new-tab searches to the default search provider already selected in Chrome.</li>
           <li><code>&lt;all_urls&gt;</code>: displays the optional BookmarkFlow interface on regular websites. Chrome-protected pages remain inaccessible.</li>
         </ul>
 

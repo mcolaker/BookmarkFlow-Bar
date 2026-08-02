@@ -68,7 +68,7 @@
       <p>The use of information received from Google APIs will adhere to the Chrome Web Store User Data Policy, including the Limited Use requirements.</p>
 
       <h2>Search behavior</h2>
-      <p>The custom new tab page includes a search box. When the user submits a search query, the browser navigates to Google Search with that query. This only happens after the user submits the search form. BookmarkFlow Bar does not receive, store, or transmit that query to Maprins Games.</p>
+      <p>The custom new tab page includes a search box that uses Chrome's Search API. When the user submits a search query, Chrome sends it to the default search provider already selected by the user. BookmarkFlow Bar does not choose or replace that provider and does not receive or store the query.</p>
       <p>The bookmark search palette can hide default suggestions while the search field is empty. Streamer mode can also reduce visible bookmark text in the page overlay. These privacy display preferences are handled locally in the browser.</p>
 
       <h2>Permissions</h2>
@@ -76,6 +76,7 @@
         <li><code>bookmarks</code>: used to read the user's Bookmark Bar and bookmark folders, and create, move, or delete bookmarks only after explicit user actions.</li>
         <li><code>storage</code>: used to save general preferences through Chrome Sync storage and keep per-site hide choices in device-local Chrome storage.</li>
         <li><code>favicon</code>: used to show favicons for bookmark URLs.</li>
+        <li><code>search</code>: used to send user-submitted new-tab searches to the default search provider already selected in Chrome.</li>
         <li><code>&lt;all_urls&gt;</code> content script access: used to display the BookmarkFlow bar on regular web pages.</li>
       </ul>
 

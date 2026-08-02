@@ -166,6 +166,38 @@ try {
   assert.equal(newTabLocale.language, requestedLanguage, "New-tab document language was not localized");
   assert.equal(newTabLocale.folderLabel, chromeMessageFor(requestedLanguage, "Folders", "Klasörler"), "New-tab static copy was not localized");
 
+  if (process.env.BOOKMARKFLOW_NEWTAB_SCREENSHOT) {
+    await cdp.call("Emulation.setDeviceMetricsOverride", {
+      width: 1280,
+      height: 800,
+      deviceScaleFactor: 1,
+      mobile: false
+    }, newTab);
+    await delay(250);
+    const screenshot = await cdp.call("Page.captureScreenshot", {
+      format: "png",
+      captureBeyondViewport: false
+    }, newTab);
+    await fs.writeFile(process.env.BOOKMARKFLOW_NEWTAB_SCREENSHOT, Buffer.from(screenshot.data, "base64"));
+  }
+
+  const searchApiMocked = await evaluate(cdp, newTab, `(() => {
+    const originalQuery = chrome.search.query;
+    chrome.search.query = async (queryInfo) => {
+      window.__bookmarkFlowSearchQuery = queryInfo;
+    };
+    return chrome.search.query !== originalQuery;
+  })()`);
+  assert.equal(searchApiMocked, true, "Chrome Search API could not be instrumented for the new-tab regression");
+  await fillInput(cdp, newTab, "#searchInput", "bookmarkflow default provider test");
+  await trustedClick(cdp, newTab, "#searchForm button[type='submit']");
+  await waitFor(cdp, newTab, "window.__bookmarkFlowSearchQuery?.text === 'bookmarkflow default provider test'");
+  const searchQuery = await evaluate(cdp, newTab, "window.__bookmarkFlowSearchQuery");
+  assert.deepEqual(searchQuery, {
+    text: "bookmarkflow default provider test",
+    disposition: "CURRENT_TAB"
+  }, "New-tab search did not use Chrome's default-provider Search API contract");
+
   const onboarding = await createPage(cdp, `chrome-extension://${extensionId}/src/onboarding.html`);
   await waitFor(cdp, onboarding, "document.readyState === 'complete' && document.querySelector('[data-i18n=\"onboardingHeading\"]')?.textContent");
   const onboardingLocale = await evaluate(cdp, onboarding, `({
@@ -220,6 +252,7 @@ try {
     },
     disclosure,
     syntheticSubmitBlocked: !syntheticCreated,
+    defaultProviderSearchApi: "pass",
     legitimateOverlayBookmarkCreate: "pass",
     localHostMigration: "pass",
     legitimateBookmarkCreate: "pass",
