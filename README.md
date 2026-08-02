@@ -1,64 +1,169 @@
-# BookmarkFlow Bar
+<p align="center">
+  <img src="docs/assets/bookmarkflow-hero.jpg" alt="BookmarkFlow Bar — fast bookmark access, anywhere" width="100%">
+</p>
 
-Chrome'un kendi yer imi cubugu iki satira cevrilemez. Bu eklenti onun yerine sayfalarin ustune sabitlenen, favicon ve isimleri birlikte gosteren ozel bir yer imi bari ekler.
+<h1 align="center">BookmarkFlow Bar</h1>
 
-## Ozellikler
+<p align="center">
+  A privacy-first Chrome extension that turns your bookmarks into a customizable multi-row bar, a keyboard-driven search palette, and an organized new-tab workspace.
+</p>
 
-- Bookmark Bar klasorundeki yer imlerini okur; arama ve klasor eslestirmelerinde Chrome'un diger guvenli yer imi koklerindeki ayni adli klasorleri de yakalar.
-- Ilk kurulum rehberiyle Dengeli, Yayinci/Gizlilik, Klavye odakli ve Klasor rayi profilleri sunar.
-- Varsayilan olarak sag ustte kucuk kontrol grubu gosterir; `BF` dugmesiyle genisler.
-- Normal durumda sadece kucuk kontrol grubu gorunur; yer imleri `BF` ile acilir.
-- Favicon ve yer imi adini birlikte gosterir.
-- Klasorleri acilir panel olarak gosterir.
-- Klasor rayi varsayilan olarak solda acilir; popup icinden kapatilabilir veya saga alinabilir.
-- Klasor rayi Google hesabindaki icerikli klasorlerle yalnizca cihazdaki Yer Isaretleri Cubugu klasorlerini birlikte listeler; ayni adli klasorlerde Google hesabindaki surumu tercih eder.
-- Klasorlere sag tik menusuyle renk atanabilir; renkler bar, klasor rayi ve yeni sekmede gorunur.
-- Cok fazla yer imi icin yatay kaydirma sunar.
-- `+` dugmesiyle mevcut sayfayi veya elle yazilan adresi secili klasore ya da Bookmark Bar'a ekler.
-- Yer imine veya klasore sag tiklayinca BookmarkFlow menusu acilir; acma, kopyalama, yeniden adlandirma, ekleme ve silme desteklenir.
-- Sag tik menusuyle yer imini bir onceye, bir sonraya, en basa veya en sona tasiyabilir.
-- Arama dugmesi, `Alt + Space`, `Ctrl + Shift + E` veya `Ctrl + K` ile yer imi arama paleti acilir/kapanir.
-- Arama paletinde `Yukari` / `Asagi` tuslariyla sonuc secilir, `Enter` secili sonucu acar.
-- `Alt + Shift + B` bari genisletir/daraltir, `Alt + Shift + H` gizler/geri getirir.
-- `Alt + Shift + M` yayinci modunu acip kapatir; bu mod bar ve klasor menulerinde yer imi isimlerini ikon moduna alir.
-- Kisa yollar Chrome'un `chrome://extensions/shortcuts` sayfasindan degistirilebilir.
-- Kurulum rehberi popup icinden tekrar acilabilir.
-- Popup'taki klasor birlestirme araci, yalnizca bu cihazdaki ayni adli klasorleri onizleyip secilenlerin icerigini Google hesabindaki klasore tasir; kaynak klasoru ancak bosaldigini dogruladiktan sonra kaldirir.
-- Klasor birlestirme/bakim sayfasinda herhangi bir Chrome yer imi klasoru kimligiyle raya sabitlenebilir; bu secim klasorun agactaki konumundan etkilenmez.
-- Yeni sekme ve web sayfasi panelleri sabitlenen klasor kimliklerini dogrudan yerel ayardan okuyup ray listesinin basina ekler.
-- `x` dugmesi bari kalici kapatmaz, kucuk `BF` geri acma dugmesine indirir.
-- Popup icinden ac/kapat, web sitelerinde gosterme, satir sayisi, yogun gorunum, klasor rayi, arama ve sayfa boslugu ayarlanir.
-- `Web sitelerinde goster` kapatilirsa normal web sayfalarindaki kucuk BF paneli gizlenir; yeni sekme sayfasi acik kalir.
-- Bos arama paletinde yer imlerini gizleyerek ekranda toplu yer imi listesi gostermez.
-- Site bazli gizleme destekler.
-- Istege bagli olarak giris, odeme ve banka sayfalarinda otomatik gizlenebilir.
-- `javascript:` gibi guvensiz yer imi URL'lerini sayfaya basmaz.
-- Chrome yeni sekme sayfasini Google aramali BookmarkFlow sayfasi olarak degistirir.
-- Yeni sekme yer imi seridi de popup'taki satir sayisi ayarini kullanir.
-- Yeni sekme sayfasi da klasor rayi ayarini kullanir.
-- Yeni sekme yer imi seridi yatay kaydirma konumunu hatirlar.
-- WordPress admin ve TradingView gibi sabit ust/yan panel kullanan sayfalarda genis bari otomatik alta alir.
+<p align="center">
+  <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
+  <img alt="Vanilla JavaScript" src="https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=111111">
+  <img alt="Version 0.1.35" src="https://img.shields.io/badge/version-0.1.35-F2C94C">
+  <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
+</p>
 
-## Kurulum
+<p align="center">
+  <a href="#why-bookmarkflow">Why BookmarkFlow</a> ·
+  <a href="#feature-tour">Feature tour</a> ·
+  <a href="#install-from-source">Install</a> ·
+  <a href="#privacy-by-design">Privacy</a> ·
+  <a href="CONTRIBUTING.md">Contribute</a>
+</p>
 
-1. Chrome'da `chrome://extensions` sayfasini ac.
-2. Sag ustten `Developer mode` secenegini ac.
-3. `Load unpacked` ile bu klasoru sec:
+## Why BookmarkFlow
 
-   İndirdiğin veya klonladığın `BookmarkFlow-Bar` klasörünü seç.
+Chrome's native bookmarks bar is intentionally simple, but it cannot become a true multi-row workspace. BookmarkFlow adds a compact interface on top of regular web pages and replaces the new-tab page with a focused bookmark dashboard—without moving your bookmarks into a separate service.
 
-4. Chrome'un kendi yer imi cubugunu kapat.
+- **See more at once.** Use multiple rows, compact density, horizontal scrolling, favicons, and readable titles.
+- **Find anything fast.** Open the command palette from the mouse or keyboard and navigate results without leaving the keyboard.
+- **Organize without duplication.** Work with the folders already stored in Chrome and pin important folders to a left or right rail.
+- **Stay presentation-ready.** Streamer mode reduces bookmark labels to icons when you share your screen.
+- **Adapt it per site.** Hide BookmarkFlow on selected domains or automatically suppress it on login, payment, and banking pages.
+- **Keep control of your data.** No analytics, external account, or BookmarkFlow cloud service is required.
 
-   Chrome'da native cubuga sag tiklayip `Show bookmarks bar` isaretini kapatabilir veya `Ctrl + Shift + B` kullanabilirsin. Brave'de kisayol yetmezse `Settings > Appearance > Show bookmarks` ayarini `Never` yap; `Only on new tab page` seciliyse cubuk sadece yeni sekmede gorunmeye devam eder. Bu islem yer imlerini silmez. Chrome/Brave'in kendi yer imi cubugu tarayici arayuzudur; BookmarkFlow onu otomatik kapatamaz, ayni Bookmark Bar verisini kendi barinda okumaya devam eder.
+## Feature tour
 
-5. Ilk acilan BookmarkFlow kurulum rehberindeki GIF turunu izleyerek bar acma, arama, klasor rayi, yayinci modu ve sag tik aksiyonlarini kontrol et.
+### A bookmark bar that fits your workflow
 
-## Sinirlar
+Expand the compact `BF` control only when you need it. Choose the number of rows, visual density, page spacing behavior, and whether the bar appears on regular websites.
 
-- `chrome://`, Chrome Web Store ve bazi tarayici ozel sayfalarinda content script calismaz.
-- Chrome yeni sekme sayfasi ozel bir tarayici sayfasi oldugu icin eklenti burada kendi `newtab` sayfasini kullanir.
-- Bar tarayicinin gercek yer imi alanina degil, web sayfasinin ustune eklenir.
-- Bazi sitelerde sabit header kullanimindan dolayi `Sayfayi asagi it` veya `Cakisan ust panellerde alta al` ayari kapatilip acilabilir.
-- Guvenlik nedeniyle yalnizca `http:`, `https:` ve `mailto:` yer imleri gosterilir.
-- Bar kapali Shadow DOM ile calisir; sayfa scriptleri bar icerigini dogrudan okuyamaz.
-- Klasor birlestirme araci Chrome 134 ve sonraki surumlerde sunulan `syncing` yer imi bilgisini kullanir.
+<p align="center">
+  <img src="src/assets/tour/bar-open-close.gif" alt="Opening and closing the BookmarkFlow bar" width="760">
+</p>
+
+### Search from anywhere
+
+Open the bookmark palette with the search button or a keyboard shortcut. Use the arrow keys to move through results and press `Enter` to open the selected bookmark.
+
+<p align="center">
+  <img src="src/assets/tour/search-palette.gif" alt="Searching Chrome bookmarks with BookmarkFlow" width="760">
+</p>
+
+### Pin the folders that matter
+
+The optional folder rail can sit on the left or right. Pinned folders are stored by Chrome bookmark ID, so they remain selected independently of their position in the bookmark tree.
+
+<p align="center">
+  <img src="src/assets/tour/folder-rail.gif" alt="Using the BookmarkFlow folder rail" width="760">
+</p>
+
+### Manage bookmarks in context
+
+Right-click a bookmark or folder to open, copy, rename, add, delete, reorder, or assign a color—without interrupting the page you are viewing.
+
+<p align="center">
+  <img src="src/assets/tour/context-actions.gif" alt="BookmarkFlow context actions" width="760">
+</p>
+
+### Share your screen with less visual noise
+
+Streamer mode switches bookmark labels to an icon-focused presentation in the bar and folder menus.
+
+<p align="center">
+  <img src="src/assets/tour/streamer-mode.gif" alt="BookmarkFlow streamer mode" width="760">
+</p>
+
+## Install from source
+
+BookmarkFlow is currently distributed as an unpacked Chrome extension.
+
+1. Download this repository with **Code → Download ZIP**, then extract it—or clone it:
+
+   ```bash
+   git clone https://github.com/09mc/BookmarkFlow-Bar.git
+   ```
+
+2. Open `chrome://extensions` in Chrome.
+3. Enable **Developer mode** in the top-right corner.
+4. Select **Load unpacked** and choose the repository folder containing `manifest.json`.
+5. Follow the built-in onboarding tour.
+
+For the cleanest experience, hide Chrome's native bookmarks bar with `Ctrl + Shift + B`. This only changes its visibility; it does not delete bookmarks. BookmarkFlow continues to read the same Chrome bookmark data.
+
+## Keyboard shortcuts
+
+| Action | Default shortcut |
+| --- | --- |
+| Open or close search | `Ctrl + Shift + E` |
+| Expand or collapse the bar | `Alt + Shift + B` |
+| Hide or restore BookmarkFlow | `Alt + Shift + H` |
+| Toggle streamer mode | `Alt + Shift + M` |
+
+Shortcuts can be reassigned at `chrome://extensions/shortcuts`. `Ctrl + K` and `Alt + Space` also open the palette when the current page does not reserve those combinations.
+
+## Privacy by design
+
+BookmarkFlow is designed to work with Chrome's existing bookmark system rather than copying your library to an external service.
+
+- Bookmark titles, URLs, and folders remain in Chrome's bookmark storage.
+- BookmarkFlow has no analytics SDK, advertising SDK, remote API, or project-operated server.
+- General display preferences may follow the browser through Chrome Sync when sync is enabled.
+- The per-site hide list and pinned folder selections are stored locally on the device.
+- Only `http:`, `https:`, and `mailto:` bookmark URLs are rendered or opened.
+- The in-page interface runs inside a closed Shadow DOM to reduce interference from page styles and scripts.
+
+See the full [privacy policy](store/privacy-policy.md) and [security policy](SECURITY.md).
+
+## Permissions
+
+| Permission | Why it is needed |
+| --- | --- |
+| `bookmarks` | Read and manage the user's Chrome bookmark tree for the bar, search, folders, and context actions. |
+| `storage` | Save layout, appearance, onboarding, local site exclusions, and other extension preferences. |
+| `favicon` | Display Chrome-managed favicons beside bookmarks without contacting a third-party icon service. |
+| `<all_urls>` | Place the optional in-page bookmark interface on ordinary websites. Chrome-protected pages remain inaccessible to extensions. |
+
+## Built with a small, auditable stack
+
+BookmarkFlow uses Manifest V3, semantic HTML, CSS, and vanilla JavaScript. It has no runtime package dependencies and no build step.
+
+```text
+BookmarkFlow-Bar/
+├── manifest.json              Extension entry point and permissions
+├── icons/                     BF application icons
+├── src/                       Popup, new tab, onboarding, and content UI
+├── scripts/                   Local validation and regression checks
+├── store/                     Store listing, privacy, and QA materials
+└── docs/assets/               Repository presentation assets
+```
+
+## Local validation
+
+With Node.js 20 or newer installed:
+
+```bash
+node scripts/validate-project.mjs
+node scripts/verify-public-tree.mjs
+node scripts/security-regression.mjs
+```
+
+The first two checks are platform-independent. The browser regression check additionally requires a locally installed Chromium-based browser.
+
+## Browser limitations
+
+- Content scripts cannot run on `chrome://` pages, the Chrome Web Store, and other browser-protected surfaces.
+- The new-tab experience uses a dedicated extension page because Chrome's default new tab is protected.
+- BookmarkFlow is an in-page overlay, not a modification of Chrome's native toolbar.
+- Sites with complex fixed headers may require the **Push page content** or **Place below overlapping headers** setting.
+- Folder merge detection uses bookmark synchronization metadata available in Chrome 134 and later.
+
+## Contributing and support
+
+Bug reports and focused improvements are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Use the repository's issue templates for reproducible bugs and feature proposals. Please report security concerns privately as described in [SECURITY.md](SECURITY.md).
+
+## License
+
+No open-source license has been granted yet. The source is publicly visible for review and evaluation, but reuse, redistribution, and modification require the copyright owner's permission.

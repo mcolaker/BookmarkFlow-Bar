@@ -3,8 +3,14 @@
 /*
 
 !/.gitignore
+!/.github/
+!/.github/**
+!/CHANGELOG.md
+!/CONTRIBUTING.md
 !/README.md
 !/manifest.json
+!/docs/
+!/docs/**
 !/icons/
 !/icons/**
 !/scripts/
