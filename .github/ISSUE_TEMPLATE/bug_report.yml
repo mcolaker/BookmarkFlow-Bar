@@ -1,0 +1,65 @@
+name: Bug report
+description: Report a reproducible problem in BookmarkFlow Bar
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem. Do not include personal bookmarks, credentials, or browser profile data.
+  - type: input
+    id: version
+    attributes:
+      label: BookmarkFlow version
+      description: Find the version in manifest.json or on the Chrome extensions page.
+      placeholder: "0.1.35"
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: "Chrome 134"
+    validations:
+      required: true
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating system
+      placeholder: "Windows 11"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the actual behavior and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or console output
+      description: Use synthetic bookmark data and remove any personal or sensitive information.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Final checks
+      options:
+        - label: I searched existing issues for the same problem.
+          required: true
+        - label: I removed personal bookmarks, credentials, and profile data from this report.
+          required: true
+        - label: This is not a security vulnerability.
+          required: true

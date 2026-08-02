@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "BookmarkFlow Bar",
   "version": "0.1.35",
-  "description": "Yer imlerini favicon ve isimleriyle ayarlanabilir satirli, ozel bir ust bar olarak gosterir.",
+  "description": "Turn Chrome bookmarks into a customizable multi-row bar, search palette, and focused new-tab workspace.",
   "permissions": [
     "bookmarks",
     "storage",
@@ -27,28 +27,28 @@
         "default": "Ctrl+Shift+E",
         "mac": "Ctrl+Shift+E"
       },
-      "description": "BookmarkFlow arama paletini ac"
+      "description": "Open the BookmarkFlow search palette"
     },
     "toggle-bar": {
       "suggested_key": {
         "default": "Alt+Shift+B",
         "mac": "Alt+Shift+B"
       },
-      "description": "BookmarkFlow barini genislet veya daralt"
+      "description": "Expand or collapse the BookmarkFlow bar"
     },
     "hide-restore": {
       "suggested_key": {
         "default": "Alt+Shift+H",
         "mac": "Alt+Shift+H"
       },
-      "description": "BookmarkFlow'u gizle veya geri getir"
+      "description": "Hide or restore BookmarkFlow"
     },
     "toggle-streamer-mode": {
       "suggested_key": {
         "default": "Alt+Shift+M",
         "mac": "Alt+Shift+M"
       },
-      "description": "BookmarkFlow yayinci modunu ac veya kapat"
+      "description": "Turn BookmarkFlow streamer mode on or off"
     }
   },
   "chrome_url_overrides": {

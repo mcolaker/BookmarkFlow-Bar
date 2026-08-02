@@ -1,0 +1,34 @@
+name: Feature request
+description: Propose a focused improvement to BookmarkFlow Bar
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Explain the workflow or limitation before describing a solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed experience
+      description: Describe how the feature should behave from the user's perspective.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Share any workarounds or other approaches you evaluated.
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Project fit
+      options:
+        - label: The proposal can preserve BookmarkFlow's local-first privacy model.
+          required: true
+        - label: I searched existing issues and did not find the same request.
+          required: true
