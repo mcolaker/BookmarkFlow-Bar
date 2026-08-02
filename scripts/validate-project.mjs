@@ -161,6 +161,7 @@ for (const path of JavaScriptFiles) {
 
 const requiredPresentationFiles = [
   "README.md",
+  "CODE_OF_CONDUCT.md",
   "CONTRIBUTING.md",
   "SECURITY.md",
   "CHANGELOG.md",
