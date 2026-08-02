@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/bookmarkflow-hero.jpg" alt="BookmarkFlow Bar — fast bookmark access, anywhere" width="100%">
+  <img src="docs/assets/bookmarkflow-hero.jpg" alt="BookmarkFlow Bar product preview showing a multi-row bookmark bar and private search workspace" width="100%">
 </p>
 
 <h1 align="center">BookmarkFlow Bar</h1>
@@ -16,6 +16,21 @@
   <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
+
+<p align="center">
+  <strong><a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.37/bookmarkflow-bar-0.1.37.zip">Download v0.1.37</a></strong> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.37/bookmarkflow-bar-0.1.37.zip.sha256">Verify SHA-256</a> ·
+  <a href="#install-from-source">Installation guide</a> ·
+  <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Product website</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/discussions">Join Discussions</a>
+</p>
+
+<p align="center">
+  <sub><strong>Project status:</strong> v0.1.37 · verified release package available · Chrome Web Store review pending as of August 2, 2026 · <a href="CHANGELOG.md">Changelog</a></sub>
+</p>
+
+> [!NOTE]
+> **Privacy at a glance:** Your bookmark library stays in Chrome. BookmarkFlow has no analytics SDK or developer-operated server. The `<all_urls>` access exists only to render the optional in-page bar on ordinary websites. See [Privacy](#privacy-by-design) and [Permissions](#permissions) for the complete explanation.
 
 <p align="center">
   <a href="#why-bookmarkflow">Why BookmarkFlow</a> ·
@@ -86,7 +101,7 @@ Streamer mode switches bookmark labels to an icon-focused presentation in the ba
 
 BookmarkFlow is currently distributed as an unpacked Chrome extension. Use a versioned release package for the most predictable installation.
 
-1. Download the latest source ZIP from [GitHub Releases](https://github.com/mcolaker/BookmarkFlow-Bar/releases), then extract it. Contributors can clone the repository instead:
+1. Download the verified [`bookmarkflow-bar-0.1.37.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.37/bookmarkflow-bar-0.1.37.zip) package and extract it. Its published [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.37/bookmarkflow-bar-0.1.37.zip.sha256) is available for integrity verification. Contributors can clone the repository instead:
 
    ```bash
    git clone https://github.com/mcolaker/BookmarkFlow-Bar.git
@@ -182,14 +197,25 @@ Maintainers can create a versioned extension ZIP and SHA-256 checksum from a rel
 
 ## How to support
 
-If BookmarkFlow improves your daily browsing, you can support its development in several meaningful ways:
+If BookmarkFlow improves your daily browsing, choose the route that matches how you want to help.
+
+### Try it
+
+- **Download the [verified v0.1.37 release](https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.1.37)** and follow the [installation guide](#install-from-source).
+- **Read the [product website](https://mcolaker.github.io/BookmarkFlow-Bar/)** and privacy documentation before installing.
+
+### Support the project
 
 - **Star the repository** to help more Chrome users discover the project.
 - **Watch releases** to follow verified packages and important product updates.
 - **Join [GitHub Discussions](https://github.com/mcolaker/BookmarkFlow-Bar/discussions)** to ask questions, share workflows, suggest ideas, and help other users.
-- **Report reproducible bugs or focused feature requests** through [GitHub Issues](https://github.com/mcolaker/BookmarkFlow-Bar/issues).
-- **Test new releases** and contribute accessibility, localization, documentation, or narrowly scoped code improvements.
 - **Share BookmarkFlow** with people who want faster bookmark access without moving their library to a separate service.
+
+### Contribute
+
+- **Report reproducible bugs or focused feature requests** through [GitHub Issues](https://github.com/mcolaker/BookmarkFlow-Bar/issues).
+- **Start with a [`good first issue`](https://github.com/mcolaker/BookmarkFlow-Bar/labels/good%20first%20issue)** or a [`help wanted`](https://github.com/mcolaker/BookmarkFlow-Bar/labels/help%20wanted) task.
+- **Test new releases** or contribute accessibility, localization, documentation, and narrowly scoped code improvements.
 
 For additional support routes, see [SUPPORT.md](SUPPORT.md). For security vulnerabilities, do not open a public issue or discussion; follow the private reporting process in [SECURITY.md](SECURITY.md).
 
