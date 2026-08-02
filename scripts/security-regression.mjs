@@ -30,6 +30,7 @@ const server = await startHostileServer();
 const debugPort = await getFreePort();
 const chrome = spawn(chromePath, [
   ...(process.env.BOOKMARKFLOW_HEADLESS === "0" ? [] : ["--headless=new"]),
+  ...(process.platform === "linux" ? ["--no-sandbox", "--disable-dev-shm-usage"] : []),
   "--disable-gpu",
   "--disable-sync",
   `--lang=${requestedLanguage}`,
@@ -42,14 +43,21 @@ const chrome = spawn(chromePath, [
   `--load-extension=${projectRoot}`,
   "about:blank"
 ], {
-  stdio: "ignore",
+  stdio: ["ignore", "ignore", "pipe"],
   windowsHide: true
+});
+let chromeStderr = "";
+chrome.stderr?.on("data", (chunk) => {
+  chromeStderr = `${chromeStderr}${chunk}`.slice(-4000);
 });
 
 let cdp;
 
 try {
-  const browserSocket = await waitForDebugger(debugPort);
+  const browserSocket = await waitForDebugger(debugPort, () => ({
+    exitCode: chrome.exitCode,
+    stderr: chromeStderr.trim()
+  }));
   cdp = await CdpClient.connect(browserSocket);
 
   const hostilePage = await createPage(cdp, server.url);
@@ -328,7 +336,7 @@ async function getFreePort() {
   return port;
 }
 
-async function waitForDebugger(port) {
+async function waitForDebugger(port, getDiagnostics = () => ({})) {
   const deadline = Date.now() + 15000;
   let lastError;
   while (Date.now() < deadline) {
@@ -341,9 +349,11 @@ async function waitForDebugger(port) {
     } catch (error) {
       lastError = error;
     }
+    if (getDiagnostics().exitCode !== null) break;
     await delay(100);
   }
-  throw new Error(`Chrome DevTools did not start: ${lastError?.message || "timeout"}`);
+  const diagnostics = getDiagnostics();
+  throw new Error(`Chrome DevTools did not start: ${lastError?.message || "timeout"}; diagnostics: ${JSON.stringify(diagnostics)}`);
 }
 
 async function createPage(cdp, url) {
