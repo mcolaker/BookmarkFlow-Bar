@@ -19,7 +19,7 @@ The extension does not collect, transmit, sell, or share user data.
 
 Recommended disclosure:
 
-- Website content: not collected by the developer.
+- Website content: not collected by the developer. The current page title and URL are handled locally only to prefill the add-bookmark form opened by the user.
 - Browsing history: not collected by the developer.
 - User activity: not collected by the developer.
 - Personal communications: not collected by the developer.

@@ -40,7 +40,7 @@ BookmarkFlow Bar yer imi verilerinizi gelistiriciye veya dis sunuculara gonderme
 
 ## Category suggestion
 
-Productivity
+İş Akışı ve Planlama
 
 ## Language
 

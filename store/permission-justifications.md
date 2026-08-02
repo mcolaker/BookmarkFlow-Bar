@@ -16,7 +16,7 @@ Required to display favicons for bookmark URLs using Chrome's favicon API.
 
 ## content_scripts on <all_urls>
 
-Required to show the BookmarkFlow overlay on regular web pages. The content script renders the bar locally in the page, uses closed Shadow DOM, and does not transmit page or bookmark data to external servers.
+Required to show the BookmarkFlow overlay on regular web pages. The content script renders the bar locally in the page, uses closed Shadow DOM, and reads the current page title and URL locally only when prefilling the user-opened add-bookmark form. It does not transmit page or bookmark data to external servers.
 
 ## chrome_url_overrides.newtab
 

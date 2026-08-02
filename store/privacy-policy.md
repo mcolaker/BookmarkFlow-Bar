@@ -8,6 +8,8 @@ BookmarkFlow Bar is a Chrome extension by Maprins Games that shows the user's Ch
 
 BookmarkFlow Bar requests access to Chrome bookmarks so it can display bookmark titles, URLs, folders, and favicons inside the extension UI. When the user explicitly uses BookmarkFlow's add, drag, reorder, rename, color, merge, or delete controls, the extension performs the requested bookmark operation locally.
 
+When the user opens the add-bookmark form on a regular web page, BookmarkFlow Bar reads that page's title and URL locally to prefill the form. The information is not saved as a bookmark unless the user confirms the action, and it is not sent to Maprins Games.
+
 BookmarkFlow Bar stores general display preferences using Chrome storage sync, so Chrome may synchronize those preferences between the user's signed-in browsers when browser sync is enabled. The list of sites where the user has chosen to hide the bar is stored only in Chrome's device-local storage and is not synchronized.
 
 ## Data collection and sharing
@@ -17,6 +19,10 @@ BookmarkFlow Bar does not collect, sell, rent, transfer, or share user data.
 BookmarkFlow Bar does not send bookmark data, browsing data, settings, or analytics to Maprins Games. Chrome may synchronize general display preferences through the user's Chrome Sync account; BookmarkFlow Bar does not operate or receive data from that service.
 
 Bookmark rendering and bookmark management happen locally in the browser. Per-site hide choices remain on the device; Chrome handles any optional synchronization of general display preferences.
+
+## Limited Use compliance
+
+The use of information received from Google APIs will adhere to the Chrome Web Store User Data Policy, including the Limited Use requirements.
 
 ## Search behavior
 

@@ -41,7 +41,7 @@ Chrome does not allow extensions to place content scripts on protected pages suc
 
 ## Suggested category
 
-Productivity
+Workflow & Planning
 
 ## Language
 

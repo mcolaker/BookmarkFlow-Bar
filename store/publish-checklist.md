@@ -25,7 +25,7 @@ Recommended:
 ## Dashboard fields
 
 - Name: BookmarkFlow Bar
-- Category: Productivity
+- Category: Workflow & Planning (İş Akışı ve Planlama)
 - Primary language: English
 - Additional language: Turkish
 - English description: use `store/listing-en.md`
