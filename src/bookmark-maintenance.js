@@ -1,11 +1,14 @@
 const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
+const { DATA_CONSENT_STORAGE_KEY, DATA_CONSENT_VERSION } = BookmarkFlowConfig;
 const { getLanguage, t } = BookmarkFlowI18n;
 
 const elements = {
+  consentGate: document.getElementById("maintenanceConsentGate"),
   folderFilter: document.getElementById("folderFilter"),
   folderPickerList: document.getElementById("folderPickerList"),
   groups: document.getElementById("groups"),
   merge: document.getElementById("merge"),
+  openPrivacySetup: document.getElementById("openPrivacySetup"),
   pinnedStatus: document.getElementById("pinnedStatus"),
   refresh: document.getElementById("refresh"),
   savePinnedFolders: document.getElementById("savePinnedFolders"),
@@ -17,26 +20,62 @@ let selectableFolders = [];
 let pinnedFolderIds = new Set();
 let isBusy = false;
 
-elements.refresh.addEventListener("click", () => {
-  loadDuplicateGroups().catch(handleFatalError);
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === "local" && DATA_CONSENT_STORAGE_KEY in changes) {
+    window.location.reload();
+  }
 });
+init().catch(handleFatalError);
 
-elements.merge.addEventListener("click", () => {
-  mergeSelectedGroups().catch(handleFatalError);
-});
+async function init() {
+  elements.openPrivacySetup.addEventListener("click", () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL("src/onboarding.html") });
+  });
 
-elements.folderFilter.addEventListener("input", renderFolderPicker);
+  const consent = await sendMessage({ type: "BF_GET_CONSENT_STATUS" });
+  if (!consent?.ok || !consent.consentGranted) {
+    elements.consentGate.hidden = false;
+    document.querySelectorAll("input, button, select").forEach((control) => {
+      if (control !== elements.openPrivacySetup) {
+        control.disabled = true;
+      }
+    });
+    renderStatus(t("dataConsentRequired"), "error");
+    return;
+  }
 
-elements.savePinnedFolders.addEventListener("click", () => {
-  savePinnedFolders().catch(handlePinnedFolderError);
-});
+  elements.refresh.addEventListener("click", () => {
+    loadDuplicateGroups().catch(handleFatalError);
+  });
+  elements.merge.addEventListener("click", () => {
+    mergeSelectedGroups().catch(handleFatalError);
+  });
+  elements.folderFilter.addEventListener("input", renderFolderPicker);
+  elements.savePinnedFolders.addEventListener("click", () => {
+    savePinnedFolders().catch(handlePinnedFolderError);
+  });
 
-Promise.all([
-  loadDuplicateGroups(),
-  loadFolderPicker()
-]).catch(handleFatalError);
+  await Promise.all([
+    loadDuplicateGroups(),
+    loadFolderPicker()
+  ]);
+}
+
+function sendMessage(message) {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(message, (response) => resolve(response));
+  });
+}
+
+async function requireDataConsent() {
+  const localState = await chrome.storage.local.get(DATA_CONSENT_STORAGE_KEY);
+  if (localState[DATA_CONSENT_STORAGE_KEY] !== DATA_CONSENT_VERSION) {
+    throw new Error(t("dataConsentRequired"));
+  }
+}
 
 async function loadFolderPicker() {
+  await requireDataConsent();
   const [[root], localState] = await Promise.all([
     chrome.bookmarks.getTree(),
     chrome.storage.local.get(FOLDER_RAIL_PINNED_STORAGE_KEY)
@@ -126,6 +165,7 @@ function renderFolderPicker() {
 }
 
 async function savePinnedFolders() {
+  await requireDataConsent();
   elements.savePinnedFolders.disabled = true;
   renderPinnedStatus(t("savingRailSelection"));
   await chrome.storage.local.set({
@@ -155,6 +195,7 @@ function handlePinnedFolderError(error) {
 }
 
 async function loadDuplicateGroups() {
+  await requireDataConsent();
   setBusy(true);
   renderStatus(t("scanningFolders"));
 
@@ -348,6 +389,7 @@ function appendFolderPaths(container, label, folders) {
 }
 
 async function mergeSelectedGroups() {
+  await requireDataConsent();
   const selectedGroups = duplicateGroups.filter((group) => group.selected);
   if (!selectedGroups.length || isBusy) {
     return;
@@ -390,6 +432,7 @@ async function mergeSelectedGroups() {
 }
 
 async function addPinnedFolderIds(folderIds) {
+  await requireDataConsent();
   const localState = await chrome.storage.local.get(FOLDER_RAIL_PINNED_STORAGE_KEY);
   const nextIds = normalizePinnedFolderIds([
     ...normalizePinnedFolderIds(localState[FOLDER_RAIL_PINNED_STORAGE_KEY]),
@@ -405,6 +448,7 @@ async function mergeFolderGroup(group) {
   let removed = 0;
 
   try {
+    await requireDataConsent();
     const [root] = await chrome.bookmarks.getTree();
     const nodesById = indexBookmarkTree(root);
     const target = nodesById.get(group.targetId);
@@ -414,6 +458,7 @@ async function mergeFolderGroup(group) {
     }
 
     for (const sourceSummary of group.localFolders) {
+      await requireDataConsent();
       const currentRoot = (await chrome.bookmarks.getTree())[0];
       const currentNodes = indexBookmarkTree(currentRoot);
       const source = currentNodes.get(sourceSummary.id);

@@ -19,6 +19,11 @@
         </label>
       </header>
 
+      <section id="popupConsentGate" class="consent-gate" hidden>
+        <strong data-i18n="dataConsentRequiredHeading">Review privacy choices to enable BookmarkFlow</strong>
+        <p data-i18n="dataConsentRequiredDescription">Bookmark and page access remains off until you review the first-run disclosure and agree.</p>
+      </section>
+
       <button id="openOnboarding" class="primary setup-button" type="button" data-i18n="setupGuide">Setup guide</button>
 
       <label class="check" title="Show the compact BF panel on regular websites without changing the new-tab page" data-i18n-title="showOnSitesTitle">
@@ -94,7 +99,7 @@
         <dl class="shortcut-list">
           <div class="shortcut-row" data-command="open-search">
             <dt data-i18n="searchPalette">Search palette</dt>
-            <dd><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>E</kbd></dd>
+            <dd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>K</kbd></dd>
           </div>
           <div class="shortcut-row" data-command="toggle-bar">
             <dt data-i18n="expandCollapseBar">Expand / collapse bar</dt>

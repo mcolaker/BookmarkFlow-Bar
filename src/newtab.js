@@ -1,13 +1,14 @@
 const {
   FOLDER_COLOR_PRESETS,
+  DATA_CONSENT_STORAGE_KEY,
+  DATA_CONSENT_VERSION,
   areBookmarkUrlsEqual,
   isSafeBookmarkUrl,
   normalizeSettings
 } = BookmarkFlowConfig;
-const { t } = BookmarkFlowI18n;
+const { getLanguage, t } = BookmarkFlowI18n;
 
-const NEWTAB_SCROLL_STORAGE_KEY = "bfNewTabScrollLeft";
-const SCROLL_SAVE_DELAY = 160;
+const MESSAGE_GET_CONSENT_STATUS = "BF_GET_CONSENT_STATUS";
 const BOOKMARK_DRAG_THRESHOLD = 6;
 const BOOKMARK_DROP_TOLERANCE = 36;
 const BOOKMARK_GHOST_OFFSET = 12;
@@ -16,6 +17,9 @@ const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
 
 const elements = {
   bookmarkBar: document.getElementById("bookmarkBar"),
+  consentGate: document.getElementById("consentGate"),
+  newTabWorkspace: document.getElementById("newTabWorkspace"),
+  openPrivacySetup: document.getElementById("openPrivacySetup"),
   bookmarkStrip: document.getElementById("bookmarkStrip"),
   addBookmark: document.getElementById("addBookmark"),
   addDialog: document.getElementById("addDialog"),
@@ -33,26 +37,41 @@ const elements = {
   contextMenu: document.getElementById("contextMenu"),
   scrollLeft: document.getElementById("scrollLeft"),
   scrollRight: document.getElementById("scrollRight"),
+  main: document.querySelector(".nt-main"),
   searchForm: document.getElementById("searchForm"),
   searchInput: document.getElementById("searchInput")
 };
 
 let appState = null;
 let activeFolderId = "";
-let savedBookmarkScrollLeft = 0;
-let isRestoringBookmarkScroll = false;
-let scrollSaveTimer = 0;
 let contextMenuState = null;
 let bookmarkDragState = null;
 let suppressNextClick = false;
 let pinnedFolderIds = [];
+let addDialogReturnFocus = null;
 
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === "local" && DATA_CONSENT_STORAGE_KEY in changes) {
+    window.location.reload();
+  }
+});
 init().catch(() => {});
 
 async function init() {
-  [appState, savedBookmarkScrollLeft, pinnedFolderIds] = await Promise.all([
+  const consent = await sendMessage({ type: MESSAGE_GET_CONSENT_STATUS });
+  if (!consent?.ok || !consent.consentGranted || consent.consentVersion !== DATA_CONSENT_VERSION) {
+    elements.consentGate.hidden = false;
+    elements.newTabWorkspace.hidden = true;
+    elements.openPrivacySetup.addEventListener("click", () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL("src/onboarding.html") });
+    });
+    return;
+  }
+
+  elements.consentGate.hidden = true;
+  elements.newTabWorkspace.hidden = false;
+  [appState, pinnedFolderIds] = await Promise.all([
     getState(),
-    getSavedBookmarkScrollLeft(),
     getPinnedFolderIds()
   ]);
   render();
@@ -60,12 +79,11 @@ async function init() {
   elements.searchInput.focus();
 
   elements.searchForm.addEventListener("submit", handleSearchSubmit);
-  elements.addBookmark.addEventListener("click", openAddBookmarkDialog);
+  elements.addBookmark.addEventListener("click", () => openAddBookmarkDialog());
   elements.addForm.addEventListener("submit", handleAddBookmarkSubmit);
   elements.addClose.addEventListener("click", closeAddBookmarkDialog);
   elements.addCancel.addEventListener("click", closeAddBookmarkDialog);
   elements.addFolder.addEventListener("click", () => createFolderFromPrompt(""));
-  elements.bookmarkStrip.addEventListener("scroll", handleBookmarkStripScroll, { passive: true });
   elements.scrollLeft.addEventListener("click", () => scrollBookmarks(-1));
   elements.scrollRight.addEventListener("click", () => scrollBookmarks(1));
   elements.bookmarkBar.addEventListener("pointerdown", handleBookmarkPointerDown);
@@ -116,7 +134,6 @@ function normalizePinnedFolderIds(value) {
 function handleWindowResize() {
   const settings = normalizeSettings(appState?.settings);
   scheduleTightenBookmarkRows(settings.streamerMode ? 1 : settings.rows);
-  restoreBookmarkScroll();
 }
 
 function render() {
@@ -176,7 +193,6 @@ function render() {
   }
 
   scheduleTightenBookmarkRows(settings.streamerMode ? 1 : settings.rows);
-  restoreBookmarkScroll();
   restoreActiveFolderMenu(folderToRestore);
 }
 
@@ -283,7 +299,10 @@ function resolveDirectNavigationTarget(value) {
   return "";
 }
 
-function openAddBookmarkDialog() {
+function openAddBookmarkDialog(returnFocusElement = document.activeElement) {
+  if (elements.addDialog.hidden) {
+    addDialogReturnFocus = createFocusReturnTarget(returnFocusElement);
+  }
   const suggestion = getAddBookmarkSuggestion();
   resetAddDuplicateState();
   elements.addDialog.dataset.parentId = suggestion.parentId || "";
@@ -291,15 +310,23 @@ function openAddBookmarkDialog() {
   elements.addUrl.value = suggestion.url;
   renderAddBookmarkStatus(suggestion.status || (suggestion.url ? "" : t("enterAddressToAdd")), false);
   elements.addDialog.hidden = false;
+  setNewTabModalBackground(true);
   requestAnimationFrame(() => {
     (elements.addUrl.value ? elements.addTitle : elements.addUrl).focus();
     (elements.addUrl.value ? elements.addTitle : elements.addUrl).select();
   });
 }
 
-function closeAddBookmarkDialog() {
+function closeAddBookmarkDialog({ restoreFocus = true } = {}) {
+  const returnFocus = addDialogReturnFocus;
+  addDialogReturnFocus = null;
   resetAddDuplicateState();
   elements.addDialog.hidden = true;
+  setNewTabModalBackground(false);
+  if (restoreFocus) {
+    restoreFocusTarget(returnFocus);
+  }
+  return returnFocus;
 }
 
 async function handleAddBookmarkSubmit(event) {
@@ -342,9 +369,76 @@ async function handleAddBookmarkSubmit(event) {
   resetAddDuplicateState();
   renderAddBookmarkStatus(parentId ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
   window.setTimeout(() => {
-    closeAddBookmarkDialog();
+    const returnFocus = closeAddBookmarkDialog({ restoreFocus: false });
     render();
+    restoreFocusTarget(returnFocus);
   }, 900);
+}
+
+function setNewTabModalBackground(isModalOpen) {
+  elements.bookmarkBar.inert = isModalOpen;
+  elements.main.inert = isModalOpen;
+}
+
+function createFocusReturnTarget(element) {
+  if (!element || typeof element.focus !== "function") {
+    return null;
+  }
+
+  return {
+    element,
+    id: element.id || ""
+  };
+}
+
+function restoreFocusTarget(target) {
+  if (!target) {
+    return;
+  }
+
+  const candidate = target.element?.isConnected
+    ? target.element
+    : (target.id ? document.getElementById(target.id) : null);
+  if (!candidate || typeof candidate.focus !== "function" || candidate.disabled) {
+    return;
+  }
+
+  candidate.focus({ preventScroll: true });
+}
+
+function getFocusableElements(container) {
+  return Array.from(container?.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  ) || []).filter((element) => element.tabIndex >= 0 && !element.hidden && element.getAttribute("aria-hidden") !== "true");
+}
+
+function trapFocusWithin(event, container, activeElement = document.activeElement) {
+  if (event.key !== "Tab" || !container) {
+    return false;
+  }
+
+  const focusable = getFocusableElements(container);
+  if (!focusable.length) {
+    event.preventDefault();
+    container.focus({ preventScroll: true });
+    return true;
+  }
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && (activeElement === first || !container.contains(activeElement))) {
+    event.preventDefault();
+    last.focus({ preventScroll: true });
+    return true;
+  }
+
+  if (!event.shiftKey && (activeElement === last || !container.contains(activeElement))) {
+    event.preventDefault();
+    first.focus({ preventScroll: true });
+    return true;
+  }
+
+  return false;
 }
 
 function getAddBookmarkSuggestion() {
@@ -401,41 +495,6 @@ function sendMessage(message) {
       resolve(response);
     });
   });
-}
-
-async function getSavedBookmarkScrollLeft() {
-  try {
-    const data = await chrome.storage.local.get(NEWTAB_SCROLL_STORAGE_KEY);
-    const value = Number(data[NEWTAB_SCROLL_STORAGE_KEY]);
-    return Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
-  } catch {
-    return 0;
-  }
-}
-
-function restoreBookmarkScroll() {
-  isRestoringBookmarkScroll = true;
-  requestAnimationFrame(() => {
-    const maxScroll = Math.max(0, elements.bookmarkStrip.scrollWidth - elements.bookmarkStrip.clientWidth);
-    elements.bookmarkStrip.scrollLeft = Math.min(savedBookmarkScrollLeft, maxScroll);
-    requestAnimationFrame(() => {
-      isRestoringBookmarkScroll = false;
-    });
-  });
-}
-
-function handleBookmarkStripScroll() {
-  if (isRestoringBookmarkScroll) {
-    return;
-  }
-
-  savedBookmarkScrollLeft = Math.max(0, Math.round(elements.bookmarkStrip.scrollLeft));
-  window.clearTimeout(scrollSaveTimer);
-  scrollSaveTimer = window.setTimeout(() => {
-    chrome.storage.local.set({
-      [NEWTAB_SCROLL_STORAGE_KEY]: savedBookmarkScrollLeft
-    }).catch(() => {});
-  }, SCROLL_SAVE_DELAY);
 }
 
 function createTopLevelItem(node) {
@@ -873,9 +932,11 @@ function openAddBookmarkForContextFolder() {
     return;
   }
 
+  const returnFocusElement = Array.from(document.querySelectorAll("[data-node-id]"))
+    .find((element) => element.dataset.nodeId === state.nodeId) || null;
   activeFolderId = state.nodeId;
   closeContextMenu();
-  openAddBookmarkDialog();
+  openAddBookmarkDialog(returnFocusElement);
 }
 
 async function setContextFolderColor(color) {
@@ -1495,7 +1556,11 @@ function dedupeBookmarkEntries(entries) {
 }
 
 function normalizeFolderTitle(value) {
-  return String(value || "").trim().toLocaleLowerCase("tr-TR");
+  return String(value || "").trim().toLocaleLowerCase(getTextLocale());
+}
+
+function getTextLocale() {
+  return getLanguage() === "tr" ? "tr-TR" : "en-US";
 }
 
 function getBookmarkTreeRoot() {
@@ -1604,24 +1669,22 @@ function getHostname(url) {
 }
 
 function handleKeydown(event) {
-  const key = String(event.key || "").toLocaleLowerCase("en-US");
-  const code = String(event.code || "");
-  if (event.altKey && !event.ctrlKey && !event.metaKey && (
-    code === "Space" ||
-    event.key === " " ||
-    key === "spacebar"
-  )) {
-    event.preventDefault();
+  if (event.key === "Tab" && !elements.addDialog.hidden) {
     event.stopPropagation();
-    elements.searchInput.focus();
-    elements.searchInput.select();
+    trapFocusWithin(event, elements.addForm);
     return;
   }
 
   if (event.key === "Escape") {
+    if (!elements.addDialog.hidden) {
+      event.preventDefault();
+      event.stopPropagation();
+      closeAddBookmarkDialog();
+      return;
+    }
+
     closeContextMenu();
     closeFolderMenu();
-    closeAddBookmarkDialog();
   }
 }
 

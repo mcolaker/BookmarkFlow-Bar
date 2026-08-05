@@ -15,6 +15,10 @@ body {
   background: #11151d;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 button {
   font: inherit;
 }
@@ -97,6 +101,55 @@ h2 {
 
 .summary {
   margin-top: 14px;
+}
+
+.consent-card {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 22px;
+  border: 1px solid rgba(242, 201, 76, 0.46);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(242, 201, 76, 0.11), #161b24 48%);
+}
+
+.consent-card h2 {
+  font-size: 24px;
+}
+
+.consent-intro,
+.consent-card li,
+.consent-emphasis {
+  color: rgba(247, 249, 252, 0.76);
+  font-size: 14px;
+  line-height: 1.58;
+}
+
+.consent-card ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 22px;
+}
+
+.consent-emphasis {
+  padding: 12px;
+  border-left: 3px solid #41d17d;
+  background: rgba(65, 209, 125, 0.08);
+  color: #dff8e8;
+}
+
+.privacy-link {
+  justify-self: start;
+  color: #f2c94c;
+  font-weight: 700;
+}
+
+.consent-actions {
+  display: flex;
+  justify-content: end;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .summary article,
@@ -376,6 +429,10 @@ kbd {
 
   .action-buttons {
     justify-content: stretch;
+  }
+
+  .consent-actions {
+    display: grid;
   }
 
   .primary,

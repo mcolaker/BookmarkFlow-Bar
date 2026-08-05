@@ -4,6 +4,29 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
+## [Unreleased]
+
+## [0.1.38] — 2026-08-05
+
+### Fixed
+
+- Prefer the signed-in account Bookmark Bar when Chrome exposes separate account and device-local roots, and return both roots' folder-rail candidates consistently.
+- Keep per-folder colors in device-local storage and migrate legacy synced colors without overwriting newer local choices.
+- Apply English and Turkish casing rules according to the active Chrome UI language in bookmark search and folder matching.
+- Stop intercepting Chrome, site, and operating-system `Ctrl+K` or `Alt+Space` shortcuts from page-level listeners.
+- Add modal semantics, background isolation, focus trapping, Escape handling, focus restoration, and a consistent combobox/listbox model to bookmark-add and search overlays.
+- Keep bookmark, page-context, preference, and search behavior fail-closed until the user accepts a prominent, versioned first-run privacy disclosure.
+- Stop persisting the new-tab bookmark strip's scroll position so the extension does not retain unnecessary interaction state.
+
+### Changed
+
+- Change the suggested search command to `Alt+Shift+K` and show Chrome's actual assignment in popup and onboarding shortcut guides.
+- Align Chrome Web Store reviewer notes, Turkish listing copy, privacy disclosures, and storage boundaries with current behavior.
+- Declare on-device URL handling as Web history and page-title/search/layout handling as Website content, with all three Limited Use certifications documented for dashboard review.
+- Run browser regressions in both English and Turkish and require immutable annotated release tags with an allowlisted archive contract.
+- Withhold two superseded tour captures from public onboarding and release packages until their corrected crop and shortcut cue are regenerated and visually approved.
+- Promote the live Chrome Web Store listing as the primary end-user installation route while keeping verified source packages available for audit and development.
+
 ## [0.1.37] — 2026-08-02
 
 ### Added

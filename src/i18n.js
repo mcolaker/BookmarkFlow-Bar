@@ -1,6 +1,8 @@
 (function (scope) {
   const ENGLISH_FALLBACKS = Object.freeze({
     appName: "BookmarkFlow Bar",
+    dataConsentRequired: "Bookmark and page access is off until the first-run privacy choice is accepted.",
+    dataConsentUpdateDenied: "Only BookmarkFlow's setup page can change this privacy choice.",
     extensionContextUnavailable: "Extension context unavailable.",
     bookmarkAdded: "Bookmark added.",
     bookmarkAddedToFolder: "Bookmark added to the folder.",

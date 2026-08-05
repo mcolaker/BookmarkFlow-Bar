@@ -10,23 +10,25 @@
 
 <p align="center">
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/actions/workflows/validate.yml"><img alt="Validation status" src="https://github.com/mcolaker/BookmarkFlow-Bar/actions/workflows/validate.yml/badge.svg?branch=main"></a>
+  <a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf"><img alt="Available in the Chrome Web Store" src="https://img.shields.io/badge/Chrome%20Web%20Store-Available-41D17D?logo=googlechrome&logoColor=white"></a>
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
   <img alt="Vanilla JavaScript" src="https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=111111">
-  <img alt="Version 0.1.37" src="https://img.shields.io/badge/version-0.1.37-F2C94C">
+  <img alt="Source version 0.1.38" src="https://img.shields.io/badge/source-0.1.38-F2C94C">
   <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
 
 <p align="center">
-  <strong><a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.37/bookmarkflow-bar-0.1.37.zip">Download v0.1.37</a></strong> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.37/bookmarkflow-bar-0.1.37.zip.sha256">Verify SHA-256</a> ·
+  <strong><a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf">Install from Chrome Web Store</a></strong> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.38/bookmarkflow-bar-0.1.38.zip">Download verified v0.1.38</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.38/bookmarkflow-bar-0.1.38.zip.sha256">Verify SHA-256</a> ·
   <a href="#install-from-source">Installation guide</a> ·
   <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Product website</a> ·
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/discussions">Join Discussions</a>
 </p>
 
 <p align="center">
-  <sub><strong>Project status:</strong> v0.1.37 · verified release package available · Chrome Web Store review pending as of August 2, 2026 · <a href="CHANGELOG.md">Changelog</a></sub>
+  <sub><strong>Project status:</strong> Chrome Web Store listing live · source v0.1.38 prepared for release · <a href="CHANGELOG.md">Changelog</a></sub>
 </p>
 
 > [!NOTE]
@@ -35,7 +37,7 @@
 <p align="center">
   <a href="#why-bookmarkflow">Why BookmarkFlow</a> ·
   <a href="#feature-tour">Feature tour</a> ·
-  <a href="#install-from-source">Install</a> ·
+  <a href="#install">Install</a> ·
   <a href="#privacy-by-design">Privacy</a> ·
   <a href="ROADMAP.md">Roadmap</a> ·
   <a href="GOVERNANCE.md">Governance</a> ·
@@ -57,12 +59,16 @@ Chrome's native bookmarks bar is intentionally simple, but it cannot become a tr
 
 ## Feature tour
 
+> [!TIP]
+> Motion previews use synthetic test bookmarks, include a visible interaction cue, and play once. Each preview also has a text summary, so the feature remains understandable without relying on animation.
+
 ### A bookmark bar that fits your workflow
 
 Expand the compact `BF` control only when you need it. Choose the number of rows, visual density, page spacing behavior, and whether the bar appears on regular websites.
 
 <p align="center">
-  <img src="src/assets/tour/bar-open-close.gif" alt="Opening and closing the BookmarkFlow bar" width="760">
+  <img src="src/assets/tour/bar-open-close.gif" alt="The compact BF control expands into a two-row bookmark bar and returns to its open final state" width="720"><br>
+  <sub><strong>Motion summary:</strong> Use <kbd>Alt + Shift + B</kbd> to expand or collapse the bar; the preview finishes with two bookmark rows visible.</sub>
 </p>
 
 ### Search from anywhere
@@ -70,7 +76,8 @@ Expand the compact `BF` control only when you need it. Choose the number of rows
 Open the bookmark palette with the search button or a keyboard shortcut. Use the arrow keys to move through results and press `Enter` to open the selected bookmark.
 
 <p align="center">
-  <img src="src/assets/tour/search-palette.gif" alt="Searching Chrome bookmarks with BookmarkFlow" width="760">
+  <img src="store/assets/screenshot-palette-1280x800.png" alt="The BookmarkFlow search palette showing keyboard-navigable bookmark results" width="720"><br>
+  <sub><strong>Motion summary:</strong> Open search with the search button or its reassigned extension shortcut, type a query, and move through results with the arrow keys.</sub>
 </p>
 
 ### Pin the folders that matter
@@ -78,30 +85,34 @@ Open the bookmark palette with the search button or a keyboard shortcut. Use the
 The optional folder rail can sit on the left or right. Pinned folders are stored by Chrome bookmark ID, so they remain selected independently of their position in the bookmark tree.
 
 <p align="center">
-  <img src="src/assets/tour/folder-rail.gif" alt="Using the BookmarkFlow folder rail" width="760">
+  <img src="src/assets/tour/folder-rail.gif" alt="A pointer selects a folder in BookmarkFlow's left rail and opens its bookmarks" width="720"><br>
+  <sub><strong>Motion summary:</strong> Select a pinned folder from the left rail to open its bookmarks without leaving the current page.</sub>
 </p>
 
 ### Manage bookmarks in context
 
-Right-click a bookmark or folder to open, copy, rename, add, delete, reorder, or assign a color—without interrupting the page you are viewing.
+Right-click a bookmark or folder to open, copy, rename, add, delete, or reorder it. Folder menus also let you assign colors—without interrupting the page you are viewing.
 
-<p align="center">
-  <img src="src/assets/tour/context-actions.gif" alt="BookmarkFlow context actions" width="760">
-</p>
+> **Visual refresh pending:** the context-action animation is temporarily withheld while its corrected crop is regenerated and reviewed. Right-click a bookmark to reveal open, copy, rename, reorder, and delete actions.
 
 ### Share your screen with less visual noise
 
 Streamer mode switches bookmark labels to an icon-focused presentation in the bar and folder menus.
 
 <p align="center">
-  <img src="src/assets/tour/streamer-mode.gif" alt="BookmarkFlow streamer mode" width="760">
+  <img src="src/assets/tour/streamer-mode.gif" alt="Bookmark labels change to an icon-focused layout after streamer mode is enabled" width="720"><br>
+  <sub><strong>Motion summary:</strong> Use <kbd>Alt + Shift + M</kbd> to switch the expanded bar from bookmark labels to an icon-focused view.</sub>
 </p>
 
-## Install from source
+## Install
 
-BookmarkFlow is currently distributed as an unpacked Chrome extension. Use a versioned release package for the most predictable installation.
+For most users, install the published extension from the [Chrome Web Store](https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf). Chrome will manage installation and approved updates for the same extension ID.
 
-1. Download the verified [`bookmarkflow-bar-0.1.37.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.37/bookmarkflow-bar-0.1.37.zip) package and extract it. Its published [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.37/bookmarkflow-bar-0.1.37.zip.sha256) is available for integrity verification. Contributors can clone the repository instead:
+### Install from source
+
+For development, auditing, or reproducible source installation, use a versioned release package rather than an arbitrary working tree.
+
+1. Download the verified [`bookmarkflow-bar-0.1.38.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.38/bookmarkflow-bar-0.1.38.zip) package and extract it. Its published [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.38/bookmarkflow-bar-0.1.38.zip.sha256) is available for integrity verification. Contributors can clone the repository instead:
 
    ```bash
    git clone https://github.com/mcolaker/BookmarkFlow-Bar.git
@@ -118,21 +129,22 @@ For the cleanest experience, hide Chrome's native bookmarks bar with `Ctrl + Shi
 
 | Action | Default shortcut |
 | --- | --- |
-| Open or close search | `Ctrl + Shift + E` |
+| Open or close search | `Alt + Shift + K` |
 | Expand or collapse the bar | `Alt + Shift + B` |
 | Hide or restore BookmarkFlow | `Alt + Shift + H` |
 | Toggle streamer mode | `Alt + Shift + M` |
 
-Shortcuts can be reassigned at `chrome://extensions/shortcuts`. `Ctrl + K` and `Alt + Space` also open the palette when the current page does not reserve those combinations.
+Shortcuts can be reassigned at `chrome://extensions/shortcuts`. The popup and onboarding page read the actual Chrome assignment, so an unassigned or customized command is shown accurately.
 
 ## Privacy by design
 
 BookmarkFlow is designed to work with Chrome's existing bookmark system rather than copying your library to an external service.
 
 - Bookmark titles, URLs, and folders remain in Chrome's bookmark storage.
+- Bookmark, page-context, preference, and search features stay off until the user accepts the prominent first-run privacy disclosure.
 - BookmarkFlow has no analytics SDK, advertising SDK, remote API, or project-operated server.
 - General display preferences may follow the browser through Chrome Sync when sync is enabled.
-- The per-site hide list and pinned folder selections are stored locally on the device.
+- The per-site hide list, pinned folder selections, and per-folder colors are stored locally on the device because Chrome bookmark IDs are profile-specific.
 - Only `http:`, `https:`, and `mailto:` bookmark URLs are rendered or opened.
 - The in-page interface runs inside a closed Shadow DOM to reduce interference from page styles and scripts.
 
@@ -177,7 +189,8 @@ With Node.js 20 or newer installed:
 node scripts/validate-backlog.mjs
 node --test scripts/backlog-contract.test.mjs
 node scripts/validate-open-source.mjs
-node --test scripts/open-source-contract.test.mjs scripts/dco-contract.test.mjs
+node --test scripts/open-source-contract.test.mjs scripts/dco-contract.test.mjs scripts/package-release-contract.test.mjs
+node --test scripts/runtime-contract.test.mjs scripts/ui-behavior-contract.test.mjs
 node scripts/validate-project.mjs
 node scripts/verify-public-tree.mjs
 node scripts/security-regression.mjs
@@ -185,7 +198,7 @@ node scripts/security-regression.mjs
 
 The backlog, open-source, DCO, project, and public-tree checks are platform-independent. The browser regression check additionally requires a locally installed Chromium-based browser.
 
-Maintainers can create a versioned extension ZIP and SHA-256 checksum from a release tag with `node scripts/package-release.mjs v0.1.37`.
+Maintainers can create a versioned extension ZIP and SHA-256 checksum from a release tag with `node scripts/package-release.mjs v0.1.38`.
 
 ## Browser limitations
 
@@ -201,7 +214,8 @@ If BookmarkFlow improves your daily browsing, choose the route that matches how 
 
 ### Try it
 
-- **Download the [verified v0.1.37 release](https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.1.37)** and follow the [installation guide](#install-from-source).
+- **Install BookmarkFlow Bar from its [Chrome Web Store listing](https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf)** for the normal update path.
+- **Download the [verified v0.1.38 source release](https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.1.38)** for audit or development use and follow the [source installation guide](#install-from-source).
 - **Read the [product website](https://mcolaker.github.io/BookmarkFlow-Bar/)** and privacy documentation before installing.
 
 ### Support the project

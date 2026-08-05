@@ -16,6 +16,57 @@ body {
   background: #202124;
 }
 
+.nt-workspace[hidden],
+.nt-consent[hidden] {
+  display: none;
+}
+
+.nt-consent {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  width: min(760px, calc(100vw - 32px));
+  margin: 32px auto;
+  padding: 18px;
+  border: 1px solid rgba(242, 201, 76, 0.42);
+  border-radius: 10px;
+  background: #161b24;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+
+.nt-consent h1 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.nt-consent p {
+  margin: 0;
+  color: rgba(241, 243, 244, 0.72);
+  line-height: 1.5;
+}
+
+.nt-consent button {
+  min-height: 40px;
+  border: 1px solid #f2c94c;
+  border-radius: 7px;
+  padding: 0 14px;
+  background: #f2c94c;
+  color: #11151d;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .nt-consent {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .nt-consent button {
+    grid-column: 1 / -1;
+  }
+}
+
 .nt-bookmarks {
   --nt-rows: 2;
   --nt-used-rows: var(--nt-rows);

@@ -66,6 +66,29 @@ h1 {
   background: rgba(82, 207, 151, 0.07);
 }
 
+.consent-gate[hidden] {
+  display: none;
+}
+
+.consent-gate {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid rgba(242, 201, 76, 0.42);
+  border-radius: 12px;
+  background: rgba(242, 201, 76, 0.08);
+}
+
+.consent-gate p {
+  color: rgba(247, 249, 252, 0.72);
+  line-height: 1.5;
+}
+
+.consent-gate .primary {
+  justify-self: start;
+}
+
 .notice strong {
   color: #77ddb0;
 }

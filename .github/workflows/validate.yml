@@ -10,7 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  static:
+    name: Static validation
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -28,7 +29,7 @@ jobs:
       - name: Validate open-source contracts
         run: |
           node scripts/validate-open-source.mjs
-          node --test scripts/open-source-contract.test.mjs scripts/dco-contract.test.mjs
+          node --test scripts/open-source-contract.test.mjs scripts/dco-contract.test.mjs scripts/package-release-contract.test.mjs
 
       - name: Verify pull request DCO sign-offs
         if: github.event_name == 'pull_request'
@@ -40,6 +41,9 @@ jobs:
       - name: Validate project structure and JavaScript
         run: node scripts/validate-project.mjs
 
+      - name: Run runtime and interaction contracts
+        run: node --test scripts/runtime-contract.test.mjs scripts/ui-behavior-contract.test.mjs
+
       - name: Validate canonical backlog contract
         run: |
           node scripts/validate-backlog.mjs
@@ -48,10 +52,53 @@ jobs:
       - name: Verify public repository safety
         run: node scripts/verify-public-tree.mjs
 
+  browser_regression:
+    name: Browser regression (${{ matrix.language }})
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - en
+          - tr
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
       - name: Install Chromium for extension regressions
         run: npx --yes playwright@1.55.0 install chromium
 
-      - name: Run English Chrome security and localization regression
+      - name: Run Chrome security and localization regression
         env:
-          BOOKMARKFLOW_CHROME_LANG: en
+          BOOKMARKFLOW_CHROME_LANG: ${{ matrix.language }}
         run: node scripts/security-regression.mjs
+
+  validate:
+    name: validate
+    if: ${{ always() }}
+    needs:
+      - static
+      - browser_regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+
+    steps:
+      - name: Require every validation job to pass
+        env:
+          STATIC_RESULT: ${{ needs.static.result }}
+          BROWSER_RESULT: ${{ needs.browser_regression.result }}
+        run: |
+          if [[ "$STATIC_RESULT" != "success" || "$BROWSER_RESULT" != "success" ]]; then
+            echo "Validation failed: static=$STATIC_RESULT browser=$BROWSER_RESULT"
+            exit 1
+          fi
