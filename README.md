@@ -28,7 +28,7 @@
 </p>
 
 <p align="center">
-  <sub><strong>Project status:</strong> Chrome Web Store listing live · source v0.1.38 prepared for release · <a href="CHANGELOG.md">Changelog</a></sub>
+  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.1.38 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
 </p>
 
 > [!NOTE]
@@ -66,12 +66,14 @@ Chrome's native bookmarks bar is intentionally simple, but it cannot become a tr
 </p>
 
 <p align="center">
+  <strong><a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.38/bookmarkflow-bar-master-1920x1080.mp4">Watch the full 58-second product film</a></strong> ·
   <a href="docs/assets/promo-video/bookmarkflow-bar-poster-1920x1080.jpg">View the 1920×1080 poster</a> ·
   <a href="media/promo-video/README.md">Reproduce the 58-second film and social cutdowns</a> ·
-  <a href="media/promo-video/captions/bookmarkflow-master.en.srt">Read the English captions</a>
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.38/bookmarkflow-bar-master.en.srt">Download English captions</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.38/bookmarkflow-bar-product-film-SHA256SUMS.txt">Verify film SHA-256</a>
 </p>
 
-The full film is generated from reviewed repository media and real extension captures made with synthetic bookmarks in an isolated temporary Chrome profile. Rendered MP4 files are kept outside the extension source and release ZIP; the tracked production workspace records the exact compositions, dependencies, safety boundaries, captions, and output contract.
+The full film is generated from reviewed repository media and real extension captures made with synthetic bookmarks in an isolated temporary Chrome profile. The approved master is published as a separate GitHub Release asset and never enters the extension source or Chrome ZIP; the tracked production workspace records the exact compositions, dependencies, safety boundaries, captions, and output contract.
 
 ## Feature tour
 
