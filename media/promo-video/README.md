@@ -23,6 +23,7 @@ npm run validate
 npm run capture
 npm run dev
 npm run render
+npm run social-kit
 ```
 
 `npm run capture` is optional. It starts Chrome with a disposable English
@@ -37,6 +38,16 @@ render`.
 and a machine-readable manifest to the repository-level `output/promo-video/`
 directory. The manifest status is `PREPARED_NOT_UPLOADED` until a maintainer
 intentionally publishes an output to a GitHub Release or social platform.
+
+After a reviewed render, `npm run social-kit` verifies the approved source
+digests and prepares channel-specific delivery copies under
+`output/social-launch-kit/`. The set includes the master, LinkedIn, X and 4:5
+videos; a one-play README GIF; five English store screenshots; and deterministic
+stills for LinkedIn, X/Reddit, DEV Community and Product Hunt. Images are only
+aspect-preserving scaled and padded with the product's dark background. The
+script refuses remote input, symlinks, unapproved source drift and unexpected
+output files, then records dimensions, hashes, privacy boundaries and
+`PREPARED_NOT_POSTED` status in a machine-readable manifest.
 
 Node.js 20 or newer and a system FFmpeg/FFprobe installation are required. On
 Windows, the renderer uses the exact Remotion `4.0.506` compositor with the

@@ -8,6 +8,7 @@
     "capture": "node scripts/capture-product-scenes.mjs",
     "dev": "npm run prepare && remotion studio src/index.tsx",
     "render": "node scripts/render-all.mjs",
+    "social-kit": "node scripts/prepare-social-kit.mjs",
     "validate": "node scripts/validate-source.mjs"
   },
   "dependencies": {

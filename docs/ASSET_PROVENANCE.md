@@ -53,11 +53,14 @@ Set-Location media/promo-video
 npm ci
 npm run validate
 npm run render
+npm run social-kit
 ```
 
 By default, the compositions use the reviewed English store captures and three approved tour GIFs. `npm run capture` can instead produce seven 1920x1080 real-extension scenes with a temporary en-US Chrome profile, synthetic bookmarks and project-owned favicons, an ephemeral numeric-loopback page, and a fail-closed remote-request guard. It does not read the user's regular Chrome profile. Generated inputs, capture profiles, intermediate frames, and MP4 outputs are ignored by Git and excluded from the Chrome extension archive.
 
 The visual typography uses the operating system sans-serif stack. The bright electronic soundtrack is generated deterministically by `scripts/prepare-assets.mjs` from an original 104 BPM D-A-G-A major progression, warm pad, light bass, positive pluck, and restrained percussion. No downloaded music, voice-over, sound effect, remote font, analytics, or licensed third-party runtime asset is used. The final encoded master measures -22.9 dB mean and -8.9 dB peak with no clipping. English SRT files provide captions and a narration script. Original-resolution review of the final poster and eight-scene master contact sheet found no personal data, third-party marks, scrollbar, unsafe crop, obscured text, or viewport overflow. The public README preview is 4.58 seconds at 12 fps and contains no infinite-loop extension.
+
+`scripts/prepare-social-kit.mjs` accepts only the reviewed digests listed in this document and produces an ignored delivery kit for GitHub, LinkedIn, X, Reddit, DEV Community and Product Hunt. Video, GIF, English SRT, launch-copy, posting-guide and store-capture copies remain byte-identical; platform stills use deterministic aspect-preserving Lanczos scaling and dark-background padding only. The script forbids remote or embedded input, symlinks, path escape, unexpected existing output and source hash drift; it verifies exact FFmpeg/FFprobe `8.0.1` version prefixes and reviewed golden PNG digests, then performs sibling staging plus folder-level swap/rollback, readback, media-contract validation and SHA-256 reporting. Its provenance separates the current assembly revision and script digest from the reviewed product-film source revision and promo-manifest digest. The generated manifest remains `PREPARED_NOT_POSTED` until a maintainer performs and verifies an external publication.
 
 Browser and font rasterization can differ between operating systems or browser revisions. The digests below identify the reviewed files committed to this repository; regeneration on a different rendering stack may require an intentional digest update after visual review.
 

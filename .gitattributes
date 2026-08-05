@@ -25,3 +25,5 @@
 *.tsx text eol=lf
 *.srt text eol=lf
 *.mp4 binary
+/media/promo-video/launch/*.md text eol=lf
+/media/promo-video/scripts/prepare-social-kit.mjs text eol=lf
