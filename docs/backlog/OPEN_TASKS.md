@@ -28,6 +28,15 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Sonraki adım: Yok; yeni locale veya kullanıcıya görünen metin eklendiğinde anahtar paritesi ve iki dilli Chrome matrisi birlikte güncellenir.
 - Son güncelleme: 2026-08-04.
 
+## BF-CI-001 - Linux CI yerelleştirme matrisini locale destekli Chrome ile doğrula
+
+- Öncelik ve durum: P1, IN_PROGRESS.
+- Kök neden ve kanıt: PR #21 için 2026-08-05 tarihli `Validate extension` çalışması `31030981955` içinde statik doğrulama ve İngilizce tarayıcı regresyonu geçti; Türkçe regresyon `Chrome locale mismatch: requested tr, got en` hatasıyla durdu ve toplu `validate` işi yalnız bu nedenle başarısız oldu. İş akışı Playwright `1.55.0` tarafından indirilen Chromium'u sistemdeki Google Chrome'dan önce seçiyordu; bu Linux binary'si `--lang=tr` verilmesine rağmen uzantıya İngilizce UI dili bildirdi. Uzantının `_locales/tr` anahtar paritesi ve yerel gerçek Chrome Türkçe regresyonu geçmeye devam ediyor; sorun CI tarayıcı dağıtımıdır.
+- Kabul kriteri: GitHub tarayıcı matrisi açıkça sabit Ubuntu imajında locale paketleri bulunan Google Chrome'u kullanır; seçilen executable ile `en-US.pak`/`tr.pak` varlığı test başlamadan fail-closed doğrulanır; locale paketi eksik Playwright Chromium indirmesi test yolunda kalmaz; İngilizce ve Türkçe güvenlik/yerelleştirme işleri ile toplu `validate` terminal `success` verir.
+- Doğrulama kapısı: İş akışı sözleşmesi Google Chrome yolunu, locale paketi ön kontrolünü ve sabit `ubuntu-24.04` imajını kaynak doğrulamasında zorunlu tutar; yerel backlog/proje/public-tree/güvenlik kontrolleri geçer; PR #21 için düzeltme sonrası GitHub Actions çalışması iki dil matrisi ve toplu kapıda terminal sonuçla doğrulanır.
+- Sonraki adım: İş akışını locale destekli `/usr/bin/google-chrome` yoluna sabitle, yerel doğrulamaları çalıştır, PR #21 dalına gönder ve GitHub Actions terminal sonucunu kaydet.
+- Son güncelleme: 2026-08-05.
+
 ## BF-EXT-001 - Sayfa içi çubuğun hedef Chrome profilinde yüklenmesini doğrula
 
 - Öncelik ve durum: P1, BLOCKED.

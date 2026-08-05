@@ -183,6 +183,23 @@ if (existsSync(promoVideoValidator)) {
   execFileSync(process.execPath, [promoVideoValidator], {cwd: root, stdio: "inherit"});
 }
 
+const ciWorkflowSource = readFileSync(join(root, ".github/workflows/validate.yml"), "utf8");
+for (const requiredBrowserCiContract of [
+  "runs-on: ubuntu-24.04",
+  "BOOKMARKFLOW_CHROME_PATH: /usr/bin/google-chrome",
+  "Verify locale-capable Google Chrome",
+  'readlink -f "$BOOKMARKFLOW_CHROME_PATH"',
+  "locales/en-US.pak",
+  'locales/${BOOKMARKFLOW_CHROME_LANG}.pak',
+]) {
+  if (!ciWorkflowSource.includes(requiredBrowserCiContract)) {
+    throw new Error(`.github/workflows/validate.yml: missing locale-capable Chrome contract: ${requiredBrowserCiContract}`);
+  }
+}
+if (/playwright@[^\s]+\s+install\s+chromium/iu.test(ciWorkflowSource)) {
+  throw new Error(".github/workflows/validate.yml: locale matrix must not use the locale-incomplete Playwright Chromium bundle");
+}
+
 const requiredPresentationFiles = [
   "README.md",
   "CODE_OF_CONDUCT.md",
