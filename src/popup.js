@@ -1,5 +1,7 @@
 const {
   DEFAULT_SETTINGS,
+  DATA_CONSENT_STORAGE_KEY,
+  DATA_CONSENT_VERSION,
   LOCAL_SETTINGS_DEFAULTS,
   PANEL_POSITION_STORAGE_KEY,
   SYNC_DEFAULT_SETTINGS,
@@ -13,6 +15,7 @@ const { t } = BookmarkFlowI18n;
 const SHORTCUT_NUDGE_STORAGE_KEY = "bfShortcutNudgeSeen";
 
 const controls = {
+  consentGate: document.getElementById("popupConsentGate"),
   enabled: document.getElementById("enabled"),
   showOnSites: document.getElementById("showOnSites"),
   compact: document.getElementById("compact"),
@@ -47,9 +50,29 @@ let activePage = {
   autoHiddenSensitive: false
 };
 
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === "local" && DATA_CONSENT_STORAGE_KEY in changes) {
+    window.location.reload();
+  }
+});
 init().catch(() => {});
 
 async function init() {
+  controls.openOnboarding.addEventListener("click", () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL("src/onboarding.html") });
+  });
+
+  const consent = await sendMessage({ type: "BF_GET_CONSENT_STATUS" });
+  if (!consent?.ok || !consent.consentGranted || consent.consentVersion !== DATA_CONSENT_VERSION) {
+    controls.consentGate.hidden = false;
+    document.querySelectorAll("input, button").forEach((control) => {
+      if (control !== controls.openOnboarding) {
+        control.disabled = true;
+      }
+    });
+    return;
+  }
+
   const [syncedSettings, localState, pageInfo] = await Promise.all([
     chrome.storage.sync.get(SYNC_DEFAULT_SETTINGS),
     chrome.storage.local.get({
@@ -137,10 +160,6 @@ async function init() {
     chrome.tabs.create({ url: "chrome://extensions/shortcuts" });
   });
 
-  controls.openOnboarding.addEventListener("click", () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL("src/onboarding.html") });
-  });
-
   controls.openBookmarkMaintenance.addEventListener("click", () => {
     chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html") });
   });
@@ -170,6 +189,12 @@ async function init() {
       autoHiddenSensitive: currentSettings.autoHideSensitiveSites && activePage.sensitiveHost
     };
     render(currentSettings);
+  });
+}
+
+function sendMessage(message) {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(message, (response) => resolve(response));
   });
 }
 

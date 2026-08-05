@@ -6,7 +6,7 @@ BookmarkFlow Bar develops in small, reviewable releases shaped by real browser c
 
 ### 1. Reliable public distribution
 
-- Complete the Chrome Web Store review and publish a stable store listing.
+- Maintain the live Chrome Web Store listing and ship narrowly reviewed updates through the same extension ID.
 - Keep store disclosures, permissions, privacy documentation, source tags, and release packages aligned.
 - Verify clean installation and update behavior from the public store package.
 

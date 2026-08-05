@@ -1,0 +1,27 @@
+html,
+body {
+  overflow: hidden !important;
+}
+
+.nt-strip,
+.nt-folder-rail-list {
+  scrollbar-width: none !important;
+}
+
+.nt-strip::-webkit-scrollbar,
+.nt-folder-rail-list::-webkit-scrollbar {
+  display: none !important;
+}
+
+.nt-main {
+  min-height: calc(100vh - 112px) !important;
+  padding: 76px 20px 64px !important;
+}
+
+.nt-search {
+  gap: 20px !important;
+}
+
+.nt-search-label {
+  font-size: 72px !important;
+}

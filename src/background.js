@@ -2,6 +2,8 @@ importScripts("i18n.js", "settings.js");
 
 const {
   DEFAULT_SETTINGS,
+  DATA_CONSENT_STORAGE_KEY,
+  DATA_CONSENT_VERSION,
   LOCAL_SETTINGS_DEFAULTS,
   SYNC_DEFAULT_SETTINGS,
   areBookmarkUrlsEqual,
@@ -12,9 +14,11 @@ const {
   normalizeSettings,
   normalizeSyncedSettings
 } = BookmarkFlowConfig;
-const { t } = BookmarkFlowI18n;
+const { getLanguage, t } = BookmarkFlowI18n;
 
 const MESSAGE_GET_STATE = "BF_GET_STATE";
+const MESSAGE_GET_CONSENT_STATUS = "BF_GET_CONSENT_STATUS";
+const MESSAGE_SET_DATA_CONSENT = "BF_SET_DATA_CONSENT";
 const MESSAGE_MOVE_BOOKMARK = "BF_MOVE_BOOKMARK";
 const MESSAGE_MOVE_TOP_LEVEL = "BF_MOVE_TOP_LEVEL";
 const MESSAGE_DELETE_BOOKMARK = "BF_DELETE_BOOKMARK";
@@ -26,48 +30,33 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 const FOLDER_RAIL_DEFAULT_MIGRATION_KEY = "bfFolderRailDefaultLeftV1";
 const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
 const DISABLED_HOSTS_MIGRATION_KEY = "bfDisabledHostsLocalV1";
+const FOLDER_COLORS_MIGRATION_KEY = "bfFolderColorsLocalV1";
 const CONTENT_COMMANDS = new Set([
   "hide-restore",
   "open-search",
   "toggle-bar"
 ]);
 
-const settingsMigrationReady = Promise.all([
-  ensureDefaultFolderRailEnabled(),
-  migrateDisabledHostsToLocal()
-]).catch(() => {});
+let settingsMigrationReady = null;
 
 chrome.runtime.onInstalled.addListener(async (details) => {
-  await settingsMigrationReady;
-  const existing = await chrome.storage.sync.get(SYNC_DEFAULT_SETTINGS);
-  await chrome.storage.sync.set(normalizeSyncedSettings(existing));
-
-  if (details?.reason === "install") {
-    await chrome.storage.local.set({ bfOnboardingSeen: false });
+  const consent = await getDataConsentStatus();
+  if (!consent.consentGranted) {
+    await chrome.storage.local.set({
+      [DATA_CONSENT_STORAGE_KEY]: 0,
+      bfOnboardingSeen: false
+    });
     chrome.tabs.create({
       url: chrome.runtime.getURL("src/onboarding.html")
     }).catch(() => {});
+    return;
   }
+
+  await ensureSettingsReady();
 });
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  const task = message?.type === MESSAGE_GET_STATE
-    ? getState()
-    : message?.type === MESSAGE_MOVE_BOOKMARK
-      ? moveBookmarkWithinParent(message)
-    : message?.type === MESSAGE_MOVE_TOP_LEVEL
-      ? moveTopLevelBookmark(message)
-    : message?.type === MESSAGE_DELETE_BOOKMARK
-      ? deleteBookmark(message)
-    : message?.type === MESSAGE_CREATE_BOOKMARK
-      ? createBookmark(message)
-    : message?.type === MESSAGE_CREATE_FOLDER
-      ? createFolder(message)
-    : message?.type === MESSAGE_RENAME_BOOKMARK
-      ? renameBookmark(message)
-    : message?.type === MESSAGE_SET_FOLDER_COLOR
-      ? setFolderColor(message)
-      : null;
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  const task = routeMessage(message, sender);
 
   if (!task) {
     return false;
@@ -97,7 +86,8 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
   if (areaName === "local" && (
     FOLDER_RAIL_PINNED_STORAGE_KEY in changes ||
-    "disabledHosts" in changes
+    "disabledHosts" in changes ||
+    "folderColors" in changes
   )) {
     scheduleBroadcast();
   }
@@ -124,6 +114,11 @@ function scheduleBroadcast() {
 }
 
 async function runCommand(command) {
+  if (!(await hasDataConsent())) {
+    return;
+  }
+  await ensureSettingsReady();
+
   if (command === "toggle-streamer-mode") {
     const settings = await getSettings();
     await chrome.storage.sync.set({
@@ -152,6 +147,10 @@ async function runCommand(command) {
 }
 
 async function broadcastState() {
+  if (!(await hasDataConsent())) {
+    return;
+  }
+
   const state = await getState();
   const tabs = await chrome.tabs.query({});
   chrome.runtime.sendMessage({
@@ -179,17 +178,138 @@ async function getState() {
     ok: true,
     settings,
     bookmarkBar: bookmarks.bookmarkBar,
+    folderRailFolders: bookmarks.folderRailFolders,
     bookmarkTree: bookmarks.bookmarkTree
   };
 }
 
+function routeMessage(message, sender) {
+  if (message?.type === MESSAGE_GET_CONSENT_STATUS) {
+    return getDataConsentStatus();
+  }
+
+  if (message?.type === MESSAGE_SET_DATA_CONSENT) {
+    return setDataConsent(message, sender);
+  }
+
+  const protectedTask = message?.type === MESSAGE_GET_STATE
+    ? () => getState()
+    : message?.type === MESSAGE_MOVE_BOOKMARK
+      ? () => moveBookmarkWithinParent(message)
+    : message?.type === MESSAGE_MOVE_TOP_LEVEL
+      ? () => moveTopLevelBookmark(message)
+    : message?.type === MESSAGE_DELETE_BOOKMARK
+      ? () => deleteBookmark(message)
+    : message?.type === MESSAGE_CREATE_BOOKMARK
+      ? () => createBookmark(message)
+    : message?.type === MESSAGE_CREATE_FOLDER
+      ? () => createFolder(message)
+    : message?.type === MESSAGE_RENAME_BOOKMARK
+      ? () => renameBookmark(message)
+    : message?.type === MESSAGE_SET_FOLDER_COLOR
+      ? () => setFolderColor(message)
+      : null;
+
+  return protectedTask ? runWithDataConsent(protectedTask) : null;
+}
+
+async function runWithDataConsent(task) {
+  if (!(await hasDataConsent())) {
+    return consentRequiredResponse();
+  }
+
+  await ensureSettingsReady();
+  return task();
+}
+
+async function getDataConsentStatus() {
+  const localState = await chrome.storage.local.get(DATA_CONSENT_STORAGE_KEY);
+  const consentGranted = localState[DATA_CONSENT_STORAGE_KEY] === DATA_CONSENT_VERSION;
+  return {
+    ok: true,
+    consentGranted,
+    consentVersion: consentGranted ? DATA_CONSENT_VERSION : 0
+  };
+}
+
+async function hasDataConsent() {
+  return (await getDataConsentStatus()).consentGranted;
+}
+
+async function setDataConsent(message, sender) {
+  const onboardingUrl = chrome.runtime.getURL("src/onboarding.html");
+  if (sender?.id !== chrome.runtime.id || sender?.url !== onboardingUrl) {
+    return {
+      ok: false,
+      error: t("dataConsentUpdateDenied")
+    };
+  }
+
+  if (message?.consent !== true) {
+    await chrome.storage.local.set({
+      [DATA_CONSENT_STORAGE_KEY]: 0,
+      bfOnboardingSeen: false
+    });
+    return getDataConsentStatus();
+  }
+
+  await ensureSettingsReady();
+  await chrome.storage.local.set({ [DATA_CONSENT_STORAGE_KEY]: DATA_CONSENT_VERSION });
+  scheduleBroadcast();
+  return getDataConsentStatus();
+}
+
+function consentRequiredResponse() {
+  return {
+    ok: false,
+    consentRequired: true,
+    code: "consent_required",
+    error: t("dataConsentRequired")
+  };
+}
+
+function ensureSettingsReady() {
+  if (!settingsMigrationReady) {
+    settingsMigrationReady = (async () => {
+      await Promise.all([
+        ensureDefaultFolderRailEnabled(),
+        migrateDisabledHostsToLocal(),
+        migrateFolderColorsToLocal()
+      ]);
+      const existing = await chrome.storage.sync.get(SYNC_DEFAULT_SETTINGS);
+      await chrome.storage.sync.set(normalizeSyncedSettings(existing));
+    })().catch((error) => {
+      settingsMigrationReady = null;
+      throw error;
+    });
+  }
+
+  return settingsMigrationReady;
+}
+
 async function getSettings() {
-  await settingsMigrationReady;
+  await ensureSettingsReady();
   const [syncedSettings, localSettings] = await Promise.all([
-    chrome.storage.sync.get(SYNC_DEFAULT_SETTINGS),
-    chrome.storage.local.get(LOCAL_SETTINGS_DEFAULTS)
+    chrome.storage.sync.get({
+      ...SYNC_DEFAULT_SETTINGS,
+      folderColors: {}
+    }),
+    chrome.storage.local.get({
+      ...LOCAL_SETTINGS_DEFAULTS,
+      [FOLDER_COLORS_MIGRATION_KEY]: false
+    })
   ]);
-  return normalizeSettings({ ...syncedSettings, ...localSettings });
+  const folderColors = localSettings[FOLDER_COLORS_MIGRATION_KEY] === true
+    ? localSettings.folderColors
+    : {
+      ...normalizeFolderColors(syncedSettings.folderColors),
+      ...normalizeFolderColors(localSettings.folderColors)
+    };
+  return normalizeSettings({
+    ...syncedSettings,
+    ...localSettings,
+    folderColors
+  });
 }
 
 async function ensureDefaultFolderRailEnabled() {
@@ -235,6 +355,38 @@ async function migrateDisabledHostsToLocal() {
   }
 }
 
+async function migrateFolderColorsToLocal() {
+  const [localState, syncState] = await Promise.all([
+    chrome.storage.local.get(["folderColors", FOLDER_COLORS_MIGRATION_KEY]),
+    chrome.storage.sync.get("folderColors")
+  ]);
+  const localColors = normalizeFolderColors(localState.folderColors);
+  const syncedColors = normalizeFolderColors(syncState.folderColors);
+  const mergedColors = normalizeFolderColors({
+    ...syncedColors,
+    ...localColors
+  });
+
+  if (
+    localState[FOLDER_COLORS_MIGRATION_KEY] !== true ||
+    JSON.stringify(localColors) !== JSON.stringify(mergedColors)
+  ) {
+    try {
+      await chrome.storage.local.set({
+        folderColors: mergedColors,
+        [FOLDER_COLORS_MIGRATION_KEY]: true
+      });
+    } catch {
+      return false;
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(syncState, "folderColors")) {
+    await chrome.storage.sync.remove("folderColors");
+  }
+  return true;
+}
+
 async function getBookmarkData() {
   const [root, localState] = await Promise.all([
     getBookmarkTreeRoot(),
@@ -258,8 +410,10 @@ async function getBookmarkTreeRoot() {
 
 function selectBookmarkBarNode(root) {
   const topLevelFolders = root?.children || [];
+  const bookmarkBars = topLevelFolders.filter((node) => node.folderType === "bookmarks-bar");
   return (
-    topLevelFolders.find((node) => node.folderType === "bookmarks-bar") ||
+    bookmarkBars.find((node) => node.syncing === true) ||
+    bookmarkBars.find((node) => node.syncing !== true) ||
     topLevelFolders.find((node) => node.id === "1") ||
     topLevelFolders[0] ||
     root
@@ -369,7 +523,8 @@ function addFolderRailCandidate(foldersByTitle, node, protectedTitleKeys = new S
 }
 
 function normalizeFolderTitle(value) {
-  return String(value || "").trim().replace(/\s+/g, " ").toLocaleLowerCase("tr-TR");
+  const locale = getLanguage() === "tr" ? "tr-TR" : "en-US";
+  return String(value || "").trim().replace(/\s+/g, " ").toLocaleLowerCase(locale);
 }
 
 async function moveTopLevelBookmark(message) {
@@ -624,7 +779,7 @@ async function setFolderColor(message) {
     delete folderColors[nodeId];
   }
 
-  await chrome.storage.sync.set({
+  await chrome.storage.local.set({
     folderColors: normalizeFolderColors(folderColors)
   });
 

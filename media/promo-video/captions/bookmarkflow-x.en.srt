@@ -1,0 +1,19 @@
+1
+00:00:00,000 --> 00:00:02,000
+Your bookmarks. Your flow.
+
+2
+00:00:02,000 --> 00:00:10,000
+Turn one crowded row into a focused workspace.
+
+3
+00:00:10,000 --> 00:00:17,000
+Search from the keyboard.
+
+4
+00:00:17,000 --> 00:00:24,000
+Your bookmark library stays in Chrome.
+
+5
+00:00:24,000 --> 00:00:32,000
+Install BookmarkFlow Bar. Open source on GitHub.

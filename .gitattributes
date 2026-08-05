@@ -7,6 +7,7 @@
 /CONTRIBUTING.md export-ignore
 /DCO export-ignore
 /GOVERNANCE.md export-ignore
+/media export-ignore
 /README.md export-ignore
 /ROADMAP.md export-ignore
 /SECURITY.md export-ignore
@@ -14,6 +15,15 @@
 /docs export-ignore
 /scripts export-ignore
 /store export-ignore
+/src/assets/tour/context-actions.gif export-ignore
+/src/assets/tour/search-palette.gif export-ignore
 /LICENSE.md -export-ignore
 /NOTICE -export-ignore
 /TRADEMARKS.md -export-ignore
+
+*.ts text eol=lf
+*.tsx text eol=lf
+*.srt text eol=lf
+*.mp4 binary
+/media/promo-video/launch/*.md text eol=lf
+/media/promo-video/scripts/prepare-social-kit.mjs text eol=lf

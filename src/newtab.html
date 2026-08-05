@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="newtab.css">
   </head>
   <body>
+    <section class="nt-consent" id="consentGate" aria-labelledby="consentGateTitle" hidden>
+      <div class="nt-brand" aria-hidden="true">BF</div>
+      <div>
+        <h1 id="consentGateTitle" data-i18n="dataConsentRequiredHeading">Review privacy choices to enable BookmarkFlow</h1>
+        <p data-i18n="dataConsentRequiredDescription">Bookmark and page access remains off until you review the first-run disclosure and agree.</p>
+      </div>
+      <button id="openPrivacySetup" type="button" data-i18n="reviewPrivacySetup">Review privacy setup</button>
+    </section>
+
+    <div class="nt-workspace" id="newTabWorkspace" hidden>
     <header class="nt-bookmarks" id="bookmarkBar" hidden>
       <div class="nt-brand">BF</div>
       <div class="nt-strip" id="bookmarkStrip" role="navigation" aria-label="Bookmarks" data-i18n-aria-label="bookmarks"></div>
@@ -35,11 +45,12 @@
         </div>
       </form>
     </main>
+    </div>
 
     <div class="nt-add" id="addDialog" hidden>
-      <form class="nt-add-panel" id="addForm" aria-label="Add bookmark" data-i18n-aria-label="addBookmark">
+      <form class="nt-add-panel" id="addForm" role="dialog" aria-modal="true" aria-labelledby="addDialogTitle" tabindex="-1">
         <div class="nt-add-head">
-          <strong data-i18n="addBookmark">Add bookmark</strong>
+          <strong id="addDialogTitle" data-i18n="addBookmark">Add bookmark</strong>
           <button class="nt-add-close" id="addClose" type="button" title="Close" aria-label="Close" data-i18n-title="close" data-i18n-aria-label="close">×</button>
         </div>
         <label class="nt-add-field">

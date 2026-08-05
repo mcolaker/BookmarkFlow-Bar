@@ -9,6 +9,8 @@ Run this before submitting a new Chrome Web Store package.
 - Load unpacked from the local `BookmarkFlow-Bar` project folder.
 - Reload the extension after every code change.
 - On a fresh install, confirm `src/onboarding.html` opens automatically.
+- Before accepting the privacy choice, confirm ordinary pages receive no BookmarkFlow host or page-offset style, the new-tab page shows only the privacy-setup action, and popup/maintenance controls remain locked.
+- Confirm **Not now** keeps all bookmark, page-context, preference, and search features off; then select **I agree — enable bookmark and page access** and confirm setup content becomes available.
 - On a fresh install, confirm the folder rail is enabled on the left by default.
 - In the onboarding page, choose each profile and confirm the selected state changes.
 - Apply the **Streamer / privacy** profile and confirm streamer mode, one-row compact view, and hidden empty-search suggestions are saved.
@@ -21,9 +23,8 @@ Run this before submitting a new Chrome Web Store package.
 - Click `BF` and confirm the bookmark bar expands.
 - Click `BF` again and confirm it collapses.
 - Click the search icon and confirm the search palette opens.
-- Press `Ctrl + K` and confirm the search palette opens.
-- Press `Alt + Space` and confirm the search palette opens/closes.
-- Press `Ctrl + Shift + E` and confirm the search palette opens.
+- On an ordinary page, press `Ctrl + K` and `Alt + Space`; confirm BookmarkFlow does not consume the browser, site, or operating-system shortcut.
+- Press the currently assigned `open-search` extension command (default: `Alt + Shift + K`) and confirm the search palette opens.
 - Press `Alt + Shift + B` and confirm the bar expands/collapses.
 - Press `Alt + Shift + H` and confirm the bar hides/restores.
 - Press `Alt + Shift + M` and confirm streamer mode toggles bookmark labels.
@@ -86,6 +87,7 @@ Run this before submitting a new Chrome Web Store package.
 - Confirm **Show on this site** restores the current site.
 - Confirm the shortcut guide appears and **Edit** opens `chrome://extensions/shortcuts`.
 - Confirm unassigned shortcuts display `-` instead of action-looking text.
+- Reassign `open-search`, reopen popup/onboarding, and confirm both surfaces display Chrome's actual assignment rather than the packaged default.
 - Confirm **Merge duplicate folders** opens the maintenance page.
 - With test folders of the same title in account and local bookmark storage, confirm both paths and item counts are shown before any write.
 - Confirm an unchecked duplicate group cannot be merged.
@@ -117,7 +119,7 @@ Run this before submitting a new Chrome Web Store package.
 - Confirm streamer mode hides bookmark labels on the new tab bookmark strip.
 - Confirm streamer/icon-only mode keeps the new tab bookmark strip to one row with horizontal scroll and no empty lower row.
 - Confirm row count changes the new tab bookmark strip row count.
-- Scroll the new tab bookmark strip, open another new tab, and confirm the strip restores the same horizontal position.
+- Scroll the new tab bookmark strip, open another new tab, and confirm the new tab starts without persisting the previous tab's scroll position.
 - Confirm the new tab bookmark strip scrollbar does not shift the layout when hovered.
 - Enable the folder rail and confirm the new tab page shows direct bookmarks in the strip and folders in the selected side rail.
 - With separate account-synced and local-only Bookmarks Bar roots, confirm the folder rail lists folders from both roots.
@@ -143,6 +145,8 @@ Run this before submitting a new Chrome Web Store package.
 ## Privacy and package
 
 - Confirm no external analytics, tracking, or network calls were added.
+- Confirm the Chrome Web Store privacy form selects **Web history** and **Website content** for locally handled bookmark/page/search data, with all other data-type boxes left clear unless current behavior requires them.
+- Confirm all three Limited Use certifications match the current package, privacy policy, and reviewer notes.
 - Confirm `manifest.json` has only needed permissions.
 - Confirm the upload zip excludes `dist`, `store`, and any `.git` backup folders.
 - Confirm the source tag is exactly `v<manifest version>` and resolves to the reviewed commit used to create the package.

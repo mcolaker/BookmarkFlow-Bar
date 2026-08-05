@@ -1,16 +1,23 @@
 const {
+  DATA_CONSENT_VERSION,
   SETUP_PROFILES,
   getSetupProfileSettings
 } = BookmarkFlowConfig;
 const { t } = BookmarkFlowI18n;
 
 const elements = {
+  dataConsentGate: document.getElementById("dataConsentGate"),
+  setupContent: document.getElementById("setupContent"),
+  acceptDataConsent: document.getElementById("acceptDataConsent"),
+  declineDataConsent: document.getElementById("declineDataConsent"),
+  dataConsentStatus: document.getElementById("dataConsentStatus"),
   profileGrid: document.getElementById("profileGrid"),
   bookmarkSource: document.getElementById("bookmarkSource"),
   applyProfile: document.getElementById("applyProfile"),
   finish: document.getElementById("finish"),
   openBookmarks: document.getElementById("openBookmarks"),
   openShortcuts: document.getElementById("openShortcuts"),
+  shortcutRows: Array.from(document.querySelectorAll("[data-command]")),
   status: document.getElementById("status")
 };
 
@@ -22,12 +29,30 @@ const PROFILE_FACTS = Object.freeze({
 });
 
 let selectedProfile = "privacy";
+let setupReady = false;
 
 init().catch((error) => {
   renderStatus(error?.message || t("onboardingFailed"), true);
 });
 
 async function init() {
+  elements.acceptDataConsent.addEventListener("click", acceptDataConsent);
+  elements.declineDataConsent.addEventListener("click", declineDataConsent);
+
+  const consent = await sendMessage({ type: "BF_GET_CONSENT_STATUS" });
+  if (consent?.ok && consent.consentGranted && consent.consentVersion === DATA_CONSENT_VERSION) {
+    await enableSetup();
+  }
+}
+
+async function enableSetup() {
+  if (setupReady) {
+    return;
+  }
+
+  setupReady = true;
+  elements.dataConsentGate.hidden = true;
+  elements.setupContent.hidden = false;
   const localState = await chrome.storage.local.get("bfOnboardingProfile");
   selectedProfile = SETUP_PROFILES[localState.bfOnboardingProfile]
     ? localState.bfOnboardingProfile
@@ -35,6 +60,7 @@ async function init() {
 
   renderProfiles();
   renderBookmarkSource().catch(() => {});
+  renderShortcuts().catch(() => {});
 
   elements.applyProfile.addEventListener("click", applySelectedProfile);
   elements.finish.addEventListener("click", finishOnboarding);
@@ -44,6 +70,49 @@ async function init() {
   elements.openShortcuts.addEventListener("click", () => {
     chrome.tabs.create({ url: "chrome://extensions/shortcuts" }).catch(() => {});
   });
+}
+
+async function renderShortcuts() {
+  const commands = await chrome.commands.getAll();
+  const shortcutsByCommand = new Map(
+    commands.map((command) => [command.name, command.shortcut || ""])
+  );
+
+  elements.shortcutRows.forEach((row) => {
+    row.querySelectorAll("kbd").forEach((key) => key.remove());
+    const shortcut = shortcutsByCommand.get(row.dataset.command) || "";
+    const parts = shortcut ? shortcut.split("+") : ["-"];
+    parts.forEach((part) => {
+      const key = document.createElement("kbd");
+      key.textContent = part;
+      row.append(key);
+    });
+  });
+}
+
+async function acceptDataConsent() {
+  elements.acceptDataConsent.disabled = true;
+  const response = await sendMessage({
+    type: "BF_SET_DATA_CONSENT",
+    consent: true
+  });
+  elements.acceptDataConsent.disabled = false;
+
+  if (!response?.ok || !response.consentGranted) {
+    renderConsentStatus(response?.error || t("onboardingFailed"), true);
+    return;
+  }
+
+  renderConsentStatus(t("dataConsentAccepted"), false);
+  await enableSetup();
+}
+
+async function declineDataConsent() {
+  await sendMessage({
+    type: "BF_SET_DATA_CONSENT",
+    consent: false
+  });
+  renderConsentStatus(t("dataConsentDeclined"), false);
 }
 
 function renderProfiles() {
@@ -122,4 +191,10 @@ function renderStatus(message, isError) {
   elements.status.textContent = message;
   elements.status.classList.toggle("is-error", Boolean(isError));
   elements.status.classList.toggle("is-ok", Boolean(message) && !isError);
+}
+
+function renderConsentStatus(message, isError) {
+  elements.dataConsentStatus.textContent = message;
+  elements.dataConsentStatus.classList.toggle("is-error", Boolean(isError));
+  elements.dataConsentStatus.classList.toggle("is-ok", Boolean(message) && !isError);
 }

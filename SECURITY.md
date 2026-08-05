@@ -34,7 +34,7 @@ The project intentionally:
 
 - renders only `http:`, `https:`, and `mailto:` bookmark targets;
 - keeps the in-page interface in an extension-owned closed Shadow DOM;
-- stores per-site exclusions locally rather than syncing them;
+- stores per-site exclusions, pinned-folder choices, and per-folder colors locally rather than syncing profile-specific bookmark IDs;
 - avoids analytics, advertising SDKs, remote APIs, and external favicon services;
 - excludes generated browser profiles and local release artifacts from the public repository.
 

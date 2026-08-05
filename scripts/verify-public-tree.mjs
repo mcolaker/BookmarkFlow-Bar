@@ -24,7 +24,8 @@ const publicFiles = execFileSync(
   .filter(Boolean);
 
 const forbiddenPaths = [
-  /^(?:output|dist|deploy)\//iu,
+  /(?:^|\/)(?:node_modules|output|dist|deploy|renders|frames|coverage|\.remotion|\.cache)\//iu,
+  /(?:^|\/)public\/(?:generated|captures)\//iu,
   /(?:^|\/)(?:\.env(?:\..*)?|cookies?|history|login data|web data)$/iu,
   /(?:^|\/)(?:id_rsa|id_ed25519)(?:\.pub)?$/iu,
 ];
@@ -44,6 +45,9 @@ const textExtensions = new Set([
   ".json",
   ".md",
   ".mjs",
+  ".srt",
+  ".ts",
+  ".tsx",
   ".txt",
   ".yml",
   ".yaml",

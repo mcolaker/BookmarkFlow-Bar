@@ -50,22 +50,25 @@
   <body>
     <main>
       <h1>BookmarkFlow Bar Privacy Policy</h1>
-      <p><strong>Effective date:</strong> August 2, 2026</p>
+      <p><strong>Effective date:</strong> August 5, 2026</p>
 
       <p>BookmarkFlow Bar is a Chrome extension by Maprins Games that shows the user's Chrome Bookmark Bar as a compact, searchable page overlay. It also provides a custom new tab page with a search box and bookmark access.</p>
 
       <h2>Data the extension accesses</h2>
       <p>BookmarkFlow Bar requests access to Chrome bookmarks so it can display bookmark titles, URLs, folders, and favicons inside the extension interface. When the user explicitly uses BookmarkFlow's add, drag, reorder, rename, color, merge, or delete controls, the extension performs the requested bookmark operation locally.</p>
-      <p>When the user opens the add-bookmark form on a regular web page, BookmarkFlow Bar reads that page's title and URL locally to prefill the form. The information is not saved as a bookmark unless the user confirms the action, and it is not sent to Maprins Games.</p>
-      <p>BookmarkFlow Bar stores general display preferences using Chrome storage sync, so Chrome may synchronize those preferences between the user's signed-in browsers when browser sync is enabled. The list of sites where the user has chosen to hide the bar is stored only in Chrome's device-local storage and is not synchronized.</p>
+      <p>On first use after installation or this privacy update, BookmarkFlow keeps bookmark, page-context, preference, and search features off. The setup page presents the data types and purposes described in this policy and enables those features only after the user selects <strong>I agree — enable bookmark and page access</strong>. Choosing <strong>Not now</strong> leaves data access disabled.</p>
+      <p>On regular web pages, BookmarkFlow Bar processes the current page URL, hostname, path, and title locally for current-page bookmark matching, per-site visibility, optional sensitive-site hiding, admin-page docking, and to prefill the add-bookmark form when the user opens it. The content script also performs a bounded local inspection of element geometry, computed positioning styles, and selected body classes so the expanded bar can avoid covering fixed top navigation. This page information is not sent to Maprins Games and is not saved as a bookmark unless the user confirms the add action.</p>
+      <p>BookmarkFlow Bar stores general display preferences using Chrome storage sync, so Chrome may synchronize those preferences between the user's signed-in browsers when browser sync is enabled. Per-site hide choices, pinned-folder choices, and per-folder colors are stored only in Chrome's device-local storage and are not synchronized because Chrome bookmark IDs are profile-specific.</p>
 
       <h2>Data collection and sharing</h2>
-      <p>BookmarkFlow Bar does not collect, sell, rent, transfer, or share user data.</p>
+      <p>Maprins Games does not collect, receive, sell, rent, or share extension user data. BookmarkFlow Bar handles the bookmark, page, preference, and search data described above only to provide its user-facing features.</p>
       <p>BookmarkFlow Bar does not send bookmark data, browsing data, settings, or analytics to Maprins Games. Chrome may synchronize general display preferences through the user's Chrome Sync account; BookmarkFlow Bar does not operate or receive data from that service.</p>
-      <p>Bookmark rendering and bookmark management happen locally in the user's browser. Per-site hide choices remain on the device; Chrome handles any optional synchronization of general display preferences.</p>
+      <p>Bookmark rendering and bookmark management happen locally in the user's browser. Per-site hide choices, pinned-folder choices, and per-folder colors remain on the device; Chrome handles any optional synchronization of general display preferences.</p>
+      <p>BookmarkFlow does not persist click counts, mouse position, keystrokes, or scroll position.</p>
 
       <h2>Limited Use compliance</h2>
       <p>The use of information received from Google APIs will adhere to the Chrome Web Store User Data Policy, including the Limited Use requirements.</p>
+      <p>User data is used only to provide BookmarkFlow Bar's disclosed bookmark workspace and search features. It is not sold or transferred outside approved use cases, used or transferred for unrelated purposes, used for personalized advertising or profiling, or used to determine creditworthiness or for lending. Maprins Games personnel do not receive or read users' bookmark, page, preference, or search data.</p>
 
       <h2>Search behavior</h2>
       <p>The custom new tab page includes a search box that uses Chrome's Search API. When the user submits a search query, Chrome sends it to the default search provider already selected by the user. BookmarkFlow Bar does not choose or replace that provider and does not receive or store the query.</p>
@@ -74,10 +77,10 @@
       <h2>Permissions</h2>
       <ul>
         <li><code>bookmarks</code>: used to read the user's Bookmark Bar and bookmark folders, and create, move, or delete bookmarks only after explicit user actions.</li>
-        <li><code>storage</code>: used to save general preferences through Chrome Sync storage and keep per-site hide choices in device-local Chrome storage.</li>
+        <li><code>storage</code>: used to save general preferences through Chrome Sync storage and keep per-site hide choices, pinned-folder choices, and per-folder colors in device-local Chrome storage.</li>
         <li><code>favicon</code>: used to show favicons for bookmark URLs.</li>
         <li><code>search</code>: used to send user-submitted new-tab searches to the default search provider already selected in Chrome.</li>
-        <li><code>&lt;all_urls&gt;</code> content script access: used to display the BookmarkFlow bar on regular web pages.</li>
+        <li><code>&lt;all_urls&gt;</code> content script access: used to display the BookmarkFlow bar on regular web pages and locally evaluate the limited page context needed for current-page matching, visibility rules, and non-overlapping placement.</li>
       </ul>
 
       <h2>Optional login and payment page hiding</h2>

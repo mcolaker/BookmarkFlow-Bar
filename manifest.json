@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_appName__",
-  "version": "0.1.37",
+  "version": "0.1.38",
   "description": "__MSG_appDescription__",
   "default_locale": "en",
   "homepage_url": "https://mcolaker.github.io/BookmarkFlow-Bar/",
@@ -27,8 +27,8 @@
   "commands": {
     "open-search": {
       "suggested_key": {
-        "default": "Ctrl+Shift+E",
-        "mac": "Ctrl+Shift+E"
+        "default": "Alt+Shift+K",
+        "mac": "Alt+Shift+K"
       },
       "description": "__MSG_commandOpenSearch__"
     },

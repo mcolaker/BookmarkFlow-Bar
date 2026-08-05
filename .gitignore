@@ -20,6 +20,8 @@
 !/TRADEMARKS.md
 !/NOTICE
 !/manifest.json
+!/media/
+!/media/**
 !/docs/
 !/docs/**
 !/icons/
@@ -32,3 +34,16 @@
 !/store/**
 !/LICENSE*
 !/SECURITY.md
+
+/media/**/node_modules/
+/media/**/.remotion/
+/media/**/.cache/
+/media/**/coverage/
+/media/**/frames/
+/media/**/renders/
+/media/**/public/generated/
+/media/**/public/captures/
+/media/**/output/
+/media/**/*.log
+/media/**/.env
+/media/**/.env.*

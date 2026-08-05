@@ -23,17 +23,18 @@ HIGHLIGHTS
 • Streamer mode for a cleaner icon-focused presentation during screen sharing
 • Per-site visibility controls and optional hiding on login, payment, and banking pages
 • Built-in onboarding profiles and an animated feature tour
+• Prominent first-run privacy choice before bookmark or page access begins
 • No BookmarkFlow account, analytics, advertising SDK, or external bookmark server
 
 PRIVACY-FIRST BY DESIGN
 
-BookmarkFlow works with the bookmark data already managed by Chrome. It does not upload your bookmark library to a BookmarkFlow server. General display preferences may use Chrome Sync when available, while per-site exclusions and pinned folder choices stay on the current device.
+BookmarkFlow works with the bookmark data already managed by Chrome. It does not upload your bookmark library to a BookmarkFlow server. General display preferences may use Chrome Sync when available, while per-site exclusions, pinned folder choices, and per-folder colors stay on the current device.
 
 Only HTTP, HTTPS, and mailto bookmark targets are rendered or opened. The interface shown inside websites runs in an extension-owned closed Shadow DOM to reduce interference from page scripts and styles.
 
 HOW IT WORKS
 
-After installation, follow the built-in setup tour, choose a starting layout, and optionally hide Chrome's native bookmark bar. Expand BookmarkFlow with the compact BF control, open search with Ctrl+Shift+E, and adjust shortcuts at chrome://extensions/shortcuts.
+After installation, follow the built-in setup tour, choose a starting layout, and optionally hide Chrome's native bookmark bar. Expand BookmarkFlow with the compact BF control, open search with the search button or Alt+Shift+K, and adjust shortcuts at chrome://extensions/shortcuts.
 
 IMPORTANT LIMITATIONS
 
@@ -65,4 +66,4 @@ BookmarkFlow Bar improves access to and organization of the user's existing Chro
 - `storage`: Saves layout, appearance, onboarding, visibility, and local folder/site preferences.
 - `favicon`: Displays Chrome-managed bookmark favicons without using an external icon service.
 - `search`: Sends user-submitted new-tab web searches to the default search provider already selected in Chrome.
-- `<all_urls>`: Shows the optional bookmark interface on ordinary websites selected by the user; Chrome-protected pages remain inaccessible.
+- `<all_urls>`: Shows the optional bookmark interface on ordinary websites, with global and per-site visibility controls; Chrome-protected pages remain inaccessible.

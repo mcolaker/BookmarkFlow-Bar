@@ -25,6 +25,7 @@
   const BOOKMARK_GHOST_OFFSET = 12;
   const FOLDER_MENU_GAP = 16;
   const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
+  const MESSAGE_GET_CONSENT_STATUS = "BF_GET_CONSENT_STATUS";
   const MESSAGE_GET_STATE = "BF_GET_STATE";
   const MESSAGE_GET_PAGE_INFO = "BF_GET_PAGE_INFO";
   const MESSAGE_MOVE_BOOKMARK = "BF_MOVE_BOOKMARK";
@@ -38,6 +39,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   const MESSAGE_STATE_CHANGED = "BF_STATE_CHANGED";
   const {
     FOLDER_COLOR_PRESETS,
+    DATA_CONSENT_STORAGE_KEY,
+    DATA_CONSENT_VERSION,
     isHostDisabled,
     isSafeBookmarkUrl,
     isSensitiveHost,
@@ -45,7 +48,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     normalizeHost,
     PANEL_POSITION_STORAGE_KEY
   } = BookmarkFlowConfig;
-  const { t } = BookmarkFlowI18n;
+  const { getLanguage, t } = BookmarkFlowI18n;
 
   let appState = null;
   let host = null;
@@ -65,43 +68,94 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let suppressNextClick = false;
   let pinnedFolderIds = [];
   let extensionContextInvalidated = false;
+  let addDialogReturnFocus = null;
+  let commandDialogReturnFocus = null;
+  let interfaceInitialized = false;
+  let initializationPending = false;
   let topSurfaceCache = {
     checkedAt: 0,
     value: false
   };
 
+  try {
+    chrome.storage.onChanged.addListener(handleConsentStorageChanged);
+  } catch (error) {
+    handleExtensionContextError(error);
+  }
   init().catch(() => {});
 
   async function init() {
-    injectPageStyle();
-
-    const [response, , savedPinnedFolderIds] = await Promise.all([
-      sendMessage({ type: MESSAGE_GET_STATE }),
-      loadPanelPosition(),
-      loadPinnedFolderIds()
-    ]);
-    if (!response?.ok) {
+    if (interfaceInitialized || initializationPending) {
       return;
     }
 
-    appState = response;
-    pinnedFolderIds = savedPinnedFolderIds;
-    renderFromState();
-
+    initializationPending = true;
     try {
-      chrome.runtime.onMessage.addListener(handleRuntimeMessage);
-    } catch (error) {
-      handleExtensionContextError(error);
+      const consent = await sendMessage({ type: MESSAGE_GET_CONSENT_STATUS });
+      if (!consent?.ok || !consent.consentGranted) {
+        return;
+      }
+
+      const [response, , savedPinnedFolderIds] = await Promise.all([
+        sendMessage({ type: MESSAGE_GET_STATE }),
+        loadPanelPosition(),
+        loadPinnedFolderIds()
+      ]);
+      if (!response?.ok) {
+        return;
+      }
+
+      injectPageStyle();
+      appState = response;
+      pinnedFolderIds = savedPinnedFolderIds;
+      interfaceInitialized = true;
+      renderFromState();
+
+      try {
+        chrome.runtime.onMessage.addListener(handleRuntimeMessage);
+      } catch (error) {
+        handleExtensionContextError(error);
+      }
+
+      try {
+        chrome.storage.onChanged.addListener(handleSafeStorageChanged);
+      } catch (error) {
+        handleExtensionContextError(error);
+      }
+      window.addEventListener("resize", handleSafeWindowResize, { passive: true });
+      document.addEventListener("pointerdown", handleSafeOutsidePointerDown, true);
+      document.addEventListener("keydown", handleSafeDocumentKeydown, true);
+    } finally {
+      initializationPending = false;
+    }
+  }
+
+  function handleConsentStorageChanged(changes, areaName) {
+    if (areaName !== "local" || !(DATA_CONSENT_STORAGE_KEY in changes)) {
+      return;
     }
 
-    try {
-      chrome.storage.onChanged.addListener(handleSafeStorageChanged);
-    } catch (error) {
-      handleExtensionContextError(error);
+    if (changes[DATA_CONSENT_STORAGE_KEY].newValue === DATA_CONSENT_VERSION) {
+      init().catch(() => {});
+      return;
     }
-    window.addEventListener("resize", handleSafeWindowResize, { passive: true });
-    document.addEventListener("pointerdown", handleSafeOutsidePointerDown, true);
-    document.addEventListener("keydown", handleSafeDocumentKeydown, true);
+
+    deactivateInterface();
+  }
+
+  function deactivateInterface() {
+    interfaceInitialized = false;
+    initializationPending = false;
+    appState = null;
+    pinnedFolderIds = [];
+    try {
+      chrome.runtime.onMessage.removeListener(handleRuntimeMessage);
+      chrome.storage.onChanged.removeListener(handleSafeStorageChanged);
+    } catch {}
+    window.removeEventListener("resize", handleSafeWindowResize);
+    document.removeEventListener("pointerdown", handleSafeOutsidePointerDown, true);
+    document.removeEventListener("keydown", handleSafeDocumentKeydown, true);
+    teardown();
   }
 
   function sendMessage(message) {
@@ -189,6 +243,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     } catch {}
     try {
       chrome?.storage?.onChanged?.removeListener?.(handleSafeStorageChanged);
+      chrome?.storage?.onChanged?.removeListener?.(handleConsentStorageChanged);
     } catch {}
     try {
       window.removeEventListener("resize", handleSafeWindowResize);
@@ -367,8 +422,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function renderFromState() {
+    const modalReturnFocus = takeOpenModalReturnFocus();
     if (!shouldRenderBar()) {
       teardown();
+      restoreFocusTarget(modalReturnFocus);
       return;
     }
 
@@ -376,11 +433,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (isSnoozed) {
       renderRestoreButton();
       updatePageOffsetSoon();
+      restoreFocusTarget(modalReturnFocus);
       return;
     }
 
     render();
     updatePageOffsetSoon();
+    restoreFocusTarget(modalReturnFocus);
   }
 
   function runExternalCommand(command) {
@@ -399,10 +458,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     if (command === "toggle-bar") {
-      closeCommandPalette();
+      const returnFocus = closeModalDialogsForRender();
       closeFolderMenu();
       closeContextMenu();
-      closeAddBookmarkDialog();
       if (isSnoozed) {
         isSnoozed = false;
         isExpanded = false;
@@ -410,21 +468,23 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         isExpanded = !isExpanded;
       }
       renderFromState();
+      restoreFocusTarget(returnFocus);
       return { ok: true };
     }
 
     if (command === "hide-restore") {
+      let returnFocus = null;
       if (isSnoozed) {
         isSnoozed = false;
       } else {
         isSnoozed = true;
         isExpanded = false;
-        closeCommandPalette();
+        returnFocus = closeModalDialogsForRender();
         closeFolderMenu();
         closeContextMenu();
-        closeAddBookmarkDialog();
       }
       renderFromState();
+      restoreFocusTarget(returnFocus);
       return { ok: true };
     }
 
@@ -728,9 +788,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       <div class="bf-results" hidden></div>
       <div class="bf-context-menu" hidden></div>
       <div class="bf-add" hidden>
-        <form class="bf-add-panel" aria-label="${escapeAttribute(t("addBookmark"))}">
+        <form class="bf-add-panel" role="dialog" aria-modal="true" aria-labelledby="bf-add-dialog-title" tabindex="-1">
           <div class="bf-add-head">
-            <strong>${escapeHtml(t("addBookmark"))}</strong>
+            <strong id="bf-add-dialog-title">${escapeHtml(t("addBookmark"))}</strong>
             <button class="bf-command-close" type="button" data-bf-action="close-add-bookmark" title="${escapeAttribute(t("close"))}" aria-label="${escapeAttribute(t("close"))}">×</button>
           </div>
           <label class="bf-add-field">
@@ -749,12 +809,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         </form>
       </div>
       <div class="bf-command" hidden>
-        <div class="bf-command-panel" role="dialog" aria-label="${escapeAttribute(t("bookmarkSearch"))}">
+        <div class="bf-command-panel" role="dialog" aria-modal="true" aria-label="${escapeAttribute(t("bookmarkSearch"))}" tabindex="-1">
           <div class="bf-command-head">
-            <input class="bf-command-input" type="search" autocomplete="off" spellcheck="false" placeholder="${escapeAttribute(t("bookmarkSearchPlaceholder"))}">
+            <input class="bf-command-input" type="search" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="bf-command-list" aria-expanded="false" aria-label="${escapeAttribute(t("bookmarkSearch"))}" placeholder="${escapeAttribute(t("bookmarkSearchPlaceholder"))}">
             <button class="bf-command-close" type="button" data-bf-action="close-search" title="${escapeAttribute(t("close"))}" aria-label="${escapeAttribute(t("close"))}">×</button>
           </div>
-          <div class="bf-command-list"></div>
+          <div class="bf-command-list" id="bf-command-list" role="listbox" aria-label="${escapeAttribute(t("bookmarkSearch"))}"></div>
         </div>
       </div>
     `;
@@ -1582,11 +1642,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const grid = shadow.querySelector(".bf-grid");
 
     if (action === "toggle-expanded") {
+      const returnFocus = closeModalDialogsForRender();
       isExpanded = !isExpanded;
       closeFolderMenu();
       closeContextMenu();
-      closeAddBookmarkDialog();
       renderFromState();
+      restoreFocusTarget(returnFocus);
       return;
     }
 
@@ -1696,13 +1757,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     if (action === "hide") {
+      const returnFocus = closeModalDialogsForRender();
       isSnoozed = true;
       isExpanded = false;
-      closeCommandPalette();
       closeFolderMenu();
       closeContextMenu();
-      closeAddBookmarkDialog();
       renderFromState();
+      restoreFocusTarget(returnFocus);
     }
   }
 
@@ -1790,9 +1851,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    const returnFocusElement = shadow?.querySelector(`[data-node-id="${cssEscape(state.nodeId)}"]`) || null;
     activeFolderId = state.nodeId;
     closeContextMenu();
-    openAddBookmarkDialog();
+    openAddBookmarkDialog(returnFocusElement);
   }
 
   async function createFolderFromPrompt(parentId = "") {
@@ -1919,7 +1981,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     window.alert(response?.error || t("bookmarkMoveFailed"));
   }
 
-  function openAddBookmarkDialog() {
+  function openAddBookmarkDialog(returnFocusElement = getActiveDialogElement()) {
     const dialog = shadow?.querySelector(".bf-add");
     const titleInput = shadow?.querySelector(".bf-add-title");
     const urlInput = shadow?.querySelector(".bf-add-url");
@@ -1927,6 +1989,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const submit = shadow?.querySelector(".bf-add-primary");
     if (!dialog || !titleInput || !urlInput) {
       return;
+    }
+
+    const inheritedReturnFocus = isCommandPaletteOpen()
+      ? closeCommandPalette({ restoreFocus: false })
+      : null;
+    if (dialog.hidden) {
+      addDialogReturnFocus = inheritedReturnFocus || createFocusReturnTarget(returnFocusElement);
     }
 
     const suggestion = getSuggestedBookmarkData();
@@ -1941,19 +2010,137 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     dialog.hidden = false;
+    updateModalBackgroundState();
     requestAnimationFrame(() => {
       (urlInput.value ? titleInput : urlInput).focus();
       (urlInput.value ? titleInput : urlInput).select();
     });
   }
 
-  function closeAddBookmarkDialog() {
+  function closeAddBookmarkDialog({ restoreFocus = true } = {}) {
     const dialog = shadow?.querySelector(".bf-add");
     const submit = shadow?.querySelector(".bf-add-primary");
+    const returnFocus = addDialogReturnFocus;
+    addDialogReturnFocus = null;
     if (dialog) {
       resetAddDuplicateState(dialog, submit);
       dialog.hidden = true;
     }
+    updateModalBackgroundState();
+    if (restoreFocus) {
+      restoreFocusTarget(returnFocus);
+    }
+    return returnFocus;
+  }
+
+  function getActiveDialogElement() {
+    return shadow?.activeElement || document.activeElement;
+  }
+
+  function createFocusReturnTarget(element) {
+    if (!element || typeof element.focus !== "function") {
+      return null;
+    }
+
+    return {
+      element,
+      action: element.dataset?.bfAction || "",
+      id: element.id || ""
+    };
+  }
+
+  function restoreFocusTarget(target) {
+    if (!target) {
+      return;
+    }
+
+    let candidate = target.element?.isConnected ? target.element : null;
+    if (!candidate && target.action) {
+      candidate = shadow?.querySelector(`[data-bf-action="${cssEscape(target.action)}"]`) || null;
+    }
+    if (!candidate && target.action) {
+      candidate = shadow?.querySelector(".bf-restore, .bf-mark") || null;
+    }
+    if (!candidate && target.id) {
+      candidate = document.getElementById(target.id);
+    }
+    if (!candidate || typeof candidate.focus !== "function" || candidate.disabled) {
+      return;
+    }
+
+    candidate.focus({ preventScroll: true });
+  }
+
+  function takeOpenModalReturnFocus() {
+    const commandOpen = isCommandPaletteOpen();
+    const addOpen = Boolean(shadow?.querySelector(".bf-add:not([hidden])"));
+    const returnFocus = commandOpen
+      ? commandDialogReturnFocus
+      : (addOpen ? addDialogReturnFocus : null);
+    if (commandOpen) {
+      commandDialogReturnFocus = null;
+    }
+    if (addOpen) {
+      addDialogReturnFocus = null;
+    }
+    return returnFocus;
+  }
+
+  function closeModalDialogsForRender() {
+    const commandReturnFocus = closeCommandPalette({ restoreFocus: false });
+    const addReturnFocus = closeAddBookmarkDialog({ restoreFocus: false });
+    return addReturnFocus || commandReturnFocus;
+  }
+
+  function updateModalBackgroundState() {
+    const app = shadow?.querySelector(".bf-app");
+    if (!app) {
+      return;
+    }
+
+    const activeModal = [
+      app.querySelector(".bf-command"),
+      app.querySelector(".bf-add")
+    ].find((element) => element && !element.hidden) || null;
+
+    Array.from(app.children).forEach((element) => {
+      element.inert = Boolean(activeModal && element !== activeModal);
+    });
+  }
+
+  function getFocusableElements(container) {
+    return Array.from(container?.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    ) || []).filter((element) => element.tabIndex >= 0 && !element.hidden && element.getAttribute("aria-hidden") !== "true");
+  }
+
+  function trapFocusWithin(event, container, activeElement = getActiveDialogElement()) {
+    if (event.key !== "Tab" || !container) {
+      return false;
+    }
+
+    const focusable = getFocusableElements(container);
+    if (!focusable.length) {
+      event.preventDefault();
+      container.focus({ preventScroll: true });
+      return true;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && (activeElement === first || !container.contains(activeElement))) {
+      event.preventDefault();
+      last.focus({ preventScroll: true });
+      return true;
+    }
+
+    if (!event.shiftKey && (activeElement === last || !container.contains(activeElement))) {
+      event.preventDefault();
+      first.focus({ preventScroll: true });
+      return true;
+    }
+
+    return false;
   }
 
   async function handleAddBookmarkSubmit(event) {
@@ -2012,8 +2199,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     resetAddDuplicateState(dialog, submit);
     renderAddBookmarkStatus(parentId ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
     window.setTimeout(() => {
-      closeAddBookmarkDialog();
+      const returnFocus = closeAddBookmarkDialog({ restoreFocus: false });
       renderFromState();
+      restoreFocusTarget(returnFocus);
     }, 900);
   }
 
@@ -2481,23 +2669,24 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    const addOpen = Boolean(shadow?.querySelector(".bf-add:not([hidden])"));
+    const inheritedReturnFocus = addOpen
+      ? closeAddBookmarkDialog({ restoreFocus: false })
+      : null;
+    if (command.hidden) {
+      commandDialogReturnFocus = inheritedReturnFocus || createFocusReturnTarget(getActiveDialogElement());
+    }
+
     command.hidden = false;
+    input.setAttribute("aria-expanded", "true");
     input.value = commandQuery;
     commandActiveIndex = 0;
     renderCommandResults(shadow.querySelector(".bf-app"));
+    updateModalBackgroundState();
     requestAnimationFrame(() => {
       input.focus();
       input.select();
     });
-  }
-
-  function toggleCommandPalette() {
-    if (isCommandPaletteOpen()) {
-      closeCommandPalette();
-      return;
-    }
-
-    openCommandPalette();
   }
 
   function isCommandPaletteOpen() {
@@ -2505,11 +2694,21 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     return Boolean(command && !command.hidden);
   }
 
-  function closeCommandPalette() {
+  function closeCommandPalette({ restoreFocus = true } = {}) {
     const command = shadow?.querySelector(".bf-command");
+    const input = shadow?.querySelector(".bf-command-input");
+    const returnFocus = commandDialogReturnFocus;
+    commandDialogReturnFocus = null;
     if (command) {
       command.hidden = true;
     }
+    input?.setAttribute("aria-expanded", "false");
+    input?.removeAttribute("aria-activedescendant");
+    updateModalBackgroundState();
+    if (restoreFocus) {
+      restoreFocusTarget(returnFocus);
+    }
+    return returnFocus;
   }
 
   function renderCommandResults(app) {
@@ -2523,6 +2722,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const query = normalizeText(commandQuery);
     if (!query && shouldHideEmptyCommandSuggestions()) {
       commandActiveIndex = -1;
+      app?.querySelector(".bf-command-input")?.removeAttribute("aria-activedescendant");
       const empty = document.createElement("div");
       empty.className = "bf-command-empty";
       empty.textContent = t("searchEmptyPrivacy");
@@ -2542,6 +2742,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     if (!entries.length) {
       commandActiveIndex = -1;
+      app?.querySelector(".bf-command-input")?.removeAttribute("aria-activedescendant");
       const empty = document.createElement("div");
       empty.className = "bf-command-empty";
       empty.textContent = t("noResults");
@@ -2564,7 +2765,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function createCommandLink(entry, index) {
     const link = createResultLink(entry);
     link.classList.add("bf-command-item");
+    link.id = `bf-command-option-${index}`;
     link.dataset.commandIndex = String(index);
+    link.tabIndex = -1;
+    link.setAttribute("role", "option");
     link.setAttribute("aria-selected", index === commandActiveIndex ? "true" : "false");
     if (index === commandActiveIndex) {
       link.classList.add("is-command-active");
@@ -2649,14 +2853,25 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
   function syncActiveCommandItem(list, options = {}) {
     const items = Array.from(list?.querySelectorAll(".bf-command-item") || []);
+    let activeItem = null;
     items.forEach((item, index) => {
       const isActive = index === commandActiveIndex;
       item.classList.toggle("is-command-active", isActive);
       item.setAttribute("aria-selected", isActive ? "true" : "false");
+      if (isActive) {
+        activeItem = item;
+      }
       if (isActive && options.scroll !== false) {
         item.scrollIntoView({ block: "nearest" });
       }
     });
+
+    const input = shadow?.querySelector(".bf-command-input");
+    if (input && activeItem && isCommandPaletteOpen()) {
+      input.setAttribute("aria-activedescendant", activeItem.id);
+    } else {
+      input?.removeAttribute("aria-activedescendant");
+    }
   }
 
   function getCommandItems() {
@@ -2786,7 +3001,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function normalizeFolderTitle(value) {
-    return String(value || "").trim().toLocaleLowerCase("tr-TR");
+    return String(value || "").trim().toLocaleLowerCase(getTextLocale());
   }
 
   function getBookmarkTreeRoot() {
@@ -2866,7 +3081,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function normalizeText(value) {
-    return String(value || "").toLocaleLowerCase("tr-TR");
+    return String(value || "").toLocaleLowerCase(getTextLocale());
+  }
+
+  function getTextLocale() {
+    return getLanguage() === "tr" ? "tr-TR" : "en-US";
   }
 
   function matchesBookmarkSearch(entry, query) {
@@ -2901,6 +3120,24 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function getPageInfo() {
     const hostName = getCurrentHost();
     const settings = appState?.settings || {};
+    const renderedApp = shadow?.querySelector(".bf-app");
+    const command = shadow?.querySelector(".bf-command");
+    const folderMenu = shadow?.querySelector(".bf-menu");
+    const folderRail = shadow?.querySelector(".bf-folder-rail");
+    const contextMenu = shadow?.querySelector(".bf-context-menu");
+    const commandResults = shadow?.querySelectorAll(".bf-command-item")?.length || 0;
+    const renderedAppBounds = getVisibleElementBounds(renderedApp);
+    const renderedAppVisible = Boolean(
+      renderedAppBounds
+      && renderedAppBounds.width > 0
+      && renderedAppBounds.height > 0
+    );
+    const renderedFolderRail = Boolean(
+      folderRail
+      && !folderRail.hidden
+      && renderedApp?.classList.contains("is-expanded")
+      && window.getComputedStyle(folderRail).display !== "none"
+    );
 
     return {
       ok: true,
@@ -2910,7 +3147,47 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       sensitiveHost: isSensitiveHost(hostName),
       hiddenOnSites: settings.showOnSites === false,
       autoHiddenSensitive: Boolean(settings.autoHideSensitiveSites && isSensitiveHost(hostName)),
-      dockedBottom: shouldUseBottomDock()
+      dockedBottom: shouldUseBottomDock(),
+      expanded: isExpanded,
+      renderedAppExpanded: Boolean(renderedApp?.classList.contains("is-expanded")),
+      renderedAppVisible,
+      renderedAppBounds,
+      searchOpen: Boolean(command && !command.hidden),
+      commandResults,
+      commandActiveIndex,
+      commandBounds: getVisibleElementBounds(command),
+      folderMenuOpen: Boolean(folderMenu && !folderMenu.hidden),
+      folderMenuBounds: getVisibleElementBounds(folderMenu),
+      contextMenuOpen: isContextMenuOpen(),
+      contextMenuBounds: getVisibleElementBounds(contextMenu),
+      streamerMode: Boolean(settings.streamerMode),
+      folderRail: settings.folderRail || "off",
+      renderedFolderRail,
+      renderedFolderRailItems: renderedFolderRail
+        ? shadow?.querySelectorAll(".bf-folder-rail-item")?.length || 0
+        : 0,
+      renderedFolderRailBounds: renderedFolderRail ? getVisibleElementBounds(folderRail) : null,
+      renderedStreamerMode: Boolean(renderedApp?.classList.contains("is-streamer-mode"))
+    };
+  }
+
+  function getVisibleElementBounds(element) {
+    if (!element || element.hidden) return null;
+    const computedStyle = window.getComputedStyle(element);
+    if (
+      computedStyle.display === "none"
+      || computedStyle.visibility === "hidden"
+      || computedStyle.visibility === "collapse"
+      || Number(computedStyle.opacity) === 0
+    ) return null;
+    const bounds = element.getBoundingClientRect();
+    return {
+      left: Math.round(bounds.left * 100) / 100,
+      top: Math.round(bounds.top * 100) / 100,
+      right: Math.round(bounds.right * 100) / 100,
+      bottom: Math.round(bounds.bottom * 100) / 100,
+      width: Math.round(bounds.width * 100) / 100,
+      height: Math.round(bounds.height * 100) / 100
     };
   }
 
@@ -3034,21 +3311,31 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function handleDocumentKeydown(event) {
-    if (isCommandPaletteShortcut(event)) {
-      event.preventDefault();
+    const commandPanel = isCommandPaletteOpen()
+      ? shadow?.querySelector(".bf-command-panel")
+      : null;
+    const addPanel = shadow?.querySelector(".bf-add:not([hidden]) .bf-add-panel");
+    const activeModalPanel = commandPanel || addPanel;
+    if (event.key === "Tab" && activeModalPanel) {
       event.stopPropagation();
-      if (isSnoozed) {
-        isSnoozed = false;
-        renderFromState();
-        requestAnimationFrame(openCommandPalette);
-        return;
-      }
-
-      toggleCommandPalette();
+      trapFocusWithin(event, activeModalPanel);
       return;
     }
 
     if (event.key === "Escape") {
+      if (commandPanel) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeCommandPalette();
+        return;
+      }
+      if (addPanel) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeAddBookmarkDialog();
+        return;
+      }
+
       closeCommandPalette();
       closeFolderMenu();
       closeContextMenu();
@@ -3058,19 +3345,6 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         panel.hidden = true;
       }
     }
-  }
-
-  function isCommandPaletteShortcut(event) {
-    const key = String(event.key || "").toLocaleLowerCase("en-US");
-    const code = String(event.code || "");
-    const isCtrlK = (event.ctrlKey || event.metaKey) && key === "k";
-    const isAltSpace = event.altKey && !event.ctrlKey && !event.metaKey && (
-      code === "Space" ||
-      event.key === " " ||
-      key === "spacebar"
-    );
-
-    return isCtrlK || isAltSpace;
   }
 
   function injectPageStyle() {
@@ -3149,11 +3423,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     resizeObserver = null;
     closeFolderMenu();
     closeContextMenu();
-    closeAddBookmarkDialog();
+    closeCommandPalette({ restoreFocus: false });
+    closeAddBookmarkDialog({ restoreFocus: false });
     host?.remove();
     host = null;
     shadow = null;
     stylesReady = false;
     clearPageOffset();
+    document.getElementById(GLOBAL_STYLE_ID)?.remove();
   }
 })();

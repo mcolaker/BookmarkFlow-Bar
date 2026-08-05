@@ -28,6 +28,12 @@ const chromePath = await findChrome();
 const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), "bookmarkflow-security-"));
 const server = await startHostileServer();
 const debugPort = await getFreePort();
+const chromeEnvironment = { ...process.env };
+if (process.platform === "linux") {
+  chromeEnvironment.LANGUAGE = requestedLanguage;
+  delete chromeEnvironment.LC_ALL;
+  delete chromeEnvironment.LC_MESSAGES;
+}
 const chrome = spawn(chromePath, [
   ...(process.env.BOOKMARKFLOW_HEADLESS === "0" ? [] : ["--headless=new"]),
   ...(process.platform === "linux" ? ["--no-sandbox", "--disable-dev-shm-usage"] : []),
@@ -43,6 +49,7 @@ const chrome = spawn(chromePath, [
   `--load-extension=${projectRoot}`,
   "about:blank"
 ], {
+  env: chromeEnvironment,
   stdio: ["ignore", "ignore", "pipe"],
   windowsHide: true
 });
@@ -76,6 +83,149 @@ try {
   })`);
   assert.equal(locale.language, requestedLanguage, `Chrome locale mismatch: requested ${requestedLanguage}, got ${locale.language}`);
   assert.equal(locale.onboardingHeading, expectedOnboardingHeading[requestedLanguage], "Chrome i18n message does not match the requested locale");
+
+  const onboarding = await createPage(cdp, `chrome-extension://${extensionId}/src/onboarding.html`);
+  await waitFor(cdp, onboarding, "document.readyState === 'complete' && document.querySelector('[data-i18n=\"onboardingHeading\"]')?.textContent");
+  const onboardingLocale = await evaluate(cdp, onboarding, `({
+    language: document.documentElement.lang,
+    heading: document.querySelector('[data-i18n="onboardingHeading"]')?.textContent,
+    consentGateHidden: document.querySelector('#dataConsentGate')?.hidden,
+    setupContentHidden: document.querySelector('#setupContent')?.hidden,
+    privacyPolicyUrl: document.querySelector('.privacy-link')?.href
+  })`);
+  assert.equal(onboardingLocale.language, requestedLanguage, "Onboarding document language was not localized");
+  assert.equal(onboardingLocale.heading, expectedOnboardingHeading[requestedLanguage], "Onboarding visible heading was not localized");
+  assert.equal(onboardingLocale.consentGateHidden, false, "First-run privacy disclosure was hidden before consent");
+  assert.equal(onboardingLocale.setupContentHidden, true, "Bookmark setup content was exposed before consent");
+  assert.equal(onboardingLocale.privacyPolicyUrl, "https://mcolaker.github.io/BookmarkFlow-Bar/privacy/", "First-run disclosure did not link to the public privacy policy");
+
+  const preConsentState = await evaluate(cdp, workerSession, `routeMessage({ type: "BF_GET_STATE" }, {})`);
+  assert.equal(preConsentState.ok, false, "State access unexpectedly succeeded before consent");
+  assert.equal(preConsentState.consentRequired, true, "State access did not fail closed with a consent-required response");
+  await delay(500);
+  const preConsentPage = await evaluate(cdp, hostilePage, `({
+    hostCount: document.querySelectorAll('[id^="bookmarkflow-bar-root"]').length,
+    hasExtensionStyle: Boolean(document.getElementById("bookmarkflow-bar-page-style"))
+  })`);
+  assert.equal(preConsentPage.hostCount, 1, "The content script inserted a host before consent");
+  assert.equal(preConsentPage.hasExtensionStyle, false, "The content script inserted page styles before consent");
+
+  const newTab = await createPage(cdp, `chrome-extension://${extensionId}/src/newtab.html`);
+  const popup = await createPage(cdp, `chrome-extension://${extensionId}/src/popup.html`);
+  const maintenance = await createPage(cdp, `chrome-extension://${extensionId}/src/bookmark-maintenance.html`);
+  const preConsentSurfaces = {
+    newTab: await evaluate(cdp, newTab, `({
+      consentGateVisible: !document.querySelector('#consentGate').hidden,
+      workspaceHidden: document.querySelector('#newTabWorkspace').hidden
+    })`),
+    popup: await evaluate(cdp, popup, `({
+      consentGateVisible: !document.querySelector('#popupConsentGate').hidden,
+      settingsDisabled: document.querySelector('#enabled').disabled,
+      setupEnabled: !document.querySelector('#openOnboarding').disabled
+    })`),
+    maintenance: await evaluate(cdp, maintenance, `({
+      consentGateVisible: !document.querySelector('#maintenanceConsentGate').hidden,
+      controlsDisabled: document.querySelector('#folderFilter').disabled,
+      setupEnabled: !document.querySelector('#openPrivacySetup').disabled
+    })`)
+  };
+  assert.deepEqual(preConsentSurfaces.newTab, { consentGateVisible: true, workspaceHidden: true }, "New tab was not inert before consent");
+  assert.deepEqual(preConsentSurfaces.popup, { consentGateVisible: true, settingsDisabled: true, setupEnabled: true }, "Popup was not inert before consent");
+  assert.deepEqual(preConsentSurfaces.maintenance, { consentGateVisible: true, controlsDisabled: true, setupEnabled: true }, "Maintenance page was not inert before consent");
+
+  await trustedClick(cdp, onboarding, "#acceptDataConsent");
+  await waitFor(cdp, onboarding, "document.querySelector('#dataConsentGate').hidden && !document.querySelector('#setupContent').hidden");
+  await waitFor(cdp, workerSession, `(async () => (
+    await chrome.storage.local.get("bfDataConsentVersion")
+  ).bfDataConsentVersion === 1)()`);
+  await waitFor(cdp, newTab, "document.querySelector('#consentGate').hidden && !document.querySelector('#newTabWorkspace').hidden");
+  await waitFor(cdp, popup, "document.querySelector('#popupConsentGate').hidden && !document.querySelector('#enabled').disabled");
+  await waitFor(cdp, maintenance, "document.querySelector('#maintenanceConsentGate').hidden && !document.querySelector('#folderFilter').disabled");
+
+  const multiBarContract = await evaluate(cdp, workerSession, `
+    (async () => {
+      const syntheticRoot = {
+        id: "synthetic-root",
+        title: "",
+        children: [
+          {
+            id: "synthetic-local-bar",
+            title: "Bookmarks bar",
+            folderType: "bookmarks-bar",
+            syncing: false,
+            children: [{
+              id: "synthetic-local-folder",
+              parentId: "synthetic-local-bar",
+              title: "Local Folder",
+              syncing: false,
+              children: []
+            }]
+          },
+          {
+            id: "synthetic-account-bar",
+            title: "Bookmarks bar",
+            folderType: "bookmarks-bar",
+            syncing: true,
+            children: [{
+              id: "synthetic-account-folder",
+              parentId: "synthetic-account-bar",
+              title: "Account Folder",
+              syncing: true,
+              children: [{
+                id: "synthetic-account-bookmark",
+                parentId: "synthetic-account-folder",
+                title: "Account Bookmark",
+                url: "https://account.example/",
+                syncing: true
+              }]
+            }]
+          }
+        ]
+      };
+      const state = await getState();
+      return {
+        selectedId: selectBookmarkBarNode(syntheticRoot).id,
+        folderRailTitles: getFolderRailFolders(syntheticRoot).map((node) => node.title),
+        stateHasFolderRailFolders: Array.isArray(state.folderRailFolders)
+      };
+    })()
+  `);
+  assert.equal(multiBarContract.selectedId, "synthetic-account-bar", "Account bookmark bar was not preferred over the local-only bar");
+  assert.deepEqual(multiBarContract.folderRailTitles, ["Account Folder", "Local Folder"], "Multi-bar folder rail candidates were not deterministic");
+  assert.equal(multiBarContract.stateHasFolderRailFolders, true, "Runtime state omitted folder rail folders");
+
+  const folderColorMigration = await evaluate(cdp, workerSession, `
+    (async () => {
+      await chrome.storage.local.remove("bfFolderColorsLocalV1");
+      await chrome.storage.local.set({
+        folderColors: {
+          sharedFolder: "#41d17d",
+          localFolder: "#a78bfa"
+        }
+      });
+      await chrome.storage.sync.set({
+        folderColors: {
+          accountFolder: "#f2c94c",
+          sharedFolder: "#4ea1ff"
+        }
+      });
+      await migrateFolderColorsToLocal();
+      const [localState, syncState, state] = await Promise.all([
+        chrome.storage.local.get(["folderColors", "bfFolderColorsLocalV1"]),
+        chrome.storage.sync.get("folderColors"),
+        getState()
+      ]);
+      return { localState, syncState, stateColors: state.settings.folderColors };
+    })()
+  `);
+  assert.deepEqual(folderColorMigration.localState.folderColors, {
+    accountFolder: "#f2c94c",
+    sharedFolder: "#41d17d",
+    localFolder: "#a78bfa"
+  }, "Legacy synced folder colors were not merged into profile-local storage");
+  assert.equal(folderColorMigration.localState.bfFolderColorsLocalV1, true, "Folder color migration marker was not stored locally");
+  assert.equal("folderColors" in folderColorMigration.syncState, false, "Profile-local folder IDs remained in Chrome Sync");
+  assert.deepEqual(folderColorMigration.stateColors, folderColorMigration.localState.folderColors, "Runtime settings lost migrated folder colors");
 
   await evaluate(cdp, workerSession, `
     (async () => {
@@ -157,7 +307,6 @@ try {
     assert.deepEqual(migration.response.settings.disabledHosts, [localOnlyHost], "Merged settings lost the local host list");
   });
 
-  const newTab = await createPage(cdp, `chrome-extension://${extensionId}/src/newtab.html`);
   await waitFor(cdp, newTab, "document.readyState === 'complete' && !document.querySelector('#bookmarkBar').hidden");
   const newTabLocale = await evaluate(cdp, newTab, `({
     language: document.documentElement.lang,
@@ -198,14 +347,6 @@ try {
     disposition: "CURRENT_TAB"
   }, "New-tab search did not use Chrome's default-provider Search API contract");
 
-  const onboarding = await createPage(cdp, `chrome-extension://${extensionId}/src/onboarding.html`);
-  await waitFor(cdp, onboarding, "document.readyState === 'complete' && document.querySelector('[data-i18n=\"onboardingHeading\"]')?.textContent");
-  const onboardingLocale = await evaluate(cdp, onboarding, `({
-    language: document.documentElement.lang,
-    heading: document.querySelector('[data-i18n="onboardingHeading"]')?.textContent
-  })`);
-  assert.equal(onboardingLocale.language, requestedLanguage, "Onboarding document language was not localized");
-  assert.equal(onboardingLocale.heading, expectedOnboardingHeading[requestedLanguage], "Onboarding visible heading was not localized");
   await trustedClick(cdp, newTab, "#addBookmark");
   await waitFor(cdp, newTab, "!document.querySelector('#addDialog').hidden");
   await fillInput(cdp, newTab, "#addTitle", "Legitimate UI bookmark");
@@ -242,6 +383,26 @@ try {
   })`);
   assert.equal(disabledHostVisibility.hostCount, 1, "BookmarkFlow rendered on a host disabled by the user");
 
+  await evaluate(cdp, workerSession, `Promise.all([
+    chrome.storage.sync.set({ autoHideSensitiveSites: false }),
+    chrome.storage.local.set({ disabledHosts: [] })
+  ])`);
+  const revocationPage = await createPage(cdp, server.url);
+  await waitFor(cdp, revocationPage, "Boolean(document.getElementById('bookmarkflow-bar-page-style'))");
+  await waitFor(cdp, revocationPage, "document.querySelectorAll('[id^=\"bookmarkflow-bar-root\"]').length >= 2");
+  const revokedConsent = await evaluate(cdp, onboarding, `chrome.runtime.sendMessage({
+    type: "BF_SET_DATA_CONSENT",
+    consent: false
+  })`);
+  assert.equal(revokedConsent.consentGranted, false, "Authorized onboarding revocation did not clear consent");
+  await waitFor(cdp, revocationPage, "!document.getElementById('bookmarkflow-bar-page-style')");
+  await waitFor(cdp, revocationPage, "document.querySelectorAll('[id^=\"bookmarkflow-bar-root\"]').length === 1");
+  await waitFor(cdp, newTab, "!document.querySelector('#consentGate').hidden && document.querySelector('#newTabWorkspace').hidden");
+  await waitFor(cdp, popup, "!document.querySelector('#popupConsentGate').hidden && document.querySelector('#enabled').disabled");
+  await waitFor(cdp, maintenance, "!document.querySelector('#maintenanceConsentGate').hidden && document.querySelector('#folderFilter').disabled");
+  const revokedState = await evaluate(cdp, workerSession, `routeMessage({ type: "BF_GET_STATE" }, {})`);
+  assert.equal(revokedState.consentRequired, true, "State access was not locked again after consent revocation");
+
   console.log(JSON.stringify({
     status: "pass",
     locale: {
@@ -251,8 +412,17 @@ try {
       onboarding: onboardingLocale
     },
     disclosure,
+    dataConsentGate: {
+      preConsentState: "blocked",
+      preConsentPage: "inert",
+      preConsentSurfaces,
+      affirmativeConsent: "pass",
+      revocation: "relocked"
+    },
     syntheticSubmitBlocked: !syntheticCreated,
     defaultProviderSearchApi: "pass",
+    multiBookmarkBarContract: "pass",
+    profileLocalFolderColors: "pass",
     legitimateOverlayBookmarkCreate: "pass",
     localHostMigration: "pass",
     legitimateBookmarkCreate: "pass",
@@ -459,6 +629,7 @@ async function trustedClick(cdp, sessionId, selector) {
     (() => {
       const element = document.querySelector(${JSON.stringify(selector)});
       if (!element) throw new Error("Missing element: ${selector}");
+      element.scrollIntoView({ block: "center", inline: "center" });
       const rect = element.getBoundingClientRect();
       return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
     })()

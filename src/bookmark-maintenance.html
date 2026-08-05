@@ -14,6 +14,12 @@
         <p data-i18n="maintenanceLead">Move the contents of device-only folders into same-named folders in your Google account.</p>
       </header>
 
+      <section class="consent-gate" id="maintenanceConsentGate" hidden>
+        <strong data-i18n="dataConsentRequiredHeading">Review privacy choices to enable BookmarkFlow</strong>
+        <p data-i18n="dataConsentRequiredDescription">Bookmark and page access remains off until you review the first-run disclosure and agree.</p>
+        <button id="openPrivacySetup" class="primary" type="button" data-i18n="reviewPrivacySetup">Review privacy setup</button>
+      </section>
+
       <section class="notice" aria-label="Safety information" data-i18n-aria-label="safetyInformation">
         <strong data-i18n="dataLossProtection">Data-loss protection</strong>
         <p data-i18n="dataLossProtectionDescription">Bookmarks are never deleted. A local folder is removed only after every item is moved and the folder is confirmed empty.</p>
@@ -45,6 +51,7 @@
     </main>
 
     <script src="i18n.js"></script>
+    <script src="settings.js"></script>
     <script src="bookmark-maintenance.js"></script>
   </body>
 </html>

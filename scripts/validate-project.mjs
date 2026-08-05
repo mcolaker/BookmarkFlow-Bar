@@ -28,12 +28,30 @@ if (!(manifest.permissions ?? []).includes("search")) {
   throw new Error("manifest.json: the new-tab web search must declare the Chrome search permission");
 }
 
+const openSearchSuggestedKeys = manifest.commands?.["open-search"]?.suggested_key ?? {};
+for (const platform of ["default", "mac"]) {
+  if (openSearchSuggestedKeys[platform] !== "Alt+Shift+K") {
+    throw new Error(`manifest.json: open-search ${platform} shortcut must use the reviewed Alt+Shift+K default`);
+  }
+}
+
 const newTabSource = readFileSync(join(root, "src/newtab.js"), "utf8");
 if (!/chrome\.search\.query\s*\(/u.test(newTabSource)) {
   throw new Error("src/newtab.js: web search must use Chrome's default-provider search API");
 }
 if (/google\.com\/search/iu.test(newTabSource)) {
   throw new Error("src/newtab.js: web search must not hard-code a search provider");
+}
+
+const onboardingHtml = readFileSync(join(root, "src/onboarding.html"), "utf8");
+const onboardingSource = readFileSync(join(root, "src/onboarding.js"), "utf8");
+if (!/chrome\.commands\.getAll\s*\(/u.test(onboardingSource)) {
+  throw new Error("src/onboarding.js: shortcut guide must read Chrome's actual command assignments");
+}
+for (const command of ["open-search", "toggle-bar", "hide-restore", "toggle-streamer-mode"]) {
+  if (!onboardingHtml.includes(`data-command="${command}"`)) {
+    throw new Error(`src/onboarding.html: missing dynamic shortcut row for ${command}`);
+  }
 }
 
 const referencedFiles = [
@@ -160,6 +178,38 @@ for (const path of JavaScriptFiles) {
   execFileSync(process.execPath, ["--check", path], { stdio: "pipe" });
 }
 
+const promoVideoValidator = join(root, "media", "promo-video", "scripts", "validate-source.mjs");
+if (existsSync(promoVideoValidator)) {
+  execFileSync(process.execPath, [promoVideoValidator], {cwd: root, stdio: "inherit"});
+}
+
+const ciWorkflowSource = readFileSync(join(root, ".github/workflows/validate.yml"), "utf8");
+for (const requiredBrowserCiContract of [
+  "runs-on: ubuntu-24.04",
+  "Install extension-capable Chromium",
+  "npx --yes playwright@1.55.0 install chromium",
+  "BOOKMARKFLOW_CHROME_LANG: ${{ matrix.language }}",
+]) {
+  if (!ciWorkflowSource.includes(requiredBrowserCiContract)) {
+    throw new Error(`.github/workflows/validate.yml: missing extension-capable browser contract: ${requiredBrowserCiContract}`);
+  }
+}
+if (ciWorkflowSource.includes("BOOKMARKFLOW_CHROME_PATH: /usr/bin/google-chrome")) {
+  throw new Error(".github/workflows/validate.yml: branded Chrome cannot load the unpacked CI extension through command-line flags");
+}
+
+const securityRegressionSource = readFileSync(join(root, "scripts/security-regression.mjs"), "utf8");
+for (const requiredLinuxLocaleContract of [
+  "chromeEnvironment.LANGUAGE = requestedLanguage",
+  "delete chromeEnvironment.LC_ALL",
+  "delete chromeEnvironment.LC_MESSAGES",
+  "env: chromeEnvironment",
+]) {
+  if (!securityRegressionSource.includes(requiredLinuxLocaleContract)) {
+    throw new Error(`scripts/security-regression.mjs: missing Linux browser locale contract: ${requiredLinuxLocaleContract}`);
+  }
+}
+
 const requiredPresentationFiles = [
   "README.md",
   "CODE_OF_CONDUCT.md",
@@ -175,6 +225,10 @@ const requiredPresentationFiles = [
   "CHANGELOG.md",
   "docs/ASSET_PROVENANCE.md",
   "docs/assets/bookmarkflow-hero.jpg",
+  "docs/assets/promo-video/bookmarkflow-bar-poster-1920x1080.jpg",
+  "docs/assets/promo-video/bookmarkflow-bar-preview-960x540.gif",
+  "media/promo-video/README.md",
+  "media/promo-video/captions/bookmarkflow-master.en.srt",
   "store/listing-en.md",
 ];
 
@@ -185,8 +239,10 @@ for (const path of requiredPresentationFiles) {
 }
 
 const readmeSource = readFileSync(join(root, "README.md"), "utf8");
+const chromeWebStoreUrl = "https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf";
 for (const requiredSupportContent of [
   "## How to support",
+  chromeWebStoreUrl,
   "https://github.com/mcolaker/BookmarkFlow-Bar/discussions",
   "GOVERNANCE.md",
   "LICENSE.md",
@@ -194,6 +250,9 @@ for (const requiredSupportContent of [
   "SECURITY.md",
   "SUPPORT.md",
   "TRADEMARKS.md",
+  "## Product film",
+  "docs/assets/promo-video/bookmarkflow-bar-preview-960x540.gif",
+  "media/promo-video/README.md",
 ]) {
   if (!readmeSource.includes(requiredSupportContent)) {
     throw new Error(`README.md: missing required support content: ${requiredSupportContent}`);
@@ -225,6 +284,105 @@ for (const canonicalLinkFile of [
   }
 }
 
+for (const consentKey of [
+  "dataConsentHeading",
+  "dataConsentIntro",
+  "dataConsentAgree",
+  "dataConsentRequired",
+  "dataConsentRequiredHeading",
+  "dataConsentRequiredDescription",
+]) {
+  for (const [locale, messages] of localeMessages) {
+    if (!String(messages[consentKey]?.message || "").trim()) {
+      throw new Error(`_locales/${locale}/messages.json: missing non-empty consent message ${consentKey}`);
+    }
+  }
+}
+
+const reviewerNotes = readFileSync(join(root, "store/reviewer-notes.md"), "utf8");
+const reviewerPermissions = reviewerNotes.split("## Permissions")[1] || "";
+for (const permission of manifest.permissions ?? []) {
+  if (!reviewerPermissions.includes(`\`${permission}\``)) {
+    throw new Error(`store/reviewer-notes.md: permissions section omits manifest permission ${permission}`);
+  }
+}
+
+const privacyDashboard = readFileSync(join(root, "store/privacy-dashboard-answers.md"), "utf8");
+for (const requiredDisclosure of [
+  "**Web history: select.**",
+  "**Website content: select.**",
+  "**User activity: leave unselected.**",
+  "Chrome's Search API sends the query",
+  "not sold or transferred to third parties outside the approved use cases",
+  "not used or transferred for purposes unrelated to BookmarkFlow Bar's single purpose",
+  "not used or transferred to determine creditworthiness",
+]) {
+  if (!privacyDashboard.includes(requiredDisclosure)) {
+    throw new Error(`store/privacy-dashboard-answers.md: missing reviewed disclosure: ${requiredDisclosure}`);
+  }
+}
+if (!privacyDashboard.includes("I agree — enable bookmark and page access")) {
+  throw new Error("store/privacy-dashboard-answers.md: missing prominent first-run consent disclosure");
+}
+
+const productSiteSource = readFileSync(join(root, "docs/index.html"), "utf8");
+if (!productSiteSource.includes(chromeWebStoreUrl)) {
+  throw new Error("docs/index.html: missing canonical Chrome Web Store installation URL");
+}
+
+const publishChecklist = readFileSync(join(root, "store/publish-checklist.md"), "utf8");
+if (!publishChecklist.includes(chromeWebStoreUrl)) {
+  throw new Error("store/publish-checklist.md: missing canonical existing Chrome Web Store item URL");
+}
+if (!publishChecklist.includes("Upload only the extension ZIP")) {
+  throw new Error("store/publish-checklist.md: Chrome Web Store upload must be limited to the extension ZIP");
+}
+if (/upload both generated files/iu.test(publishChecklist)) {
+  throw new Error("store/publish-checklist.md: incorrectly instructs maintainers to upload the checksum to Chrome Web Store");
+}
+
+for (const privacyPolicyPath of [
+  "store/privacy-policy.md",
+  "store/privacy-policy.html",
+  "docs/privacy/index.html",
+]) {
+  const source = readFileSync(join(root, privacyPolicyPath), "utf8");
+  if (!source.includes("August 5, 2026")) {
+    throw new Error(`${privacyPolicyPath}: effective date does not cover the current privacy behavior`);
+  }
+}
+
+const onboardingHtmlSource = readFileSync(join(root, "src/onboarding.html"), "utf8");
+const attributesSource = readFileSync(join(root, ".gitattributes"), "utf8");
+for (const pendingTourAsset of ["search-palette.gif", "context-actions.gif"]) {
+  if (readmeSource.includes(`src/assets/tour/${pendingTourAsset}`) || onboardingHtmlSource.includes(`assets/tour/${pendingTourAsset}`)) {
+    throw new Error(`${pendingTourAsset}: pending visual refresh must not be promoted in README or onboarding`);
+  }
+  if (!attributesSource.includes(`/src/assets/tour/${pendingTourAsset} export-ignore`)) {
+    throw new Error(`${pendingTourAsset}: pending visual refresh must not enter the release archive`);
+  }
+}
+
+const turkishListing = readFileSync(join(root, "store/listing-tr.md"), "utf8");
+for (const requiredTurkishContent of [
+  "ÖNE ÇIKAN ÖZELLİKLER",
+  "TASARIMDAN İTİBAREN GİZLİLİK",
+  "Alt + Shift + K",
+  "https://mcolaker.github.io/BookmarkFlow-Bar/privacy/",
+]) {
+  if (!turkishListing.includes(requiredTurkishContent)) {
+    throw new Error(`store/listing-tr.md: missing reviewed Turkish listing content: ${requiredTurkishContent}`);
+  }
+}
+if (/\b(?:gosterir|kucuk|ust|ozellikler)\b/iu.test(turkishListing)) {
+  throw new Error("store/listing-tr.md: ASCII-transliterated Turkish copy remains in the active listing");
+}
+
+execFileSync(process.execPath, [join(root, "scripts/validate-assets.mjs")], {
+  cwd: root,
+  stdio: "pipe",
+});
+
 console.log(
-  `Validated manifest v${manifest.version}, ${JavaScriptFiles.length} JavaScript files, ${requiredLocales.length} locales, and ${requiredPresentationFiles.length} presentation files.`,
+  `Validated manifest v${manifest.version}, ${JavaScriptFiles.length} JavaScript files, ${requiredLocales.length} locales, ${requiredPresentationFiles.length} presentation files, and the reviewed binary asset contract.`,
 );

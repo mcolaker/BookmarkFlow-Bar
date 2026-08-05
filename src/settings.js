@@ -16,15 +16,23 @@
     disabledHosts: []
   });
 
+  const PROFILE_LOCAL_SETTING_KEYS = Object.freeze(new Set([
+    "disabledHosts",
+    "folderColors"
+  ]));
+
   const SYNC_DEFAULT_SETTINGS = Object.freeze(Object.fromEntries(
-    Object.entries(DEFAULT_SETTINGS).filter(([key]) => key !== "disabledHosts")
+    Object.entries(DEFAULT_SETTINGS).filter(([key]) => !PROFILE_LOCAL_SETTING_KEYS.has(key))
   ));
 
   const LOCAL_SETTINGS_DEFAULTS = Object.freeze({
-    disabledHosts: []
+    disabledHosts: [],
+    folderColors: {}
   });
 
   const PANEL_POSITION_STORAGE_KEY = "bfPanelPosition";
+  const DATA_CONSENT_STORAGE_KEY = "bfDataConsentVersion";
+  const DATA_CONSENT_VERSION = 1;
 
   const SAFE_BOOKMARK_PROTOCOLS = Object.freeze([
     "http:",
@@ -163,7 +171,11 @@
   }
 
   function normalizeSyncedSettings(settings) {
-    const { disabledHosts: _disabledHosts, ...syncedSettings } = normalizeSettings(settings);
+    const {
+      disabledHosts: _disabledHosts,
+      folderColors: _folderColors,
+      ...syncedSettings
+    } = normalizeSettings(settings);
     return syncedSettings;
   }
 
@@ -306,6 +318,8 @@
     FOLDER_COLOR_PRESETS,
     SETUP_PROFILES,
     PANEL_POSITION_STORAGE_KEY,
+    DATA_CONSENT_STORAGE_KEY,
+    DATA_CONSENT_VERSION,
     SAFE_BOOKMARK_PROTOCOLS,
     SENSITIVE_HOST_KEYWORDS,
     SENSITIVE_HOSTS,

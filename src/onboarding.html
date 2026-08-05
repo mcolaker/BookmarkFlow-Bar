@@ -17,6 +17,26 @@
         </div>
       </header>
 
+      <section class="consent-card" id="dataConsentGate" aria-labelledby="dataConsentTitle">
+        <p class="eyebrow" data-i18n="dataConsentEyebrow">Privacy choice</p>
+        <h2 id="dataConsentTitle" data-i18n="dataConsentHeading">Choose whether to enable bookmark and page access</h2>
+        <p class="consent-intro" data-i18n="dataConsentIntro">BookmarkFlow stays off until you agree. If enabled, it handles the following data only to provide its bookmark workspace:</p>
+        <ul>
+          <li data-i18n="dataConsentBookmarks">Bookmark titles, URLs, folders, and favicons are read from Chrome and changed only after your actions.</li>
+          <li data-i18n="dataConsentPageContext">On regular websites, the current URL, title, and limited layout context are processed locally for matching, visibility, and non-overlapping placement.</li>
+          <li data-i18n="dataConsentStorage">Display settings may use Chrome Sync; per-site, pinned-folder, and folder-color choices stay in local Chrome storage.</li>
+          <li data-i18n="dataConsentSearch">A new-tab search is sent by Chrome to your selected default search provider only after you submit it.</li>
+        </ul>
+        <p class="consent-emphasis" data-i18n="dataConsentNoDeveloperCollection">Maprins Games does not receive bookmark, page, preference, or search data. There are no analytics, ads, or data sales.</p>
+        <a class="privacy-link" href="https://mcolaker.github.io/BookmarkFlow-Bar/privacy/" target="_blank" rel="noopener noreferrer" data-i18n="privacyPolicy">Read the privacy policy</a>
+        <p id="dataConsentStatus" class="status" role="status" aria-live="polite"></p>
+        <div class="consent-actions">
+          <button id="declineDataConsent" class="secondary" type="button" data-i18n="notNow">Not now</button>
+          <button id="acceptDataConsent" class="primary" type="button" data-i18n="dataConsentAgree">I agree — enable bookmark and page access</button>
+        </div>
+      </section>
+
+      <div id="setupContent" hidden>
       <section class="summary" aria-label="Bookmark source" data-i18n-aria-label="source">
         <article>
           <span class="mini-label" data-i18n="source">Source</span>
@@ -70,10 +90,10 @@
           <button id="openShortcuts" class="secondary" type="button" data-i18n="editShortcuts">Edit shortcuts</button>
         </div>
         <div class="shortcut-grid">
-          <div><span data-i18n="searchPalette">Search palette</span><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>E</kbd></div>
-          <div><span data-i18n="expandCollapseBar">Expand / collapse bar</span><kbd>Alt</kbd><kbd>Shift</kbd><kbd>B</kbd></div>
-          <div><span data-i18n="hideRestore">Hide / restore</span><kbd>Alt</kbd><kbd>Shift</kbd><kbd>H</kbd></div>
-          <div><span data-i18n="streamerMode">Streamer mode</span><kbd>Alt</kbd><kbd>Shift</kbd><kbd>M</kbd></div>
+          <div data-command="open-search"><span data-i18n="searchPalette">Search palette</span><kbd>Alt</kbd><kbd>Shift</kbd><kbd>K</kbd></div>
+          <div data-command="toggle-bar"><span data-i18n="expandCollapseBar">Expand / collapse bar</span><kbd>Alt</kbd><kbd>Shift</kbd><kbd>B</kbd></div>
+          <div data-command="hide-restore"><span data-i18n="hideRestore">Hide / restore</span><kbd>Alt</kbd><kbd>Shift</kbd><kbd>H</kbd></div>
+          <div data-command="toggle-streamer-mode"><span data-i18n="streamerMode">Streamer mode</span><kbd>Alt</kbd><kbd>Shift</kbd><kbd>M</kbd></div>
         </div>
       </section>
 
@@ -94,13 +114,6 @@
             </div>
           </article>
           <article class="tour-card">
-            <img src="assets/tour/search-palette.gif" loading="lazy" alt="Searching bookmarks and selecting a result with the keyboard" data-i18n-alt="tourSearchAlt">
-            <div>
-              <strong data-i18n="searchPalette">Search palette</strong>
-              <p data-i18n="tourSearchDescription">Start typing, move with the arrow keys, and press Enter to open a result.</p>
-            </div>
-          </article>
-          <article class="tour-card">
             <img src="assets/tour/folder-rail.gif" loading="lazy" alt="Opening a folder from the left folder rail" data-i18n-alt="tourRailAlt">
             <div>
               <strong data-i18n="folderRail">Folder rail</strong>
@@ -114,13 +127,6 @@
               <p data-i18n="tourStreamerDescription">Switch to icon mode during videos, presentations, and client calls.</p>
             </div>
           </article>
-          <article class="tour-card">
-            <img src="assets/tour/context-actions.gif" loading="lazy" alt="Editing, moving, and deleting a bookmark from its context menu" data-i18n-alt="tourContextAlt">
-            <div>
-              <strong data-i18n="contextActions">Context actions</strong>
-              <p data-i18n="tourContextDescription">Rename, reorder, move, or delete bookmarks without leaving BookmarkFlow.</p>
-            </div>
-          </article>
         </div>
       </section>
 
@@ -132,6 +138,7 @@
           <button id="finish" class="secondary" type="button" data-i18n="finish">Finish</button>
         </div>
       </footer>
+      </div>
     </main>
     <script src="i18n.js"></script>
     <script src="settings.js"></script>

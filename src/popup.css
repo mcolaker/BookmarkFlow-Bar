@@ -21,6 +21,28 @@ body {
   padding: 16px;
 }
 
+.consent-gate[hidden] {
+  display: none;
+}
+
+.consent-gate {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid rgba(242, 201, 76, 0.44);
+  border-radius: 7px;
+  background: rgba(242, 201, 76, 0.1);
+}
+
+.consent-gate strong {
+  font-size: 13px;
+}
+
+.consent-gate p {
+  margin: 0;
+  line-height: 1.45;
+}
+
 .topline {
   display: flex;
   align-items: center;
