@@ -96,9 +96,9 @@ Browser and font rasterization can differ between operating systems or browser r
 | `store/assets/tr/screenshot-folder-rail-1280x800.png` | Real extension capture, tr-TR | 289309 | 1280x800 | `132c0be7652e9b087d373e2bfd44511a7f597b42ba0585725dfc95bbc422efec` |
 | `store/assets/tr/screenshot-streamer-1280x800.png` | Real extension capture, tr-TR | 264063 | 1280x800 | `f1cabf13499f9f08ad364d819890ec579186af0d8225b05cb7f313c76732885d` |
 
-## Prepared promo delivery set
+## Promo delivery and publication
 
-The following reproducible outputs were rendered and validated locally on 2026-08-05. They are delivery artifacts, not tracked source files, and their status remains `PREPARED_NOT_UPLOADED` until a maintainer intentionally publishes them.
+The following reproducible outputs were rendered and validated locally on 2026-08-05. They are delivery artifacts, not tracked source files. The approved master MP4 and English master SRT were published as separate documentation/promotional assets on the versioned [`v0.1.38` GitHub Release](https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.1.38), backed by the exact annotated source tag; they are not part of the Chrome ZIP. GitHub's uploaded asset digests match the local MP4 and SRT hashes below, and the independent [`bookmarkflow-bar-product-film-SHA256SUMS.txt`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.38/bookmarkflow-bar-product-film-SHA256SUMS.txt) is published with them. Their status is `PUBLISHED_GITHUB_RELEASE`. The LinkedIn, X, 4:5 teaser and X-caption deliverables remain `PREPARED_NOT_POSTED` pending a separate intentional account-level publication.
 
 | Output | Contract | Bytes | SHA-256 |
 | --- | --- | ---: | --- |
