@@ -69,7 +69,7 @@ for (const [source, destination] of motionAssets) {
   );
 }
 
-writeAmbientBed(join(generatedRoot, "audio", "bookmarkflow-bed.wav"), 60, 48_000);
+writeBrightTechBed(join(generatedRoot, "audio", "bookmarkflow-bed.wav"), 60, 48_000);
 
 const manifest = {
   schemaVersion: 1,
@@ -136,13 +136,15 @@ function captureOrFallback(captureName, fallbackRelativePath) {
   return join(captureRoot, captureName);
 }
 
-function writeAmbientBed(path, durationSeconds, sampleRate) {
+function writeBrightTechBed(path, durationSeconds, sampleRate) {
   mkdirSync(dirname(path), {recursive: true});
   const channels = 2;
   const bytesPerSample = 2;
   const sampleCount = durationSeconds * sampleRate;
   const dataSize = sampleCount * channels * bytesPerSample;
   const output = Buffer.allocUnsafe(44 + dataSize);
+  const leftSamples = new Float32Array(sampleCount);
+  const rightSamples = new Float32Array(sampleCount);
 
   output.write("RIFF", 0, "ascii");
   output.writeUInt32LE(36 + dataSize, 4);
@@ -158,28 +160,108 @@ function writeAmbientBed(path, durationSeconds, sampleRate) {
   output.write("data", 36, "ascii");
   output.writeUInt32LE(dataSize, 40);
 
-  const chordRoots = [110, 130.8128, 98, 146.8324];
-  let offset = 44;
+  const tempo = 104;
+  const beatDuration = 60 / tempo;
+  const halfBeatDuration = beatDuration / 2;
+  const barDuration = beatDuration * 4;
+  const progression = [
+    {root: 146.8324, chord: [146.8324, 184.9972, 220]},
+    {root: 110, chord: [110, 138.5913, 164.8138]},
+    {root: 97.9989, chord: [97.9989, 123.4708, 146.8324]},
+    {root: 110, chord: [110, 138.5913, 164.8138]},
+  ];
+  const arpOrder = [0, 1, 2, 1, 0, 1, 2, 1];
+  let peak = 0;
+  let sumSquares = 0;
+
   for (let index = 0; index < sampleCount; index += 1) {
     const time = index / sampleRate;
-    const root = chordRoots[Math.floor(time / 8) % chordRoots.length];
-    const fadeIn = Math.min(1, time / 2.5);
-    const fadeOut = Math.min(1, (durationSeconds - time) / 4);
+    const barIndex = Math.floor(time / barDuration);
+    const barPhase = time % barDuration;
+    const {root, chord} = progression[barIndex % progression.length];
+    const beatIndex = Math.floor(time / beatDuration);
+    const beatInBar = beatIndex % 4;
+    const beatPhase = time % beatDuration;
+    const halfBeatIndex = Math.floor(time / halfBeatDuration);
+    const halfBeatPhase = time % halfBeatDuration;
+    const fadeIn = Math.min(1, time / 0.8);
+    const fadeOut = Math.min(1, (durationSeconds - time) / 2);
     const masterEnvelope = Math.max(0, Math.min(fadeIn, fadeOut));
-    const slowPulse = 0.76 + 0.24 * Math.sin(Math.PI * 2 * time / 4) ** 2;
-    const pad =
-      Math.sin(Math.PI * 2 * root * time) * 0.42
-      + Math.sin(Math.PI * 2 * root * 1.5 * time + 0.3) * 0.28
-      + Math.sin(Math.PI * 2 * root * 2 * time + 0.8) * 0.16;
-    const shimmerEnvelope = Math.exp(-((time % 4) * 1.25));
-    const shimmer = Math.sin(Math.PI * 2 * root * 4 * time) * shimmerEnvelope * 0.16;
-    const sample = Math.tanh((pad * slowPulse + shimmer) * 0.12) * masterEnvelope;
-    const left = Math.round(sample * 32767);
-    const right = Math.round(sample * (0.94 + 0.04 * Math.sin(time * 0.7)) * 32767);
-    output.writeInt16LE(left, offset);
-    output.writeInt16LE(right, offset + 2);
+    const chordEnvelope = Math.min(1, barPhase / 0.12)
+      * Math.min(1, (barDuration - barPhase) / 0.18);
+    const sidechain = 0.58 + 0.42 * Math.min(1, beatPhase / 0.16);
+    const padLeft = chord.reduce(
+      (sum, frequency, chordIndex) => sum + Math.sin(Math.PI * 2 * frequency * time + chordIndex * 0.13),
+      0,
+    ) / chord.length;
+    const padRight = chord.reduce(
+      (sum, frequency, chordIndex) => sum + Math.sin(Math.PI * 2 * frequency * time - chordIndex * 0.11),
+      0,
+    ) / chord.length;
+
+    const bassEnvelope = 0.72 + 0.28 * Math.exp(-beatPhase * 5);
+    const bass = (
+      Math.sin(Math.PI * root * time)
+      + Math.sin(Math.PI * 2 * root * time) * 0.16
+    ) * bassEnvelope;
+
+    const arpStep = arpOrder[halfBeatIndex % arpOrder.length];
+    const arpFrequency = chord[arpStep] * 2;
+    const pluckEnvelope = Math.exp(-halfBeatPhase * 9.5);
+    const pluck = (
+      Math.sin(Math.PI * 2 * arpFrequency * halfBeatPhase)
+      + Math.sin(Math.PI * 4 * arpFrequency * halfBeatPhase) * 0.22
+    ) * pluckEnvelope;
+    const pluckPan = ((halfBeatIndex % 4) - 1.5) / 7.5;
+
+    const kickEnvelope = Math.exp(-beatPhase * 20);
+    const kickPhase = Math.PI * 2 * (64 * beatPhase - 16 * beatPhase ** 2);
+    const kick = Math.sin(kickPhase) * kickEnvelope;
+
+    const noise = deterministicNoise(index, 0x4b1d) - deterministicNoise(index - 1, 0x4b1d);
+    const clap = (beatInBar === 1 || beatInBar === 3)
+      ? noise * Math.exp(-beatPhase * 32)
+      : 0;
+    const hatNoise = deterministicNoise(index, 0x19af) - deterministicNoise(index - 2, 0x19af);
+    const hat = hatNoise * Math.exp(-halfBeatPhase * 70);
+
+    const left = Math.tanh(
+      padLeft * chordEnvelope * sidechain * 0.12
+      + bass * 0.11
+      + pluck * (0.105 - pluckPan * 0.025)
+      + kick * 0.19
+      + clap * 0.038
+      + hat * 0.012,
+    ) * masterEnvelope;
+    const right = Math.tanh(
+      padRight * chordEnvelope * sidechain * 0.12
+      + bass * 0.105
+      + pluck * (0.105 + pluckPan * 0.025)
+      + kick * 0.19
+      + clap * 0.041
+      + hat * 0.014,
+    ) * masterEnvelope;
+    leftSamples[index] = left;
+    rightSamples[index] = right;
+    peak = Math.max(peak, Math.abs(left), Math.abs(right));
+    sumSquares += left ** 2 + right ** 2;
+  }
+
+  const rms = Math.sqrt(sumSquares / (sampleCount * channels));
+  const gain = Math.min(0.36 / peak, 0.09 / rms);
+  let offset = 44;
+  for (let index = 0; index < sampleCount; index += 1) {
+    output.writeInt16LE(Math.round(leftSamples[index] * gain * 32767), offset);
+    output.writeInt16LE(Math.round(rightSamples[index] * gain * 32767), offset + 2);
     offset += 4;
   }
 
   writeFileSync(path, output);
+}
+
+function deterministicNoise(index, seed) {
+  let value = Math.imul(index ^ seed, 0x45d9f3b);
+  value = Math.imul(value ^ (value >>> 16), 0x45d9f3b);
+  value ^= value >>> 16;
+  return ((value >>> 0) / 0xffffffff) * 2 - 1;
 }

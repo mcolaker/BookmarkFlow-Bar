@@ -538,7 +538,7 @@ const CtaScene: React.FC<{duration: number; vertical?: boolean}> = ({duration, v
 
 export const BookmarkFlowMaster: React.FC = () => (
   <AbsoluteFill style={{background: theme.background}}>
-    <Audio src={staticFile("generated/audio/bookmarkflow-bed.wav")} volume={0.52} />
+    <Audio src={staticFile("generated/audio/bookmarkflow-bed.wav")} volume={1} />
     <Series>
       <Series.Sequence durationInFrames={sceneLengths.intro}><Intro duration={sceneLengths.intro} /></Series.Sequence>
       <Series.Sequence durationInFrames={sceneLengths.bar}><BarScene duration={sceneLengths.bar} /></Series.Sequence>
@@ -574,7 +574,7 @@ const XBarScene: React.FC<{duration: number}> = ({duration}) => (
 
 export const BookmarkFlowX: React.FC = () => (
   <AbsoluteFill style={{background: theme.background}}>
-    <Audio src={staticFile("generated/audio/bookmarkflow-bed.wav")} volume={0.52} />
+    <Audio src={staticFile("generated/audio/bookmarkflow-bed.wav")} volume={1} />
     <Series>
       <Series.Sequence durationInFrames={60}><Intro duration={60} /></Series.Sequence>
       <Series.Sequence durationInFrames={240}><XBarScene duration={240} /></Series.Sequence>
@@ -606,7 +606,7 @@ const VerticalProduct: React.FC<{duration: number}> = ({duration}) => (
 
 export const BookmarkFlowTeaser: React.FC = () => (
   <AbsoluteFill style={{background: theme.background}}>
-    <Audio src={staticFile("generated/audio/bookmarkflow-bed.wav")} volume={0.52} />
+    <Audio src={staticFile("generated/audio/bookmarkflow-bed.wav")} volume={1} />
     <Series>
       <Series.Sequence durationInFrames={75}><Intro duration={75} /></Series.Sequence>
       <Series.Sequence durationInFrames={225}><VerticalProduct duration={225} /></Series.Sequence>

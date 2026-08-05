@@ -20,6 +20,8 @@ if (JSON.stringify(packageJson.dependencies) !== JSON.stringify(expectedDependen
 
 const rootSource = readFileSync(join(workspaceRoot, "src", "Root.tsx"), "utf8");
 const videoSource = readFileSync(join(workspaceRoot, "src", "video.tsx"), "utf8");
+const audioSource = readFileSync(join(workspaceRoot, "scripts", "prepare-assets.mjs"), "utf8");
+const renderSource = readFileSync(join(workspaceRoot, "scripts", "render-all.mjs"), "utf8");
 const expectedCompositions = [
   ["BookmarkFlowMaster", 58, 1920, 1080],
   ["BookmarkFlowX", 32, 1920, 1080],
@@ -47,6 +49,27 @@ for (const unsafePattern of [
   if (unsafePattern.test(videoSource)) {
     throw new Error(`Promo source contains a blocked runtime asset or local-profile reference: ${unsafePattern}`);
   }
+}
+
+for (const requiredAudioContract of [
+  "writeBrightTechBed",
+  "const tempo = 104;",
+  "{root: 146.8324, chord: [146.8324, 184.9972, 220]}",
+  "{root: 110, chord: [110, 138.5913, 164.8138]}",
+  "{root: 97.9989, chord: [97.9989, 123.4708, 146.8324]}",
+]) {
+  if (!audioSource.includes(requiredAudioContract)) {
+    throw new Error(`Reviewed bright soundtrack contract is missing: ${requiredAudioContract}`);
+  }
+}
+
+const reviewedAudioUsages = videoSource.match(/<Audio src=\{staticFile\("generated\/audio\/bookmarkflow-bed\.wav"\)\} volume=\{1\} \/>/gu) ?? [];
+if (audioSource.includes("writeAmbientBed") || reviewedAudioUsages.length !== 3) {
+  throw new Error("Promo audio must use the reviewed bright soundtrack at the final encoded level");
+}
+
+if (!renderSource.includes("deterministic bright electronic bed")) {
+  throw new Error("Promo manifest must disclose the reviewed bright electronic soundtrack");
 }
 
 for (const captionName of ["bookmarkflow-master.en.srt", "bookmarkflow-x.en.srt"]) {

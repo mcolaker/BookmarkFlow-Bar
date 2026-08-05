@@ -57,7 +57,7 @@ npm run render
 
 By default, the compositions use the reviewed English store captures and three approved tour GIFs. `npm run capture` can instead produce seven 1920x1080 real-extension scenes with a temporary en-US Chrome profile, synthetic bookmarks and project-owned favicons, an ephemeral numeric-loopback page, and a fail-closed remote-request guard. It does not read the user's regular Chrome profile. Generated inputs, capture profiles, intermediate frames, and MP4 outputs are ignored by Git and excluded from the Chrome extension archive.
 
-The visual typography uses the operating system sans-serif stack. The ambient soundtrack is generated deterministically by `scripts/prepare-assets.mjs`; no downloaded music, voice-over, sound effect, remote font, analytics, or licensed third-party runtime asset is used. English SRT files provide captions and a narration script. Original-resolution review of the final poster and eight-scene master contact sheet found no personal data, third-party marks, scrollbar, unsafe crop, obscured text, or viewport overflow. The public README preview is 4.58 seconds at 12 fps and contains no infinite-loop extension.
+The visual typography uses the operating system sans-serif stack. The bright electronic soundtrack is generated deterministically by `scripts/prepare-assets.mjs` from an original 104 BPM D-A-G-A major progression, warm pad, light bass, positive pluck, and restrained percussion. No downloaded music, voice-over, sound effect, remote font, analytics, or licensed third-party runtime asset is used. The final encoded master measures -22.9 dB mean and -8.9 dB peak with no clipping. English SRT files provide captions and a narration script. Original-resolution review of the final poster and eight-scene master contact sheet found no personal data, third-party marks, scrollbar, unsafe crop, obscured text, or viewport overflow. The public README preview is 4.58 seconds at 12 fps and contains no infinite-loop extension.
 
 Browser and font rasterization can differ between operating systems or browser revisions. The digests below identify the reviewed files committed to this repository; regeneration on a different rendering stack may require an intentional digest update after visual review.
 
@@ -99,10 +99,10 @@ The following reproducible outputs were rendered and validated locally on 2026-0
 
 | Output | Contract | Bytes | SHA-256 |
 | --- | --- | ---: | --- |
-| `output/promo-video/bookmarkflow-bar-master-1920x1080.mp4` | 58 s, 1920x1080, 30 fps, H.264 High/yuv420p/BT.709, AAC-LC 48 kHz stereo | 8475950 | `bf5d0601cfca423a5ca15c622f93f3b68b2fa9902eabe51f25c2971b011d3a4b` |
-| `output/promo-video/bookmarkflow-bar-linkedin-1920x1080.mp4` | 58 s LinkedIn delivery copy; byte-identical to master | 8475950 | `bf5d0601cfca423a5ca15c622f93f3b68b2fa9902eabe51f25c2971b011d3a4b` |
-| `output/promo-video/bookmarkflow-bar-x-1920x1080.mp4` | 32 s, 1920x1080, 30 fps, H.264 High/yuv420p/BT.709, AAC-LC 48 kHz stereo | 4117678 | `57ba04e9ced58a8aea6e2b9fc31c26707c303edab35369c9f6e8146c0d8d926e` |
-| `output/promo-video/bookmarkflow-bar-teaser-1080x1350.mp4` | 15 s, 1080x1350, 30 fps, H.264 High/yuv420p/BT.709, AAC-LC 48 kHz stereo | 2911937 | `d63c68e6447fc1225134b7dc6024142b25ec9e0df8c9159682f2502ce0591742` |
+| `output/promo-video/bookmarkflow-bar-master-1920x1080.mp4` | 58 s, 1920x1080, 30 fps, H.264 High/yuv420p/BT.709, AAC-LC 48 kHz stereo; bright 104 BPM electronic bed | 8575262 | `fc9a5fdb422ffa72a4b48f1eef6295eb5a9e083bf47b66c1dde3c954df4972a2` |
+| `output/promo-video/bookmarkflow-bar-linkedin-1920x1080.mp4` | 58 s LinkedIn delivery copy; byte-identical to master | 8575262 | `fc9a5fdb422ffa72a4b48f1eef6295eb5a9e083bf47b66c1dde3c954df4972a2` |
+| `output/promo-video/bookmarkflow-bar-x-1920x1080.mp4` | 32 s, 1920x1080, 30 fps, H.264 High/yuv420p/BT.709, AAC-LC 48 kHz stereo | 4170939 | `3dfaf957a70da07870f1d67f40fc2aa050179ca037cf73e94acd590cf6b33d7d` |
+| `output/promo-video/bookmarkflow-bar-teaser-1080x1350.mp4` | 15 s, 1080x1350, 30 fps, H.264 High/yuv420p/BT.709, AAC-LC 48 kHz stereo | 2936669 | `c8749cab07c8de8fb6c83f02075677121ec81798ecea627c86142c0c8549db3b` |
 | `output/promo-video/bookmarkflow-bar-poster-1920x1080.png` | Reviewed lossless 1920x1080 source poster | 1374712 | `f0e4dac8384a0767d8b0d73b8be38f9bde7125ba95cd0a7e68ee9356e20385fd` |
 | `output/promo-video/bookmarkflow-bar-preview-960x540.gif` | 4.58 s, 55 frames, 12 fps, one play | 1225748 | `81eb19948e96572ca4cb3ec88aad0586aa27a0022b48be1a7adbb890115d3c9e` |
 | `output/promo-video/bookmarkflow-bar-master.en.srt` | English, 8 cues, 00:00:00.000-00:00:58.000 | 625 | `be4a393a55aed83c383eb1236719385010151e4fd4aee3ab70f26cbfc4b0a31a` |
