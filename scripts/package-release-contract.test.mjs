@@ -95,6 +95,19 @@ test("missing legal files and unexpected maintenance paths fail closed", () => {
     () => assertReleaseArchiveContract(unexpectedReadme),
     /maintenance or unapproved paths: README\.md/u,
   );
+
+  for (const promoPath of [
+    "media/promo-video/package.json",
+    "docs/assets/promo-video/bookmarkflow-bar-overview.mp4",
+  ]) {
+    const unexpectedPromoMedia = new Set(valid);
+    unexpectedPromoMedia.add(promoPath);
+    assert.throws(
+      () => assertReleaseArchiveContract(unexpectedPromoMedia),
+      /maintenance or unapproved paths/u,
+      `${promoPath} must remain outside the extension archive`,
+    );
+  }
 });
 
 test("the package CLI rejects HEAD without creating a release archive", () => {

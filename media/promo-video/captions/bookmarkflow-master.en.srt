@@ -1,0 +1,31 @@
+1
+00:00:00,000 --> 00:00:04,000
+Your bookmarks. Your flow.
+
+2
+00:00:04,000 --> 00:00:17,000
+Stay on the page you are already using.
+
+3
+00:00:17,000 --> 00:00:26,000
+Find any bookmark without leaving the keyboard.
+
+4
+00:00:26,000 --> 00:00:34,000
+Pin the folders that matter.
+
+5
+00:00:34,000 --> 00:00:40,000
+Share your screen with less visual noise.
+
+6
+00:00:40,000 --> 00:00:47,000
+A focused new-tab workspace, built around your bookmarks.
+
+7
+00:00:47,000 --> 00:00:53,000
+No BookmarkFlow account. No analytics. No developer-operated server.
+
+8
+00:00:53,000 --> 00:00:58,000
+Install on Chrome. Star or contribute on GitHub.

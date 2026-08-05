@@ -44,6 +44,21 @@ node scripts/generate-marketing-assets.mjs
 
 The script launches the unpacked extension in a temporary profile, verifies the requested extension locale, seeds generic bookmarks, and serves its demonstration backdrop and varied project-owned favicons only from an ephemeral loopback server. The new-tab, page-overlay, search-palette, folder-rail, and streamer-mode screenshots are real extension renders. The hero, promotional tile, and marquee are fully local compositions incorporating those renders. English outputs are stored under `store/assets/`; independently localized Turkish outputs are stored under `store/assets/tr/`. DOM-derived UI postconditions, capture bounds, viewport overflow, rendered search-result count, and unexpected network traffic fail closed. All files are captured into staging and replace their reviewed destinations as one rollback-protected set only after the complete bilingual generation succeeds. No random, time-dependent, remote, or user-profile input is rendered.
 
+### Promo video pipeline
+
+The source under `media/promo-video/` renders the English product film, social cutdowns, poster, and one-play GitHub preview. It uses exact locked versions of Remotion `4.0.506`, React `19.2.8`, and React DOM `19.2.8`, plus system FFmpeg/FFprobe `8.0.1` for H.264/AAC encoding and media inspection. The reproducible entry point is:
+
+```powershell
+Set-Location media/promo-video
+npm ci
+npm run validate
+npm run render
+```
+
+By default, the compositions use the reviewed English store captures and three approved tour GIFs. `npm run capture` can instead produce seven 1920x1080 real-extension scenes with a temporary en-US Chrome profile, synthetic bookmarks and project-owned favicons, an ephemeral numeric-loopback page, and a fail-closed remote-request guard. It does not read the user's regular Chrome profile. Generated inputs, capture profiles, intermediate frames, and MP4 outputs are ignored by Git and excluded from the Chrome extension archive.
+
+The visual typography uses the operating system sans-serif stack. The ambient soundtrack is generated deterministically by `scripts/prepare-assets.mjs`; no downloaded music, voice-over, sound effect, remote font, analytics, or licensed third-party runtime asset is used. English SRT files provide captions and a narration script. Original-resolution review of the final poster and eight-scene master contact sheet found no personal data, third-party marks, scrollbar, unsafe crop, obscured text, or viewport overflow. The public README preview is 4.58 seconds at 12 fps and contains no infinite-loop extension.
+
 Browser and font rasterization can differ between operating systems or browser revisions. The digests below identify the reviewed files committed to this repository; regeneration on a different rendering stack may require an intentional digest update after visual review.
 
 ## Reviewed binary inventory
@@ -51,6 +66,8 @@ Browser and font rasterization can differ between operating systems or browser r
 | Path | Origin | Bytes | Dimensions | SHA-256 |
 | --- | --- | ---: | ---: | --- |
 | `docs/assets/bookmarkflow-hero.jpg` | Local English marketing generator | 69419 | 1280x640 | `09b64dbb36fb21c04dc3efafabacc70d0afa25eb640c45249af9f31275c503d4` |
+| `docs/assets/promo-video/bookmarkflow-bar-poster-1920x1080.jpg` | Reviewed Remotion product-film poster, converted locally with FFmpeg | 127399 | 1920x1080 | `54ed70aece14899308a83a2056fb9f811509efdd6281cbf25c0b2f647363a649` |
+| `docs/assets/promo-video/bookmarkflow-bar-preview-960x540.gif` | Reviewed one-play product-film preview, synthetic bookmarks | 1225748 | 960x540 | `81eb19948e96572ca4cb3ec88aad0586aa27a0022b48be1a7adbb890115d3c9e` |
 | `icons/icon16.png` | Canonical production BF mark generator | 268 | 16x16 | `ddbe6ecad48d757e336a8e80464c84e424d8aa2404829a72e0fe2832c37ceae7` |
 | `icons/icon32.png` | Canonical production BF mark generator | 420 | 32x32 | `3bd7f9ab121cb5355ea8af6f22ddb4c377920a20575c6c8dac7ca7fd78c60d7a` |
 | `icons/icon48.png` | Canonical production BF mark generator | 549 | 48x48 | `62d215e344d2fa5de78957d2123906d861185fe188b7a732317f985e667370e3` |
@@ -75,6 +92,21 @@ Browser and font rasterization can differ between operating systems or browser r
 | `store/assets/tr/screenshot-palette-1280x800.png` | Real extension capture, tr-TR | 155412 | 1280x800 | `0ae6a03f6885018ba2f6aa7df486849ec09209d676747665e25f43f9f950e9b8` |
 | `store/assets/tr/screenshot-folder-rail-1280x800.png` | Real extension capture, tr-TR | 289309 | 1280x800 | `132c0be7652e9b087d373e2bfd44511a7f597b42ba0585725dfc95bbc422efec` |
 | `store/assets/tr/screenshot-streamer-1280x800.png` | Real extension capture, tr-TR | 264063 | 1280x800 | `f1cabf13499f9f08ad364d819890ec579186af0d8225b05cb7f313c76732885d` |
+
+## Prepared promo delivery set
+
+The following reproducible outputs were rendered and validated locally on 2026-08-05. They are delivery artifacts, not tracked source files, and their status remains `PREPARED_NOT_UPLOADED` until a maintainer intentionally publishes them.
+
+| Output | Contract | Bytes | SHA-256 |
+| --- | --- | ---: | --- |
+| `output/promo-video/bookmarkflow-bar-master-1920x1080.mp4` | 58 s, 1920x1080, 30 fps, H.264 High/yuv420p/BT.709, AAC-LC 48 kHz stereo | 8475950 | `bf5d0601cfca423a5ca15c622f93f3b68b2fa9902eabe51f25c2971b011d3a4b` |
+| `output/promo-video/bookmarkflow-bar-linkedin-1920x1080.mp4` | 58 s LinkedIn delivery copy; byte-identical to master | 8475950 | `bf5d0601cfca423a5ca15c622f93f3b68b2fa9902eabe51f25c2971b011d3a4b` |
+| `output/promo-video/bookmarkflow-bar-x-1920x1080.mp4` | 32 s, 1920x1080, 30 fps, H.264 High/yuv420p/BT.709, AAC-LC 48 kHz stereo | 4117678 | `57ba04e9ced58a8aea6e2b9fc31c26707c303edab35369c9f6e8146c0d8d926e` |
+| `output/promo-video/bookmarkflow-bar-teaser-1080x1350.mp4` | 15 s, 1080x1350, 30 fps, H.264 High/yuv420p/BT.709, AAC-LC 48 kHz stereo | 2911937 | `d63c68e6447fc1225134b7dc6024142b25ec9e0df8c9159682f2502ce0591742` |
+| `output/promo-video/bookmarkflow-bar-poster-1920x1080.png` | Reviewed lossless 1920x1080 source poster | 1374712 | `f0e4dac8384a0767d8b0d73b8be38f9bde7125ba95cd0a7e68ee9356e20385fd` |
+| `output/promo-video/bookmarkflow-bar-preview-960x540.gif` | 4.58 s, 55 frames, 12 fps, one play | 1225748 | `81eb19948e96572ca4cb3ec88aad0586aa27a0022b48be1a7adbb890115d3c9e` |
+| `output/promo-video/bookmarkflow-bar-master.en.srt` | English, 8 cues, 00:00:00.000-00:00:58.000 | 625 | `be4a393a55aed83c383eb1236719385010151e4fd4aee3ab70f26cbfc4b0a31a` |
+| `output/promo-video/bookmarkflow-bar-x.en.srt` | English, 5 cues, 00:00:00.000-00:00:32.000 | 352 | `4be659921d8af8befd42a1946241a53ede7bb11813b75eebc5600682e16fb97b` |
 
 ## Update procedure
 

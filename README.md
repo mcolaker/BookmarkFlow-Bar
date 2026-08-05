@@ -36,6 +36,7 @@
 
 <p align="center">
   <a href="#why-bookmarkflow">Why BookmarkFlow</a> ·
+  <a href="#product-film">Product film</a> ·
   <a href="#feature-tour">Feature tour</a> ·
   <a href="#install">Install</a> ·
   <a href="#privacy-by-design">Privacy</a> ·
@@ -56,6 +57,21 @@ Chrome's native bookmarks bar is intentionally simple, but it cannot become a tr
 - **Stay presentation-ready.** Streamer mode reduces bookmark labels to icons when you share your screen.
 - **Adapt it per site.** Hide BookmarkFlow on selected domains or automatically suppress it on login, payment, and banking pages.
 - **Keep control of your data.** No analytics, external account, or BookmarkFlow cloud service is required.
+
+## Product film
+
+<p align="center">
+  <img src="docs/assets/promo-video/bookmarkflow-bar-preview-960x540.gif" alt="BookmarkFlow Bar expands a synthetic Chrome bookmark library into a polished multi-row workspace" width="960"><br>
+  <sub><strong>Motion summary:</strong> A compact BF control expands into a multi-row bookmark bar on a synthetic local demonstration page. The preview plays once and contains no personal browser data.</sub>
+</p>
+
+<p align="center">
+  <a href="docs/assets/promo-video/bookmarkflow-bar-poster-1920x1080.jpg">View the 1920×1080 poster</a> ·
+  <a href="media/promo-video/README.md">Reproduce the 58-second film and social cutdowns</a> ·
+  <a href="media/promo-video/captions/bookmarkflow-master.en.srt">Read the English captions</a>
+</p>
+
+The full film is generated from reviewed repository media and real extension captures made with synthetic bookmarks in an isolated temporary Chrome profile. Rendered MP4 files are kept outside the extension source and release ZIP; the tracked production workspace records the exact compositions, dependencies, safety boundaries, captions, and output contract.
 
 ## Feature tour
 
@@ -168,7 +184,7 @@ Keyboard navigation, visible focus states, reduced-motion preferences, semantic 
 
 ## Built with a small, auditable stack
 
-BookmarkFlow uses Manifest V3, semantic HTML, CSS, and vanilla JavaScript. It has no runtime package dependencies and no build step.
+The BookmarkFlow extension runtime uses Manifest V3, semantic HTML, CSS, and vanilla JavaScript. It has no runtime package dependencies and no build step. The optional dev-only `media/promo-video/` workspace has its own exact, locked dependencies and never enters the Chrome extension package.
 
 ```text
 BookmarkFlow-Bar/
@@ -178,7 +194,8 @@ BookmarkFlow-Bar/
 ├── src/                       Popup, new tab, onboarding, and content UI
 ├── scripts/                   Local validation and regression checks
 ├── store/                     Store listing, privacy, and QA materials
-└── docs/                      Public product and privacy pages
+├── media/                     Dev-only, reproducible promotional media source
+└── docs/                      Public product, preview, and privacy pages
 ```
 
 ## Local validation

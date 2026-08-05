@@ -18,6 +18,8 @@ const screenshots = [
 
 const assets = new Map([
   ["docs/assets/bookmarkflow-hero.jpg", [1280, 640]],
+  ["docs/assets/promo-video/bookmarkflow-bar-poster-1920x1080.jpg", [1920, 1080]],
+  ["docs/assets/promo-video/bookmarkflow-bar-preview-960x540.gif", [960, 540]],
   ["icons/icon16.png", [16, 16]],
   ["icons/icon32.png", [32, 32]],
   ["icons/icon48.png", [48, 48]],
@@ -84,7 +86,7 @@ function assertCompleteBinaryInventory() {
   ).split("\0").filter(Boolean).map((entry) => entry.replaceAll("\\", "/"));
   const textExtensions = new Set([
     ".css", ".gitattributes", ".gitignore", ".html", ".js", ".json", ".md", ".mjs",
-    ".svg", ".txt", ".xml", ".yaml", ".yml",
+    ".srt", ".svg", ".ts", ".tsx", ".txt", ".xml", ".yaml", ".yml",
   ]);
   const extensionlessTextFiles = new Set(["DCO", "NOTICE"]);
   const repositoryBinaries = new Set(repositoryFiles.filter((entry) => {

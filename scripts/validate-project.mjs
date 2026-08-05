@@ -178,6 +178,11 @@ for (const path of JavaScriptFiles) {
   execFileSync(process.execPath, ["--check", path], { stdio: "pipe" });
 }
 
+const promoVideoValidator = join(root, "media", "promo-video", "scripts", "validate-source.mjs");
+if (existsSync(promoVideoValidator)) {
+  execFileSync(process.execPath, [promoVideoValidator], {cwd: root, stdio: "inherit"});
+}
+
 const requiredPresentationFiles = [
   "README.md",
   "CODE_OF_CONDUCT.md",
@@ -193,6 +198,10 @@ const requiredPresentationFiles = [
   "CHANGELOG.md",
   "docs/ASSET_PROVENANCE.md",
   "docs/assets/bookmarkflow-hero.jpg",
+  "docs/assets/promo-video/bookmarkflow-bar-poster-1920x1080.jpg",
+  "docs/assets/promo-video/bookmarkflow-bar-preview-960x540.gif",
+  "media/promo-video/README.md",
+  "media/promo-video/captions/bookmarkflow-master.en.srt",
   "store/listing-en.md",
 ];
 
@@ -214,6 +223,9 @@ for (const requiredSupportContent of [
   "SECURITY.md",
   "SUPPORT.md",
   "TRADEMARKS.md",
+  "## Product film",
+  "docs/assets/promo-video/bookmarkflow-bar-preview-960x540.gif",
+  "media/promo-video/README.md",
 ]) {
   if (!readmeSource.includes(requiredSupportContent)) {
     throw new Error(`README.md: missing required support content: ${requiredSupportContent}`);
