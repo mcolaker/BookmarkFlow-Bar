@@ -28,6 +28,12 @@ const chromePath = await findChrome();
 const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), "bookmarkflow-security-"));
 const server = await startHostileServer();
 const debugPort = await getFreePort();
+const chromeEnvironment = { ...process.env };
+if (process.platform === "linux") {
+  chromeEnvironment.LANGUAGE = requestedLanguage;
+  delete chromeEnvironment.LC_ALL;
+  delete chromeEnvironment.LC_MESSAGES;
+}
 const chrome = spawn(chromePath, [
   ...(process.env.BOOKMARKFLOW_HEADLESS === "0" ? [] : ["--headless=new"]),
   ...(process.platform === "linux" ? ["--no-sandbox", "--disable-dev-shm-usage"] : []),
@@ -43,6 +49,7 @@ const chrome = spawn(chromePath, [
   `--load-extension=${projectRoot}`,
   "about:blank"
 ], {
+  env: chromeEnvironment,
   stdio: ["ignore", "ignore", "pipe"],
   windowsHide: true
 });

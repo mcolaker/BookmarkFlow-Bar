@@ -63,10 +63,6 @@ jobs:
         language:
           - en
           - tr
-    env:
-      BOOKMARKFLOW_CHROME_PATH: /usr/bin/google-chrome
-      BOOKMARKFLOW_CHROME_LANG: ${{ matrix.language }}
-
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -78,20 +74,12 @@ jobs:
         with:
           node-version: 22
 
-      - name: Verify locale-capable Google Chrome
-        run: |
-          test -x "$BOOKMARKFLOW_CHROME_PATH"
-          chrome_root="$(dirname "$(readlink -f "$BOOKMARKFLOW_CHROME_PATH")")"
-          if [[ "$BOOKMARKFLOW_CHROME_LANG" == "en" ]]; then
-            locale_file="$chrome_root/locales/en-US.pak"
-          else
-            locale_file="$chrome_root/locales/${BOOKMARKFLOW_CHROME_LANG}.pak"
-          fi
-          test -f "$locale_file"
-          "$BOOKMARKFLOW_CHROME_PATH" --version
-          echo "Chrome locale pack: $locale_file"
+      - name: Install extension-capable Chromium
+        run: npx --yes playwright@1.55.0 install chromium
 
       - name: Run Chrome security and localization regression
+        env:
+          BOOKMARKFLOW_CHROME_LANG: ${{ matrix.language }}
         run: node scripts/security-regression.mjs
 
   validate:

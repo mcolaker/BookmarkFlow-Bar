@@ -186,18 +186,28 @@ if (existsSync(promoVideoValidator)) {
 const ciWorkflowSource = readFileSync(join(root, ".github/workflows/validate.yml"), "utf8");
 for (const requiredBrowserCiContract of [
   "runs-on: ubuntu-24.04",
-  "BOOKMARKFLOW_CHROME_PATH: /usr/bin/google-chrome",
-  "Verify locale-capable Google Chrome",
-  'readlink -f "$BOOKMARKFLOW_CHROME_PATH"',
-  "locales/en-US.pak",
-  'locales/${BOOKMARKFLOW_CHROME_LANG}.pak',
+  "Install extension-capable Chromium",
+  "npx --yes playwright@1.55.0 install chromium",
+  "BOOKMARKFLOW_CHROME_LANG: ${{ matrix.language }}",
 ]) {
   if (!ciWorkflowSource.includes(requiredBrowserCiContract)) {
-    throw new Error(`.github/workflows/validate.yml: missing locale-capable Chrome contract: ${requiredBrowserCiContract}`);
+    throw new Error(`.github/workflows/validate.yml: missing extension-capable browser contract: ${requiredBrowserCiContract}`);
   }
 }
-if (/playwright@[^\s]+\s+install\s+chromium/iu.test(ciWorkflowSource)) {
-  throw new Error(".github/workflows/validate.yml: locale matrix must not use the locale-incomplete Playwright Chromium bundle");
+if (ciWorkflowSource.includes("BOOKMARKFLOW_CHROME_PATH: /usr/bin/google-chrome")) {
+  throw new Error(".github/workflows/validate.yml: branded Chrome cannot load the unpacked CI extension through command-line flags");
+}
+
+const securityRegressionSource = readFileSync(join(root, "scripts/security-regression.mjs"), "utf8");
+for (const requiredLinuxLocaleContract of [
+  "chromeEnvironment.LANGUAGE = requestedLanguage",
+  "delete chromeEnvironment.LC_ALL",
+  "delete chromeEnvironment.LC_MESSAGES",
+  "env: chromeEnvironment",
+]) {
+  if (!securityRegressionSource.includes(requiredLinuxLocaleContract)) {
+    throw new Error(`scripts/security-regression.mjs: missing Linux browser locale contract: ${requiredLinuxLocaleContract}`);
+  }
 }
 
 const requiredPresentationFiles = [
