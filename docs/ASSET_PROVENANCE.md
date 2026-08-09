@@ -30,9 +30,9 @@ The five files under `src/assets/tour/` are project-authored captures of the rea
 node scripts/generate-tour-gifs.mjs
 ```
 
-The generator uses Playwright for the extension session and FFmpeg for GIF encoding. It creates and deletes a temporary browser profile; it does not read the user's regular Chrome profile. The extension locale is verified as English, every scene uses a local dark synthetic page and `.invalid` bookmark addresses, visible interaction cues explain the trigger, DOM-derived UI postconditions and capture bounds are checked before encoding, and the GIFs are published with rollback from staging only after the whole set succeeds. The encoded files play once, never exceed five seconds, and do not loop indefinitely.
+The generator uses exact Playwright `1.55.0` with Chromium build `1187` for the extension session and FFmpeg `8.0.1` for GIF encoding. It creates and deletes a temporary browser profile; it does not read the user's regular Chrome profile. The extension locale is verified as English, every scene uses a local dark synthetic page and `.invalid` bookmark addresses, visible interaction cues explain the trigger, DOM-derived UI postconditions and capture bounds are checked before encoding, and the GIFs are published with rollback from staging only after the whole set succeeds. The encoded files play once, never exceed five seconds, and do not loop indefinitely.
 
-The tracked `search-palette.gif` and `context-actions.gif` binaries predate the latest crop-bound and shortcut-cue fixes in the generator. They remain provenance-tracked in the source repository but are not promoted in the README, onboarding flow, or release archive and are not considered release-ready until they are regenerated through the approved Chrome workflow and visually inspected at original resolution. The other three tracked GIFs remain the reviewed public tour set.
+All five tour binaries were regenerated through the approved exact toolchain on 2026-08-09 with full-width framing, DOM boundary checks, lossless target scaling, and the synthetic fixture's folder-rail migration marker. Original-resolution review confirmed readable interaction cues, complete search results and context-menu bounds, no unsafe crop, and no personal or third-party content. All five files are promoted in the README and onboarding flow and are included in future release archives.
 
 ### Marketing and store media
 
@@ -56,7 +56,7 @@ npm run render
 npm run social-kit
 ```
 
-By default, the compositions use the reviewed English store captures and three approved tour GIFs. `npm run capture` can instead produce seven 1920x1080 real-extension scenes with a temporary en-US Chrome profile, synthetic bookmarks and project-owned favicons, an ephemeral numeric-loopback page, and a fail-closed remote-request guard. It does not read the user's regular Chrome profile. Generated inputs, capture profiles, intermediate frames, and MP4 outputs are ignored by Git and excluded from the Chrome extension archive.
+By default, the compositions use the reviewed English store captures and three selected tour GIFs. `npm run capture` can instead produce seven 1920x1080 real-extension scenes with a temporary en-US Chrome profile, synthetic bookmarks and project-owned favicons, an ephemeral numeric-loopback page, and a fail-closed remote-request guard. It does not read the user's regular Chrome profile. Generated inputs, capture profiles, intermediate frames, and MP4 outputs are ignored by Git and excluded from the Chrome extension archive.
 
 The visual typography uses the operating system sans-serif stack. The bright electronic soundtrack is generated deterministically by `scripts/prepare-assets.mjs` from an original 104 BPM D-A-G-A major progression, warm pad, light bass, positive pluck, and restrained percussion. No downloaded music, voice-over, sound effect, remote font, analytics, or licensed third-party runtime asset is used. The final encoded master measures -22.9 dB mean and -8.9 dB peak with no clipping. English SRT files provide captions and a narration script. Original-resolution review of the final poster and eight-scene master contact sheet found no personal data, third-party marks, scrollbar, unsafe crop, obscured text, or viewport overflow. The public README preview is 4.58 seconds at 12 fps and contains no infinite-loop extension.
 
@@ -77,9 +77,9 @@ Browser and font rasterization can differ between operating systems or browser r
 | `icons/icon128.png` | Canonical production BF mark generator | 1539 | 128x128 | `c8bf0aefe33a8bb46d3331c6530099dd556533f875dee6990a0be2ba0e4a2127` |
 | `icons/icon512.png` | Canonical production BF mark generator | 6898 | 512x512 | `bc1899c76bde9c0c9bb2989bc333cabba91f25bf4df8312840c2dc0fda1258d3` |
 | `src/assets/tour/bar-open-close.gif` | Real extension tour generator, en-US | 58236 | 720x135 | `322d7440d2fbd56702f9a56f7341d58359d05fd2f07bf294784931a9dbaf243f` |
-| `src/assets/tour/context-actions.gif` | Previous extension tour capture, en-US; refresh pending | 50061 | 720x360 | `9bf423e0fd5c5517aa4341f65fc7a9382665bee809683b7717a95bdf8d6bf2ad` |
-| `src/assets/tour/folder-rail.gif` | Real extension tour generator, en-US | 58107 | 720x420 | `791412af75469c1dfc39642fe1bece37b83a93e1acb593b0db3508e98af8b3d4` |
-| `src/assets/tour/search-palette.gif` | Previous extension tour capture, en-US; refresh pending | 154467 | 720x420 | `4f1f89015e76057041ce02bde1a37db5004dce19fc69058bb3e95c8a0d3f3472` |
+| `src/assets/tour/context-actions.gif` | Real extension tour generator, en-US | 71842 | 720x360 | `32b9d381ebc61e63f93ad254e2151a29bfeedf4abe051986b2b6e0a63d64cf38` |
+| `src/assets/tour/folder-rail.gif` | Real extension tour generator, en-US | 58175 | 720x420 | `3b640d85f523040ccc5dae320f6ca3c9757e1f5f69ddf2b1a9e410d456c543b4` |
+| `src/assets/tour/search-palette.gif` | Real extension tour generator, en-US | 143129 | 720x420 | `9b518683c581a94848a6d2e08ba5a7b9cf56df6644f11c10a7310be5a7a73fa8` |
 | `src/assets/tour/streamer-mode.gif` | Real extension tour generator, en-US | 28385 | 720x135 | `3ca049fc8b248afbaae2e58c1d02930063eb4a6a8d0d7f1d965ee95b12729752` |
 | `store/assets/promo-440x280.png` | Local English marketing generator | 63321 | 440x280 | `1453f417af2cb7d278a5085382cfa72624e1f44aa93bf8ca8f244825754466f5` |
 | `store/assets/marquee-1400x560.png` | Local English marketing generator | 193469 | 1400x560 | `1be167bce628a04b64aaf5b59ef1a552b70aee734e009f1b6231e391de25ff83` |

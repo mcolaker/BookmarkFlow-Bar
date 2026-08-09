@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 
 ## [Unreleased]
 
+### Changed
+
+- Promote the reviewed search-palette and context-action tour GIFs to README, onboarding, and future release archives.
+- Lock reproducible tour capture to Playwright 1.55.0 with Chromium build 1187 and seed the folder-rail migration fixture explicitly.
+
 ## [0.1.38] — 2026-08-05
 
 ### Fixed

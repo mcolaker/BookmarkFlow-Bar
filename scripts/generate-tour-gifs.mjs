@@ -13,6 +13,9 @@ const outputRoot = path.join(projectRoot, "output", "playwright", "tour-gifs");
 const framesRoot = path.join(outputRoot, "frames");
 const stagedAssetDir = path.join(outputRoot, "generated");
 const assetDir = path.join(projectRoot, "src", "assets", "tour");
+const requiredPlaywrightVersion = "1.55.0";
+const requiredChromiumRevision = "1187";
+const folderRailDefaultMigrationKey = "bfFolderRailDefaultLeftV1";
 const tourAssetNames = Object.freeze([
   "bar-open-close",
   "search-palette",
@@ -258,27 +261,46 @@ async function startDemoServer() {
 }
 
 async function loadPlaywright() {
+  const candidates = [];
+  if (process.env.PLAYWRIGHT_MODULE_PATH) {
+    candidates.push(process.env.PLAYWRIGHT_MODULE_PATH);
+  }
+
   try {
-    return await import("playwright");
-  } catch (error) {
-    const explicitPath = process.env.PLAYWRIGHT_MODULE_PATH;
-    if (explicitPath) {
-      return import(pathToFileURL(explicitPath).href);
+    candidates.push(fileURLToPath(await import.meta.resolve("playwright")));
+  } catch {}
+
+  const cacheEntry = await findCachedPlaywrightModule();
+  if (cacheEntry) candidates.push(cacheEntry);
+
+  const codexEntry = await findCodexPlaywrightModule();
+  if (codexEntry) candidates.push(codexEntry);
+
+  const failures = [];
+  for (const modulePath of [...new Set(candidates)]) {
+    if (!await isExactPlaywrightModule(modulePath)) {
+      failures.push(`${modulePath} is not Playwright ${requiredPlaywrightVersion}`);
+      continue;
     }
 
-    const cacheEntry = await findCachedPlaywrightModule();
-    if (cacheEntry) {
-      return import(pathToFileURL(cacheEntry).href);
+    try {
+      return await import(pathToFileURL(modulePath).href);
+    } catch (error) {
+      failures.push(`${modulePath}: ${error?.message || error}`);
     }
+  }
 
-    const codexEntry = await findCodexPlaywrightModule();
-    if (codexEntry) {
-      return import(pathToFileURL(codexEntry).href);
-    }
+  throw new Error(
+    `Exact Playwright ${requiredPlaywrightVersion} was not found. Run "npx --yes playwright@${requiredPlaywrightVersion} --version" once, then "npx --yes playwright@${requiredPlaywrightVersion} install chromium". ${failures.join("; ")}`
+  );
+}
 
-    throw new Error(
-      `Playwright module was not found. Run this script with "npx --yes playwright --version" once, or set PLAYWRIGHT_MODULE_PATH. Original error: ${error?.message || error}`
-    );
+async function isExactPlaywrightModule(modulePath) {
+  try {
+    const packageJson = JSON.parse(await fs.readFile(path.join(path.dirname(modulePath), "package.json"), "utf8"));
+    return packageJson.name === "playwright" && packageJson.version === requiredPlaywrightVersion;
+  } catch {
+    return false;
   }
 }
 
@@ -313,8 +335,10 @@ async function findCodexPlaywrightModule() {
       "index.mjs"
     );
     try {
-      const stats = await fs.stat(modulePath);
-      candidates.push({ path: modulePath, mtimeMs: stats.mtimeMs });
+      if (await isExactPlaywrightModule(modulePath)) {
+        const stats = await fs.stat(modulePath);
+        candidates.push({ path: modulePath, mtimeMs: stats.mtimeMs });
+      }
     } catch {}
   }
 
@@ -325,49 +349,53 @@ async function findCodexPlaywrightModule() {
 async function findBrowserExecutable() {
   const explicitPath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
   if (explicitPath) {
-    try {
-      if ((await fs.stat(explicitPath)).isFile()) return explicitPath;
-    } catch {}
+    if (await isExactChromiumExecutable(explicitPath)) return explicitPath;
+    throw new Error(
+      `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH must point inside chromium-${requiredChromiumRevision}; run "npx --yes playwright@${requiredPlaywrightVersion} install chromium".`
+    );
   }
 
-  const browserRoot = process.env.LOCALAPPDATA
-    ? path.join(process.env.LOCALAPPDATA, "ms-playwright")
-    : "";
-  if (browserRoot) {
+  const browserRoots = [
+    process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, "ms-playwright"),
+    process.env.HOME && path.join(process.env.HOME, ".cache", "ms-playwright"),
+    process.env.HOME && path.join(process.env.HOME, "Library", "Caches", "ms-playwright")
+  ].filter(Boolean);
+  const exactBrowserDirectory = `chromium-${requiredChromiumRevision}`;
+  const relativePaths = process.platform === "win32"
+    ? [["chrome-win64", "chrome.exe"], ["chrome-win", "chrome.exe"]]
+    : process.platform === "darwin"
+      ? [["chrome-mac", "Chromium.app", "Contents", "MacOS", "Chromium"]]
+      : [["chrome-linux", "chrome"]];
+
+  for (const browserRoot of browserRoots) {
     let entries = [];
     try {
       entries = await fs.readdir(browserRoot, { withFileTypes: true });
     } catch {}
-    const cached = [];
-    for (const entry of entries) {
-      if (!entry.isDirectory() || !entry.name.startsWith("chromium-")) continue;
-      for (const relativePath of [["chrome-win64", "chrome.exe"], ["chrome-win", "chrome.exe"]]) {
-        const candidate = path.join(browserRoot, entry.name, ...relativePath);
-        try {
-          if ((await fs.stat(candidate)).isFile()) {
-            cached.push({ path: candidate, revision: Number(entry.name.split("-")[1]) || 0 });
-          }
-        } catch {}
-      }
+    if (!entries.some((entry) => entry.isDirectory() && entry.name === exactBrowserDirectory)) continue;
+    for (const relativePath of relativePaths) {
+      const candidate = path.join(browserRoot, exactBrowserDirectory, ...relativePath);
+      try {
+        if ((await fs.stat(candidate)).isFile()) {
+          return candidate;
+        }
+      } catch {}
     }
-    cached.sort((left, right) => right.revision - left.revision);
-    if (cached[0]) return cached[0].path;
   }
 
-  const candidates = [
-    process.env.PROGRAMFILES && path.join(process.env.PROGRAMFILES, "Google", "Chrome", "Application", "chrome.exe"),
-    process.env["PROGRAMFILES(X86)"] && path.join(process.env["PROGRAMFILES(X86)"], "Google", "Chrome", "Application", "chrome.exe"),
-    process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, "Google", "Chrome", "Application", "chrome.exe")
-  ].filter(Boolean);
+  throw new Error(
+    `Playwright Chromium build ${requiredChromiumRevision} was not found. Run "npx --yes playwright@${requiredPlaywrightVersion} install chromium".`
+  );
+}
 
-  for (const candidate of candidates) {
-    try {
-      if ((await fs.stat(candidate)).isFile()) {
-        return candidate;
-      }
-    } catch {}
+async function isExactChromiumExecutable(executablePath) {
+  try {
+    if (!(await fs.stat(executablePath)).isFile()) return false;
+    const normalizedPath = path.resolve(executablePath);
+    return normalizedPath.includes(`${path.sep}chromium-${requiredChromiumRevision}${path.sep}`);
+  } catch {
+    return false;
   }
-  return "";
 }
 
 async function findCachedPlaywrightModule() {
@@ -393,11 +421,10 @@ async function findCachedPlaywrightModule() {
 
     const modulePath = path.join(npxRoot, entry.name, "node_modules", "playwright", "index.mjs");
     try {
-      const stats = await fs.stat(modulePath);
-      candidates.push({
-        path: modulePath,
-        mtimeMs: stats.mtimeMs
-      });
+      if (await isExactPlaywrightModule(modulePath)) {
+        const stats = await fs.stat(modulePath);
+        candidates.push({ path: modulePath, mtimeMs: stats.mtimeMs });
+      }
     } catch {}
   }
 
@@ -496,7 +523,7 @@ async function assertEnglishLocale(worker) {
 }
 
 async function seedDemoData(worker) {
-  await worker.evaluate(async (settings) => {
+  await worker.evaluate(async ({ settings, folderRailDefaultMigrationKey }) => {
     const [root] = await chrome.bookmarks.getTree();
     const bookmarkBar = (root.children || []).find((node) => node.folderType === "bookmarks-bar" || node.id === "1");
     if (!bookmarkBar) {
@@ -537,9 +564,10 @@ async function seedDemoData(worker) {
     await chrome.storage.local.set({
       [BookmarkFlowConfig.DATA_CONSENT_STORAGE_KEY]: BookmarkFlowConfig.DATA_CONSENT_VERSION,
       bfOnboardingSeen: true,
+      [folderRailDefaultMigrationKey]: true,
       disabledHosts
     });
-  }, baseSettings);
+  }, { settings: baseSettings, folderRailDefaultMigrationKey });
 }
 
 async function applySettings(worker, settings) {
