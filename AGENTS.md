@@ -26,6 +26,13 @@ Bu dosya Codex için ana proje giriş sözleşmesidir. Ürün davranışı için
 - Görünür UI değişikliği klavye, açık/koyu arka plan, ilgili viewport ve Chrome extension reload kanıtı olmadan tamamlanmış sayılmaz.
 - Stage ve commit kapsamı yalnız bu işe ait dosyalardan oluşur; tarayıcı profili, yerel extension verisi, kişisel bookmark/geçmiş, output, paket veya secret eklenmez.
 
+## GitHub işlem yetkilendirmesi
+
+- Hak sahibi 2026-08-09 tarihinde rutin GitHub iş akışı işlemleri için tur başına açık onay beklenmemesine karar verdi; karar `docs/backlog/OPEN_TASKS.md` içinde `BF-GOV-007` kimliğiyle kalıcı kayıt altındadır.
+- Onay gerektirmeyen rutin işlemler: dal oluşturma ve push, PR açma/güncelleme, doğrulama kapıları yeşil olan PR'ları merge etme, iş kapsamındaki DCO imzalı commit'ler.
+- Açık kullanıcı onayı gerektiren işlemler: sürüm etiketi ve GitHub Release yayını, Chrome Web Store dashboard gönderimleri, LinkedIn/X gibi harici platform yayınları, `main` dalına doğrudan veya force push, uzak dal veya repo silme, lisans/marka politikası değişiklikleri.
+- Merge öncesi zorunlu kapılar: ilgili doğrulama betikleri yerel olarak geçmeli ve GitHub Actions terminal `success` vermelidir; tüm commit'ler DCO `Signed-off-by` satırı taşımalıdır.
+
 ## Açık kaynak ve yayın bütünlüğü
 
 - Proje kodu `LICENSE.md` içindeki Apache License 2.0 koşullarıyla yayımlanır. `NOTICE` yalnız gerekli telif ve atıf bildirimlerini, `TRADEMARKS.md` ise kod lisansından ayrı marka kullanım sınırlarını tanımlar; Apache lisans haklarını marka metniyle daraltma.
