@@ -4,7 +4,7 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
-## [Unreleased]
+## [0.1.39] — 2026-08-09
 
 ### Changed
 

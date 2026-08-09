@@ -39,12 +39,14 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 
 ## BF-EXT-001 - Sayfa içi çubuğun hedef Chrome profilinde yüklenmesini doğrula
 
-- Öncelik ve durum: P1, BLOCKED.
+- Öncelik ve durum: P1, DONE.
 - Kök neden ve kanıt: Önceki tanıda panel toolbar popup değil content script tarafından oluşturuluyordu. Kullanıcı ekran görüntülerinde çubuk ve klasör rayı artık görünür; güncel kaynakla geçici gerçek Chrome profilinde content script stili, kapalı Shadow DOM, güvenli ekleme akışı ve yerel host tercihi regresyonu geçmiştir. 2026-08-04 çift-kök yeniden üretiminde `getBookmarkData()` hesap ve yerel ray klasörlerini üretmesine rağmen `getState()` bu alanı yanıta taşımadı; `selectBookmarkBarNode()` birden fazla `bookmarks-bar` düğümünde `syncing` hesap kökünü tercih etmek yerine ilk düğümü seçti. Sonuç Google hesabı klasörlerinin kaybolması ve varsayılan yazma/yeniden sıralama hedefinin yerel bara sapmasıydı.
 - Kabul kriteri: Güncel kaynak unpacked olarak yüklenir; sıradan izinli HTTPS sayfasında kök ve stiller görünür, genel kapatma/devre dışı host/hassas host durumları ayrı ve anlaşılır sonuç verir; durum yanıtı hesap ve yerel ray klasörlerini eksiksiz taşır; görüntüleme, ekleme ve yeniden sıralama hesap `bookmarks-bar` düğümünü deterministik seçip hesap düğümü yoksa güvenli yerel fallback kullanır.
-- Doğrulama kapısı: Sentetik çoklu hesap/yerel bookmark kökü regresyonu, iki dil güvenlik regresyonu, yeni bookmark ve yeniden sıralama hedefi, normal/kapalı/devre dışı/hassas host matrisi ve gerçek Chrome reload kanıtı temizdir. Otomatik çift-kök seçimi, durum taşıması ve local fallback sözleşmeleri geçti; oturumlu kullanıcı profilinde hesap köküne gerçek yazma/yeniden sıralama kanıtı henüz `not_run` durumundadır.
-- Sonraki adım: Kod ve sentetik çift-kök regresyonu tamamlandı; kullanıcı oturumlu gerçek Chrome profilinde hesap ve cihaz-yerel köklerin birlikte göründüğünü, yeni yer iminin hesap çubuğuna yazıldığını ve yeniden sıralamanın aynı hedefi kullandığını doğrula. Bu kullanıcı profili kanıtı gelene kadar görev `BLOCKED` kalır.
-- Son güncelleme: 2026-08-04.
+- Doğrulama kapısı: Sentetik çoklu hesap/yerel bookmark kökü regresyonu, iki dil güvenlik regresyonu, yeni bookmark ve yeniden sıralama hedefi, normal/kapalı/devre dışı/hassas host matrisi ve gerçek Chrome reload kanıtı temizdir. Otomatik çift-kök seçimi, durum taşıması ve local fallback sözleşmeleri geçti; önceki oturumlu kullanıcı profili koşusunda hesap köküne gerçek yazma/yeniden sıralama kanıtı `not_run` olarak kaydedilmişti.
+- 2026-08-09 yeniden denemesi: `node scripts/security-regression.mjs` ve `BOOKMARKFLOW_CHROME_LANG=tr node scripts/security-regression.mjs` temiz geçti; çoklu `bookmarks-bar` seçimi, hesap kökü önceliği, yerel fallback ve consent/host güvenlik matrisi `pass`. İlk izole denemede Playwright Chrome `--disable-sync` ile çalıştığı ve gerçek kullanıcı Chrome’unda CDP bağlantısı bulunmadığı için oturumlu hesap/cihaz kökü yazma ve yeniden sıralama kanıtı `not_run` kalmıştı.
+- 2026-08-09 gerçek Chrome kanıtı: Kullanıcının oturumlu Chrome profilinde unpacked uzantı yeniden yüklendi; sıradan `https://example.com/` sayfasında bir BookmarkFlow host kökü, sayfa stili ve erişilebilir kompakt kontrol görüldü. Profilde biri `syncing: false`, diğeri `syncing: true` olan iki `bookmarks-bar` kökü bulundu; hesap kökü seçildi. Geçici sentetik klasör ve bookmark'larla gerçek state, klasör rayında her iki kökün (`syncing: false` ve `syncing: true`) listelenmesini; ekleme mesajının hesap köküne yazmasını; yeniden sıralama mesajının aynı kökte başarıyla hareket etmesini kanıtladı. Test sonunda sentetik düğüm sayısı `0` kaldı.
+- Sonraki adım: Yok; sonraki Chrome veya bookmark kökü davranışı değişirse aynı gerçek profil kapısı yeniden çalıştırılır.
+- Son güncelleme: 2026-08-09.
 
 ## BF-REL-001 - Profesyonel global GitHub sürümünü yayımla
 
@@ -54,6 +56,15 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: Hareketli `HEAD`/dal ref'leri negatif testte reddedilir; exact-tag arşivinin manifest, etiket, LICENSE/NOTICE/TRADEMARKS ve export-ignore kapsamı sözleşme testinden geçer; proje/public-tree/açık-kaynak/backlog/güvenlik kapıları temizdir. 2026-08-05 son yerel kapıda birleşik runtime/UI 17/17, açık-kaynak/DCO/paket 20/20 ve backlog 5/5 sözleşmeleri; manifest `0.1.38` proje doğrulaması; 116 dosyalık public-tree taraması; İngilizce/Türkçe gerçek geçici Chrome güvenlik matrisi ve `git diff --check` geçti. PR #21 GitHub Actions çalışması `31033409782` içindeki statik, İngilizce, Türkçe ve toplu `validate` işlerinin dördünde terminal `success` verdi. Uzak açıklamalı etiket exact kaynak commit'ine çözüldü; public Release varlık adları, boyutları, `uploaded` durumları ve GitHub asset digest'leri yerel ZIP/MP4/SRT kanıtıyla eşleşti. Kriptografik tag imzası yapılandırılmış anahtar bulunmadığı için açıkça `not_available` durumundadır; açıklamalı etiket ve asset digest bütünlüğü kanıtlandı.
 - Sonraki adım: Yok; sonraki sürümde manifest, etiket, kaynak commit'i, ZIP adı ve SHA-256 aynı exact-tag kapısıyla birlikte ilerletilir. Kriptografik imza istenirse yayın öncesi ayrı bir donanım/yazılım anahtarı yapılandırma işi açılır.
 - Son güncelleme: 2026-08-05.
+
+## BF-REL-002 - v0.1.39 GitHub ve Chrome Web Store yayınını tamamla
+
+- Öncelik ve durum: P1, IN_PROGRESS.
+- Kök neden ve kanıt: `v0.1.38` sonrasında incelenmiş tur GIF'leri, onboarding/tanıtım yüzeyi ve deterministik üretim sözleşmeleri `main` dalına alındı ancak manifest hâlâ `0.1.38`; bu nedenle bu değişiklikler exact-tag ZIP'i ve Chrome Web Store sürümü olarak yayımlanmadı. Kullanıcı 2026-08-09 tarihinde güncel paketin GitHub ve Chrome Web Store'da yayımlanmasını istedi.
+- Kabul kriteri: Güncel değişiklikler manifest `0.1.39` ile exact annotated `v0.1.39` tag'ine, doğrulanmış GitHub Release ZIP/checksum varlıklarına ve aynı sürümün Chrome Web Store kaydına taşınır; kaynak, paket ve mağaza sürümü birbirine eşleşir; mağaza gönderimi sonrası canlı durum ve URL kanıtlanır.
+- Doğrulama kapısı: Backlog, açık kaynak/DCO, proje, runtime/UI, asset, public-tree ve İngilizce/Türkçe güvenlik kapıları; exact-tag package contract; `git diff --check`; PR GitHub Actions terminal `success`; GitHub Release asset digest eşleşmesi; Chrome Web Store yükleme ve inceleme durumu kanıtı.
+- Sonraki adım: Sürümü `0.1.39` yap, changelog'u kapat, DCO imzalı PR ile korumalı `main`e al, exact tag/release paketini üret ve Chrome Web Store'a yükleyip gönder.
+- Son güncelleme: 2026-08-09.
 
 ## BF-OSS-001 - Codex for Open Source uygunluk ve benimsenme kanıtını oluştur
 
