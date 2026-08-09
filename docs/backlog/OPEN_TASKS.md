@@ -171,9 +171,9 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 
 ## BF-GOV-007 - Rutin GitHub işlemleri için aracı yetkilendirmesini belirle
 
-- Öncelik ve durum: P2, IN_PROGRESS.
-- Kök neden ve kanıt: Hak sahibi 2026-08-09 tarihinde PR merge gibi rutin GitHub iş akışı işlemlerinde her turda açık onay beklenmemesine karar verdi; karar sınırlarıyla birlikte `AGENTS.md` ve `GOVERNANCE.md` içinde belgelendi.
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: Hak sahibi 2026-08-09 tarihinde PR merge gibi rutin GitHub iş akışı işlemlerinde her turda açık onay beklenmemesine karar verdi; karar sınırlarıyla birlikte `AGENTS.md` ve `GOVERNANCE.md` içinde belgelendi. 2026-08-09 PR #26 (`1bf96d0b…` merge commit'i) ve bu karar uygulanarak yürütülen PR #25 (`1b0cceb0…` merge commit'i) GitHub Actions terminal `success` ile korumalı `main` dalına alındı; ayrıca PR #25'in DCO denetimini geçemeyen otomatik dal güncelleme commit'i yerel rebase ile temizlenerek imzalı commit'ler korundu.
 - Kabul kriteri: `AGENTS.md` ve `GOVERNANCE.md`, rutin GitHub iş akışı işlemleri için yetkilendirmeyi ve açık onay gerektiren sınırları (release/tag, mağaza, harici yayın, `main`'e doğrudan/force push, uzak silme, lisans/marka değişiklikleri) tutarlı biçimde tanımlar; `BF-GOV-007` kaydı bu dosyada stabil kimlikle yer alır.
-- Doğrulama kapısı: Backlog sözleşmesi, proje doğrulaması, public-tree ve açık kaynak kontratları temizdir; değişiklik PR üzerinden GitHub Actions terminal `success` ile merge edilir.
-- Sonraki adım: Değişiklik PR olarak birleştirildikten sonra kayıt, merge kanıtıyla birlikte `DONE` durumuna çekilir.
+- Doğrulama kapısı: Backlog sözleşmesi, proje doğrulaması, public-tree ve açık kaynak kontratları temizdir; değişiklik PR üzerinden GitHub Actions terminal `success` ile merge edilir. PR #26 çalışması `31294148082` ve PR #25 çalışması `31294261030` dört işin tamamında terminal `success` verdi.
+- Sonraki adım: Yok; rutin GitHub iş akışı işlemleri bu kayıttaki sınırlara göre yürütülür, açık onay gerektiren işlemlerde kullanıcıya sorulur.
 - Son güncelleme: 2026-08-09.
