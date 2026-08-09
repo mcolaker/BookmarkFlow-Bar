@@ -165,3 +165,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: Oturum sahibi GitHub profilinin herkese açık görünümü LinkedIn ikonunu `https://www.linkedin.com/in/mcolaker/`, X bağlantısını `@Foreverrlifeee` etiketiyle `https://x.com/Foreverrlifeee` hedeflerine bağlı gösterdi; mevcut bio, `https://www.colaker.net`, `Türkiye` konumu ve BookmarkFlow Bar sabitlemesi korundu. Tahmini kullanıcı adı, e-posta veya hassas bilgi eklenmedi.
 - Sonraki adım: Yok; sosyal kullanıcı adı veya marka hesabı değişirse oturumdan yeniden doğrula ve iki hedefi birlikte güncelle.
 - Son güncelleme: 2026-08-02.
+
+## BF-GOV-007 - Rutin GitHub işlemleri için aracı yetkilendirmesini belirle
+
+- Öncelik ve durum: P2, IN_PROGRESS.
+- Kök neden ve kanıt: Hak sahibi 2026-08-09 tarihinde PR merge gibi rutin GitHub iş akışı işlemlerinde her turda açık onay beklenmemesine karar verdi; karar sınırlarıyla birlikte `AGENTS.md` ve `GOVERNANCE.md` içinde belgelendi.
+- Kabul kriteri: `AGENTS.md` ve `GOVERNANCE.md`, rutin GitHub iş akışı işlemleri için yetkilendirmeyi ve açık onay gerektiren sınırları (release/tag, mağaza, harici yayın, `main`'e doğrudan/force push, uzak silme, lisans/marka değişiklikleri) tutarlı biçimde tanımlar; `BF-GOV-007` kaydı bu dosyada stabil kimlikle yer alır.
+- Doğrulama kapısı: Backlog sözleşmesi, proje doğrulaması, public-tree ve açık kaynak kontratları temizdir; değişiklik PR üzerinden GitHub Actions terminal `success` ile merge edilir.
+- Sonraki adım: Değişiklik PR olarak birleştirildikten sonra kayıt, merge kanıtıyla birlikte `DONE` durumuna çekilir.
+- Son güncelleme: 2026-08-09.
