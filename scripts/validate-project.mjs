@@ -198,6 +198,23 @@ if (ciWorkflowSource.includes("BOOKMARKFLOW_CHROME_PATH: /usr/bin/google-chrome"
   throw new Error(".github/workflows/validate.yml: branded Chrome cannot load the unpacked CI extension through command-line flags");
 }
 
+const tourGeneratorSource = readFileSync(join(root, "scripts/generate-tour-gifs.mjs"), "utf8");
+for (const requiredTourToolchainContract of [
+  'const requiredPlaywrightVersion = "1.55.0";',
+  'const requiredChromiumRevision = "1187";',
+  'const folderRailDefaultMigrationKey = "bfFolderRailDefaultLeftV1";',
+  'packageJson.version === requiredPlaywrightVersion',
+  'const exactBrowserDirectory = `chromium-${requiredChromiumRevision}`',
+  'npx --yes playwright@${requiredPlaywrightVersion} install chromium'
+]) {
+  if (!tourGeneratorSource.includes(requiredTourToolchainContract)) {
+    throw new Error(`scripts/generate-tour-gifs.mjs: missing exact tour toolchain contract: ${requiredTourToolchainContract}`);
+  }
+}
+if (tourGeneratorSource.includes('path.join(process.env.LOCALAPPDATA, "Google", "Chrome"')) {
+  throw new Error("scripts/generate-tour-gifs.mjs: branded system Chrome cannot be used for reproducible tour captures");
+}
+
 const securityRegressionSource = readFileSync(join(root, "scripts/security-regression.mjs"), "utf8");
 for (const requiredLinuxLocaleContract of [
   "chromeEnvironment.LANGUAGE = requestedLanguage",
@@ -354,12 +371,21 @@ for (const privacyPolicyPath of [
 
 const onboardingHtmlSource = readFileSync(join(root, "src/onboarding.html"), "utf8");
 const attributesSource = readFileSync(join(root, ".gitattributes"), "utf8");
-for (const pendingTourAsset of ["search-palette.gif", "context-actions.gif"]) {
-  if (readmeSource.includes(`src/assets/tour/${pendingTourAsset}`) || onboardingHtmlSource.includes(`assets/tour/${pendingTourAsset}`)) {
-    throw new Error(`${pendingTourAsset}: pending visual refresh must not be promoted in README or onboarding`);
+for (const promotedTourAsset of [
+  "bar-open-close.gif",
+  "search-palette.gif",
+  "folder-rail.gif",
+  "context-actions.gif",
+  "streamer-mode.gif"
+]) {
+  if (!readmeSource.includes(`src/assets/tour/${promotedTourAsset}`)) {
+    throw new Error(`${promotedTourAsset}: promoted tour asset is missing from README`);
   }
-  if (!attributesSource.includes(`/src/assets/tour/${pendingTourAsset} export-ignore`)) {
-    throw new Error(`${pendingTourAsset}: pending visual refresh must not enter the release archive`);
+  if (!onboardingHtmlSource.includes(`assets/tour/${promotedTourAsset}`)) {
+    throw new Error(`${promotedTourAsset}: promoted tour asset is missing from onboarding`);
+  }
+  if (attributesSource.includes(`/src/assets/tour/${promotedTourAsset} export-ignore`)) {
+    throw new Error(`${promotedTourAsset}: promoted tour asset must enter the release archive`);
   }
 }
 

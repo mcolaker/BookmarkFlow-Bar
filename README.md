@@ -94,7 +94,7 @@ Expand the compact `BF` control only when you need it. Choose the number of rows
 Open the bookmark palette with the search button or a keyboard shortcut. Use the arrow keys to move through results and press `Enter` to open the selected bookmark.
 
 <p align="center">
-  <img src="store/assets/screenshot-palette-1280x800.png" alt="The BookmarkFlow search palette showing keyboard-navigable bookmark results" width="720"><br>
+  <img src="src/assets/tour/search-palette.gif" alt="The BookmarkFlow search palette showing keyboard-navigable bookmark results" width="720"><br>
   <sub><strong>Motion summary:</strong> Open search with the search button or its reassigned extension shortcut, type a query, and move through results with the arrow keys.</sub>
 </p>
 
@@ -111,7 +111,10 @@ The optional folder rail can sit on the left or right. Pinned folders are stored
 
 Right-click a bookmark or folder to open, copy, rename, add, delete, or reorder it. Folder menus also let you assign colors—without interrupting the page you are viewing.
 
-> **Visual refresh pending:** the context-action animation is temporarily withheld while its corrected crop is regenerated and reviewed. Right-click a bookmark to reveal open, copy, rename, reorder, and delete actions.
+<p align="center">
+  <img src="src/assets/tour/context-actions.gif" alt="A bookmark context menu with open, copy, rename, reorder, and delete actions" width="720"><br>
+  <sub><strong>Motion summary:</strong> Right-click a bookmark to reveal open, copy, rename, reorder, and delete actions without leaving the current page.</sub>
+</p>
 
 ### Share your screen with less visual noise
 

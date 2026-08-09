@@ -15,8 +15,6 @@
 /docs export-ignore
 /scripts export-ignore
 /store export-ignore
-/src/assets/tour/context-actions.gif export-ignore
-/src/assets/tour/search-palette.gif export-ignore
 /LICENSE.md -export-ignore
 /NOTICE -export-ignore
 /TRADEMARKS.md -export-ignore
