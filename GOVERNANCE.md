@@ -30,7 +30,7 @@ Maintainer access may be offered after a sustained record of constructive contri
 
 ## Agent workflow delegation
 
-On 2026-08-09 the primary maintainer delegated routine GitHub workflow operations to project agents: branch creation and push, pull request creation and updates, and merging pull requests whose validation gates are green, without a per-operation confirmation. Operations with lasting external effect — release tags and GitHub Releases, Chrome Web Store dashboard submissions, external platform publications, direct or force pushes to `main`, remote branch or repository deletion, and license or trademark policy changes — still require explicit maintainer approval. The delegation is recorded in [AGENTS.md](AGENTS.md) and the canonical backlog under `BF-GOV-007`.
+On 2026-08-09 the primary maintainer delegated routine GitHub workflow operations and Chrome Web Store dashboard operations to project agents: branch creation and push, pull request creation and updates, merging pull requests whose validation gates are green, and Chrome Web Store dashboard updates and review submissions, without a per-operation confirmation. Operations with lasting external effect — release tags and GitHub Releases, external platform publications, direct or force pushes to `main`, remote branch or repository deletion, and license or trademark policy changes — still require explicit maintainer approval. The delegation is recorded in [AGENTS.md](AGENTS.md) and the canonical backlog under `BF-GOV-007`.
 
 ## Releases
 
