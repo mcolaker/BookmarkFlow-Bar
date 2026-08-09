@@ -59,11 +59,13 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 
 ## BF-REL-002 - v0.1.39 GitHub ve Chrome Web Store yayınını tamamla
 
-- Öncelik ve durum: P1, IN_PROGRESS.
+- Öncelik ve durum: P1, BLOCKED.
 - Kök neden ve kanıt: `v0.1.38` sonrasında incelenmiş tur GIF'leri, onboarding/tanıtım yüzeyi ve deterministik üretim sözleşmeleri `main` dalına alındı ancak manifest hâlâ `0.1.38`; bu nedenle bu değişiklikler exact-tag ZIP'i ve Chrome Web Store sürümü olarak yayımlanmadı. Kullanıcı 2026-08-09 tarihinde güncel paketin GitHub ve Chrome Web Store'da yayımlanmasını istedi.
 - Kabul kriteri: Güncel değişiklikler manifest `0.1.39` ile exact annotated `v0.1.39` tag'ine, doğrulanmış GitHub Release ZIP/checksum varlıklarına ve aynı sürümün Chrome Web Store kaydına taşınır; kaynak, paket ve mağaza sürümü birbirine eşleşir; mağaza gönderimi sonrası canlı durum ve URL kanıtlanır.
 - Doğrulama kapısı: Backlog, açık kaynak/DCO, proje, runtime/UI, asset, public-tree ve İngilizce/Türkçe güvenlik kapıları; exact-tag package contract; `git diff --check`; PR GitHub Actions terminal `success`; GitHub Release asset digest eşleşmesi; Chrome Web Store yükleme ve inceleme durumu kanıtı.
-- Sonraki adım: Sürümü `0.1.39` yap, changelog'u kapat, DCO imzalı PR ile korumalı `main`e al, exact tag/release paketini üret ve Chrome Web Store'a yükleyip gönder.
+- 2026-08-09 GitHub yayın kanıtı: DCO imzalı PR #29'un dört GitHub Actions kapısı terminal `success` verdi; PR merge commit'i `47efa0e3c0d77c14eff76b72c842a42422523168`, annotated tag `v0.1.39` bu commit'e bağlı ve GitHub Release `https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.1.39` yayımlandı. `bookmarkflow-bar-0.1.39.zip` ve checksum `uploaded`; ZIP SHA-256 `272703a2c3853fa0011cd3446b90215882f331d26be60e746c73a82f5b5b790f` ile eşleşiyor.
+- 2026-08-09 Chrome Web Store kanıtı: Google yeniden kimlik doğrulaması tamamlandı; oturumlu dashboard mevcut taslağı `0.1.38`, durumu `İncelenmeyi bekliyor` gösteriyor ve `Paket` ekranındaki `Yeni paket yükle` kontrolü devre dışı. Bu nedenle `0.1.39` ZIP'i mağazaya henüz yüklenemiyor; önceki inceleme sonucu dış bağımlılık olarak bekleniyor.
+- Sonraki adım: Google'ın mevcut `0.1.38` inceleme sonucunu bekle; kontrol etkinleştiğinde yalnız `dist/bookmarkflow-bar-0.1.39.zip` yükle, gönderim durumunu ve canlı sürümü doğrula.
 - Son güncelleme: 2026-08-09.
 
 ## BF-OSS-001 - Codex for Open Source uygunluk ve benimsenme kanıtını oluştur
