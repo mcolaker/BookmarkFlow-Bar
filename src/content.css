@@ -121,7 +121,7 @@
 }
 
 .bf-app:not(.is-expanded):not(.is-snoozed) .bf-layout {
-  grid-template-columns: auto auto;
+  grid-template-columns: auto;
 }
 
 .bf-mark {
@@ -172,6 +172,7 @@
 }
 
 .bf-app:not(.is-expanded):not(.is-snoozed) .bf-main,
+.bf-app:not(.is-expanded):not(.is-snoozed) .bf-actions,
 .bf-app:not(.is-expanded):not(.is-snoozed) [data-bf-action="scroll-left"],
 .bf-app:not(.is-expanded):not(.is-snoozed) [data-bf-action="scroll-right"] {
   display: none;

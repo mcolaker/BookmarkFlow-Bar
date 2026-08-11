@@ -4,6 +4,12 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
+## [0.1.40] — 2026-08-11
+
+### Changed
+
+- Collapse the in-page bar to a single "BF" logo by default; the quick actions (add bookmark, search, scroll, collapse) appear only after the logo is clicked to expand the bar.
+
 ## [0.1.39] — 2026-08-09
 
 ### Changed
