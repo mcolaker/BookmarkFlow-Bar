@@ -183,6 +183,15 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Sonraki adım: Yok; sosyal kullanıcı adı veya marka hesabı değişirse oturumdan yeniden doğrula ve iki hedefi birlikte güncelle.
 - Son güncelleme: 2026-08-02.
 
+## BF-UX-002 - Çökertilmiş çubuğu yalnız BF logosuna indir
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Varsayılan (çökertilmiş) durumda sayfa içi çubuk `BF` logosunun yanında `+` (ekle), arama ve `×` (kapat) kısayol butonlarını da gösteriyordu. Kullanıcı, varsayılan durumda yalnız `BF` logosunun görünmesini; ekleme, arama ve kapatma kontrollerinin yalnız logo tıklanıp çubuk genişletildiğinde görünmesini istedi. `content.css` içinde çökertilmiş durumu gizleyen kural `.bf-actions` öğesini de kapsayacak şekilde genişletildi ve çökertilmiş grid tek sütuna indirildi; böylece çökertilmiş durumda yalnız `BF` düğmesi kaldı, genişletildiğinde tüm kontroller görünmeye devam ediyor.
+- Kabul kriteri: Çökertilmiş (genişletilmemiş ve snoozed olmayan) durumda yalnız `BF` logosu görünür; `+`, arama, kaydırma ve `×` kontrolleri gizlidir; logo tıklanınca çubuk genişler ve tüm kontroller görünür; `BF` logosu taşınabilir sürükleme tutamacı olarak çalışmaya devam eder.
+- Doğrulama kapısı: `validate-project`, `verify-public-tree`, `validate-backlog`, backlog/runtime/UI/open-source/package/DCO sözleşme testleri ve İngilizce/Türkçe gerçek Chrome güvenlik regresyonları temizdir; `git diff --check` geçer. Güvenlik regresyonu çökertilmiş durumda gizlenen `add-bookmark` kontrolüne tıklamadan önce `toggle-expanded` ile çubuğu genişletecek şekilde güncellendi.
+- Sonraki adım: Yok; bu davranış değişikliği sonraki sürümde yayımlanır ve tur GIF'leri dahil görsel varlıklarda çökertilmiş durumun yalnız `BF` logosu gösterdiği doğrulanır.
+- Son güncelleme: 2026-08-11.
+
 ## BF-GOV-007 - Rutin GitHub işlemleri için aracı yetkilendirmesini belirle
 
 - Öncelik ve durum: P2, DONE.

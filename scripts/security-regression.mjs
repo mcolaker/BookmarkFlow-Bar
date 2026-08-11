@@ -279,6 +279,8 @@ try {
   assert.equal(disclosure.privateBookmarkExposed, false, "A page-owned open ShadowRoot exposed a private bookmark");
   assert.equal(syntheticCreated, false, `A page-dispatched synthetic submit created a bookmark (form found: ${dispatched})`);
 
+  await trustedShadowClick(cdp, hostilePage, { "data-bf-action": "toggle-expanded" });
+  await delay(150);
   await trustedShadowClick(cdp, hostilePage, { "data-bf-action": "add-bookmark" });
   await fillShadowInput(cdp, hostilePage, "bf-add-url", overlayLegitimateUrl);
   await trustedShadowClick(cdp, hostilePage, { class: "bf-add-primary" });
