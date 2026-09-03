@@ -220,3 +220,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `validate-open-source`, `verify-public-tree`, `validate-project`, `validate-backlog`, `npm test` ve 43/43 birleşik sözleşme testleri temizdir; `git diff --check` geçer.
 - Sonraki adım: Yok; yeni geçici dosyaların kök dizine yazılması `AGENTS.md` sözleşmesiyle yasaklanmıştır.
 - Son güncelleme: 2026-09-03.
+
+## BF-UX-003 - Video QA bulgularıyla Popup yerleşimi, Onboarding renk hiyerarşisi ve bar ergonomisini iyileştir
+
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: 2026-09-03 tarihli Playwright canlı video QA denetiminde (`qa_flow.mp4`), popup arayüzünün geniş sekme ve ekranlarda sağ tarafında %70 boşluk bırakarak sol kenara yapışık kaldığı ve tam boy dikey kaydırma çubuğu ürettiği (`frame-017`); onboarding rıza kapısındaki `Read the privacy policy` metin linkinin sarı renkte kalarak birincil onay butonuyla görsel hiyerarşi çatışması yarattığı (`frame-001`); sayfa içi çubuk kaydırma ve kapatma butonlarının kompakt modda küçük kalarak hedefleme zorluğu yarattığı kanıtlandı.
+- Kabul kriteri: `src/popup.css` geniş ekranlarda ortalanmış 420px kart düzeni, ince kaydırma çubuğu ve optimize dikey boşluklar kazanır; `src/onboarding.css` içindeki `.privacy-link` erişilebilir maviye (`#58a6ff`) dönüştürülür ve 720p dikey padding'i ferahlatılır; `src/content.css` içindeki `.bf-control` butonları en az 30x30px hedef boyutuyla güvenceye alınır.
+- Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` ve Playwright video QA akışı ile görsel kanıt doğrulanır.
+- Sonraki adım: Yok; iyileştirmeler sonraki yayın döngüsünde sunulur.
+- Son güncelleme: 2026-09-03.
