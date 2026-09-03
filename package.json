@@ -1,0 +1,17 @@
+﻿{
+  "name": "bookmarkflow-bar",
+  "version": "0.1.40",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test scripts/*.test.mjs",
+    "test:backlog": "node scripts/validate-backlog.mjs && node --test scripts/backlog-contract.test.mjs",
+    "test:open-source": "node scripts/validate-open-source.mjs && node --test scripts/open-source-contract.test.mjs scripts/dco-contract.test.mjs scripts/package-release-contract.test.mjs",
+    "test:runtime": "node --test scripts/runtime-contract.test.mjs scripts/ui-behavior-contract.test.mjs",
+    "test:regression": "node scripts/security-regression.mjs",
+    "validate": "node scripts/validate-project.mjs",
+    "validate:assets": "node scripts/validate-assets.mjs",
+    "validate:tree": "node scripts/verify-public-tree.mjs",
+    "validate:all": "node scripts/validate-open-source.mjs && node --test scripts/*.test.mjs && node scripts/validate-project.mjs && node scripts/verify-public-tree.mjs && node scripts/validate-backlog.mjs"
+  }
+}

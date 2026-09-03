@@ -34,6 +34,8 @@
 !/store/**
 !/LICENSE*
 !/SECURITY.md
+!/.imgbotconfig
+!/package.json
 
 /media/**/node_modules/
 /media/**/.remotion/
