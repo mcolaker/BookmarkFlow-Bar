@@ -259,5 +259,9 @@
   "directBookmarksEmpty": { "message": "Doğrudan yer imi yok; klasörler rayda." },
   "bookmarkBarEmpty": { "message": "Yer İmleri Çubuğunuz boş." },
   "folderColorAria": { "message": "$1 klasör rengi" },
-  "willAddToFolder": { "message": "$1 klasörüne eklenecek." }
+  "willAddToFolder": { "message": "$1 klasörüne eklenecek." },
+  "greetingMorning": { "message": "Günaydın" },
+  "greetingAfternoon": { "message": "İyi günler" },
+  "greetingEvening": { "message": "İyi akşamlar" },
+  "quickShortcuts": { "message": "Kısayollar" }
 }

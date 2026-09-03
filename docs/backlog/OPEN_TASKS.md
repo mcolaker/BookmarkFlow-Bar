@@ -238,3 +238,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir; PR GitHub Actions terminal `success` verir ve merge edilir; exact-tag ZIP ve SHA-256 GitHub Release varlıklarıyla eşleşir; Chrome Web Store Developer Console'a paket yüklemesi tamamlanır.
 - Sonraki adım: Google Chrome Web Store incelemesini takip et; onay sonrası sürüm canlıda doğrulanır. X ve LinkedIn duyuru metinleri kullanıcının takdirine göre paylaşıma hazırdır.
 - Son güncelleme: 2026-09-03.
+
+## BF-UX-004 - New Tab sayfasına Dinamik Saat, Karşılama ve Hızlı Erişim (Shortcuts) ızgarası ekle
+
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: 2026-09-03 tarihli Video QA analizinde New Tab sayfasında arama kutusunun altındaki ve üstündeki alanların negatif boşluk olarak kaldığı saptandı. Kullanıcı yeni sekmede arama yapmanın yanı sıra sık kullandığı yer imlerine doğrudan erişim ve modern bir karşılama deneyimi talep etti. `src/newtab.html`, `src/newtab.css`, `src/newtab.js` ve iki dil dosyası güncellendi. 2026-09-03 tarihli Playwright canlı Video QA akışında (`newtab_flow.mp4`), yerel saate göre dinamik saat (`22:17`), altın sarısı karşılama metni (`Good evening` / `İyi akşamlar`) ve kullanıcının yer imleri ağacından güvenli bağlantıları filtreleyen 8'li Hızlı Erişim ızgarasının tek satırda ve 760px arama kutusuyla simetrik dizildiği, hover mikroyansımalarının çalıştığı kanıtlandı; yeni izin talep edilmedi (`bookmarks` ve `storage` korundu).
+- Kabul kriteri: `src/newtab.html` arama formunun üzerine dinamik saat (`#clockDisplay`) ve karşılama (`#greetingDisplay`), altına ise 8'li Hızlı Erişim ızgarası (`#shortcutsGrid`) kazanır; `src/newtab.css` responsive, koyu temayla uyumlu, klavye odaklanabilir kart stilleri sunar; `src/newtab.js` yerel saate göre otomatik güncellenen saat ve selamlaşma ile kullanıcının yer imleri ağacından güvenli bağlantıları filtreleyip kısayolları render eder; yeni izin talep edilmez (`bookmarks` ve `storage` kullanılır); iki dil (`en`, `tr`) desteklenir.
+- Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir ve Playwright Video QA ile New Tab görünümü görsel olarak kanıtlanır.
+- Sonraki adım: Yok; geliştirmeler sonraki yayın döngüsünde (v0.1.42) sunulur.
+- Son güncelleme: 2026-09-03.

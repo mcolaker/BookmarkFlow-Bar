@@ -39,7 +39,11 @@ const elements = {
   scrollRight: document.getElementById("scrollRight"),
   main: document.querySelector(".nt-main"),
   searchForm: document.getElementById("searchForm"),
-  searchInput: document.getElementById("searchInput")
+  searchInput: document.getElementById("searchInput"),
+  clockDisplay: document.getElementById("clockDisplay"),
+  greetingDisplay: document.getElementById("greetingDisplay"),
+  shortcutsWrap: document.getElementById("shortcutsWrap"),
+  shortcutsGrid: document.getElementById("shortcutsGrid")
 };
 
 let appState = null;
@@ -75,6 +79,9 @@ async function init() {
     getPinnedFolderIds()
   ]);
   render();
+
+  updateClockAndGreeting();
+  window.setInterval(updateClockAndGreeting, 1000);
 
   elements.searchInput.focus();
 
@@ -194,6 +201,98 @@ function render() {
 
   scheduleTightenBookmarkRows(settings.streamerMode ? 1 : settings.rows);
   restoreActiveFolderMenu(folderToRestore);
+  renderShortcuts();
+}
+
+function updateClockAndGreeting() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  if (elements.clockDisplay) {
+    elements.clockDisplay.textContent = `${hours}:${minutes}`;
+  }
+
+  const h = now.getHours();
+  let greetingKey = "greetingMorning";
+  if (h >= 12 && h < 18) {
+    greetingKey = "greetingAfternoon";
+  } else if (h >= 18 || h < 5) {
+    greetingKey = "greetingEvening";
+  }
+
+  if (elements.greetingDisplay) {
+    elements.greetingDisplay.textContent = t(greetingKey);
+  }
+}
+
+function collectTopBookmarks(children, max = 8) {
+  const links = [];
+  const queue = Array.isArray(children) ? [...children] : [];
+  while (queue.length && links.length < max) {
+    const node = queue.shift();
+    if (!node) {
+      continue;
+    }
+
+    if (node.url && isSafeBookmarkUrl(node.url)) {
+      if (!links.some((existing) => existing.url === node.url)) {
+        links.push(node);
+      }
+    } else if (Array.isArray(node.children)) {
+      queue.push(...node.children);
+    }
+  }
+
+  return links.slice(0, max);
+}
+
+function renderShortcuts() {
+  if (!elements.shortcutsWrap || !elements.shortcutsGrid) {
+    return;
+  }
+
+  const children = appState?.bookmarkBar?.children || [];
+  const shortcuts = collectTopBookmarks(children, 8);
+  if (!shortcuts.length) {
+    elements.shortcutsWrap.hidden = true;
+    elements.shortcutsGrid.replaceChildren();
+    return;
+  }
+
+  elements.shortcutsWrap.hidden = false;
+  elements.shortcutsGrid.replaceChildren();
+
+  shortcuts.forEach((bookmark) => {
+    const card = document.createElement("a");
+    card.className = "nt-shortcut-card";
+    card.href = bookmark.url;
+    card.title = `${bookmark.title || ""} (${bookmark.url})`;
+
+    const iconBox = document.createElement("div");
+    iconBox.className = "nt-shortcut-icon-box";
+
+    const icon = document.createElement("img");
+    icon.className = "nt-shortcut-icon";
+    icon.src = faviconUrl(bookmark.url);
+    icon.alt = "";
+    icon.loading = "lazy";
+    icon.onerror = () => {
+      icon.remove();
+      const fallback = document.createElement("span");
+      fallback.className = "nt-shortcut-initial";
+      fallback.textContent = (bookmark.title || bookmark.url || "?").trim().charAt(0);
+      iconBox.appendChild(fallback);
+    };
+    iconBox.appendChild(icon);
+
+    const title = document.createElement("span");
+    title.className = "nt-shortcut-title";
+    title.textContent = bookmark.title || getHostname(bookmark.url);
+
+    card.appendChild(iconBox);
+    card.appendChild(title);
+    elements.shortcutsGrid.appendChild(card);
+  });
 }
 
 function getRenderedFolderRailFolders(bookmarkBarChildren) {
