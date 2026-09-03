@@ -1,6 +1,6 @@
 # BookmarkFlow Bar Proje Talimatları
 
-Bu dosya Codex için ana proje giriş sözleşmesidir. Ürün davranışı için gerçek kaynak kodu ve `README.md`, güvenlik için `SECURITY.md`, kalıcı iş durumu için `docs/backlog/OPEN_TASKS.md` otoritedir.
+Bu dosya AI kodlama ajanları (Codex, Antigravity vb.) için ana proje giriş sözleşmesidir. Ürün davranışı için gerçek kaynak kodu ve `README.md`, güvenlik için `SECURITY.md`, kalıcı iş durumu için `docs/backlog/OPEN_TASKS.md` otoritedir.
 
 ## Zorunlu başlangıç
 
@@ -25,6 +25,7 @@ Bu dosya Codex için ana proje giriş sözleşmesidir. Ürün davranışı için
 - Kaynak değişikliğinde önce `node scripts/validate-project.mjs`, ardından `node scripts/verify-public-tree.mjs` çalıştır. Güvenlik veya tarayıcı davranışı etkileniyorsa `node scripts/security-regression.mjs` ve gerçek Chrome doğrulaması da zorunludur.
 - Görünür UI değişikliği klavye, açık/koyu arka plan, ilgili viewport ve Chrome extension reload kanıtı olmadan tamamlanmış sayılmaz.
 - Stage ve commit kapsamı yalnız bu işe ait dosyalardan oluşur; tarayıcı profili, yerel extension verisi, kişisel bookmark/geçmiş, output, paket veya secret eklenmez.
+- Ajanlar ve araçlar projenin kök dizinine geçici dosya, test medyası (mp4/png), yedek dizin veya tarayıcı profili bırakamaz; geçici çıktılar `.gemini/.../scratch/` veya `.gitignore` kapsamındaki yollarda tutulur ve işlem sonunda temizlenir.
 
 ## GitHub işlem yetkilendirmesi
 

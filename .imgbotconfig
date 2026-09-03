@@ -1,0 +1,6 @@
+﻿{
+  "schedule": "never",
+  "ignoredFiles": [
+    "**/*"
+  ]
+}

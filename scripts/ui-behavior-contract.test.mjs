@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const contentSource = readFileSync(path.join(root, "src/content.js"), "utf8");
+const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
 const newTabSource = readFileSync(path.join(root, "src/newtab.js"), "utf8");
 const newTabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
 const onboardingSource = readFileSync(path.join(root, "src/onboarding.js"), "utf8");
@@ -172,4 +173,9 @@ test("all bookmark and page surfaces gate data access before initialization", ()
   assert.ok(maintenanceInit.indexOf("BF_GET_CONSENT_STATUS") < maintenanceInit.indexOf("loadDuplicateGroups"));
   assert.match(maintenanceSource, /async function requireDataConsent/u);
   assert.match(maintenanceHtml, /id="maintenanceConsentGate"[^>]*hidden/u);
+});
+
+test("collapsed bar hides actions and narrows to single mark column by default", () => {
+  assert.match(contentCss, /\.bf-app:not\(\.is-expanded\):not\(\.is-snoozed\)\s+\.bf-layout\s*\{\s*grid-template-columns:\s*auto;/u);
+  assert.match(contentCss, /\.bf-app:not\(\.is-expanded\):not\(\.is-snoozed\)\s+\.bf-actions/u);
 });
