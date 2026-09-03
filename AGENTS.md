@@ -41,3 +41,9 @@ Bu dosya AI kodlama ajanları (Codex, Antigravity vb.) için ana proje giriş s�
 - Yeni veya değiştirilen görsel/binary varlıkların kaynağını, üretim yöntemini, hak durumunu ve doğrulama özetini `docs/ASSET_PROVENANCE.md` içinde kaydet. Kişisel bookmark, gerçek profil verisi veya belgesiz üçüncü taraf marka/içeriği yayın varlıklarında kullanma.
 - Yönetişim kararları `GOVERNANCE.md`, yön ve kapsam `ROADMAP.md`, kullanıcı/katkıcı destek rotaları `SUPPORT.md`, güvenlik bildirimleri `SECURITY.md` üzerinden yürütülür; bu belgeler arasındaki bağlantı ve sorumluluk sınırlarını birlikte güncelle.
 - Sürüm yayınında manifest sürümü, `v<manifest-sürümü>` etiketi, kaynak commit'i, arşiv adı ve SHA-256 özeti birebir eşleşmelidir. Chrome ZIP'i `LICENSE.md`, `NOTICE` ve `TRADEMARKS.md` dosyalarını içerir; bakım belgeleri ve yerel üretim çıktıları pakete girmez.
+
+## Profesyonel görsel ve sürüm sunum standardı
+
+- Her yeni sürümde (release) veya görünür UI değişikliğinde; kullanıcının tur başına açık hatırlatması beklenmeksizin profesyonel tanıtım görselleri, sosyal medya duyuru metinleri (X ve LinkedIn için karakter, etiket ve link standartlarına uygun), iki dilli Chrome Web Store güncelleme notları ve eksiksiz sürüm belgeleri proaktif olarak hazırlanmalıdır.
+- Tanıtım görselleri projenin koyu lacivert/altın (`#0b0f19` / `#f2c94c`) tasarım sistemiyle, temiz tipografiyle ve sentetik yer imi verileriyle deterministik araçlar üzerinden üretilmelidir.
+- Ajanlar ve araçlar, arayüz veya sürüm teslimlerinde yalnız kod değişikliğiyle yetinemez; kullanıcıya her sürüm döngüsünde doğrudan kopyalanıp paylaşılabilecek lansman metinlerini ve görsel varlıkları hazır bir paket olarak sunmakla yükümlüdür.

@@ -195,13 +195,13 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 
 ## BF-REL-003 - v0.1.40 GitHub ve Chrome Web Store yayınını tamamla
 
-- Öncelik ve durum: P1, IN_PROGRESS.
+- Öncelik ve durum: P1, DONE.
 - Kök neden ve kanıt: Kullanıcı 2026-08-11 tarihinde `BF-UX-002` çökertilmiş-çubuk davranışını içeren yeni sürümün GitHub ve Chrome Web Store'da yayımlanmasını, X ve LinkedIn için karakter sınırına uyan postlar ile post görseli hazırlanmasını istedi. Manifest `0.1.40`'a yükseltildi; `CHANGELOG.md`, `README.md` sürüm referansları ve `docs/backlog/OPEN_TASKS.md` güncellendi. DCO imzalı `Release v0.1.40` commit'i `agent/release-v0.1.40` dalında PR #31 olarak açıldı; dört GitHub Actions kapısı terminal `success` verdi ve PR `b4ce3fdf…` merge commit'iyle korumalı `main` dalına alındı. Annotated `v0.1.40` etiketi aynı commit'e bağlandı; `node scripts/package-release.mjs v0.1.40` exact-tag ZIP'i `dist/bookmarkflow-bar-0.1.40.zip` ve SHA-256 `4184587b23b6953297f4bd4f18e5c1b0d356c4a9a180d609fc2c595d7477152e` üretti; GitHub Release `https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.1.40` yayımlandı ve ZIP asset digest'i yerel SHA-256 ile eşleşti.
 - 2026-08-11 Chrome Web Store kanıtı: Oturumlu Google hesabıyla dashboard'a girildi; `iaikobkol…` kaydı 0.1.38 `Yayımlandı - herkese açık` durumundaydı ve `Yeni paket yükle` kontrolü etkindi. `dist/bookmarkflow-bar-0.1.40.zip` paketi yüklendi; taslak sürümü `0.1.40`, diller `İngilizce, Türkçe`, izinler `bookmarks, storage, favicon, search, host permission` olarak doğrulandı; `Taslağı kaydet` sonrası `Öğe kaydedildi.` onayı alındı ve `İnceleme için gönder` ile `otomatik yayınla` seçili olarak `İncelenmeyi bekliyor` durumuna gönderildi; `Öğe gönderildi.` onayı alındı.
 - Kabul kriteri: Güncel değişiklikler manifest `0.1.40` ile exact annotated `v0.1.40` tag'ine, doğrulanmış GitHub Release ZIP/checksum varlıklarına ve aynı sürümün Chrome Web Store kaydına taşınır; kaynak, paket ve mağaza sürümü birbirine eşleşir; mağaza gönderimi sonrası inceleme durumu ve (yayın sonrası) canlı sürüm kanıtlanır.
 - Doğrulama kapısı: Backlog, açık kaynak/DCO, proje, runtime/UI, asset, public-tree ve İngilizce/Türkçe güvenlik kapıları; exact-tag package contract; `git diff --check`; PR GitHub Actions terminal `success`; GitHub Release asset digest eşleşmesi; Chrome Web Store yükleme ve inceleme durumu kanıtı. Postlar X için 280 karakter sınırının altında ve LinkedIn için makul uzunlukta; görsel sentetik/gerçek uzantı verisiyle üretilir.
-- Sonraki adım: Google'ın `0.1.40` inceleme sonucunu bekle; inceleme geçince öğe otomatik yayınlanır ve canlı sürüm `0.1.40` olarak doğrulanır. X ve LinkedIn postları ile görsel kullanıcıya sunuldu; platformlarda yayınlanması kullanıcının açık yayın talimatına bırakılır.
-- Son güncelleme: 2026-08-11.
+- Sonraki adım: Yok; v0.1.40 yayını tamamlandı ve yerine v0.1.41 yayın döngüsü başlatıldı.
+- Son güncelleme: 2026-09-03.
 
 ## BF-GOV-007 - Rutin GitHub işlemleri için aracı yetkilendirmesini belirle
 
@@ -228,4 +228,13 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Kabul kriteri: `src/popup.css` geniş ekranlarda ortalanmış 420px kart düzeni, ince kaydırma çubuğu ve optimize dikey boşluklar kazanır; `src/onboarding.css` içindeki `.privacy-link` erişilebilir maviye (`#58a6ff`) dönüştürülür ve 720p dikey padding'i ferahlatılır; `src/content.css` içindeki `.bf-control` butonları en az 30x30px hedef boyutuyla güvenceye alınır.
 - Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` ve Playwright video QA akışı ile görsel kanıt doğrulanır.
 - Sonraki adım: Yok; iyileştirmeler sonraki yayın döngüsünde sunulur.
+- Son güncelleme: 2026-09-03.
+
+## BF-REL-004 - v0.1.41 GitHub ve Chrome Web Store yayınını tamamla
+
+- Öncelik ve durum: P1, IN_PROGRESS.
+- Kök neden ve kanıt: Kullanıcı 2026-09-03 tarihinde BF-UX-003 geliştirmelerini içeren yeni sürümün (v0.1.41) GitHub ve Chrome Web Store için hazırlanmasını, görsel ve açıklamaların profesyonel standartta sunulmasını ve bu standardın proje kurallarına kalıcı olarak entegre edilmesini istedi. `manifest.json`, `package.json`, `CHANGELOG.md`, `README.md` 0.1.41 olarak senkronize edildi; `AGENTS.md` içine profesyonel sunum standardı eklendi; 1200x675 lansman görseli ve çok dilli sosyal/mağaza metinleri hazırlandı; exact-tag paketi `dist/bookmarkflow-bar-0.1.41.zip` ve SHA-256 üretildi.
+- Kabul kriteri: `manifest.json` 0.1.41 sürümünü taşır; `dist/bookmarkflow-bar-0.1.41.zip` paketi ve SHA-256 özet dosyası üretilir; annotated `v0.1.41` etiketi GitHub'a push edilir; GitHub Release `v0.1.41` yayımlanır; Chrome Web Store taslağı güncellenir; X ve LinkedIn için karakter ve etiket standartlarına uygun metinler ve lansman görseli hazırlanır.
+- Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir; PR GitHub Actions terminal `success` verir ve merge edilir; exact-tag ZIP ve SHA-256 GitHub Release varlıklarıyla eşleşir.
+- Sonraki adım: PR merge sonrası exact tag ve GitHub Release yayınını tamamla; Chrome Web Store paketini güncelle.
 - Son güncelleme: 2026-09-03.
