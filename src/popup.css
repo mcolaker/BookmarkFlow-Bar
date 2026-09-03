@@ -9,16 +9,55 @@
   box-sizing: border-box;
 }
 
+html {
+  min-height: 100%;
+  background: #0b0f19;
+}
+
 body {
   width: 360px;
+  max-width: 100%;
   margin: 0;
   background: #11151d;
 }
 
+@media (min-width: 500px) {
+  html {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px 16px;
+  }
+
+  body {
+    width: 420px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
 .popup {
   display: grid;
-  gap: 14px;
-  padding: 16px;
+  gap: 12px;
+  padding: 15px;
 }
 
 .consent-gate[hidden] {

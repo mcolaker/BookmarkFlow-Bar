@@ -589,6 +589,8 @@
   place-items: center;
   width: var(--bf-control-size, 28px);
   height: var(--bf-control-height, 27px);
+  min-width: 30px;
+  min-height: 30px;
   border: 1px solid #343b46;
   border-radius: var(--bf-radius, 6px);
   background: #20252d;
