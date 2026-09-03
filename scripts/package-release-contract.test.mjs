@@ -53,6 +53,8 @@ test("the published v0.1.37 tag exports only runtime and required legal files", 
   assert.doesNotThrow(() => assertReleaseArchiveContract(entries));
   for (const forbidden of [
     ".github/workflows/validate.yml",
+    ".imgbotconfig",
+    "package.json",
     "AGENTS.md",
     "CODE_OF_CONDUCT.md",
     "DCO",
