@@ -4,6 +4,22 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
+## [0.1.41] — 2026-09-03
+
+### Added
+
+- Add a responsive centered card presentation (420px) with border and elevation when opening the extension popup in wide viewports or full tabs, eliminating unwanted negative space.
+- Add a custom slim scrollbar to the popup interface.
+
+### Fixed
+
+- Update onboarding privacy policy link color from yellow to accessible blue (`#58a6ff`) to eliminate visual hierarchy collision with the primary agreement button.
+- Optimize vertical page padding in onboarding for zero-scroll presentation on standard 720p displays.
+
+### Changed
+
+- Guarantee a minimum 30x30px target size for in-page bar action controls to improve touch and mouse ergonomics per WCAG 2.5.5.
+
 ## [0.1.40] — 2026-08-11
 
 ### Changed
