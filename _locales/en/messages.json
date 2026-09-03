@@ -259,5 +259,9 @@
   "directBookmarksEmpty": { "message": "No direct bookmarks; folders are available in the rail." },
   "bookmarkBarEmpty": { "message": "Your Bookmark Bar is empty." },
   "folderColorAria": { "message": "$1 folder color" },
-  "willAddToFolder": { "message": "Will be added to $1." }
+  "willAddToFolder": { "message": "Will be added to $1." },
+  "greetingMorning": { "message": "Good morning" },
+  "greetingAfternoon": { "message": "Good afternoon" },
+  "greetingEvening": { "message": "Good evening" },
+  "quickShortcuts": { "message": "Shortcuts" }
 }

@@ -37,6 +37,10 @@
     </header>
 
     <main class="nt-main">
+      <div class="nt-hero" id="heroWidget">
+        <div class="nt-clock" id="clockDisplay" aria-live="off">--:--</div>
+        <div class="nt-greeting" id="greetingDisplay"></div>
+      </div>
       <form class="nt-search" id="searchForm" role="search">
         <label class="nt-search-label" for="searchInput" data-i18n="webSearch">Web Search</label>
         <div class="nt-search-box">
@@ -44,6 +48,9 @@
           <button type="submit" data-i18n="search">Search</button>
         </div>
       </form>
+      <nav class="nt-shortcuts-wrap" id="shortcutsWrap" aria-label="Shortcuts" data-i18n-aria-label="quickShortcuts" hidden>
+        <div class="nt-shortcuts-grid" id="shortcutsGrid"></div>
+      </nav>
     </main>
     </div>
 

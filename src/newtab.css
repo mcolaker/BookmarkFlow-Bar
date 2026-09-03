@@ -813,17 +813,132 @@ body {
 }
 
 .nt-main {
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   min-height: calc(100vh - 76px);
-  padding: 56px 20px 80px;
+  padding: 40px 20px 60px;
+  gap: 32px;
+}
+
+.nt-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.nt-clock {
+  font-size: clamp(52px, 7vw, 76px);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: #f1f3f4;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+.nt-greeting {
+  font-size: clamp(14px, 1.8vw, 17px);
+  font-weight: 500;
+  color: #f2c94c;
+  letter-spacing: 0.02em;
 }
 
 .nt-search {
   width: min(760px, 100%);
   display: grid;
-  gap: 28px;
+  gap: 20px;
   justify-items: center;
+}
+
+.nt-shortcuts-wrap {
+  width: min(760px, 100%);
+  display: flex;
+  justify-content: center;
+}
+
+.nt-shortcuts-wrap[hidden] {
+  display: none;
+}
+
+.nt-shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  max-width: 760px;
+  width: 100%;
+  gap: 12px;
+  justify-items: center;
+}
+
+.nt-shortcut-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 76px;
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 8px 4px;
+  transition: transform 140ms ease, background-color 140ms ease;
+  outline: none;
+}
+
+.nt-shortcut-card:hover,
+.nt-shortcut-card:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px);
+}
+
+.nt-shortcut-icon-box {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #181d26;
+  border: 1px solid #303744;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.nt-shortcut-card:hover .nt-shortcut-icon-box,
+.nt-shortcut-card:focus-visible .nt-shortcut-icon-box {
+  border-color: #f2c94c;
+  box-shadow: 0 6px 18px rgba(242, 201, 76, 0.22);
+}
+
+.nt-shortcut-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.nt-shortcut-initial {
+  font-size: 17px;
+  font-weight: 700;
+  color: #f2c94c;
+  text-transform: uppercase;
+}
+
+.nt-shortcut-title {
+  width: 100%;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #c3cad5;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.nt-shortcut-card:hover .nt-shortcut-title,
+.nt-shortcut-card:focus-visible .nt-shortcut-title {
+  color: #ffffff;
 }
 
 .nt-search-label {
