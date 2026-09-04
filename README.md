@@ -14,24 +14,24 @@
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
   <img alt="Firefox Add-ons Ready" src="https://img.shields.io/badge/Firefox-Add--ons%20Ready-FF7139?logo=firefoxbrowser&logoColor=white">
   <img alt="Microsoft Edge Compatible" src="https://img.shields.io/badge/Edge-Compatible-0078D7?logo=microsoftedge&logoColor=white">
-  <img alt="Source version 0.1.43" src="https://img.shields.io/badge/source-0.1.43-F2C94C">
+  <img alt="Source version 0.1.44" src="https://img.shields.io/badge/source-0.1.44-F2C94C">
   <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
 
 <p align="center">
   <strong><a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf">Install from Chrome Web Store</a></strong> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-bar-0.1.43.zip">Chrome ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-bar-0.1.43-firefox.zip">Firefox ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-bar-0.1.43-edge.zip">Edge ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-bar-0.1.43.zip.sha256">Verify SHA-256</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44.zip">Chrome ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-firefox.zip">Firefox ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-edge.zip">Edge ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44.zip.sha256">Verify SHA-256</a> ·
   <a href="#install-from-source">Installation guide</a> ·
   <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Product website</a> ·
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/discussions">Join Discussions</a>
 </p>
 
 <p align="center">
-  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.1.43 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
+  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.1.44 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
 </p>
 
 > [!NOTE]
@@ -57,6 +57,8 @@ Chrome's native bookmarks bar is intentionally simple, but it cannot become a tr
 - **See more at once.** Use multiple rows, compact density, horizontal scrolling, favicons, and readable titles.
 - **Find anything at the speed of thought.** Spotlight / Raycast style real-time search palette with cyclic arrow navigation (`ArrowDown`/`ArrowUp`), active result highlight, and instant keyboard shortcuts.
 - **Personalize your visual experience.** Switch effortlessly between 4 curated obsidian dark palettes: Gold Obsidian, OLED Midnight Black, Emerald Matrix, and Cyber Indigo, with instant real-time sync across popup, new tab, and page bar.
+- **Inspect bookmark health & dead links.** 100% local, zero-telemetry dead link and duplicate checker with concurrency-limited safe verification and instant inline remediation.
+- **Smart tags & `#tag` spotlight filtering.** Auto-inferred tags from folder hierarchies and domains plus custom tags, filterable instantly via `#tag` queries with theme-adaptive visual pills.
 - **Focused New Tab with Quick Shortcuts.** Minimalist ambient start page featuring a real-time digital clock, contextual greetings, and an 8-item Quick Shortcuts grid built from your top bookmarks.
 - **Organize without duplication.** Work with the folders already stored in your browser and pin important folders to a left or right rail.
 - **Stay presentation-ready.** Streamer mode reduces bookmark labels to icons when you share your screen.
@@ -122,6 +124,22 @@ Switch themes from the popup; your selection syncs across the popup, New Tab das
 ### Focused New Tab with Quick Shortcuts
 
 Transform empty tabs into an intentional dashboard. Enjoy a real-time digital clock synchronized to your local time, contextual greetings, and an 8-item Quick Shortcuts grid automatically populated from your most-used bookmarks.
+
+### Bookmark Health & Dead Link Inspector
+
+Keep your library clean and operational without sending your browsing data anywhere. The local Health Inspector audits bookmarks directly inside Chrome with zero telemetry:
+- **Concurrency-limited safe pings:** Max 5 simultaneous local connections with 5-second `AbortController` timeouts prevent network congestion.
+- **Dead & unreachable link detection:** Identifies dropped domains, server errors, and DNS resolution failures.
+- **Duplicate & insecure HTTP identification:** Finds redundant bookmark entries and unencrypted URLs.
+- **Instant inline actions:** Test any suspect link in an isolated new tab or delete it permanently with one click.
+
+### Smart Tags & Spotlight `#tag` Filtering
+
+Categorize and locate your bookmarks instantly without reorganizing your folder tree:
+- **Zero-effort smart tag inference:** Folders (e.g. `Work / Dev Tools`), domain roots (e.g. `github`, `reddit`), and title hashtags are automatically extracted into searchable tags.
+- **Custom tag editor:** Right-click any bookmark across the page bar or new tab to add, edit, or remove custom tags.
+- **Instant `#tag` search:** Type `#dev` or `#dev docs` into the Spotlight search palette to filter bookmarks by tags with sub-millisecond responsiveness.
+- **Theme-adaptive visual pills:** Tags render as sleek `.bf-tag-pill` badges harmonized with the active Obsidian palette.
 
 
 ### Pin the folders that matter

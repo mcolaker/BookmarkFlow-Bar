@@ -4,6 +4,14 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
+## [0.1.44] — 2026-09-04
+
+### Added
+
+- Add Bookmark Health & Dead Link Inspector (`src/bookmark-maintenance.html`): local, zero-telemetry, concurrency-limited (max 5 simultaneous connections, 5s timeout) link checker detecting dead URLs, DNS failures, unreachable endpoints, and duplicate bookmarks with instant inline delete and test actions.
+- Add Smart Tags & Spotlight Tag Filtering (`#tag`): multi-source tag inference from folder hierarchies, domain roots, and hashtags; persistent local storage under `bfBookmarkTags`; instant `#tag` filtering in in-page Command Palette and New Tab search; theme-adaptive tag pills (`.bf-tag-pill`, `.nt-tag-pill`) matching all 4 Obsidian dark palettes.
+- Add "Edit tags" context menu action to bookmarks with instant prompt-based editing and live reactive UI synchronization across all surfaces.
+
 ## [0.1.43] — 2026-09-04
 
 ### Added
