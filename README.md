@@ -171,24 +171,45 @@ Streamer mode switches bookmark labels to an icon-focused presentation in the ba
 
 ## Install
 
-For most users, install the published extension from the [Chrome Web Store](https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf). Chrome will manage installation and approved updates for the same extension ID.
+### Store installations
 
-### Install from source
+- **Google Chrome / Chromium:** Install the verified extension directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf).
+- **Firefox & Edge Stores:** Submissions and review packages are tracked under official store releases.
 
-For development, auditing, or reproducible source installation, use a versioned release package rather than an arbitrary working tree.
+---
 
-1. Download the verified [`bookmarkflow-bar-0.1.43.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-bar-0.1.43.zip) package and extract it. Its published [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-bar-0.1.43.zip.sha256) is available for integrity verification. Contributors can clone the repository instead:
+### Manual & cross-browser installation (v0.1.44)
 
-   ```bash
-   git clone https://github.com/mcolaker/BookmarkFlow-Bar.git
-   ```
+For development, testing, auditing, or reproducible offline installation, download the verified release package for your browser:
 
-2. Open `chrome://extensions` in Chrome.
-3. Enable **Developer mode** in the top-right corner.
-4. Select **Load unpacked** and choose the repository folder containing `manifest.json`.
-5. Follow the built-in onboarding tour.
+#### 🌐 Google Chrome & Chromium (Brave, Vivaldi, Opera)
 
-For the cleanest experience, hide Chrome's native bookmarks bar with `Ctrl + Shift + B`. This only changes its visibility; it does not delete bookmarks. BookmarkFlow continues to read the same Chrome bookmark data.
+1. Download [`bookmarkflow-bar-0.1.44.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44.zip.sha256).
+2. Extract the archive into a folder.
+3. Navigate to `chrome://extensions` in your browser.
+4. Toggle on **Developer mode** in the upper-right corner.
+5. Click **Load unpacked** and select the unzipped directory containing `manifest.json`.
+6. Complete the interactive onboarding setup.
+
+#### 🦊 Mozilla Firefox (Gecko MV3)
+
+1. Download [`bookmarkflow-bar-0.1.44-firefox.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-firefox.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-firefox.zip.sha256).
+2. Extract the archive.
+3. Open a new tab and navigate to `about:debugging#/runtime/this-firefox`.
+4. Click **Load Temporary Add-on...**.
+5. Select the `manifest.json` file inside the extracted Firefox package.
+6. The extension is immediately active with full Gecko MV3 background script compatibility.
+
+#### 🌊 Microsoft Edge
+
+1. Download [`bookmarkflow-bar-0.1.44-edge.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-edge.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-edge.zip.sha256).
+2. Extract the archive into a local folder.
+3. Navigate to `edge://extensions`.
+4. Turn on **Developer mode** in the left sidebar menu.
+5. Click **Load unpacked** and choose the extracted folder.
+
+> [!TIP]
+> For the cleanest experience in any browser, hide the browser's native bookmarks bar with <kbd>Ctrl + Shift + B</kbd> (<kbd>Cmd + Shift + B</kbd> on macOS). This only hides the native bar; your bookmarks are completely safe and stay 100% in sync with BookmarkFlow.
 
 ## Keyboard shortcuts
 

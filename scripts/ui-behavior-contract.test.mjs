@@ -291,3 +291,32 @@ test("smart tag UI and spotlight filtering integration contract", () => {
   assert.match(newTabCss, /\.nt-tag-pill/u);
   assert.match(newTabCss, /\.nt-tag-list/u);
 });
+
+test("health inspector UI overhaul and spotlight action contract", () => {
+  const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
+  const popupJs = readFileSync(path.join(root, "src/popup.js"), "utf8");
+  const maintenanceHtml = readFileSync(path.join(root, "src/bookmark-maintenance.html"), "utf8");
+  const maintenanceJs = readFileSync(path.join(root, "src/bookmark-maintenance.js"), "utf8");
+  const maintenanceCss = readFileSync(path.join(root, "src/bookmark-maintenance.css"), "utf8");
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const newTabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+
+  // Popup dedicated button
+  assert.match(popupHtml, /id="openHealthInspector"/u);
+  assert.match(popupJs, /openHealthInspector/u);
+
+  // Maintenance navigation & filter tabs
+  assert.match(maintenanceHtml, /class="maintenance-nav"/u);
+  assert.match(maintenanceHtml, /id="healthFilters"/u);
+  assert.match(maintenanceHtml, /class="health-filter-btn/u);
+  assert.match(maintenanceJs, /applyIssueFilter/u);
+  assert.match(maintenanceJs, /handleHashNavigation/u);
+  assert.match(maintenanceCss, /\.health-filters/u);
+  assert.match(maintenanceCss, /\.maintenance-nav/u);
+
+  // Spotlight quick action integration
+  assert.match(contentJs, /isHealthQuery/u);
+  assert.match(contentJs, /bf-action-health/u);
+  assert.match(newTabJs, /isHealthQuery/u);
+  assert.match(newTabJs, /openHealthInspector/u);
+});

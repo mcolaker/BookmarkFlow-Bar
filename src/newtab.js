@@ -475,6 +475,16 @@ function handleSearchInput() {
     path: b.path
   }));
 
+  const isHealthQuery = /^(health|sa[gğ]l[iı]k|k[iı]r[iı]k|dead|broken|duplicate|m[uü]kerrer|bak[iı]m|maintenance|#health)/i.test(query.toLowerCase());
+  if (isHealthQuery) {
+    results.unshift({
+      type: "action",
+      action: "openHealthInspector",
+      title: t("quickActionOpenHealth"),
+      url: "src/bookmark-maintenance.html#health"
+    });
+  }
+
   results.push({
     type: "webSearch",
     title: `${t("webSearch") || "Web Search"}: "${query}"`,
@@ -557,7 +567,10 @@ function renderSearchResults() {
     const iconBox = document.createElement("div");
     iconBox.className = "nt-search-item-icon";
 
-    if (item.type === "bookmark") {
+    if (item.type === "action") {
+      card.href = "#";
+      iconBox.textContent = "🩺";
+    } else if (item.type === "bookmark") {
       card.href = item.url;
       const favicon = document.createElement("img");
       favicon.src = faviconUrl(item.url);
@@ -583,7 +596,9 @@ function renderSearchResults() {
 
     const urlEl = document.createElement("div");
     urlEl.className = "nt-search-item-url";
-    urlEl.textContent = item.type === "bookmark" ? item.url : (t("search") || "Search");
+    urlEl.textContent = item.type === "action"
+      ? t("quickActionOpenHealthDesc")
+      : (item.type === "bookmark" ? item.url : (t("webSearch") || "Search"));
 
     info.append(titleEl, urlEl);
 
@@ -630,6 +645,12 @@ function renderSearchResults() {
 
 function openSearchResult(item, event) {
   const isNewTab = event.ctrlKey || event.metaKey;
+
+  if (item.type === "action" && item.action === "openHealthInspector") {
+    hideSearchResults();
+    chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html#health") });
+    return;
+  }
 
   if (item.type === "webSearch") {
     triggerWebSearch(item.url, isNewTab ? "NEW_TAB" : "CURRENT_TAB");

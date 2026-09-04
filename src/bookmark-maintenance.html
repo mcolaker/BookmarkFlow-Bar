@@ -10,8 +10,13 @@
     <main class="maintenance">
       <header class="hero">
         <span class="eyebrow" data-i18n="maintenanceEyebrow">BOOKMARKFLOW MAINTENANCE</span>
-        <h1 data-i18n="maintenanceHeading">Merge duplicate folders</h1>
-        <p data-i18n="maintenanceLead">Move the contents of device-only folders into same-named folders in your Google account.</p>
+        <h1 data-i18n="maintenanceCenterHeading">Bookmark Maintenance & Health Center</h1>
+        <p data-i18n="maintenanceCenterLead">Audit broken links, merge duplicate folders, and customize your pinned rail.</p>
+        <nav class="maintenance-nav" aria-label="Maintenance sections">
+          <a href="#health" class="nav-chip is-active" id="navHealthLink" data-i18n="navHealth">🩺 Link Health</a>
+          <a href="#folders" class="nav-chip" id="navFoldersLink" data-i18n="navFolders">📁 Folder Merger</a>
+          <a href="#pickerTitle" class="nav-chip" id="navRailLink" data-i18n="navRail">📌 Pinned Rail</a>
+        </nav>
       </header>
 
       <section class="consent-gate" id="maintenanceConsentGate" hidden>
@@ -25,7 +30,59 @@
         <p data-i18n="dataLossProtectionDescription">Bookmarks are never deleted. A local folder is removed only after every item is moved and the folder is confirmed empty.</p>
       </section>
 
-      <section class="picker" aria-labelledby="pickerTitle">
+      <section class="health-section" id="health" aria-labelledby="healthTitle">
+        <div class="health-head">
+          <div>
+            <h2 id="healthTitle" data-i18n="bookmarkHealthHeading">Bookmark health & dead link inspector</h2>
+            <p data-i18n="bookmarkHealthDescription">Check your bookmarks locally for dead links, unreachable domains, and duplicate URLs.</p>
+          </div>
+          <div class="health-actions">
+            <button id="startHealthCheck" class="primary" type="button" data-i18n="startHealthCheck">Check bookmark health</button>
+            <button id="stopHealthCheck" class="secondary" type="button" hidden data-i18n="stopHealthCheck">Stop scan</button>
+          </div>
+        </div>
+
+        <div class="health-metrics" id="healthMetrics" hidden>
+          <div class="health-metric-card" id="cardTotal" role="button" tabindex="0" title="Show all issues" data-filter="all">
+            <span class="metric-num" id="metricTotal">0</span>
+            <span class="metric-label" data-i18n="healthMetricTotal">Total checked</span>
+          </div>
+          <div class="health-metric-card healthy">
+            <span class="metric-num" id="metricHealthy">0</span>
+            <span class="metric-label" data-i18n="healthMetricHealthy">Reachable</span>
+          </div>
+          <div class="health-metric-card dead" id="cardDead" role="button" tabindex="0" title="Filter by dead links" data-filter="dead">
+            <span class="metric-num" id="metricDead">0</span>
+            <span class="metric-label" data-i18n="healthMetricDead">Dead links</span>
+          </div>
+          <div class="health-metric-card duplicates" id="cardDuplicates" role="button" tabindex="0" title="Filter by duplicates" data-filter="duplicates">
+            <span class="metric-num" id="metricDuplicates">0</span>
+            <span class="metric-label" data-i18n="healthMetricDuplicates">Duplicates</span>
+          </div>
+        </div>
+
+        <div class="health-progress-wrap" id="healthProgressWrap" hidden>
+          <div class="health-progress-bar" id="healthProgressBar" style="width: 0%"></div>
+        </div>
+
+        <p id="healthStatus" class="status compact-status" role="status" aria-live="polite"></p>
+
+        <div class="health-filters" id="healthFilters" hidden>
+          <button type="button" class="health-filter-btn is-active" data-filter="all">
+            <span data-i18n="filterAll">All issues</span> <span class="filter-count" id="countAll">(0)</span>
+          </button>
+          <button type="button" class="health-filter-btn" data-filter="dead">
+            <span data-i18n="filterDead">Dead links</span> <span class="filter-count" id="countDead">(0)</span>
+          </button>
+          <button type="button" class="health-filter-btn" data-filter="duplicates">
+            <span data-i18n="filterDuplicates">Duplicates</span> <span class="filter-count" id="countDuplicates">(0)</span>
+          </button>
+        </div>
+
+        <div id="healthIssuesList" class="health-issues-list" aria-label="Detected issues"></div>
+      </section>
+
+      <section class="picker" id="rail" aria-labelledby="pickerTitle">
         <div class="picker-head">
           <div>
             <h2 id="pickerTitle" data-i18n="pinnedFolderHeading">Additional folders shown in the rail</h2>
@@ -41,52 +98,13 @@
         <div id="folderPickerList" class="folder-picker-list" aria-label="Bookmark folders" data-i18n-aria-label="bookmarkFolders"></div>
       </section>
 
-      <section class="toolbar" aria-label="Merge actions" data-i18n-aria-label="mergeActions">
+      <section class="toolbar" id="folders" aria-label="Merge actions" data-i18n-aria-label="mergeActions">
         <button id="refresh" class="secondary" type="button" data-i18n="rescan">Scan again</button>
         <button id="merge" class="primary" type="button" disabled data-i18n="mergeSelected">Merge selected folders into Google account</button>
       </section>
 
       <p id="status" class="status" role="status" aria-live="polite" data-i18n="scanningFolders">Scanning bookmark folders…</p>
       <div id="groups" class="groups" aria-label="Duplicate folder groups" data-i18n-aria-label="duplicateFolderGroups"></div>
-
-      <section class="health-section" aria-labelledby="healthTitle">
-        <div class="health-head">
-          <div>
-            <h2 id="healthTitle" data-i18n="bookmarkHealthHeading">Bookmark health & dead link inspector</h2>
-            <p data-i18n="bookmarkHealthDescription">Check your bookmarks locally for dead links, unreachable domains, and duplicate URLs.</p>
-          </div>
-          <div class="health-actions">
-            <button id="startHealthCheck" class="primary" type="button" data-i18n="startHealthCheck">Check bookmark health</button>
-            <button id="stopHealthCheck" class="secondary" type="button" hidden data-i18n="stopHealthCheck">Stop scan</button>
-          </div>
-        </div>
-
-        <div class="health-metrics" id="healthMetrics" hidden>
-          <div class="health-metric-card">
-            <span class="metric-num" id="metricTotal">0</span>
-            <span class="metric-label" data-i18n="healthMetricTotal">Total checked</span>
-          </div>
-          <div class="health-metric-card healthy">
-            <span class="metric-num" id="metricHealthy">0</span>
-            <span class="metric-label" data-i18n="healthMetricHealthy">Reachable</span>
-          </div>
-          <div class="health-metric-card dead">
-            <span class="metric-num" id="metricDead">0</span>
-            <span class="metric-label" data-i18n="healthMetricDead">Dead links</span>
-          </div>
-          <div class="health-metric-card duplicates">
-            <span class="metric-num" id="metricDuplicates">0</span>
-            <span class="metric-label" data-i18n="healthMetricDuplicates">Duplicates</span>
-          </div>
-        </div>
-
-        <div class="health-progress-wrap" id="healthProgressWrap" hidden>
-          <div class="health-progress-bar" id="healthProgressBar" style="width: 0%"></div>
-        </div>
-
-        <p id="healthStatus" class="status compact-status" role="status" aria-live="polite"></p>
-        <div id="healthIssuesList" class="health-issues-list" aria-label="Detected issues"></div>
-      </section>
     </main>
 
 

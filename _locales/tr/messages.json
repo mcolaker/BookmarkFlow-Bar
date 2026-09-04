@@ -294,5 +294,19 @@
   "filterByTag": { "message": "Etikete göre filtrele" },
   "smartTags": { "message": "Akıllı etiketler" },
   "editTagsPrompt": { "message": "Boşluk veya virgülle ayrılmış etiketleri girin (örn. dev, github, tools):" },
-  "tagFilterHelp": { "message": "İpucu: Yer imlerini filtrelemek için aramada #etiket yazın" }
+  "tagFilterHelp": { "message": "İpucu: Yer imlerini filtrelemek için aramada #etiket yazın" },
+  "openHealthInspector": { "message": "🩺 Yer imi sağlığı ve kırık link denetleyicisi" },
+  "openHealthInspectorTitle": { "message": "Ölü linkleri, 404'leri ve mükerrer yer imlerini denetleyin" },
+  "testLink": { "message": "↗ Aç" },
+  "testLinkTitle": { "message": "Bağlantıyı test etmek için yeni sekmede aç" },
+  "filterAll": { "message": "Tüm sorunlar" },
+  "filterDead": { "message": "Kırık linkler" },
+  "filterDuplicates": { "message": "Mükerrerler" },
+  "quickActionOpenHealth": { "message": "🩺 Yer İmi Sağlık Denetleyicisini Aç" },
+  "quickActionOpenHealthDesc": { "message": "Ölü linkleri, ulaşılamayan siteleri ve mükerrer yer imlerini denetleyin" },
+  "maintenanceCenterHeading": { "message": "Yer İmi Bakım ve Sağlık Merkezi" },
+  "maintenanceCenterLead": { "message": "Kırık linkleri denetleyin, mükerrer klasörleri birleştirin ve sabit çubuğunuzu özelleştirin." },
+  "navHealth": { "message": "Link Sağlığı" },
+  "navFolders": { "message": "Klasör Birleştirme" },
+  "navRail": { "message": "Sabit Çubuk" }
 }

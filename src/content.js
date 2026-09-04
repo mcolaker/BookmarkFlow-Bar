@@ -2811,6 +2811,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       })
       .slice(0, query ? 40 : 14);
 
+    const isHealthQuery = /^(health|sa[gğ]l[iı]k|k[iı]r[iı]k|dead|broken|duplicate|m[uü]kerrer|bak[iı]m|maintenance|#health)/i.test(query);
+    if (isHealthQuery) {
+      entries.unshift({
+        id: "bf-action-health",
+        title: t("quickActionOpenHealth"),
+        url: chrome.runtime.getURL("src/bookmark-maintenance.html#health"),
+        path: t("quickActionOpenHealthDesc"),
+        isHealthAction: true
+      });
+    }
+
     if (!entries.length) {
       commandActiveIndex = -1;
       app?.querySelector(".bf-command-input")?.removeAttribute("aria-activedescendant");
@@ -2970,6 +2981,36 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     link.rel = "noreferrer";
     link.referrerPolicy = "no-referrer";
     link.title = `${entry.title}\n${entry.url}`;
+
+    if (entry.isHealthAction) {
+      const icon = document.createElement("span");
+      icon.className = "bf-favicon";
+      icon.textContent = "🩺";
+      icon.style.display = "inline-flex";
+      icon.style.alignItems = "center";
+      icon.style.justifyContent = "center";
+      icon.style.fontSize = "14px";
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.open(entry.url, "_blank");
+        closeCommandPalette();
+      });
+
+      const copy = document.createElement("span");
+      copy.className = "bf-result-copy";
+
+      const title = document.createElement("span");
+      title.className = "bf-result-title";
+      title.textContent = entry.title;
+
+      const path = document.createElement("span");
+      path.className = "bf-result-path";
+      path.textContent = entry.path;
+
+      copy.append(title, path);
+      link.append(icon, copy);
+      return link;
+    }
 
     const favicon = document.createElement("img");
     favicon.className = "bf-favicon";

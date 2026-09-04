@@ -338,3 +338,21 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Sonraki adım: Yok; sürüm GitHub'da yayımlandı, çapraz tarayıcı paketleri doğrulandı ve topluluk lansman kiti teslim edildi.
 - Son güncelleme: 2026-09-04.
 
+## BF-UX-009 - Yer İmi Sağlık Denetleyicisi arayüzünü, buton hiyerarşisini, filtreleme sekmelerini ve Spotlight hızlı aksiyonunu yenile
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde Sağlık Denetleyicisinin açılır menüde "Aynı adlı klasörleri birleştir" butonunun altına gizlenmiş olmasını anlamsız ve keşfedilemez buldu; ayrıca tarama listesi ekran görüntüsünde listelerin aşırı yatay esnediği, butonun hatalı olarak "Ara" yazdığı, filtre sekmelerinin bulunmadığı ve Cloudflare/403 korumalı popüler sitelerin yanlışlıkla ölü bağlantı sayıldığı kanıtlandı. `src/popup.html` içine doğrudan `openHealthInspector` butonu eklendi; `src/bookmark-maintenance.html` üst başlığı "Yer İmi Bakım ve Sağlık Merkezi" olarak güncellendi ve hızlı gezinme çipleri eklendi; liste satırlarına favicon eklendi, hatalı "Ara" butonu "↗ Aç" / "↗ Open" olarak düzeltildi ve "🗑 Sil" butonuyla yan yana derli toplu hizalandı; "Tümü / Kırıklar / Mükerrerler" filtre sekmeleri ve tıklanabilir sayaç kartları entegre edildi; `HEAD` isteğini engelleyen siteler (Cloudflare, Perplexity, Claude vb.) için otomatik `GET (redirect: manual)` deneme mantığıyla yanlış pozitifler engellendi; hem in-page çubukta hem de New Tab Spotlight aramasında `health`, `sağlık`, `kırık`, `dead`, `duplicate` sorgularında doğrudan `🩺 Yer İmi Sağlık Denetleyicisini Aç` hızlı aksiyonu eklendi.
+- Kabul kriteri: Popup içine doğrudan `openHealthInspector` butonu eklenir; `src/bookmark-maintenance.html` içinde arama sonuçları liste genişliği sınırlandırılır, buton adı "Aç" / "Open" olarak düzeltilir, satırlara favicon desteği eklenir, "Tümü / Kırıklar / Mükerrerler" filtre sekmeleri ve tıklanabilir sayaç kartları eklenir; HEAD engeline takılan siteler için akıllı ping mantığıyla yanlış pozitifler engellenir; Spotlight ve New Tab aramasında "sağlık", "health", "kırık", "dead" sorgularında doğrudan açma aksiyonu sunulur; Türkçe ve İngilizce tam pariteyle yerelleştirilir.
+- Doğrulama kapısı: `npm run validate:all` (59/59 test), `scripts/ui-behavior-contract.test.mjs`, `npm run test:regression` (EN & TR Chromium pass), `node scripts/validate-backlog.mjs`, `git diff --check` temizdir.
+- Sonraki adım: Yok; arayüz, filtreleme sekmeleri, butonlar ve Spotlight entegrasyonu tamamlandı.
+- Son güncelleme: 2026-09-04.
+
+## BF-DOC-002 - README'ye çoklu tarayıcı (Chrome, Firefox, Edge) kurulum ve kullanım rehberini ekle
+
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde GitHub README dosyasında Firefox ve Edge desteklerinin nasıl kurulacağının ve kullanılacağının anlatılmadığını belirtti; README'nin Install bölümü yalnızca Chrome Web Store ve Chrome geliştirici modunu açıklıyordu. `README.md` kurulum bölümü yeniden yazılarak Google Chrome & Chromium (Brave, Vivaldi, Opera), Mozilla Firefox (about:debugging geçici eklenti ve Gecko MV3 manifesti) ve Microsoft Edge (edge://extensions geliştirici modu) için adım adım görsel ve kılavuz rehberleri eklendi; tüm indirme paketleri ve SHA-256 sağlama toplamları güncel v0.1.44 sürümüne eşitlendi.
+- Kabul kriteri: `README.md` kurulum bölümü Chrome/Chromium, Firefox (about:debugging geçici eklenti ve AMO) ve Microsoft Edge (edge://extensions geliştirici modu) için adım adım kurulum rehberlerini içerecek şekilde genişletilir; paket indirme bağlantıları güncel v0.1.44 sürümüne eşitlenir; açık kaynak/DCO/sözleşme testleri temiz geçer.
+- Doğrulama kapısı: `npm run validate:all` (59/59 test), `node scripts/validate-project.mjs`, `git diff --check` temizdir.
+- Sonraki adım: Yok; README çoklu tarayıcı kurulum rehberiyle zenginleştirildi.
+- Son güncelleme: 2026-09-04.
+

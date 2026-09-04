@@ -26,6 +26,7 @@ const controls = {
   autoHideSensitiveSites: document.getElementById("autoHideSensitiveSites"),
   avoidAppTopBars: document.getElementById("avoidAppTopBars"),
   openOnboarding: document.getElementById("openOnboarding"),
+  openHealthInspector: document.getElementById("openHealthInspector"),
   openBookmarkMaintenance: document.getElementById("openBookmarkMaintenance"),
   manageShortcuts: document.getElementById("manageShortcuts"),
   resetPosition: document.getElementById("resetPosition"),
@@ -167,9 +168,17 @@ async function init() {
     chrome.tabs.create({ url: "chrome://extensions/shortcuts" });
   });
 
-  controls.openBookmarkMaintenance.addEventListener("click", () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html") });
-  });
+  if (controls.openHealthInspector) {
+    controls.openHealthInspector.addEventListener("click", () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html#health") });
+    });
+  }
+
+  if (controls.openBookmarkMaintenance) {
+    controls.openBookmarkMaintenance.addEventListener("click", () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html#folders") });
+    });
+  }
 
   controls.resetPosition.addEventListener("click", () => {
     chrome.storage.local.remove(PANEL_POSITION_STORAGE_KEY).catch(() => {});
