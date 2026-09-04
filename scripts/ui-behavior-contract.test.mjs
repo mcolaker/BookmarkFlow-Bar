@@ -40,6 +40,13 @@ function loadNormalizer(source, functionName, language) {
   )(() => language);
 }
 
+function loadSettingsModule() {
+  const settingsSource = readFileSync(path.join(root, "src/settings.js"), "utf8");
+  const scope = { BookmarkFlowI18n: { t: (k) => k } };
+  Function("globalThis", "BookmarkFlowI18n", `"use strict";\n${settingsSource}`)(scope, scope.BookmarkFlowI18n);
+  return scope;
+}
+
 function loadFocusTrap(source) {
   const getFocusableElements = extractFunction(source, "getFocusableElements");
   const trapFocusWithin = extractFunction(source, "trapFocusWithin");
@@ -202,4 +209,41 @@ test("multi-theme engine contract is supported across settings, popup, new tab, 
   assert.match(newTabSource, /document\.documentElement\.dataset\.theme\s*=/u);
   assert.match(contentSource, /host\.dataset\.theme\s*=/u);
   assert.match(contentSource, /app\.dataset\.theme\s*=/u);
+});
+
+test("bookmark health inspection contract is implemented in bookmark-maintenance", () => {
+  const maintenanceHtml = readFileSync(path.join(root, "src/bookmark-maintenance.html"), "utf8");
+  const maintenanceJs = readFileSync(path.join(root, "src/bookmark-maintenance.js"), "utf8");
+  const maintenanceCss = readFileSync(path.join(root, "src/bookmark-maintenance.css"), "utf8");
+
+  assert.match(maintenanceHtml, /id="startHealthCheck"/u);
+  assert.match(maintenanceHtml, /id="stopHealthCheck"/u);
+  assert.match(maintenanceHtml, /id="healthMetrics"/u);
+  assert.match(maintenanceHtml, /id="metricDead"/u);
+  assert.match(maintenanceHtml, /id="healthIssuesList"/u);
+
+  assert.match(maintenanceJs, /async\s+function\s+startHealthScan\s*\(/u);
+  assert.match(maintenanceJs, /function\s+stopHealthScan\s*\(/u);
+  assert.match(maintenanceJs, /async\s+function\s+pingUrl\s*\(/u);
+  assert.match(maintenanceJs, /collectLeafBookmarks\s*\(/u);
+
+  assert.match(maintenanceCss, /\.health-section/u);
+  assert.match(maintenanceCss, /\.health-metric-card/u);
+  assert.match(maintenanceCss, /\.issue-badge/u);
+});
+
+test("bookmark tagging and smart tag normalization contract is supported in settings", () => {
+  const settingsSource = readFileSync(path.join(root, "src/settings.js"), "utf8");
+  const vm = loadSettingsModule();
+  const { normalizeTag, normalizeTags, normalizeAllBookmarkTags, BOOKMARK_TAGS_STORAGE_KEY } = vm.BookmarkFlowConfig;
+
+  assert.strictEqual(BOOKMARK_TAGS_STORAGE_KEY, "bfBookmarkTags");
+  assert.strictEqual(normalizeTag("#Dev"), "dev");
+  assert.strictEqual(normalizeTag("  ###typescript  "), "typescript");
+  assert.deepStrictEqual(normalizeTags(["#Dev", "dev", "react", "invalid tag!"]), ["dev", "react"]);
+  assert.deepStrictEqual(
+    normalizeAllBookmarkTags({ "1": ["#AI", "tools"], "2": ["invalid space"] }),
+    { "1": ["ai", "tools"] }
+  );
+  assert.match(settingsSource, /BOOKMARK_TAGS_STORAGE_KEY/u);
 });

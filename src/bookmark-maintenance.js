@@ -12,13 +12,27 @@ const elements = {
   pinnedStatus: document.getElementById("pinnedStatus"),
   refresh: document.getElementById("refresh"),
   savePinnedFolders: document.getElementById("savePinnedFolders"),
-  status: document.getElementById("status")
+  status: document.getElementById("status"),
+  startHealthCheck: document.getElementById("startHealthCheck"),
+  stopHealthCheck: document.getElementById("stopHealthCheck"),
+  healthMetrics: document.getElementById("healthMetrics"),
+  metricTotal: document.getElementById("metricTotal"),
+  metricHealthy: document.getElementById("metricHealthy"),
+  metricDead: document.getElementById("metricDead"),
+  metricDuplicates: document.getElementById("metricDuplicates"),
+  healthProgressWrap: document.getElementById("healthProgressWrap"),
+  healthProgressBar: document.getElementById("healthProgressBar"),
+  healthStatus: document.getElementById("healthStatus"),
+  healthIssuesList: document.getElementById("healthIssuesList")
 };
 
 let duplicateGroups = [];
 let selectableFolders = [];
 let pinnedFolderIds = new Set();
 let isBusy = false;
+let isHealthChecking = false;
+let healthAbortController = null;
+
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === "local" && DATA_CONSENT_STORAGE_KEY in changes) {
@@ -53,6 +67,12 @@ async function init() {
   elements.folderFilter.addEventListener("input", renderFolderPicker);
   elements.savePinnedFolders.addEventListener("click", () => {
     savePinnedFolders().catch(handlePinnedFolderError);
+  });
+  elements.startHealthCheck?.addEventListener("click", () => {
+    startHealthScan().catch(handleHealthScanError);
+  });
+  elements.stopHealthCheck?.addEventListener("click", () => {
+    stopHealthScan();
   });
 
   await Promise.all([
@@ -554,4 +574,258 @@ function renderStatus(message, kind = "") {
 function handleFatalError(error) {
   setBusy(false);
   renderStatus(error?.message || String(error), "error");
+}
+
+async function startHealthScan() {
+  if (isHealthChecking) {
+    return;
+  }
+  await requireDataConsent();
+
+  isHealthChecking = true;
+  healthAbortController = new AbortController();
+  const signal = healthAbortController.signal;
+
+  if (elements.startHealthCheck) elements.startHealthCheck.hidden = true;
+  if (elements.stopHealthCheck) elements.stopHealthCheck.hidden = false;
+  if (elements.healthMetrics) elements.healthMetrics.hidden = false;
+  if (elements.healthProgressWrap) elements.healthProgressWrap.hidden = false;
+  if (elements.healthProgressBar) elements.healthProgressBar.style.width = "0%";
+  elements.healthIssuesList?.replaceChildren();
+
+  renderHealthStatus(t("scanningFolders"));
+
+  const [root] = await chrome.bookmarks.getTree();
+  const bookmarks = collectLeafBookmarks(root);
+
+  let checkedCount = 0;
+  let healthyCount = 0;
+  let deadCount = 0;
+  let duplicateCount = 0;
+
+  const urlCountMap = new Map();
+  for (const b of bookmarks) {
+    if (b.url) {
+      const cleanUrl = b.url.toLowerCase();
+      urlCountMap.set(cleanUrl, (urlCountMap.get(cleanUrl) || 0) + 1);
+    }
+  }
+
+  if (elements.metricTotal) elements.metricTotal.textContent = "0";
+  if (elements.metricHealthy) elements.metricHealthy.textContent = "0";
+  if (elements.metricDead) elements.metricDead.textContent = "0";
+  if (elements.metricDuplicates) elements.metricDuplicates.textContent = "0";
+
+  const total = bookmarks.length;
+  if (total === 0) {
+    finishHealthScan(0, 0, 0, 0);
+    return;
+  }
+
+  const CONCURRENCY = 5;
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < bookmarks.length && !signal.aborted) {
+      const index = nextIndex++;
+      const item = bookmarks[index];
+      const isDuplicate = item.url && ((urlCountMap.get(item.url.toLowerCase()) || 0) > 1);
+
+      let isHealthy = false;
+      let isDead = false;
+
+      if (!item.url || !/^https?:\/\//i.test(item.url)) {
+        isDead = true;
+      } else {
+        const pingResult = await pingUrl(item.url, signal);
+        if (pingResult.ok) {
+          isHealthy = true;
+        } else {
+          isDead = true;
+        }
+      }
+
+      if (signal.aborted) {
+        break;
+      }
+
+      checkedCount++;
+      if (isHealthy && !isDuplicate) healthyCount++;
+      if (isDead) deadCount++;
+      if (isDuplicate) duplicateCount++;
+
+      if (elements.metricTotal) elements.metricTotal.textContent = String(checkedCount);
+      if (elements.metricHealthy) elements.metricHealthy.textContent = String(healthyCount);
+      if (elements.metricDead) elements.metricDead.textContent = String(deadCount);
+      if (elements.metricDuplicates) elements.metricDuplicates.textContent = String(duplicateCount);
+
+      const pct = Math.round((checkedCount / total) * 100);
+      if (elements.healthProgressBar) elements.healthProgressBar.style.width = `${pct}%`;
+      renderHealthStatus(t("healthScanningStatus", [String(checkedCount), String(total)]));
+
+      if (isDead || isDuplicate) {
+        renderHealthIssueItem(item, {
+          isDead,
+          isDuplicate,
+          isInsecure: item.url?.startsWith("http://")
+        });
+      }
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(CONCURRENCY, bookmarks.length) }, () => worker());
+  await Promise.all(workers);
+
+  if (!signal.aborted) {
+    finishHealthScan(checkedCount, healthyCount, deadCount, duplicateCount);
+  }
+}
+
+function stopHealthScan() {
+  if (healthAbortController) {
+    healthAbortController.abort();
+    healthAbortController = null;
+  }
+  isHealthChecking = false;
+  if (elements.startHealthCheck) elements.startHealthCheck.hidden = false;
+  if (elements.stopHealthCheck) elements.stopHealthCheck.hidden = true;
+  renderHealthStatus(t("stopHealthCheck"), "info");
+}
+
+function finishHealthScan(checked, healthy, dead, duplicates) {
+  isHealthChecking = false;
+  if (elements.startHealthCheck) elements.startHealthCheck.hidden = false;
+  if (elements.stopHealthCheck) elements.stopHealthCheck.hidden = true;
+  if (elements.healthProgressBar) elements.healthProgressBar.style.width = "100%";
+
+  if (dead === 0 && duplicates === 0) {
+    renderHealthStatus(t("healthAllClean"), "success");
+  } else {
+    renderHealthStatus(t("healthScanComplete", [String(checked)]), "info");
+  }
+}
+
+async function pingUrl(url, signal) {
+  try {
+    const timeoutSignal = AbortSignal.timeout(5000);
+    const combinedSignal = AbortSignal.any
+      ? AbortSignal.any([signal, timeoutSignal])
+      : signal;
+
+    await fetch(url, {
+      method: "HEAD",
+      mode: "no-cors",
+      signal: combinedSignal,
+      cache: "no-store"
+    });
+    return { ok: true };
+  } catch (err) {
+    if (signal.aborted) {
+      return { ok: false, aborted: true };
+    }
+    return { ok: false, error: err?.message };
+  }
+}
+
+function collectLeafBookmarks(node, path = []) {
+  const list = [];
+  const currentPath = node.title ? [...path, node.title] : path;
+  if (node.url) {
+    list.push({
+      id: node.id,
+      title: node.title || node.url,
+      url: node.url,
+      folderPath: path.join(" / ")
+    });
+  }
+  if (node.children) {
+    for (const child of node.children) {
+      list.push(...collectLeafBookmarks(child, currentPath));
+    }
+  }
+  return list;
+}
+
+function renderHealthIssueItem(item, { isDead, isDuplicate }) {
+  if (!elements.healthIssuesList) {
+    return;
+  }
+
+  const row = document.createElement("div");
+  row.className = "health-issue-item";
+  row.id = `health-issue-${item.id}`;
+
+  const info = document.createElement("div");
+  info.className = "issue-info";
+
+  const titleRow = document.createElement("div");
+  titleRow.className = "issue-title-row";
+
+  const title = document.createElement("span");
+  title.className = "issue-title";
+  title.textContent = item.title;
+  titleRow.append(title);
+
+  if (isDead) {
+    const deadBadge = document.createElement("span");
+    deadBadge.className = "issue-badge dead";
+    deadBadge.textContent = t("healthIssueDead");
+    titleRow.append(deadBadge);
+  }
+
+  if (isDuplicate) {
+    const dupBadge = document.createElement("span");
+    dupBadge.className = "issue-badge duplicate";
+    dupBadge.textContent = t("healthIssueDuplicate");
+    titleRow.append(dupBadge);
+  }
+
+  const url = document.createElement("span");
+  url.className = "issue-url";
+  url.textContent = `${item.folderPath ? `[${item.folderPath}] ` : ""}${item.url}`;
+
+  info.append(titleRow, url);
+
+  const actions = document.createElement("div");
+  actions.className = "issue-actions";
+
+  const openBtn = document.createElement("a");
+  openBtn.className = "btn-issue-action";
+  openBtn.href = item.url;
+  openBtn.target = "_blank";
+  openBtn.rel = "noreferrer noopener";
+  openBtn.textContent = t("search");
+  actions.append(openBtn);
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "btn-issue-action danger";
+  deleteBtn.type = "button";
+  deleteBtn.textContent = t("deleteBookmark");
+  deleteBtn.addEventListener("click", async () => {
+    try {
+      await chrome.bookmarks.remove(item.id);
+      row.remove();
+      renderHealthStatus(t("bookmarkDeleted"), "success");
+    } catch (err) {
+      renderHealthStatus(err?.message || t("genericOperationFailed"), "error");
+    }
+  });
+  actions.append(deleteBtn);
+
+  row.append(info, actions);
+  elements.healthIssuesList.append(row);
+}
+
+function renderHealthStatus(message, kind = "") {
+  if (!elements.healthStatus) {
+    return;
+  }
+  elements.healthStatus.textContent = message;
+  elements.healthStatus.classList.toggle("is-error", kind === "error");
+  elements.healthStatus.classList.toggle("is-success", kind === "success");
+}
+
+function handleHealthScanError(error) {
+  stopHealthScan();
+  renderHealthStatus(error?.message || String(error), "error");
 }
