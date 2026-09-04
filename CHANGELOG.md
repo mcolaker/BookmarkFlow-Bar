@@ -4,6 +4,15 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
+## [0.1.43] — 2026-09-04
+
+### Added
+
+- Add Spotlight / Raycast style real-time search palette in New Tab and in-page bar with arrow key cyclic navigation (`ArrowDown`/`ArrowUp`), active result highlight (`#f2c94c`), `Enter` to open in active tab, and `Ctrl+Enter` / `Meta+Enter` to open in new tab.
+- Add Multi-Theme Engine featuring 4 curated dark palettes: Gold Obsidian (default deep navy/gold), OLED Midnight Black (true black `#000000` with platinum accent), Emerald Matrix (obsidian with cyber neon green `#41d17d`), and Cyber Indigo (synthwave violet with electric indigo `#818cf8`).
+- Add 4-segment theme switcher in the extension popup with instant, real-time live synchronization across Popup, New Tab, and in-page bar.
+- Add Cross-Browser Packaging Bridge (`scripts/package-cross-browser.mjs`) supporting Mozilla Firefox (AMO) and Microsoft Edge Add-ons with automated deterministic ZIP packaging, Gecko MV3 manifest transformation, and SHA-256 integrity digests.
+
 ## [0.1.42] — 2026-09-04
 
 ### Added

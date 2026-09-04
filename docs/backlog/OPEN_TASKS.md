@@ -283,3 +283,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all` (55/55 test), `scripts/cross-browser-contract.test.mjs` (11/11 test), `npm run test:regression` (EN & TR), `git diff --check` temizdir; `dist/bookmarkflow-bar-0.1.42-firefox.zip` (SHA-256: `e298cacfc36a580a90865833d28fee31dd861d1a086c47fe5056292b1971c111`) ve `dist/bookmarkflow-bar-0.1.42-edge.zip` (SHA-256: `bedf14c8ca900db0a9a610a2ba76a5e4ff446130d519167ddf543818e16da63f`) paketleri deterministik ZIP üretimi ve 33 çalışma zamanı dosyasıyla doğrulanmıştır.
 - Sonraki adım: Yok; 3 büyük özellik (Spotlight arama, Multi-theme motoru, Çapraz tarayıcı köprüsü) tamamlandı. v0.1.43 sürüm hazırlığına ve sosyal lansman paketine geçilir.
 - Son güncelleme: 2026-09-04.
+
+## BF-REL-007 - v0.1.43 GitHub sürümünü yayımla ve lansman kitini sun
+
+- Öncelik ve durum: P1, IN_PROGRESS.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde Spotlight klavye navigasyonu (`BF-UX-005`), Çoklu Renk Temaları Motoru (`BF-UX-006`) ve Çapraz Tarayıcı Paketleme Köprüsü (`BF-REL-006`) özelliklerini içeren yeni sürümün (v0.1.43) GitHub ve mağazalar için hazırlanmasını, X ve LinkedIn paylaşımlarının hazırlanmasını onayladı. `manifest.json`, `package.json`, `CHANGELOG.md`, `README.md` 0.1.43 olarak senkronize edildi.
+- Kabul kriteri: `manifest.json` 0.1.43 sürümünü taşır; `dist/` altında Chromium, Firefox ve Edge paketleri ile SHA-256 özet dosyaları üretilir; annotated `v0.1.43` etiketi kullanıcı onayıyla oluşturulup GitHub'a push edilir; GitHub Release `v0.1.43` yayımlanır; X ve LinkedIn için karakter ve etiket standartlarına uygun metinler ve lansman görseli hazırlanır; iki dilli mağaza notları sunulur.
+- Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir; PR GitHub Actions terminal `success` verir ve merge edilir; exact-tag ZIP ve SHA-256 GitHub Release varlıklarıyla eşleşir.
+- Sonraki adım: PR #45'i aç, CI kontrollerini tamamla, merge et ve kullanıcı onayıyla release etiketini yayımla.
+- Son güncelleme: 2026-09-04.
