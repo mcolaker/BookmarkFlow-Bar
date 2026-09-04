@@ -301,3 +301,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all` (55/55 test), `npm run test:regression` (EN & TR), `git diff --check` temizdir; PR #47 GitHub Actions terminal `success` verdi ve merge edildi.
 - Sonraki adım: Yok; README v0.1.43 yenilikleriyle zenginleştirildi ve yayında.
 - Son güncelleme: 2026-09-04.
+
+## BF-GOV-009 - Sürüm döngülerinde README'nin otomatik güncellenmesini ve doğrudan görsel teslim standardını zorunlu kurala bağla
+
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde eklenti için her yeni sürüm çıkarıldığında `README.md` dosyasının istisnasız ve otomatik olarak güncellenmesi gerektiğini, asla atlanmaması gerektiğini ve tanıtım görsellerinin kullanıcıya doğrudan sunulması standardını talep etti. `AGENTS.md` ve `.agents/skills/bookmarkflow-release/SKILL.md` belgelerine zorunlu otomatik README güncelleme ve doğrudan görsel sunum kuralları eklendi. v0.1.43 için 4 yeni yüksek çözünürlüklü tanıtım varlığı (`bookmarkflow-v0.1.43-x-card.png`, `bookmarkflow-v0.1.43-linkedin-card.png`, `bookmarkflow-v0.1.43-theme-matrix.png`, `bookmarkflow-v0.1.43-newtab-spotlight.png`) deterministik Playwright betiğiyle üretilip kullanıcıya doğrudan görsel kartlar ve dosya yollarıyla teslim edildi.
+- Kabul kriteri: `AGENTS.md` içerisine her sürümde otomatik README güncellemesi ve doğrudan görsel sunum şartı eklenir; release skill dosyası aynı şartlarla güncellenir; v0.1.43 görsel paketi eksiksiz üretilir ve doğrulanır; backlog sözleşmesi ve test kapıları yeşil geçer.
+- Doğrulama kapısı: `npm run validate:all` (55/55 test), `node scripts/validate-backlog.mjs`, `git diff --check` temizdir.
+- Sonraki adım: Yok; kurallar kalıcı olarak eklendi ve lansman görselleri teslim edildi.
+- Son güncelleme: 2026-09-04.
