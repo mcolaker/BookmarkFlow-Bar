@@ -4,6 +4,23 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
+## [0.1.45] — 2026-09-04
+
+### Added
+
+- Add dedicated Health Inspector launch button in the extension popup (`src/popup.html`, `src/popup.js`, `src/popup.css`) with gold accent and direct hash navigation.
+- Add Spotlight / Raycast and New Tab search command palette quick action: typing `health`, `sağlık`, `dead`, `kırık`, `duplicate`, `mükerrer`, or `#health` instantly presents a one-click action to open the Health Inspector.
+- Add interactive filter tabs (`All issues`, `Dead links`, `Duplicates`) with live count badges in Bookmark Maintenance & Health Center (`src/bookmark-maintenance.html`, `src/bookmark-maintenance.js`).
+- Add clickable metric summary cards enabling instant filter toggling on click.
+- Add domain favicons and folder breadcrumbs to health issue rows for instant visual recognition.
+- Add multi-browser installation and verification guides for Google Chrome/Chromium, Mozilla Firefox (about:debugging Gecko MV3), and Microsoft Edge in `README.md`.
+
+### Changed
+
+- Fix confusing "Ara" button in health inspector by replacing with unambiguous "↗ Aç" / "↗ Open" link action and standardized "🗑 Sil" / "🗑 Delete" action.
+- Fix false-positive unreachable status on Cloudflare-protected domains (Perplexity, Claude, Colab) via smart GET fallback handling when HEAD requests are rejected.
+- Optimize health issue list layout to eliminate excessive negative horizontal space and improve readability.
+
 ## [0.1.44] — 2026-09-04
 
 ### Added
