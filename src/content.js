@@ -41,6 +41,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     FOLDER_COLOR_PRESETS,
     DATA_CONSENT_STORAGE_KEY,
     DATA_CONSENT_VERSION,
+    BOOKMARK_TAGS_STORAGE_KEY,
+    normalizeTag,
+    normalizeTags,
+    normalizeAllBookmarkTags,
+    inferSmartTags,
+    resolveItemTags,
+    matchesTagFilter,
     isHostDisabled,
     isSafeBookmarkUrl,
     isSensitiveHost,
@@ -63,6 +70,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let stylesReady = false;
   let panelPosition = null;
   let dragState = null;
+  let bookmarkTagsMap = {};
   let bookmarkDragState = null;
   let contextMenuState = null;
   let suppressNextClick = false;
@@ -99,7 +107,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const [response, , savedPinnedFolderIds] = await Promise.all([
         sendMessage({ type: MESSAGE_GET_STATE }),
         loadPanelPosition(),
-        loadPinnedFolderIds()
+        loadPinnedFolderIds(),
+        loadBookmarkTags()
       ]);
       if (!response?.ok) {
         return;
@@ -381,9 +390,43 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     return Array.from(new Set(value.map((id) => String(id || "")).filter(Boolean))).slice(0, 200);
   }
 
+  async function loadBookmarkTags() {
+    try {
+      const localState = await chrome.storage.local.get(BOOKMARK_TAGS_STORAGE_KEY);
+      bookmarkTagsMap = normalizeAllBookmarkTags(localState[BOOKMARK_TAGS_STORAGE_KEY]);
+      return bookmarkTagsMap;
+    } catch (error) {
+      handleExtensionContextError(error);
+      bookmarkTagsMap = {};
+      return {};
+    }
+  }
+
+  async function saveBookmarkTags(nodeId, tags) {
+    try {
+      const localState = await chrome.storage.local.get(BOOKMARK_TAGS_STORAGE_KEY);
+      const allTags = normalizeAllBookmarkTags(localState[BOOKMARK_TAGS_STORAGE_KEY]);
+      const clean = normalizeTags(tags);
+      if (clean.length > 0) {
+        allTags[nodeId] = clean;
+      } else {
+        delete allTags[nodeId];
+      }
+      bookmarkTagsMap = allTags;
+      await chrome.storage.local.set({ [BOOKMARK_TAGS_STORAGE_KEY]: allTags });
+    } catch (error) {
+      handleExtensionContextError(error);
+    }
+  }
+
   function handleStorageChanged(changes, areaName) {
     if (areaName !== "local") {
       return;
+    }
+
+    if (BOOKMARK_TAGS_STORAGE_KEY in changes) {
+      bookmarkTagsMap = normalizeAllBookmarkTags(changes[BOOKMARK_TAGS_STORAGE_KEY].newValue);
+      renderFromState();
     }
 
     if (FOLDER_RAIL_PINNED_STORAGE_KEY in changes) {
@@ -1698,6 +1741,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    if (action === "edit-bookmark-tags") {
+      editContextBookmarkTags();
+      return;
+    }
+
     if (action === "add-bookmark-to-folder") {
       openAddBookmarkForContextFolder();
       return;
@@ -1845,6 +1893,26 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     window.alert(response?.error || t("bookmarkRenameFailed"));
+  }
+
+  async function editContextBookmarkTags() {
+    const state = contextMenuState;
+    if (!state?.nodeId) {
+      return;
+    }
+
+    const currentTags = resolveItemTags({ id: state.nodeId, title: state.title, url: state.url }, bookmarkTagsMap);
+    const initialText = currentTags.map((t) => `#${t}`).join(" ");
+    const nextText = window.prompt(t("editTagsPrompt"), initialText);
+    if (nextText === null) {
+      return;
+    }
+
+    closeContextMenu();
+    const rawTokens = nextText.split(/[\s,]+/);
+    const cleanTags = normalizeTags(rawTokens);
+    await saveBookmarkTags(state.nodeId, cleanTags);
+    renderFromState();
   }
 
   function openAddBookmarkForContextFolder() {
@@ -2529,7 +2597,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       menu.append(
         createContextMenuButton("open-bookmark-tab", t("openInNewTab")),
         createContextMenuButton("copy-bookmark-url", t("copyAddress")),
-        createContextMenuButton("rename-bookmark", t("renameBookmark"))
+        createContextMenuButton("rename-bookmark", t("renameBookmark")),
+        createContextMenuButton("edit-bookmark-tags", t("editTags"))
       );
     } else {
       menu.append(
@@ -2920,6 +2989,20 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     path.textContent = entry.path || getHostname(entry.url);
 
     copy.append(title, path);
+
+    const itemTags = resolveItemTags(entry, bookmarkTagsMap);
+    if (itemTags.length > 0) {
+      const tagList = document.createElement("span");
+      tagList.className = "bf-tag-list";
+      itemTags.slice(0, 4).forEach((tag) => {
+        const pill = document.createElement("span");
+        pill.className = "bf-tag-pill";
+        pill.textContent = `#${tag}`;
+        tagList.append(pill);
+      });
+      copy.append(tagList);
+    }
+
     link.append(favicon, copy);
     return link;
   }
@@ -3095,8 +3178,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function matchesBookmarkSearch(entry, query) {
-    const haystack = normalizeText(`${entry.title} ${entry.url} ${entry.path} ${getHostname(entry.url)}`);
-    return haystack.includes(query) || matchesCurrentPageTitle(entry, query);
+    const itemTags = resolveItemTags(entry, bookmarkTagsMap);
+    if (matchesTagFilter(query, itemTags, entry, getTextLocale())) {
+      return true;
+    }
+    return matchesCurrentPageTitle(entry, query);
   }
 
   function matchesCurrentPageTitle(entry, query) {

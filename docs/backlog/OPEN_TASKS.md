@@ -319,3 +319,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all` (57/57 test), `node scripts/validate-backlog.mjs`, `node scripts/security-regression.mjs` (Chromium pass), `git diff --check` temizdir.
 - Sonraki adım: Yok; Yerel Kırık Link Denetleyicisi tamamlandı. Akıllı Etiketler ve `#tag` Spotlight filtreleme (`BF-UX-008`) görevine geçilir.
 - Son güncelleme: 2026-09-04.
+
+## BF-UX-008 - Akıllı Etiketler ve Spotlight Etiket Filtreleme (#tag) ekle
+
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde yer imlerini kategorize etmek, hızlıca etiketlemek ve Spotlight arama çubuğunda `#tag` sorgularıyla anında filtrelemek üzere Akıllı Etiketler (`Smart Tags`) özelliğinin eklenmesini onayladı. `src/settings.js` içerisine etiket normalizasyonu (`normalizeTag`, `normalizeTags`, `normalizeAllBookmarkTags`), akıllı etiket çıkarımı (`inferSmartTags` - klasör hiyerarşisi, domain kökü ve başlıktaki etiketleri otomatik çıkarır), etiket çözümleme (`resolveItemTags`) ve etiket filtreleme (`matchesTagFilter`) eklendi; `src/content.js` ve `src/newtab.js` yer imi sağ tık menüsüne "Etiketleri düzenle" eylemi eklendi ve `chrome.storage.local` üzerinde `bfBookmarkTags` anahtarıyla bağlandı; Spotlight arama çubuğunda `#etiket` ve metin araması entegre edildi; arama sonuçlarında `.bf-tag-pill` ve `.nt-tag-pill` etiket rozetleri 4 Obsidian koyu temasına duyarlı olarak gösterildi; `_locales/en` ve `_locales/tr` tam pariteyle yerelleştirildi.
+- Kabul kriteri: `src/settings.js` içerisine etiket normalizasyonu, akıllı etiket çıkarımı (`inferSmartTags`), etiket çözümleme (`resolveItemTags`) ve etiket arama filtresi (`matchesTagFilter`) eklenir; `src/content.js` ve `src/newtab.js` yer imi sağ tık menüsüne "Etiketleri düzenle" eylemi ekler ve `chrome.storage.local` üzerinde `bfBookmarkTags` anahtarıyla depolar; arama çubuğunda `#etiket` ve metin filtreleme birlikte çalışır; arama sonuçlarında `.bf-tag-pill` ve `.nt-tag-pill` etiket rozetleri 4 renk temasına duyarlı olarak gösterilir; `_locales` dosyaları İngilizce ve Türkçe paritesiyle güncellenir; sözleşme testleri fail-closed geçer.
+- Doğrulama kapısı: `npm run validate:all` (58/58 test), `node scripts/validate-backlog.mjs`, `git diff --check` temizdir.
+- Sonraki adım: Yok; Akıllı Etiketler ve Spotlight Etiket Filtreleme tamamlandı. v0.1.44 sürüm yayını, README vitrini ve topluluk lansman kiti (`BF-REL-008`) görevine geçilir.
+- Son güncelleme: 2026-09-04.

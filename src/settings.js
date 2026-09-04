@@ -79,6 +79,93 @@
     return result;
   }
 
+  function inferSmartTags(title, url, path) {
+    const tags = new Set();
+
+    if (path && typeof path === "string") {
+      const segments = path.split(/[\/\\]+/);
+      for (const seg of segments) {
+        const cleaned = seg.trim().toLowerCase().replace(/[^a-z0-9_\-\.]/gi, "");
+        if (cleaned.length >= 2 && cleaned.length <= 24 && !/^\d+$/.test(cleaned)) {
+          tags.add(cleaned);
+        }
+      }
+    }
+
+    if (url && typeof url === "string") {
+      try {
+        const hostname = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+        const parts = hostname.split(".");
+        if (parts.length >= 2) {
+          const domainRoot = parts[parts.length - 2];
+          if (domainRoot.length >= 3 && domainRoot.length <= 20) {
+            tags.add(domainRoot);
+          }
+        }
+      } catch {}
+    }
+
+    if (title && typeof title === "string") {
+      const hashMatches = title.match(/#([a-z0-9_\-\.]+)/gi);
+      if (hashMatches) {
+        for (const m of hashMatches) {
+          const clean = normalizeTag(m);
+          if (clean) {
+            tags.add(clean);
+          }
+        }
+      }
+    }
+
+    return [...tags].slice(0, 8);
+  }
+
+  function resolveItemTags(nodeOrEntry, userTagsMap = {}) {
+    const id = nodeOrEntry?.id;
+    const explicit = (id && userTagsMap && userTagsMap[id]) ? userTagsMap[id] : [];
+    if (Array.isArray(explicit) && explicit.length > 0) {
+      return explicit;
+    }
+    return inferSmartTags(nodeOrEntry?.title, nodeOrEntry?.url, nodeOrEntry?.path);
+  }
+
+  function matchesTagFilter(query, itemTags, entry, textLocale = "en-US") {
+    if (!query) {
+      return true;
+    }
+    const norm = String(query).toLocaleLowerCase(textLocale).trim();
+    const tags = Array.isArray(itemTags) ? itemTags : [];
+
+    if (norm.startsWith("#") || norm.includes(" #")) {
+      const tokens = norm.split(/\s+/).filter(Boolean);
+      const tagTokens = tokens.filter((t) => t.startsWith("#")).map((t) => t.slice(1).toLowerCase());
+      const textTokens = tokens.filter((t) => !t.startsWith("#"));
+
+      if (tagTokens.length === 1 && tagTokens[0] === "" && textTokens.length === 0) {
+        return tags.length > 0;
+      }
+
+      const allTagsMatch = tagTokens.every((qTag) => {
+        if (!qTag) return true;
+        return tags.some((t) => t.toLowerCase().includes(qTag));
+      });
+      if (!allTagsMatch) {
+        return false;
+      }
+
+      if (textTokens.length > 0) {
+        const haystack = `${entry?.title || ""} ${entry?.url || ""} ${entry?.path || ""}`.toLocaleLowerCase(textLocale);
+        return textTokens.every((qText) => haystack.includes(qText));
+      }
+      return true;
+    }
+
+    const haystack = `${entry?.title || ""} ${entry?.url || ""} ${entry?.path || ""}`.toLocaleLowerCase(textLocale);
+    if (haystack.includes(norm)) {
+      return true;
+    }
+    return tags.some((t) => t.toLowerCase().includes(norm));
+  }
 
   const SAFE_BOOKMARK_PROTOCOLS = Object.freeze([
     "http:",
@@ -371,6 +458,9 @@
     normalizeTag,
     normalizeTags,
     normalizeAllBookmarkTags,
+    inferSmartTags,
+    resolveItemTags,
+    matchesTagFilter,
     SAFE_BOOKMARK_PROTOCOLS,
     SENSITIVE_HOST_KEYWORDS,
     SENSITIVE_HOSTS,

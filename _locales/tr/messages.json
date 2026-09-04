@@ -292,5 +292,7 @@
   "tagPlaceholder": { "message": "Etiket ekle (örn. dev, work, docs)" },
   "tagsUpdated": { "message": "Etiketler güncellendi." },
   "filterByTag": { "message": "Etikete göre filtrele" },
-  "smartTags": { "message": "Akıllı etiketler" }
+  "smartTags": { "message": "Akıllı etiketler" },
+  "editTagsPrompt": { "message": "Boşluk veya virgülle ayrılmış etiketleri girin (örn. dev, github, tools):" },
+  "tagFilterHelp": { "message": "İpucu: Yer imlerini filtrelemek için aramada #etiket yazın" }
 }

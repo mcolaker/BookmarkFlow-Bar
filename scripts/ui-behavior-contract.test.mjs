@@ -235,7 +235,15 @@ test("bookmark health inspection contract is implemented in bookmark-maintenance
 test("bookmark tagging and smart tag normalization contract is supported in settings", () => {
   const settingsSource = readFileSync(path.join(root, "src/settings.js"), "utf8");
   const vm = loadSettingsModule();
-  const { normalizeTag, normalizeTags, normalizeAllBookmarkTags, BOOKMARK_TAGS_STORAGE_KEY } = vm.BookmarkFlowConfig;
+  const {
+    normalizeTag,
+    normalizeTags,
+    normalizeAllBookmarkTags,
+    inferSmartTags,
+    resolveItemTags,
+    matchesTagFilter,
+    BOOKMARK_TAGS_STORAGE_KEY
+  } = vm.BookmarkFlowConfig;
 
   assert.strictEqual(BOOKMARK_TAGS_STORAGE_KEY, "bfBookmarkTags");
   assert.strictEqual(normalizeTag("#Dev"), "dev");
@@ -246,4 +254,40 @@ test("bookmark tagging and smart tag normalization contract is supported in sett
     { "1": ["ai", "tools"] }
   );
   assert.match(settingsSource, /BOOKMARK_TAGS_STORAGE_KEY/u);
+
+  // Smart tag inference
+  const inferred = inferSmartTags("My Dashboard #analytics", "https://github.com/mcolaker/BookmarkFlow-Bar", "Work / Dev Tools");
+  assert.ok(inferred.includes("analytics"), "should extract title hashtag");
+  assert.ok(inferred.includes("github"), "should extract domain root");
+  assert.ok(inferred.includes("work"), "should extract path folder");
+
+  // Tag resolution: explicit vs smart
+  const explicit = resolveItemTags({ id: "bm1" }, { "bm1": ["custom", "tag"] });
+  assert.deepStrictEqual(explicit, ["custom", "tag"]);
+
+  // Tag filtering
+  assert.strictEqual(matchesTagFilter("#dev", ["dev", "web"], { title: "Test", url: "https://example.com" }), true);
+  assert.strictEqual(matchesTagFilter("#python", ["dev", "web"], { title: "Test", url: "https://example.com" }), false);
+  assert.strictEqual(matchesTagFilter("#", ["dev"], { title: "Test", url: "https://example.com" }), true);
+  assert.strictEqual(matchesTagFilter("#", [], { title: "Test", url: "https://example.com" }), false);
+  assert.strictEqual(matchesTagFilter("#dev test", ["dev"], { title: "Test App", url: "https://example.com" }), true);
+});
+
+test("smart tag UI and spotlight filtering integration contract", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  const newTabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+
+  assert.match(contentJs, /edit-bookmark-tags/u);
+  assert.match(contentJs, /editContextBookmarkTags/u);
+  assert.match(contentJs, /bf-tag-pill/u);
+  assert.match(contentCss, /\.bf-tag-pill/u);
+  assert.match(contentCss, /\.bf-tag-list/u);
+
+  assert.match(newTabJs, /edit-bookmark-tags/u);
+  assert.match(newTabJs, /editContextBookmarkTags/u);
+  assert.match(newTabJs, /nt-tag-pill/u);
+  assert.match(newTabCss, /\.nt-tag-pill/u);
+  assert.match(newTabCss, /\.nt-tag-list/u);
 });

@@ -2,11 +2,20 @@ const {
   FOLDER_COLOR_PRESETS,
   DATA_CONSENT_STORAGE_KEY,
   DATA_CONSENT_VERSION,
+  BOOKMARK_TAGS_STORAGE_KEY,
+  normalizeTag,
+  normalizeTags,
+  normalizeAllBookmarkTags,
+  inferSmartTags,
+  resolveItemTags,
+  matchesTagFilter,
   areBookmarkUrlsEqual,
   isSafeBookmarkUrl,
   normalizeSettings
 } = BookmarkFlowConfig;
 const { getLanguage, t } = BookmarkFlowI18n;
+
+let bookmarkTagsMap = {};
 
 const MESSAGE_GET_CONSENT_STATUS = "BF_GET_CONSENT_STATUS";
 const BOOKMARK_DRAG_THRESHOLD = 6;
@@ -77,9 +86,10 @@ async function init() {
 
   elements.consentGate.hidden = true;
   elements.newTabWorkspace.hidden = false;
-  [appState, pinnedFolderIds] = await Promise.all([
+  [appState, pinnedFolderIds, bookmarkTagsMap] = await Promise.all([
     getState(),
-    getPinnedFolderIds()
+    getPinnedFolderIds(),
+    loadBookmarkTags()
   ]);
   render();
 
@@ -114,12 +124,19 @@ async function init() {
   });
 
   chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName !== "local" || !(FOLDER_RAIL_PINNED_STORAGE_KEY in changes)) {
+    if (areaName !== "local") {
       return;
     }
 
-    pinnedFolderIds = normalizePinnedFolderIds(changes[FOLDER_RAIL_PINNED_STORAGE_KEY].newValue);
-    render();
+    if (BOOKMARK_TAGS_STORAGE_KEY in changes) {
+      bookmarkTagsMap = normalizeAllBookmarkTags(changes[BOOKMARK_TAGS_STORAGE_KEY].newValue);
+      render();
+    }
+
+    if (FOLDER_RAIL_PINNED_STORAGE_KEY in changes) {
+      pinnedFolderIds = normalizePinnedFolderIds(changes[FOLDER_RAIL_PINNED_STORAGE_KEY].newValue);
+      render();
+    }
   });
 }
 
@@ -142,6 +159,32 @@ function normalizePinnedFolderIds(value) {
   }
 
   return Array.from(new Set(value.map((id) => String(id || "")).filter(Boolean))).slice(0, 200);
+}
+
+async function loadBookmarkTags() {
+  try {
+    const localState = await chrome.storage.local.get(BOOKMARK_TAGS_STORAGE_KEY);
+    return normalizeAllBookmarkTags(localState[BOOKMARK_TAGS_STORAGE_KEY]);
+  } catch {
+    return {};
+  }
+}
+
+async function saveBookmarkTags(nodeId, tags) {
+  try {
+    const localState = await chrome.storage.local.get(BOOKMARK_TAGS_STORAGE_KEY);
+    const allTags = normalizeAllBookmarkTags(localState[BOOKMARK_TAGS_STORAGE_KEY]);
+    const clean = normalizeTags(tags);
+    if (clean.length > 0) {
+      allTags[nodeId] = clean;
+    } else {
+      delete allTags[nodeId];
+    }
+    bookmarkTagsMap = allTags;
+    await chrome.storage.local.set({ [BOOKMARK_TAGS_STORAGE_KEY]: allTags });
+  } catch (error) {
+    console.warn("Failed to save bookmark tags", error);
+  }
 }
 
 function handleWindowResize() {
@@ -416,20 +459,20 @@ function handleSearchInput() {
   }
 
   const allBookmarks = collectSearchableBookmarks(appState?.bookmarkBar);
-  const normalizedQuery = query.toLowerCase();
 
   const matchedBookmarks = allBookmarks
     .filter((b) => {
-      const titleMatch = b.title && b.title.toLowerCase().includes(normalizedQuery);
-      const urlMatch = b.url && b.url.toLowerCase().includes(normalizedQuery);
-      return titleMatch || urlMatch;
+      const itemTags = resolveItemTags(b, bookmarkTagsMap);
+      return matchesTagFilter(query, itemTags, b, getTextLocale());
     })
-    .slice(0, 6);
+    .slice(0, 8);
 
   const results = matchedBookmarks.map((b) => ({
     type: "bookmark",
+    id: b.id,
     title: b.title,
-    url: b.url
+    url: b.url,
+    path: b.path
   }));
 
   results.push({
@@ -544,6 +587,21 @@ function renderSearchResults() {
 
     info.append(titleEl, urlEl);
 
+    if (item.type === "bookmark") {
+      const itemTags = resolveItemTags(item, bookmarkTagsMap);
+      if (itemTags.length > 0) {
+        const tagContainer = document.createElement("div");
+        tagContainer.className = "nt-tag-list";
+        itemTags.slice(0, 4).forEach((tag) => {
+          const pill = document.createElement("span");
+          pill.className = "nt-tag-pill";
+          pill.textContent = `#${tag}`;
+          tagContainer.append(pill);
+        });
+        info.append(tagContainer);
+      }
+    }
+
     const badge = document.createElement("span");
     badge.className = "nt-search-item-badge";
     badge.textContent = "↵";
@@ -624,18 +682,20 @@ function handleSearchOutsideClick(event) {
   }
 }
 
-function collectSearchableBookmarks(node, results = []) {
+function collectSearchableBookmarks(node, results = [], path = "") {
   if (!node) return results;
+  const currentPath = path ? (node.title ? `${path} / ${node.title}` : path) : (node.title || "");
   if (node.url && isSafeBookmarkUrl(node.url)) {
     results.push({
       id: node.id,
       title: node.title || node.url,
-      url: node.url
+      url: node.url,
+      path: path
     });
   }
   if (Array.isArray(node.children)) {
     for (const child of node.children) {
-      collectSearchableBookmarks(child, results);
+      collectSearchableBookmarks(child, results, currentPath);
     }
   }
   return results;
@@ -1027,7 +1087,8 @@ function openBookmarkContextMenu(node, clientX, clientY) {
     elements.contextMenu.append(
       createContextMenuButton("open-bookmark-tab", t("openInNewTab")),
       createContextMenuButton("copy-bookmark-url", t("copyAddress")),
-      createContextMenuButton("rename-bookmark", t("renameBookmark"))
+      createContextMenuButton("rename-bookmark", t("renameBookmark")),
+      createContextMenuButton("edit-bookmark-tags", t("editTags"))
     );
   } else {
     elements.contextMenu.append(
@@ -1145,6 +1206,11 @@ async function handleContextAction(action) {
 
   if (action === "rename-bookmark") {
     await renameContextBookmark();
+    return;
+  }
+
+  if (action === "edit-bookmark-tags") {
+    await editContextBookmarkTags();
     return;
   }
 
@@ -1266,6 +1332,26 @@ async function renameContextBookmark() {
   }
 
   window.alert(response?.error || t("bookmarkRenameFailed"));
+}
+
+async function editContextBookmarkTags() {
+  const state = contextMenuState;
+  if (!state?.nodeId) {
+    return;
+  }
+
+  const currentTags = resolveItemTags({ id: state.nodeId, title: state.title, url: state.url }, bookmarkTagsMap);
+  const initialText = currentTags.map((t) => `#${t}`).join(" ");
+  const nextText = window.prompt(t("editTagsPrompt"), initialText);
+  if (nextText === null) {
+    return;
+  }
+
+  closeContextMenu();
+  const rawTokens = nextText.split(/[\s,]+/);
+  const cleanTags = normalizeTags(rawTokens);
+  await saveBookmarkTags(state.nodeId, cleanTags);
+  render();
 }
 
 function openAddBookmarkForContextFolder() {

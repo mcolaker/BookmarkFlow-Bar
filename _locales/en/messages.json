@@ -292,5 +292,7 @@
   "tagPlaceholder": { "message": "Add tags (e.g. dev, work, docs)" },
   "tagsUpdated": { "message": "Tags updated." },
   "filterByTag": { "message": "Filter by tag" },
-  "smartTags": { "message": "Smart tags" }
+  "smartTags": { "message": "Smart tags" },
+  "editTagsPrompt": { "message": "Enter tags separated by space or comma (e.g. dev, github, tools):" },
+  "tagFilterHelp": { "message": "Tip: Type #tag in search to filter bookmarks" }
 }
