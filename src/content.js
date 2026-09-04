@@ -2823,7 +2823,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     event.preventDefault();
-    activeLink.click();
+    if (event.ctrlKey || event.metaKey) {
+      window.open(activeLink.href, "_blank");
+    } else {
+      activeLink.click();
+    }
   }
 
   function moveCommandSelection(direction) {

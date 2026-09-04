@@ -43,7 +43,8 @@ const elements = {
   clockDisplay: document.getElementById("clockDisplay"),
   greetingDisplay: document.getElementById("greetingDisplay"),
   shortcutsWrap: document.getElementById("shortcutsWrap"),
-  shortcutsGrid: document.getElementById("shortcutsGrid")
+  shortcutsGrid: document.getElementById("shortcutsGrid"),
+  searchResults: document.getElementById("searchResults")
 };
 
 let appState = null;
@@ -53,6 +54,8 @@ let bookmarkDragState = null;
 let suppressNextClick = false;
 let pinnedFolderIds = [];
 let addDialogReturnFocus = null;
+let searchActiveIndex = -1;
+let currentSearchResults = [];
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === "local" && DATA_CONSENT_STORAGE_KEY in changes) {
@@ -86,6 +89,9 @@ async function init() {
   elements.searchInput.focus();
 
   elements.searchForm.addEventListener("submit", handleSearchSubmit);
+  elements.searchInput.addEventListener("input", handleSearchInput);
+  elements.searchInput.addEventListener("keydown", handleSearchKeydown);
+  document.addEventListener("click", handleSearchOutsideClick);
   elements.addBookmark.addEventListener("click", () => openAddBookmarkDialog());
   elements.addForm.addEventListener("submit", handleAddBookmarkSubmit);
   elements.addClose.addEventListener("click", closeAddBookmarkDialog);
@@ -396,6 +402,241 @@ function resolveDirectNavigationTarget(value) {
   }
 
   return "";
+}
+
+function handleSearchInput() {
+  const query = elements.searchInput.value.trim();
+  elements.searchInput.setCustomValidity("");
+
+  if (!query) {
+    hideSearchResults();
+    return;
+  }
+
+  const allBookmarks = collectSearchableBookmarks(appState?.bookmarkBar);
+  const normalizedQuery = query.toLowerCase();
+
+  const matchedBookmarks = allBookmarks
+    .filter((b) => {
+      const titleMatch = b.title && b.title.toLowerCase().includes(normalizedQuery);
+      const urlMatch = b.url && b.url.toLowerCase().includes(normalizedQuery);
+      return titleMatch || urlMatch;
+    })
+    .slice(0, 6);
+
+  const results = matchedBookmarks.map((b) => ({
+    type: "bookmark",
+    title: b.title,
+    url: b.url
+  }));
+
+  results.push({
+    type: "webSearch",
+    title: `${t("webSearch") || "Web Search"}: "${query}"`,
+    url: query
+  });
+
+  currentSearchResults = results;
+  searchActiveIndex = 0;
+  renderSearchResults();
+}
+
+function handleSearchKeydown(event) {
+  if (!currentSearchResults.length || elements.searchResults.hidden) {
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    moveSearchSelection(1);
+    return;
+  }
+
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+    moveSearchSelection(-1);
+    return;
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    hideSearchResults();
+    elements.searchInput.value = "";
+    return;
+  }
+
+  if (event.key === "Enter") {
+    if (searchActiveIndex >= 0 && searchActiveIndex < currentSearchResults.length) {
+      event.preventDefault();
+      openSearchResult(currentSearchResults[searchActiveIndex], event);
+    }
+  }
+}
+
+function moveSearchSelection(direction) {
+  if (!currentSearchResults.length) return;
+  const count = currentSearchResults.length;
+  searchActiveIndex = (searchActiveIndex + direction + count) % count;
+  updateActiveSearchResult();
+}
+
+function updateActiveSearchResult() {
+  const items = elements.searchResults.querySelectorAll(".nt-search-item");
+  items.forEach((item, idx) => {
+    const isActive = idx === searchActiveIndex;
+    item.classList.toggle("is-active-result", isActive);
+    item.setAttribute("aria-selected", isActive ? "true" : "false");
+    if (isActive) {
+      item.scrollIntoView({ block: "nearest" });
+      elements.searchInput.setAttribute("aria-activedescendant", item.id);
+    }
+  });
+}
+
+function renderSearchResults() {
+  elements.searchResults.innerHTML = "";
+
+  if (!currentSearchResults.length) {
+    hideSearchResults();
+    return;
+  }
+
+  currentSearchResults.forEach((item, index) => {
+    const card = document.createElement("a");
+    card.className = `nt-search-item${index === searchActiveIndex ? " is-active-result" : ""}`;
+    card.id = `ntSearchOption_${index}`;
+    card.setAttribute("role", "option");
+    card.setAttribute("aria-selected", index === searchActiveIndex ? "true" : "false");
+    card.tabIndex = -1;
+
+    const iconBox = document.createElement("div");
+    iconBox.className = "nt-search-item-icon";
+
+    if (item.type === "bookmark") {
+      card.href = item.url;
+      const favicon = document.createElement("img");
+      favicon.src = faviconUrl(item.url);
+      favicon.alt = "";
+      favicon.loading = "lazy";
+      favicon.referrerPolicy = "no-referrer";
+      favicon.addEventListener("error", () => {
+        favicon.remove();
+        iconBox.textContent = (item.title || "B").charAt(0).toUpperCase();
+      });
+      iconBox.append(favicon);
+    } else {
+      card.href = "#";
+      iconBox.textContent = "🔍";
+    }
+
+    const info = document.createElement("div");
+    info.className = "nt-search-item-info";
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "nt-search-item-title";
+    titleEl.textContent = item.title;
+
+    const urlEl = document.createElement("div");
+    urlEl.className = "nt-search-item-url";
+    urlEl.textContent = item.type === "bookmark" ? item.url : (t("search") || "Search");
+
+    info.append(titleEl, urlEl);
+
+    const badge = document.createElement("span");
+    badge.className = "nt-search-item-badge";
+    badge.textContent = "↵";
+
+    card.append(iconBox, info, badge);
+
+    card.addEventListener("click", (e) => {
+      e.preventDefault();
+      openSearchResult(item, e);
+    });
+
+    card.addEventListener("mouseenter", () => {
+      searchActiveIndex = index;
+      updateActiveSearchResult();
+    });
+
+    elements.searchResults.append(card);
+  });
+
+  elements.searchResults.hidden = false;
+  elements.searchInput.setAttribute("aria-expanded", "true");
+  if (searchActiveIndex >= 0) {
+    elements.searchInput.setAttribute("aria-activedescendant", `ntSearchOption_${searchActiveIndex}`);
+  }
+}
+
+function openSearchResult(item, event) {
+  const isNewTab = event.ctrlKey || event.metaKey;
+
+  if (item.type === "webSearch") {
+    triggerWebSearch(item.url, isNewTab ? "NEW_TAB" : "CURRENT_TAB");
+    hideSearchResults();
+    return;
+  }
+
+  hideSearchResults();
+  if (isNewTab) {
+    window.open(item.url, "_blank");
+  } else {
+    window.location.href = item.url;
+  }
+}
+
+async function triggerWebSearch(query, disposition = "CURRENT_TAB") {
+  const directTarget = resolveDirectNavigationTarget(query);
+  if (directTarget) {
+    if (disposition === "NEW_TAB") {
+      window.open(directTarget, "_blank");
+    } else {
+      window.location.href = directTarget;
+    }
+    return;
+  }
+
+  try {
+    await chrome.search.query({
+      text: query,
+      disposition
+    });
+  } catch {
+    elements.searchInput.setCustomValidity(t("webSearchUnavailable"));
+    elements.searchInput.reportValidity();
+  }
+}
+
+function hideSearchResults() {
+  elements.searchResults.hidden = true;
+  elements.searchResults.innerHTML = "";
+  elements.searchInput.setAttribute("aria-expanded", "false");
+  elements.searchInput.removeAttribute("aria-activedescendant");
+  currentSearchResults = [];
+  searchActiveIndex = -1;
+}
+
+function handleSearchOutsideClick(event) {
+  if (!elements.searchResults.hidden && !elements.searchForm.contains(event.target)) {
+    hideSearchResults();
+  }
+}
+
+function collectSearchableBookmarks(node, results = []) {
+  if (!node) return results;
+  if (node.url && isSafeBookmarkUrl(node.url)) {
+    results.push({
+      id: node.id,
+      title: node.title || node.url,
+      url: node.url
+    });
+  }
+  if (Array.isArray(node.children)) {
+    for (const child of node.children) {
+      collectSearchableBookmarks(child, results);
+    }
+  }
+  return results;
 }
 
 function openAddBookmarkDialog(returnFocusElement = document.activeElement) {

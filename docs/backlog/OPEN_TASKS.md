@@ -256,3 +256,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir; PR GitHub Actions terminal `success` verir ve merge edilir; exact-tag ZIP ve SHA-256 GitHub Release varlıklarıyla eşleşir.
 - Sonraki adım: Yok; sürüm GitHub'da yayımlandı ve sosyal lansman kiti kullanıcıya teslim edildi.
 - Son güncelleme: 2026-09-04.
+
+## BF-UX-005 - Arama paletine ve New Tab arama listesine Spotlight / Raycast tarzı klavye navigasyonu ekle
+
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde eklentinin klavye kullanım kabiliyetini artıracak Spotlight / Raycast tarzı hızlı arama gezinmesini talep etti. `src/newtab.html`, `src/newtab.css`, `src/newtab.js` ve `src/content.js` güncellendi. Arama kutusuna yazıldığı anda açılan canlı sonuç paneli, `ArrowDown`/`ArrowUp` ile döngüsel gezinti, altın sarısı vurgu (`.is-active-result`), `Enter` ile açma, `Ctrl+Enter` ile yeni sekmede açma ve `Escape` ile temizleme mekanizmaları entegre edildi. 2026-09-04 tarihli Playwright canlı Video QA akışında (`spotlight_flow.mp4`), New Tab sayfasında "git" ve "wiki" yazıldığında canlı arama önerilerinin açıldığı, klavye oklarıyla altın sarısı seçim geçişinin yapıldığı ve Escape ile pürüzsüz kapandığı kanıtlandı; WCAG erişilebilirlik öznitelikleri (`combobox`, `listbox`, `option`, `aria-activedescendant`) korundu.
+- Kabul kriteri: `src/content.js` ve `src/newtab.js` arama inputlarında `ArrowDown` ve `ArrowUp` tuşlarıyla sonuçlar arasında döngüsel gezinmeyi, aktif sonuca altın sarısı vurgu sınıfı verilmesini ve görünür alana kaydırılmasını (`scrollIntoView`) sağlar; `Enter` tuşu seçili yer imini mevcut sekmede açar; `Ctrl+Enter` veya `Meta+Enter` yeni sekmede açar; `Escape` aramayı sıfırlar veya kapatır; WCAG klavye erişilebilirliği ve aria-activedescendant / role=option standartları korunur.
+- Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir ve Playwright Video QA ile klavye gezinmesi canlı olarak kanıtlanır.
+- Sonraki adım: Yok; 2. öneri olan Çoklu Renk Temaları Motoru (`BF-UX-006`) çalışmasına geçilir.
+- Son güncelleme: 2026-09-04.
