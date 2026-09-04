@@ -295,9 +295,9 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 
 ## BF-DOC-001 - README'yi v0.1.43 Spotlight, Çoklu Tema, Odaklanmış Yeni Sekme ve Çapraz Tarayıcı vitriniyle zenginleştir
 
-- Öncelik ve durum: P2, IN_PROGRESS.
-- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde README'nin metin ve görseller açısından v0.1.43 özellikleriyle güncellenmesini onayladı. Mevcut README yalnızca v0.1.41 seviyesindeki özellikleri ve Chrome Web Store rozetlerini yansıtıyor; v0.1.42 ile gelen saat/karşılama/8'li Hızlı Erişim New Tab özellikleri, v0.1.43 ile gelen 4 Koyu Renk Teması, Spotlight arama paleti ve Firefox/Edge çapraz tarayıcı desteği README'de bulunmuyor.
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde README'nin metin ve görseller açısından v0.1.43 özellikleriyle güncellenmesini onayladı. `README.md` üst rozetlerine Firefox ve Edge rozetleri eklendi; indirme satırına Chromium, Firefox ve Edge doğrudan indirme linkleri eklendi. `Why BookmarkFlow` ve `Feature tour` bölümlerine Spotlight klavye navigasyonu, 4 Obsidian Koyu Renk Teması (Gold Obsidian, OLED Midnight Black, Emerald Matrix, Cyber Indigo) ve Odaklanmış Yeni Sekme saat/karşılama/hızlı kısayollar vitrinleri eklendi. Doğrulanmış v0.1.43 GitHub Release görseli repoda ek ikili dosya yükü oluşturmadan entegre edildi. PR #47 GitHub Actions CI testlerinden (55/55 birim ve sözleşme testi, çift dilli Chromium gerileme testleri) `success` alarak `cea7f02` commit'i ile `main` dalına merge edildi.
 - Kabul kriteri: `README.md` üst rozetlerine Firefox ve Edge rozetleri eklenir; indirme satırına Firefox ve Edge paketleri eklenir; `Why BookmarkFlow` ve `Feature tour` bölümlerine Spotlight klavye navigasyonu, 4 koyu tema motoru ve Odaklanmış Yeni Sekme vitrinleri eklenir; doğrulanmış v0.1.43 lansman görseli entegre edilir; açık kaynak/DCO/proje doğrulama kapıları fail-closed geçer.
-- Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir.
-- Sonraki adım: `README.md` dosyasını güncelle, doğrula ve PR aç.
+- Doğrulama kapısı: `npm run validate:all` (55/55 test), `npm run test:regression` (EN & TR), `git diff --check` temizdir; PR #47 GitHub Actions terminal `success` verdi ve merge edildi.
+- Sonraki adım: Yok; README v0.1.43 yenilikleriyle zenginleştirildi ve yayında.
 - Son güncelleme: 2026-09-04.
