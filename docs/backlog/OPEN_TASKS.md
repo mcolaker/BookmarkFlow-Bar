@@ -250,9 +250,9 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 
 ## BF-REL-005 - v0.1.42 GitHub sürümünü yayımla ve lansman kitini sun
 
-- Öncelik ve durum: P1, IN_PROGRESS.
-- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde New Tab dinamik saat, karşılama metni ve 8'li Hızlı Erişim ızgarasını içeren yeni sürümün (v0.1.42) GitHub'a sunulmasını, X ve LinkedIn paylaşımlarının hazırlanmasını istedi. `manifest.json`, `package.json`, `CHANGELOG.md`, `README.md` 0.1.42 olarak senkronize edildi.
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde New Tab dinamik saat, karşılama metni ve 8'li Hızlı Erişim ızgarasını içeren yeni sürümün (v0.1.42) GitHub'a sunulmasını, X ve LinkedIn paylaşımlarının hazırlanmasını istedi. `manifest.json`, `package.json`, `CHANGELOG.md`, `README.md` 0.1.42 olarak senkronize edildi. PR #40 merge edildi; annotated `v0.1.42` etiketi `8487869` commit'ine bağlandı; `node scripts/package-release.mjs v0.1.42` exact-tag ZIP'i `dist/bookmarkflow-bar-0.1.42.zip` ve SHA-256 `f2b43263a7e8a60f8ce02d7b77c3a4d1f9df8f01077bb64ed616f0659c185f19` üretti; GitHub Release `https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.1.42` yayımlandı ve varlık özetleri yerel çıktıyla eşleşti. 1200x675 lansman görseli `output/social-v0.1.42/bookmarkflow-v0.1.42-announcement.png` üretildi; X (280 karakter onaylı İngilizce ve Türkçe), LinkedIn ve iki dilli mağaza güncelleme notları hazırlandı.
 - Kabul kriteri: `manifest.json` 0.1.42 sürümünü taşır; `dist/bookmarkflow-bar-0.1.42.zip` paketi ve SHA-256 özet dosyası üretilir; annotated `v0.1.42` etiketi GitHub'a push edilir; GitHub Release `v0.1.42` yayımlanır; X ve LinkedIn için karakter ve etiket standartlarına uygun metinler ve lansman görseli hazırlanır; iki dilli mağaza notları sunulur.
 - Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir; PR GitHub Actions terminal `success` verir ve merge edilir; exact-tag ZIP ve SHA-256 GitHub Release varlıklarıyla eşleşir.
-- Sonraki adım: PR merge sonrası exact tag ve GitHub Release yayınını tamamla; lansman görseli ve sosyal metinleri kullanıcıya sun.
+- Sonraki adım: Yok; sürüm GitHub'da yayımlandı ve sosyal lansman kiti kullanıcıya teslim edildi.
 - Son güncelleme: 2026-09-04.
