@@ -113,6 +113,9 @@ try {
   const newTab = await createPage(cdp, `chrome-extension://${extensionId}/src/newtab.html`);
   const popup = await createPage(cdp, `chrome-extension://${extensionId}/src/popup.html`);
   const maintenance = await createPage(cdp, `chrome-extension://${extensionId}/src/bookmark-maintenance.html`);
+  await waitFor(cdp, newTab, "Boolean(document.querySelector('#consentGate'))");
+  await waitFor(cdp, popup, "Boolean(document.querySelector('#popupConsentGate'))");
+  await waitFor(cdp, maintenance, "Boolean(document.querySelector('#maintenanceConsentGate'))");
   const preConsentSurfaces = {
     newTab: await evaluate(cdp, newTab, `({
       consentGateVisible: !document.querySelector('#consentGate').hidden,
@@ -566,7 +569,7 @@ async function createPage(cdp, url) {
   const sessionId = await attach(cdp, targetId);
   await cdp.call("Page.enable", {}, sessionId);
   await cdp.call("Runtime.enable", {}, sessionId);
-  await waitFor(cdp, sessionId, "document.readyState === 'complete'");
+  await waitFor(cdp, sessionId, `window.location.href === ${JSON.stringify(url)} && document.readyState === 'complete'`);
   return sessionId;
 }
 
