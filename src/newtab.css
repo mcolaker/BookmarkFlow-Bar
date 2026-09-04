@@ -1242,3 +1242,25 @@ body {
   background: var(--nt-theme-accent-subtle);
   color: var(--nt-theme-accent);
 }
+
+.nt-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.nt-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  background: var(--nt-theme-accent-subtle);
+  color: var(--nt-theme-accent);
+  border: 1px solid var(--nt-theme-accent-glow);
+  letter-spacing: 0.02em;
+  user-select: none;
+}
