@@ -44,9 +44,10 @@
       <form class="nt-search" id="searchForm" role="search">
         <label class="nt-search-label" for="searchInput" data-i18n="webSearch">Web Search</label>
         <div class="nt-search-box">
-          <input id="searchInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search the web or type a URL" data-i18n-placeholder="newTabSearchPlaceholder">
+          <input id="searchInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search the web or type a URL" data-i18n-placeholder="newTabSearchPlaceholder" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="searchResults">
           <button type="submit" data-i18n="search">Search</button>
         </div>
+        <div class="nt-search-results" id="searchResults" role="listbox" aria-label="Search suggestions" hidden></div>
       </form>
       <nav class="nt-shortcuts-wrap" id="shortcutsWrap" aria-label="Shortcuts" data-i18n-aria-label="quickShortcuts" hidden>
         <div class="nt-shortcuts-grid" id="shortcutsGrid"></div>
