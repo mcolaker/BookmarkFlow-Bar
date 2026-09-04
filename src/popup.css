@@ -431,3 +431,15 @@ kbd,
   margin-top: 0;
   line-height: 1.35;
 }
+
+.health-button {
+  background: rgba(242, 201, 76, 0.08);
+  border-color: rgba(242, 201, 76, 0.28);
+  font-weight: 600;
+}
+
+.health-button:hover,
+.health-button:focus-visible {
+  background: rgba(242, 201, 76, 0.16);
+  border-color: var(--popup-accent);
+}

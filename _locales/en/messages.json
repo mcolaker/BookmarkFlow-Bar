@@ -294,5 +294,19 @@
   "filterByTag": { "message": "Filter by tag" },
   "smartTags": { "message": "Smart tags" },
   "editTagsPrompt": { "message": "Enter tags separated by space or comma (e.g. dev, github, tools):" },
-  "tagFilterHelp": { "message": "Tip: Type #tag in search to filter bookmarks" }
+  "tagFilterHelp": { "message": "Tip: Type #tag in search to filter bookmarks" },
+  "openHealthInspector": { "message": "🩺 Bookmark health & dead link inspector" },
+  "openHealthInspectorTitle": { "message": "Audit dead links, 404s, and duplicate bookmarks" },
+  "testLink": { "message": "↗ Open" },
+  "testLinkTitle": { "message": "Open link in a new tab to test" },
+  "filterAll": { "message": "All issues" },
+  "filterDead": { "message": "Dead links" },
+  "filterDuplicates": { "message": "Duplicates" },
+  "quickActionOpenHealth": { "message": "🩺 Open Bookmark Health Inspector" },
+  "quickActionOpenHealthDesc": { "message": "Audit dead links, unreachable hosts, and duplicate bookmarks" },
+  "maintenanceCenterHeading": { "message": "Bookmark Maintenance & Health Center" },
+  "maintenanceCenterLead": { "message": "Audit broken links, merge duplicate folders, and customize your pinned rail." },
+  "navHealth": { "message": "Link Health" },
+  "navFolders": { "message": "Folder Merger" },
+  "navRail": { "message": "Pinned Rail" }
 }
