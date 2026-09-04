@@ -277,9 +277,9 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 
 ## BF-REL-006 - Firefox Add-ons & Edge Store Çapraz Tarayıcı Uyumluluk Köprüsü
 
-- Öncelik ve durum: P2, OPEN.
-- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde 3 büyük özellik önerisinin de uygulanmasını onayladı. BookmarkFlow Bar şu anda yalnızca Chromium tabanlı paketleme betiğine sahiptir; Firefox ve Edge mağazalarına hazır çapraz dağıtım paketleyici gerekmektedir.
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde 3 büyük özellik önerisinin de uygulanmasını onayladı. BookmarkFlow Bar şu ana kadar yalnızca Chromium tabanlı paketleme betiğine sahipti; Firefox ve Edge mağazalarına hazır çapraz dağıtım paketleyici eklendi.
 - Kabul kriteri: `scripts/package-cross-browser.mjs` betiği oluşturulur; Firefox için gerekli `browser_specific_settings.gecko.id` manifest dönüşümünü ve Gecko MV3 uyumluluğunu fail-closed olarak sağlar; Edge için optimize edilmiş paket oluşturur; `scripts/cross-browser-contract.test.mjs` ile test edilir.
-- Doğrulama kapısı: `npm run validate:all`, `scripts/cross-browser-contract.test.mjs` testlerinin yeşil olması ve paketleme çıktılarının doğrulanması.
-- Sonraki adım: `scripts/package-cross-browser.mjs` ve `scripts/cross-browser-contract.test.mjs` dosyalarını oluştur.
+- Doğrulama kapısı: `npm run validate:all` (55/55 test), `scripts/cross-browser-contract.test.mjs` (11/11 test), `npm run test:regression` (EN & TR), `git diff --check` temizdir; `dist/bookmarkflow-bar-0.1.42-firefox.zip` (SHA-256: `e298cacfc36a580a90865833d28fee31dd861d1a086c47fe5056292b1971c111`) ve `dist/bookmarkflow-bar-0.1.42-edge.zip` (SHA-256: `bedf14c8ca900db0a9a610a2ba76a5e4ff446130d519167ddf543818e16da63f`) paketleri deterministik ZIP üretimi ve 33 çalışma zamanı dosyasıyla doğrulanmıştır.
+- Sonraki adım: Yok; 3 büyük özellik (Spotlight arama, Multi-theme motoru, Çapraz tarayıcı köprüsü) tamamlandı. v0.1.43 sürüm hazırlığına ve sosyal lansman paketine geçilir.
 - Son güncelleme: 2026-09-04.

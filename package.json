@@ -12,6 +12,7 @@
     "validate": "node scripts/validate-project.mjs",
     "validate:assets": "node scripts/validate-assets.mjs",
     "validate:tree": "node scripts/verify-public-tree.mjs",
+    "package:cross-browser": "node scripts/package-cross-browser.mjs",
     "validate:all": "node scripts/validate-open-source.mjs && node --test scripts/*.test.mjs && node scripts/validate-project.mjs && node scripts/verify-public-tree.mjs && node scripts/validate-backlog.mjs"
   }
 }
