@@ -247,3 +247,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir ve Playwright Video QA ile New Tab görünümü görsel olarak kanıtlanır.
 - Sonraki adım: Yok; geliştirmeler sonraki yayın döngüsünde (v0.1.42) sunulur.
 - Son güncelleme: 2026-09-03.
+
+## BF-REL-005 - v0.1.42 GitHub sürümünü yayımla ve lansman kitini sun
+
+- Öncelik ve durum: P1, IN_PROGRESS.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde New Tab dinamik saat, karşılama metni ve 8'li Hızlı Erişim ızgarasını içeren yeni sürümün (v0.1.42) GitHub'a sunulmasını, X ve LinkedIn paylaşımlarının hazırlanmasını istedi. `manifest.json`, `package.json`, `CHANGELOG.md`, `README.md` 0.1.42 olarak senkronize edildi.
+- Kabul kriteri: `manifest.json` 0.1.42 sürümünü taşır; `dist/bookmarkflow-bar-0.1.42.zip` paketi ve SHA-256 özet dosyası üretilir; annotated `v0.1.42` etiketi GitHub'a push edilir; GitHub Release `v0.1.42` yayımlanır; X ve LinkedIn için karakter ve etiket standartlarına uygun metinler ve lansman görseli hazırlanır; iki dilli mağaza notları sunulur.
+- Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir; PR GitHub Actions terminal `success` verir ve merge edilir; exact-tag ZIP ve SHA-256 GitHub Release varlıklarıyla eşleşir.
+- Sonraki adım: PR merge sonrası exact tag ve GitHub Release yayınını tamamla; lansman görseli ve sosyal metinleri kullanıcıya sun.
+- Son güncelleme: 2026-09-04.

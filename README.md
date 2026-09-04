@@ -13,22 +13,22 @@
   <a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf"><img alt="Available in the Chrome Web Store" src="https://img.shields.io/badge/Chrome%20Web%20Store-Available-41D17D?logo=googlechrome&logoColor=white"></a>
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
   <img alt="Vanilla JavaScript" src="https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=111111">
-  <img alt="Source version 0.1.41" src="https://img.shields.io/badge/source-0.1.41-F2C94C">
+  <img alt="Source version 0.1.42" src="https://img.shields.io/badge/source-0.1.42-F2C94C">
   <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
 
 <p align="center">
   <strong><a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf">Install from Chrome Web Store</a></strong> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.41/bookmarkflow-bar-0.1.41.zip">Download verified v0.1.41</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.41/bookmarkflow-bar-0.1.41.zip.sha256">Verify SHA-256</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.42/bookmarkflow-bar-0.1.42.zip">Download verified v0.1.42</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.42/bookmarkflow-bar-0.1.42.zip.sha256">Verify SHA-256</a> ·
   <a href="#install-from-source">Installation guide</a> ·
   <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Product website</a> ·
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/discussions">Join Discussions</a>
 </p>
 
 <p align="center">
-  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.1.41 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
+  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.1.42 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
 </p>
 
 > [!NOTE]
@@ -133,7 +133,7 @@ For most users, install the published extension from the [Chrome Web Store](http
 
 For development, auditing, or reproducible source installation, use a versioned release package rather than an arbitrary working tree.
 
-1. Download the verified [`bookmarkflow-bar-0.1.41.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.41/bookmarkflow-bar-0.1.41.zip) package and extract it. Its published [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.41/bookmarkflow-bar-0.1.41.zip.sha256) is available for integrity verification. Contributors can clone the repository instead:
+1. Download the verified [`bookmarkflow-bar-0.1.42.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.42/bookmarkflow-bar-0.1.42.zip) package and extract it. Its published [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.42/bookmarkflow-bar-0.1.42.zip.sha256) is available for integrity verification. Contributors can clone the repository instead:
 
    ```bash
    git clone https://github.com/mcolaker/BookmarkFlow-Bar.git

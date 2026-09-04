@@ -4,6 +4,16 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
+## [0.1.42] — 2026-09-04
+
+### Added
+
+- Add a dynamic digital clock (`#clockDisplay`) above the search box in the New Tab page, synchronized to the user's local time.
+- Add a localized contextual greeting (`#greetingDisplay`) above the search box with day/evening transitions in English and Turkish.
+- Add an 8-item responsive Quick Shortcuts grid (`#shortcutsGrid`) below the search box, populated from the user's top safe bookmarks.
+- Add interactive micro-animations with gold border glow (`#f2c94c`) and smooth lift on hover and focus.
+- Add bilingual localization support for New Tab clock greetings (`greetingMorning`, `greetingAfternoon`, `greetingEvening`) and shortcuts.
+
 ## [0.1.41] — 2026-09-03
 
 ### Added
