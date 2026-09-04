@@ -12,7 +12,8 @@
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/actions/workflows/validate.yml"><img alt="Validation status" src="https://github.com/mcolaker/BookmarkFlow-Bar/actions/workflows/validate.yml/badge.svg?branch=main"></a>
   <a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf"><img alt="Available in the Chrome Web Store" src="https://img.shields.io/badge/Chrome%20Web%20Store-Available-41D17D?logo=googlechrome&logoColor=white"></a>
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
-  <img alt="Vanilla JavaScript" src="https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=111111">
+  <img alt="Firefox Add-ons Ready" src="https://img.shields.io/badge/Firefox-Add--ons%20Ready-FF7139?logo=firefoxbrowser&logoColor=white">
+  <img alt="Microsoft Edge Compatible" src="https://img.shields.io/badge/Edge-Compatible-0078D7?logo=microsoftedge&logoColor=white">
   <img alt="Source version 0.1.43" src="https://img.shields.io/badge/source-0.1.43-F2C94C">
   <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
@@ -20,7 +21,9 @@
 
 <p align="center">
   <strong><a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf">Install from Chrome Web Store</a></strong> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-bar-0.1.43.zip">Download verified v0.1.43</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-bar-0.1.43.zip">Chrome ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-bar-0.1.43-firefox.zip">Firefox ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-bar-0.1.43-edge.zip">Edge ZIP</a> ·
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-bar-0.1.43.zip.sha256">Verify SHA-256</a> ·
   <a href="#install-from-source">Installation guide</a> ·
   <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Product website</a> ·
@@ -52,11 +55,14 @@
 Chrome's native bookmarks bar is intentionally simple, but it cannot become a true multi-row workspace. BookmarkFlow adds a compact interface on top of regular web pages and replaces the new-tab page with a focused bookmark dashboard—without moving your bookmarks into a separate service.
 
 - **See more at once.** Use multiple rows, compact density, horizontal scrolling, favicons, and readable titles.
-- **Find anything fast.** Open the command palette from the mouse or keyboard and navigate results without leaving the keyboard.
-- **Organize without duplication.** Work with the folders already stored in Chrome and pin important folders to a left or right rail.
+- **Find anything at the speed of thought.** Spotlight / Raycast style real-time search palette with cyclic arrow navigation (`ArrowDown`/`ArrowUp`), active result highlight, and instant keyboard shortcuts.
+- **Personalize your visual experience.** Switch effortlessly between 4 curated obsidian dark palettes: Gold Obsidian, OLED Midnight Black, Emerald Matrix, and Cyber Indigo, with instant real-time sync across popup, new tab, and page bar.
+- **Focused New Tab with Quick Shortcuts.** Minimalist ambient start page featuring a real-time digital clock, contextual greetings, and an 8-item Quick Shortcuts grid built from your top bookmarks.
+- **Organize without duplication.** Work with the folders already stored in your browser and pin important folders to a left or right rail.
 - **Stay presentation-ready.** Streamer mode reduces bookmark labels to icons when you share your screen.
+- **Cross-browser flexibility.** Native packages and support for Chromium browsers (Chrome, Edge, Brave, Opera) and Mozilla Firefox.
 - **Adapt it per site.** Hide BookmarkFlow on selected domains or automatically suppress it on login, payment, and banking pages.
-- **Keep control of your data.** No analytics, external account, or BookmarkFlow cloud service is required.
+- **Keep control of your data.** 100% local-first architecture. No analytics, external account, or cloud service is required.
 
 ## Product film
 
@@ -89,14 +95,34 @@ Expand the compact `BF` control only when you need it. Choose the number of rows
   <sub><strong>Motion summary:</strong> Use <kbd>Alt + Shift + B</kbd> to expand or collapse the bar; the preview finishes with two bookmark rows visible.</sub>
 </p>
 
-### Search from anywhere
+### Search from anywhere with Spotlight keyboard navigation
 
-Open the bookmark palette with the search button or a keyboard shortcut. Use the arrow keys to move through results and press `Enter` to open the selected bookmark.
+Open the bookmark palette with the search button or <kbd>Alt + Shift + K</kbd>. Type to see real-time suggestions, cycle through results with <kbd>↓</kbd> / <kbd>↑</kbd>, and press <kbd>Enter</kbd> to launch immediately, or <kbd>Ctrl + Enter</kbd> to open in a new tab.
 
 <p align="center">
   <img src="src/assets/tour/search-palette.gif" alt="The BookmarkFlow search palette showing keyboard-navigable bookmark results" width="720"><br>
   <sub><strong>Motion summary:</strong> Open search with the search button or its reassigned extension shortcut, type a query, and move through results with the arrow keys.</sub>
 </p>
+
+### Curated obsidian dark themes
+
+Personalize your workspace with 4 handcrafted dark palettes:
+- **Gold Obsidian:** Classic deep navy (`#0b0f19`) with warm gold (`#f2c94c`) accent.
+- **OLED Midnight Black:** True pure black (`#000000`) with high-contrast platinum silver (`#f8fafc`).
+- **Emerald Matrix:** Cyber obsidian (`#061009`) with vivid neon emerald (`#41d17d`).
+- **Cyber Indigo:** Synthwave violet night (`#0a0918`) with electric indigo (`#818cf8`).
+
+Switch themes from the popup; your selection syncs across the popup, New Tab dashboard, and in-page bar in real time without reloading tabs.
+
+<p align="center">
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.1.43"><img src="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-v0.1.43-announcement.png" alt="BookmarkFlow Bar v0.1.43 Spotlight search and curated themes showcase" width="960"></a><br>
+  <sub><strong>Visual showcase:</strong> Spotlight keyboard search palette and 4 curated obsidian color themes.</sub>
+</p>
+
+### Focused New Tab with Quick Shortcuts
+
+Transform empty tabs into an intentional dashboard. Enjoy a real-time digital clock synchronized to your local time, contextual greetings, and an 8-item Quick Shortcuts grid automatically populated from your most-used bookmarks.
+
 
 ### Pin the folders that matter
 

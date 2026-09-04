@@ -292,3 +292,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all` (55/55 test), `npm run test:regression` (EN & TR), `git diff --check` temizdir; PR GitHub Actions terminal `success` verdi ve merge edildi; exact-tag ZIP ve SHA-256 değerleri GitHub Release varlıklarıyla birebir eşleşti.
 - Sonraki adım: Yok; sürüm GitHub'da yayımlandı ve İngilizce lansman kiti kullanıcıya teslim edildi.
 - Son güncelleme: 2026-09-04.
+
+## BF-DOC-001 - README'yi v0.1.43 Spotlight, Çoklu Tema, Odaklanmış Yeni Sekme ve Çapraz Tarayıcı vitriniyle zenginleştir
+
+- Öncelik ve durum: P2, IN_PROGRESS.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde README'nin metin ve görseller açısından v0.1.43 özellikleriyle güncellenmesini onayladı. Mevcut README yalnızca v0.1.41 seviyesindeki özellikleri ve Chrome Web Store rozetlerini yansıtıyor; v0.1.42 ile gelen saat/karşılama/8'li Hızlı Erişim New Tab özellikleri, v0.1.43 ile gelen 4 Koyu Renk Teması, Spotlight arama paleti ve Firefox/Edge çapraz tarayıcı desteği README'de bulunmuyor.
+- Kabul kriteri: `README.md` üst rozetlerine Firefox ve Edge rozetleri eklenir; indirme satırına Firefox ve Edge paketleri eklenir; `Why BookmarkFlow` ve `Feature tour` bölümlerine Spotlight klavye navigasyonu, 4 koyu tema motoru ve Odaklanmış Yeni Sekme vitrinleri eklenir; doğrulanmış v0.1.43 lansman görseli entegre edilir; açık kaynak/DCO/proje doğrulama kapıları fail-closed geçer.
+- Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir.
+- Sonraki adım: `README.md` dosyasını güncelle, doğrula ve PR aç.
+- Son güncelleme: 2026-09-04.
