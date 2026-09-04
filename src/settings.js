@@ -45,6 +45,40 @@
   const PANEL_POSITION_STORAGE_KEY = "bfPanelPosition";
   const DATA_CONSENT_STORAGE_KEY = "bfDataConsentVersion";
   const DATA_CONSENT_VERSION = 1;
+  const BOOKMARK_TAGS_STORAGE_KEY = "bfBookmarkTags";
+
+  function normalizeTag(tag) {
+    if (!tag || typeof tag !== "string") {
+      return "";
+    }
+    return tag.trim().toLowerCase().replace(/^#+/, "").slice(0, 32);
+  }
+
+  function normalizeTags(tags) {
+    if (!Array.isArray(tags)) {
+      return [];
+    }
+    return [...new Set(
+      tags
+        .map(normalizeTag)
+        .filter((tag) => Boolean(tag) && /^[a-z0-9_\-\.]+$/i.test(tag))
+    )].slice(0, 12);
+  }
+
+  function normalizeAllBookmarkTags(raw) {
+    if (!raw || typeof raw !== "object") {
+      return {};
+    }
+    const result = {};
+    for (const [id, tags] of Object.entries(raw)) {
+      const clean = normalizeTags(tags);
+      if (clean.length > 0) {
+        result[id] = clean;
+      }
+    }
+    return result;
+  }
+
 
   const SAFE_BOOKMARK_PROTOCOLS = Object.freeze([
     "http:",
@@ -333,6 +367,10 @@
     PANEL_POSITION_STORAGE_KEY,
     DATA_CONSENT_STORAGE_KEY,
     DATA_CONSENT_VERSION,
+    BOOKMARK_TAGS_STORAGE_KEY,
+    normalizeTag,
+    normalizeTags,
+    normalizeAllBookmarkTags,
     SAFE_BOOKMARK_PROTOCOLS,
     SENSITIVE_HOST_KEYWORDS,
     SENSITIVE_HOSTS,

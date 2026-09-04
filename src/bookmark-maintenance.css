@@ -387,3 +387,205 @@ select {
     justify-self: start;
   }
 }
+
+.health-section {
+  margin-top: 36px;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(20, 26, 36, 0.7);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+}
+
+.health-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.health-head h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #f7f9fc;
+}
+
+.health-head p {
+  margin-top: 6px;
+  color: rgba(247, 249, 252, 0.68);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.health-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.health-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.health-metric-card {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-num {
+  font-size: 24px;
+  font-weight: 800;
+  color: #f7f9fc;
+}
+
+.metric-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(247, 249, 252, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.health-metric-card.healthy .metric-num {
+  color: #41d17d;
+}
+
+.health-metric-card.dead .metric-num {
+  color: #ff6b6b;
+}
+
+.health-metric-card.duplicates .metric-num {
+  color: #f2c94c;
+}
+
+.health-progress-wrap {
+  margin-top: 16px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.health-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #f2c94c, #41d17d);
+  transition: width 0.2s ease;
+}
+
+.health-issues-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.health-issue-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 12px;
+}
+
+.issue-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.issue-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.issue-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f7f9fc;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.issue-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.issue-badge.dead {
+  background: rgba(255, 107, 107, 0.18);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.35);
+}
+
+.issue-badge.duplicate {
+  background: rgba(242, 201, 76, 0.18);
+  color: #f2c94c;
+  border: 1px solid rgba(242, 201, 76, 0.35);
+}
+
+.issue-badge.insecure {
+  background: rgba(255, 159, 67, 0.18);
+  color: #ff9f43;
+  border: 1px solid rgba(255, 159, 67, 0.35);
+}
+
+.issue-url {
+  font-size: 12px;
+  color: rgba(247, 249, 252, 0.5);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.issue-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-issue-action {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f7f9fc;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.btn-issue-action:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-issue-action.danger {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+.btn-issue-action.danger:hover {
+  background: rgba(255, 107, 107, 0.15);
+}

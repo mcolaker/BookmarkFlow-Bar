@@ -310,3 +310,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all` (55/55 test), `node scripts/validate-backlog.mjs`, `git diff --check` temizdir.
 - Sonraki adım: Yok; kurallar kalıcı olarak eklendi ve lansman görselleri teslim edildi.
 - Son güncelleme: 2026-09-04.
+
+## BF-UX-007 - Yerel Kırık Link Denetleyicisi ve Yer İmi Sağlık Analizcisi ekle
+
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde eklentinin yer imi sağlığını yerel olarak tarayıp ölü/kırık linkleri (ağ/DNS hataları, zaman aşımı) ve mükerrer kayıtları tespit eden bir Yer İmi Sağlık Denetleyicisi ile zenginleştirilmesini onayladı. `src/bookmark-maintenance.html`, `src/bookmark-maintenance.js`, `src/bookmark-maintenance.css` dosyalarına eşzamanlılık kısıtlamalı (5 paralel istek, 5 sn zaman aşımı) yerel ölü bağlantı ve mükerrer URL denetleyicisi eklendi; bulunan sorunlar için doğrudan silme ve bağlantıyı test etme aksiyonları sunuldu; `_locales/en` ve `_locales/tr` tam pariteyle yerelleştirildi.
+- Kabul kriteri: `src/bookmark-maintenance.html` içerisine "Yer İmi Sağlığı ve Kırık Link Denetleyicisi" paneli eklenir; `src/bookmark-maintenance.js` yerel eşzamanlılık kısıtlamalı ve zaman aşımlı hafif bağlantı denetimini (dead link, unreachable, duplicate) çalıştırır; kırık yer imleri için açma ve silme eylemleri sağlanır; tüm metinler Türkçe ve İngilizce i18n dosyalarına eklenir; test kapıları fail-closed geçer.
+- Doğrulama kapısı: `npm run validate:all` (57/57 test), `node scripts/validate-backlog.mjs`, `node scripts/security-regression.mjs` (Chromium pass), `git diff --check` temizdir.
+- Sonraki adım: Yok; Yerel Kırık Link Denetleyicisi tamamlandı. Akıllı Etiketler ve `#tag` Spotlight filtreleme (`BF-UX-008`) görevine geçilir.
+- Son güncelleme: 2026-09-04.

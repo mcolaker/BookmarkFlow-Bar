@@ -48,7 +48,47 @@
 
       <p id="status" class="status" role="status" aria-live="polite" data-i18n="scanningFolders">Scanning bookmark folders…</p>
       <div id="groups" class="groups" aria-label="Duplicate folder groups" data-i18n-aria-label="duplicateFolderGroups"></div>
+
+      <section class="health-section" aria-labelledby="healthTitle">
+        <div class="health-head">
+          <div>
+            <h2 id="healthTitle" data-i18n="bookmarkHealthHeading">Bookmark health & dead link inspector</h2>
+            <p data-i18n="bookmarkHealthDescription">Check your bookmarks locally for dead links, unreachable domains, and duplicate URLs.</p>
+          </div>
+          <div class="health-actions">
+            <button id="startHealthCheck" class="primary" type="button" data-i18n="startHealthCheck">Check bookmark health</button>
+            <button id="stopHealthCheck" class="secondary" type="button" hidden data-i18n="stopHealthCheck">Stop scan</button>
+          </div>
+        </div>
+
+        <div class="health-metrics" id="healthMetrics" hidden>
+          <div class="health-metric-card">
+            <span class="metric-num" id="metricTotal">0</span>
+            <span class="metric-label" data-i18n="healthMetricTotal">Total checked</span>
+          </div>
+          <div class="health-metric-card healthy">
+            <span class="metric-num" id="metricHealthy">0</span>
+            <span class="metric-label" data-i18n="healthMetricHealthy">Reachable</span>
+          </div>
+          <div class="health-metric-card dead">
+            <span class="metric-num" id="metricDead">0</span>
+            <span class="metric-label" data-i18n="healthMetricDead">Dead links</span>
+          </div>
+          <div class="health-metric-card duplicates">
+            <span class="metric-num" id="metricDuplicates">0</span>
+            <span class="metric-label" data-i18n="healthMetricDuplicates">Duplicates</span>
+          </div>
+        </div>
+
+        <div class="health-progress-wrap" id="healthProgressWrap" hidden>
+          <div class="health-progress-bar" id="healthProgressBar" style="width: 0%"></div>
+        </div>
+
+        <p id="healthStatus" class="status compact-status" role="status" aria-live="polite"></p>
+        <div id="healthIssuesList" class="health-issues-list" aria-label="Detected issues"></div>
+      </section>
     </main>
+
 
     <script src="i18n.js"></script>
     <script src="settings.js"></script>
