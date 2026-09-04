@@ -179,3 +179,27 @@ test("collapsed bar hides actions and narrows to single mark column by default",
   assert.match(contentCss, /\.bf-app:not\(\.is-expanded\):not\(\.is-snoozed\)\s+\.bf-layout\s*\{\s*grid-template-columns:\s*auto;/u);
   assert.match(contentCss, /\.bf-app:not\(\.is-expanded\):not\(\.is-snoozed\)\s+\.bf-actions/u);
 });
+
+test("multi-theme engine contract is supported across settings, popup, new tab, and content bar", () => {
+  const settingsSource = readFileSync(path.join(root, "src/settings.js"), "utf8");
+  const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
+  const popupCss = readFileSync(path.join(root, "src/popup.css"), "utf8");
+  const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+
+  const supportedThemes = ["gold-obsidian", "oled-black", "emerald-matrix", "cyber-indigo"];
+
+  for (const theme of supportedThemes) {
+    assert.match(settingsSource, new RegExp(`"${theme}"`, "u"));
+    assert.match(popupHtml, new RegExp(`data-theme="${theme}"`, "u"));
+    if (theme !== "gold-obsidian") {
+      assert.match(popupCss, new RegExp(`\\[data-theme="${theme}"\\]`, "u"));
+      assert.match(newTabCss, new RegExp(`\\[data-theme="${theme}"\\]`, "u"));
+      assert.match(contentCss, new RegExp(`\\[data-theme="${theme}"\\]`, "u"));
+    }
+  }
+
+  assert.match(popupSource, /document\.documentElement\.dataset\.theme\s*=/u);
+  assert.match(newTabSource, /document\.documentElement\.dataset\.theme\s*=/u);
+  assert.match(contentSource, /host\.dataset\.theme\s*=/u);
+  assert.match(contentSource, /app\.dataset\.theme\s*=/u);
+});

@@ -159,6 +159,8 @@ function render() {
   const visibleBookmarks = hasFolderRail ? children.filter((node) => node.url) : children;
   const folderToRestore = activeFolderId;
 
+  document.documentElement.dataset.theme = settings.theme || "gold-obsidian";
+
   elements.bookmarkBar.hidden = !settings.enabled;
   elements.bookmarkBar.style.setProperty("--nt-rows", String(settings.rows));
   elements.bookmarkBar.style.removeProperty("--nt-used-rows");

@@ -265,3 +265,21 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all`, `npm run test:regression` (EN & TR), `git diff --check` temizdir ve Playwright Video QA ile klavye gezinmesi canlı olarak kanıtlanır.
 - Sonraki adım: Yok; 2. öneri olan Çoklu Renk Temaları Motoru (`BF-UX-006`) çalışmasına geçilir.
 - Son güncelleme: 2026-09-04.
+
+## BF-UX-006 - Çoklu Renk Temaları Motoru (Multi-Theme Engine) ekle
+
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde eklentinin görsel çekiciliğini ve panel uyumluluğunu artıracak renk teması seçeneklerini talep etti. Mevcut eklenti tek tip koyu lacivert/altın temaya sahipti.
+- Kabul kriteri: `src/settings.js` içinde `theme` ayarı ("gold-obsidian", "oled-black", "emerald-matrix", "cyber-indigo") tanımlanır; `src/popup.html` ve `src/popup.js` 4'lü şık tema seçici segmentini sunar; `src/newtab.css`, `src/popup.css` ve `src/content.css` CSS değişkenleri ve `data-theme` özniteliği üzerinden temaları uygular; tüm yüzeylerde (Bar, Popup, New Tab) Hot Reload gibi anında senkronize olur; iki dilde (`en`, `tr`) tema etiketleri tanımlanır.
+- Doğrulama kapısı: `npm run validate:all` (44/44 test), `npm run test:regression` (EN & TR CDP güvenlik regresyonu), `git diff --check` temizdir ve Playwright Video QA (`theme_flow.mp4`, 19 kare) ile 4 temaya anlık geçiş canlı olarak kanıtlandı.
+- Sonraki adım: Yok; 3. öneri olan Çapraz Tarayıcı Paketleme Köprüsü (`BF-REL-006`) çalışmasına geçilir.
+- Son güncelleme: 2026-09-04.
+
+## BF-REL-006 - Firefox Add-ons & Edge Store Çapraz Tarayıcı Uyumluluk Köprüsü
+
+- Öncelik ve durum: P2, OPEN.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde 3 büyük özellik önerisinin de uygulanmasını onayladı. BookmarkFlow Bar şu anda yalnızca Chromium tabanlı paketleme betiğine sahiptir; Firefox ve Edge mağazalarına hazır çapraz dağıtım paketleyici gerekmektedir.
+- Kabul kriteri: `scripts/package-cross-browser.mjs` betiği oluşturulur; Firefox için gerekli `browser_specific_settings.gecko.id` manifest dönüşümünü ve Gecko MV3 uyumluluğunu fail-closed olarak sağlar; Edge için optimize edilmiş paket oluşturur; `scripts/cross-browser-contract.test.mjs` ile test edilir.
+- Doğrulama kapısı: `npm run validate:all`, `scripts/cross-browser-contract.test.mjs` testlerinin yeşil olması ve paketleme çıktılarının doğrulanması.
+- Sonraki adım: `scripts/package-cross-browser.mjs` ve `scripts/cross-browser-contract.test.mjs` dosyalarını oluştur.
+- Son güncelleme: 2026-09-04.

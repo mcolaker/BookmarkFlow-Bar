@@ -30,6 +30,7 @@ const controls = {
   manageShortcuts: document.getElementById("manageShortcuts"),
   resetPosition: document.getElementById("resetPosition"),
   folderRail: Array.from(document.querySelectorAll("[data-folder-rail]")),
+  theme: Array.from(document.querySelectorAll("[data-theme]")),
   rows: Array.from(document.querySelectorAll("[data-rows]")),
   shortcutRows: Array.from(document.querySelectorAll("[data-command]")),
   siteControl: document.getElementById("siteControl"),
@@ -123,6 +124,12 @@ async function init() {
   controls.folderRail.forEach((button) => {
     button.addEventListener("click", () => {
       chrome.storage.sync.set({ folderRail: button.dataset.folderRail });
+    });
+  });
+
+  controls.theme.forEach((button) => {
+    button.addEventListener("click", () => {
+      chrome.storage.sync.set({ theme: button.dataset.theme });
     });
   });
 
@@ -233,8 +240,14 @@ function render(settings) {
   controls.autoHideSensitiveSites.checked = normalized.autoHideSensitiveSites;
   controls.avoidAppTopBars.checked = normalized.avoidAppTopBars;
 
+  document.documentElement.dataset.theme = normalized.theme;
+
   controls.folderRail.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.folderRail === normalized.folderRail);
+  });
+
+  controls.theme.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.theme === normalized.theme);
   });
 
   controls.rows.forEach((button) => {

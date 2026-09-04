@@ -749,8 +749,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     applyPanelPlacement();
     shadow.querySelector(".bf-app")?.remove();
+    host.dataset.theme = settings.theme || "gold-obsidian";
 
     const app = document.createElement("div");
+    app.dataset.theme = settings.theme || "gold-obsidian";
     app.className = [
       "bf-app",
       isExpanded ? "is-expanded" : "",

@@ -10,11 +10,23 @@
     hideEmptySearchSuggestions: true,
     streamerMode: false,
     folderRail: "left",
+    theme: "gold-obsidian",
     folderColors: {},
     autoHideSensitiveSites: false,
     avoidAppTopBars: true,
     disabledHosts: []
   });
+
+  const SUPPORTED_THEMES = Object.freeze([
+    "gold-obsidian",
+    "oled-black",
+    "emerald-matrix",
+    "cyber-indigo"
+  ]);
+
+  function normalizeTheme(theme) {
+    return SUPPORTED_THEMES.includes(theme) ? theme : "gold-obsidian";
+  }
 
   const PROFILE_LOCAL_SETTING_KEYS = Object.freeze(new Set([
     "disabledHosts",
@@ -163,6 +175,7 @@
       hideEmptySearchSuggestions: merged.hideEmptySearchSuggestions !== false,
       streamerMode: merged.streamerMode === true,
       folderRail: normalizeFolderRail(merged.folderRail),
+      theme: normalizeTheme(merged.theme),
       folderColors: normalizeFolderColors(merged.folderColors),
       autoHideSensitiveSites: merged.autoHideSensitiveSites === true,
       avoidAppTopBars: merged.avoidAppTopBars !== false,
@@ -338,6 +351,8 @@
     normalizeSyncedSettings,
     getSetupProfile,
     getSetupProfileSettings,
-    removeDisabledHost
+    removeDisabledHost,
+    SUPPORTED_THEMES,
+    normalizeTheme
   });
 })();
