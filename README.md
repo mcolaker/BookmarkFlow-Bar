@@ -14,24 +14,24 @@
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
   <img alt="Firefox Add-ons Ready" src="https://img.shields.io/badge/Firefox-Add--ons%20Ready-FF7139?logo=firefoxbrowser&logoColor=white">
   <img alt="Microsoft Edge Compatible" src="https://img.shields.io/badge/Edge-Compatible-0078D7?logo=microsoftedge&logoColor=white">
-  <img alt="Source version 0.1.44" src="https://img.shields.io/badge/source-0.1.44-F2C94C">
+  <img alt="Source version 0.1.45" src="https://img.shields.io/badge/source-0.1.45-F2C94C">
   <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
 
 <p align="center">
   <strong><a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf">Install from Chrome Web Store</a></strong> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44.zip">Chrome ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-firefox.zip">Firefox ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-edge.zip">Edge ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44.zip.sha256">Verify SHA-256</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45.zip">Chrome ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-firefox.zip">Firefox ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-edge.zip">Edge ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45.zip.sha256">Verify SHA-256</a> ·
   <a href="#install-from-source">Installation guide</a> ·
   <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Product website</a> ·
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/discussions">Join Discussions</a>
 </p>
 
 <p align="center">
-  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.1.44 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
+  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.1.45 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
 </p>
 
 > [!NOTE]
@@ -178,13 +178,13 @@ Streamer mode switches bookmark labels to an icon-focused presentation in the ba
 
 ---
 
-### Manual & cross-browser installation (v0.1.44)
+### Manual & cross-browser installation (v0.1.45)
 
 For development, testing, auditing, or reproducible offline installation, download the verified release package for your browser:
 
 #### 🌐 Google Chrome & Chromium (Brave, Vivaldi, Opera)
 
-1. Download [`bookmarkflow-bar-0.1.44.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44.zip.sha256).
+1. Download [`bookmarkflow-bar-0.1.45.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45.zip.sha256).
 2. Extract the archive into a folder.
 3. Navigate to `chrome://extensions` in your browser.
 4. Toggle on **Developer mode** in the upper-right corner.
@@ -193,7 +193,7 @@ For development, testing, auditing, or reproducible offline installation, downlo
 
 #### 🦊 Mozilla Firefox (Gecko MV3)
 
-1. Download [`bookmarkflow-bar-0.1.44-firefox.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-firefox.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-firefox.zip.sha256).
+1. Download [`bookmarkflow-bar-0.1.45-firefox.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-firefox.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-firefox.zip.sha256).
 2. Extract the archive.
 3. Open a new tab and navigate to `about:debugging#/runtime/this-firefox`.
 4. Click **Load Temporary Add-on...**.
@@ -202,7 +202,7 @@ For development, testing, auditing, or reproducible offline installation, downlo
 
 #### 🌊 Microsoft Edge
 
-1. Download [`bookmarkflow-bar-0.1.44-edge.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-edge.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.44/bookmarkflow-bar-0.1.44-edge.zip.sha256).
+1. Download [`bookmarkflow-bar-0.1.45-edge.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-edge.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-edge.zip.sha256).
 2. Extract the archive into a local folder.
 3. Navigate to `edge://extensions`.
 4. Turn on **Developer mode** in the left sidebar menu.
@@ -285,7 +285,7 @@ node scripts/security-regression.mjs
 
 The backlog, open-source, DCO, project, and public-tree checks are platform-independent. The browser regression check additionally requires a locally installed Chromium-based browser.
 
-Maintainers can create a versioned extension ZIP and SHA-256 checksum from a release tag with `node scripts/package-release.mjs v0.1.41`.
+Maintainers can create a versioned extension ZIP and SHA-256 checksum from a release tag with `node scripts/package-release.mjs v0.1.45`.
 
 ## Browser limitations
 
@@ -302,7 +302,7 @@ If BookmarkFlow improves your daily browsing, choose the route that matches how 
 ### Try it
 
 - **Install BookmarkFlow Bar from its [Chrome Web Store listing](https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf)** for the normal update path.
-- **Download the [verified v0.1.41 source release](https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.1.41)** for audit or development use and follow the [source installation guide](#install-from-source).
+- **Download the [verified v0.1.45 source release](https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.1.45)** for audit or development use and follow the [source installation guide](#install-from-source).
 - **Read the [product website](https://mcolaker.github.io/BookmarkFlow-Bar/)** and privacy documentation before installing.
 
 ### Support the project

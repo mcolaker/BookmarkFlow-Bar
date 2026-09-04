@@ -356,3 +356,11 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Sonraki adım: Yok; README çoklu tarayıcı kurulum rehberiyle zenginleştirildi.
 - Son güncelleme: 2026-09-04.
 
+## BF-REL-009 - v0.1.45 sürümünü hazırla, çapraz tarayıcı paketlerini üret ve lansman kitini sun
+
+- Öncelik ve durum: P1, IN_PROGRESS.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde Yer İmi Sağlık Denetleyicisi arayüz yenilemesi (`BF-UX-009`) ve çoklu tarayıcı kurulum rehberi (`BF-DOC-002`) geliştirmelerini içeren yeni bir v0.1.45 yama sürümünün (release & zip paketleri) oluşturulmasını istedi.
+- Kabul kriteri: `manifest.json`, `package.json` ve `CHANGELOG.md` 0.1.45 sürümünü taşır; `README.md` zorunlu kural uyarınca v0.1.45 rozetleri, indirme bağlantıları ve kurulum rehberleri ile güncellenir; Chromium, Firefox ve Edge dağıtım paketleri ile SHA-256 sağlama toplamları üretilir; annotated `v0.1.45` etiketi GitHub'a push edilir; GitHub Release `v0.1.45` yayımlanır; X ve LinkedIn için karakter ve etiket standartlarına uygun metinler ve lansman görseli hazırlanır; topluluk lansman kiti (`docs/community/COMMUNITY_LAUNCH_KIT_v0.1.45.md`) hazırlanır; iki dilli mağaza güncelleme notları sunulur.
+- Doğrulama kapısı: `npm run validate:all` (59/59 test), `node scripts/validate-backlog.mjs`, `git diff --check` temizdir; exact-tag ZIP ve SHA-256 değerleri GitHub Release varlıklarıyla birebir eşleşir.
+- Sonraki adım: Sürüm hazırlık PR'ını aç, testleri doğrula, `main` dalına merge et, annotated `v0.1.45` etiketini oluşturup paketleri üret ve GitHub Release'i yayımla.
+- Son güncelleme: 2026-09-04.
