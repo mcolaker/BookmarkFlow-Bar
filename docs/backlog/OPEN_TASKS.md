@@ -328,3 +328,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all` (58/58 test), `node scripts/validate-backlog.mjs`, `git diff --check` temizdir.
 - Sonraki adım: Yok; Akıllı Etiketler ve Spotlight Etiket Filtreleme tamamlandı. v0.1.44 sürüm yayını, README vitrini ve topluluk lansman kiti (`BF-REL-008`) görevine geçilir.
 - Son güncelleme: 2026-09-04.
+
+## BF-REL-008 - v0.1.44 sürümünü hazırla, çapraz tarayıcı paketlerini üret ve lansman kitini sun
+
+- Öncelik ve durum: P1, IN_PROGRESS.
+- Kök neden ve kanıt: Kullanıcı 2026-09-04 tarihinde Yer İmi Sağlık Denetleyicisi (`BF-UX-007`) ve Akıllı Etiketler (`BF-UX-008`) özelliklerini içeren v0.1.44 sürümünün yayımlanmasını, README vitrininin zorunlu kural uyarınca güncellenmesini, çapraz tarayıcı paketlerinin (Chromium, Firefox, Edge) üretilmesini ve topluluk lansman kitinin (Hacker News, Product Hunt, Reddit) hazırlanmasını onayladı. `manifest.json`, `package.json`, `CHANGELOG.md` 0.1.44 olarak eşitlendi; `README.md` v0.1.44 vitrini ve indirme bağlantılarıyla güncellendi.
+- Kabul kriteri: `manifest.json`, `package.json` ve `CHANGELOG.md` 0.1.44 sürümünü taşır; `README.md` zorunlu kurala uygun olarak yeni özellikleri vitrine taşır ve v0.1.44 doğrudan indirme linklerini sunar; `scripts/package-cross-browser.mjs` ile Chromium, Firefox ve Edge paketleri deterministik SHA-256 özetleriyle üretilir; topluluk lansman kiti (`docs/community/COMMUNITY_LAUNCH_KIT_v0.1.44.md`) hazırlanır; test kapıları fail-closed geçer.
+- Doğrulama kapısı: `npm run validate:all` (58/58 test), `node scripts/validate-backlog.mjs`, `git diff --check` temizdir.
+- Sonraki adım: Paketleri üret, lansman kitini ve tanıtım görsellerini hazırla ve doğrula.
+- Son güncelleme: 2026-09-04.
