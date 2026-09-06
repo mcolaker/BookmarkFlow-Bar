@@ -14,7 +14,9 @@
     folderColors: {},
     autoHideSensitiveSites: false,
     avoidAppTopBars: true,
-    disabledHosts: []
+    disabledHosts: [],
+    autoTagging: true,
+    newTabBackground: "obsidian"
   });
 
   const SUPPORTED_THEMES = Object.freeze([
@@ -26,6 +28,17 @@
 
   function normalizeTheme(theme) {
     return SUPPORTED_THEMES.includes(theme) ? theme : "gold-obsidian";
+  }
+
+  const SUPPORTED_NEWTAB_BACKGROUNDS = Object.freeze([
+    "obsidian",
+    "midnight-gradient",
+    "emerald-aurora",
+    "custom"
+  ]);
+
+  function normalizeNewTabBackground(bg) {
+    return SUPPORTED_NEWTAB_BACKGROUNDS.includes(bg) ? bg : "obsidian";
   }
 
   const PROFILE_LOCAL_SETTING_KEYS = Object.freeze(new Set([
@@ -46,6 +59,35 @@
   const DATA_CONSENT_STORAGE_KEY = "bfDataConsentVersion";
   const DATA_CONSENT_VERSION = 1;
   const BOOKMARK_TAGS_STORAGE_KEY = "bfBookmarkTags";
+  const READING_LIST_STORAGE_KEY = "bfReadingList";
+  const CUSTOM_WALLPAPER_STORAGE_KEY = "bfCustomWallpaper";
+
+  const AUTO_TAG_RULES = Object.freeze([
+    { tag: "dev", domains: ["github.com", "gitlab.com", "stackoverflow.com", "npmjs.com", "developer.mozilla.org", "dev.to", "cdnjs.com", "codepen.io", "bitbucket.org", "docker.com", "kubernetes.io"] },
+    { tag: "ai", domains: ["chatgpt.com", "claude.ai", "perplexity.ai", "aistudio.google.com", "huggingface.co", "openai.com", "anthropic.com", "mistral.ai", "deepseek.com", "groq.com", "midjourney.com"] },
+    { tag: "video", domains: ["youtube.com", "youtu.be", "vimeo.com", "twitch.tv", "netflix.com", "dailymotion.com"] },
+    { tag: "social", domains: ["x.com", "twitter.com", "linkedin.com", "reddit.com", "discord.com", "instagram.com", "facebook.com", "threads.net"] },
+    { tag: "design", domains: ["figma.com", "dribbble.com", "behance.net", "canva.com", "unsplash.com", "pinterest.com"] },
+    { tag: "reading", domains: ["news.ycombinator.com", "medium.com", "wikipedia.org", "theverge.com", "substack.com", "techcrunch.com", "arxiv.org"] }
+  ]);
+
+  function getAutoTagsForUrl(url) {
+    if (!url || typeof url !== "string") {
+      return [];
+    }
+    try {
+      const hostname = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+      const matched = [];
+      for (const rule of AUTO_TAG_RULES) {
+        if (rule.domains.some((d) => hostname === d || hostname.endsWith("." + d))) {
+          matched.push(rule.tag);
+        }
+      }
+      return matched;
+    } catch {
+      return [];
+    }
+  }
 
   function normalizeTag(tag) {
     if (!tag || typeof tag !== "string") {
@@ -79,8 +121,14 @@
     return result;
   }
 
-  function inferSmartTags(title, url, path) {
+  function inferSmartTags(title, url, path, autoTaggingEnabled = true) {
     const tags = new Set();
+
+    if (autoTaggingEnabled !== false && url) {
+      for (const autoTag of getAutoTagsForUrl(url)) {
+        tags.add(autoTag);
+      }
+    }
 
     if (path && typeof path === "string") {
       const segments = path.split(/[\/\\]+/);
@@ -120,13 +168,14 @@
     return [...tags].slice(0, 8);
   }
 
-  function resolveItemTags(nodeOrEntry, userTagsMap = {}) {
+  function resolveItemTags(nodeOrEntry, userTagsMap = {}, autoTaggingEnabled = true) {
     const id = nodeOrEntry?.id;
     const explicit = (id && userTagsMap && userTagsMap[id]) ? userTagsMap[id] : [];
+    const autoTags = (autoTaggingEnabled !== false && nodeOrEntry?.url) ? getAutoTagsForUrl(nodeOrEntry.url) : [];
     if (Array.isArray(explicit) && explicit.length > 0) {
-      return explicit;
+      return [...new Set([...explicit, ...autoTags])].slice(0, 12);
     }
-    return inferSmartTags(nodeOrEntry?.title, nodeOrEntry?.url, nodeOrEntry?.path);
+    return inferSmartTags(nodeOrEntry?.title, nodeOrEntry?.url, nodeOrEntry?.path, autoTaggingEnabled);
   }
 
   function matchesTagFilter(query, itemTags, entry, textLocale = "en-US") {
@@ -300,7 +349,9 @@
       folderColors: normalizeFolderColors(merged.folderColors),
       autoHideSensitiveSites: merged.autoHideSensitiveSites === true,
       avoidAppTopBars: merged.avoidAppTopBars !== false,
-      disabledHosts: normalizeHosts(merged.disabledHosts)
+      disabledHosts: normalizeHosts(merged.disabledHosts),
+      autoTagging: merged.autoTagging !== false,
+      newTabBackground: normalizeNewTabBackground(merged.newTabBackground)
     };
   }
 
@@ -481,6 +532,12 @@
     getSetupProfileSettings,
     removeDisabledHost,
     SUPPORTED_THEMES,
-    normalizeTheme
+    normalizeTheme,
+    SUPPORTED_NEWTAB_BACKGROUNDS,
+    normalizeNewTabBackground,
+    READING_LIST_STORAGE_KEY,
+    CUSTOM_WALLPAPER_STORAGE_KEY,
+    AUTO_TAG_RULES,
+    getAutoTagsForUrl
   });
 })();

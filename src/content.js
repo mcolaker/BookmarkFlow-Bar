@@ -2818,7 +2818,81 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         title: t("quickActionOpenHealth"),
         url: chrome.runtime.getURL("src/bookmark-maintenance.html#health"),
         path: t("quickActionOpenHealthDesc"),
-        isHealthAction: true
+        icon: "🩺",
+        isQuickAction: true
+      });
+    }
+
+    const isSaveTabsQuery = /^(stash|tabs|sekmeler|sakla|save tabs|#stash|#tabs)/i.test(query);
+    if (isSaveTabsQuery) {
+      entries.unshift({
+        id: "bf-action-save-tabs",
+        title: t("quickActionSaveTabs"),
+        path: t("quickActionSaveTabsDesc"),
+        icon: "📥",
+        isQuickAction: true,
+        handler: async () => {
+          const now = new Date();
+          const dateStr = now.toLocaleDateString();
+          const defaultTitle = `${t("session") || "Session"} - ${dateStr}`;
+          const promptText = window.prompt(t("saveOpenTabsPrompt"), defaultTitle);
+          if (promptText === null) return;
+          const folderTitle = promptText.trim() || defaultTitle;
+          const response = await sendMessage({
+            type: "BF_SAVE_OPEN_TABS",
+            folderTitle
+          });
+          if (response?.ok) {
+            window.alert(t("saveOpenTabsSuccess", String(response.savedCount || 0)));
+          } else {
+            window.alert(response?.error || t("saveOpenTabsFailed"));
+          }
+        }
+      });
+    }
+
+    const isReadingQuery = /^(read|oku|later|reading|liste|#reading|#later)/i.test(query);
+    if (isReadingQuery) {
+      entries.unshift({
+        id: "bf-action-add-reading-list",
+        title: t("quickActionAddReadingList"),
+        path: t("quickActionAddReadingListDesc"),
+        icon: "📖",
+        isQuickAction: true,
+        handler: async () => {
+          const response = await sendMessage({
+            type: "BF_ADD_READING_LIST",
+            url: window.location.href,
+            title: document.title || window.location.href
+          });
+          if (response?.ok) {
+            window.alert(t("addedToReadingList"));
+          }
+        }
+      });
+    }
+
+    const isBackupQuery = /^(backup|yedek|export|restore|#backup)/i.test(query);
+    if (isBackupQuery) {
+      entries.unshift({
+        id: "bf-action-backup",
+        title: t("quickActionBackup"),
+        path: t("quickActionBackupDesc"),
+        icon: "💾",
+        isQuickAction: true,
+        handler: async () => {
+          const response = await sendMessage({ type: "BF_EXPORT_BACKUP" });
+          if (response?.ok && response.backup) {
+            const blob = new Blob([JSON.stringify(response.backup, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const dateStr = new Date().toISOString().slice(0, 10);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `bookmarkflow-backup-${dateStr}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }
+        }
       });
     }
 
@@ -2982,18 +3056,22 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     link.referrerPolicy = "no-referrer";
     link.title = `${entry.title}\n${entry.url}`;
 
-    if (entry.isHealthAction) {
+    if (entry.isQuickAction) {
       const icon = document.createElement("span");
       icon.className = "bf-favicon";
-      icon.textContent = "🩺";
+      icon.textContent = entry.icon || "⚡";
       icon.style.display = "inline-flex";
       icon.style.alignItems = "center";
       icon.style.justifyContent = "center";
       icon.style.fontSize = "14px";
       link.addEventListener("click", (e) => {
         e.preventDefault();
-        window.open(entry.url, "_blank");
         closeCommandPalette();
+        if (typeof entry.handler === "function") {
+          entry.handler();
+        } else if (entry.url && entry.url !== "#") {
+          window.open(entry.url, "_blank");
+        }
       });
 
       const copy = document.createElement("span");

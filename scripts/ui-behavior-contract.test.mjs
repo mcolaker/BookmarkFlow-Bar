@@ -320,3 +320,81 @@ test("health inspector UI overhaul and spotlight action contract", () => {
   assert.match(newTabJs, /isHealthQuery/u);
   assert.match(newTabJs, /openHealthInspector/u);
 });
+
+test("power suite: stash tabs, backup & restore, auto-tagging, reading list, newtab backgrounds contract", () => {
+  const vm = loadSettingsModule();
+  const {
+    getAutoTagsForUrl,
+    AUTO_TAG_RULES,
+    SUPPORTED_NEWTAB_BACKGROUNDS,
+    normalizeNewTabBackground,
+    READING_LIST_STORAGE_KEY,
+    CUSTOM_WALLPAPER_STORAGE_KEY,
+    DEFAULT_SETTINGS
+  } = vm.BookmarkFlowConfig;
+
+  // Settings contract
+  assert.strictEqual(DEFAULT_SETTINGS.autoTagging, true);
+  assert.strictEqual(DEFAULT_SETTINGS.newTabBackground, "obsidian");
+  assert.strictEqual(READING_LIST_STORAGE_KEY, "bfReadingList");
+  assert.strictEqual(CUSTOM_WALLPAPER_STORAGE_KEY, "bfCustomWallpaper");
+  assert.deepStrictEqual(
+    SUPPORTED_NEWTAB_BACKGROUNDS,
+    ["obsidian", "midnight-gradient", "emerald-aurora", "custom"]
+  );
+  assert.strictEqual(normalizeNewTabBackground("midnight-gradient"), "midnight-gradient");
+  assert.strictEqual(normalizeNewTabBackground("invalid"), "obsidian");
+
+  // Zero-cloud smart auto-tagging
+  assert.ok(Array.isArray(AUTO_TAG_RULES) && AUTO_TAG_RULES.length >= 6);
+  assert.deepStrictEqual(getAutoTagsForUrl("https://github.com/mcolaker/BookmarkFlow-Bar"), ["dev"]);
+  assert.deepStrictEqual(getAutoTagsForUrl("https://chatgpt.com/"), ["ai"]);
+  assert.deepStrictEqual(getAutoTagsForUrl("https://www.youtube.com/watch?v=123"), ["video"]);
+  assert.deepStrictEqual(getAutoTagsForUrl("https://x.com/explore"), ["social"]);
+  assert.deepStrictEqual(getAutoTagsForUrl("https://figma.com/design"), ["design"]);
+  assert.deepStrictEqual(getAutoTagsForUrl("https://medium.com/story"), ["reading"]);
+
+  // Background service worker contract
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(backgroundJs, /BF_SAVE_OPEN_TABS/u);
+  assert.match(backgroundJs, /BF_EXPORT_BACKUP/u);
+  assert.match(backgroundJs, /BF_IMPORT_BACKUP/u);
+  assert.match(backgroundJs, /BF_GET_READING_LIST/u);
+  assert.match(backgroundJs, /BF_ADD_READING_LIST/u);
+  assert.match(backgroundJs, /BF_REMOVE_READING_LIST/u);
+
+  // Manifest permission
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  assert.ok(manifest.permissions.includes("tabs"), "manifest must include tabs permission for stash open tabs");
+
+  // Popup UI contract
+  const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
+  const popupJs = readFileSync(path.join(root, "src/popup.js"), "utf8");
+  assert.match(popupHtml, /id="autoTagging"/u);
+  assert.match(popupHtml, /data-bg="midnight-gradient"/u);
+  assert.match(popupHtml, /id="saveOpenTabsBtn"/u);
+  assert.match(popupHtml, /id="exportBackupBtn"/u);
+  assert.match(popupHtml, /id="importBackupBtn"/u);
+  assert.match(popupJs, /BF_SAVE_OPEN_TABS/u);
+  assert.match(popupJs, /BF_EXPORT_BACKUP/u);
+  assert.match(popupJs, /BF_IMPORT_BACKUP/u);
+
+  // New tab UI contract
+  const newTabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  const newTabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newTabHtml, /id="saveOpenTabs"/u);
+  assert.match(newTabHtml, /id="readingListBtn"/u);
+  assert.match(newTabHtml, /id="readingDrawer"/u);
+  assert.match(newTabJs, /handleSaveOpenTabs/u);
+  assert.match(newTabJs, /toggleReadingDrawer/u);
+  assert.match(newTabJs, /applyBackgroundSettings/u);
+  assert.match(newTabCss, /body\[data-bg="midnight-gradient"\]/u);
+  assert.match(newTabCss, /\.nt-reading-drawer/u);
+
+  // Content script Spotlight quick actions contract
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /isSaveTabsQuery/u);
+  assert.match(contentJs, /isReadingQuery/u);
+  assert.match(contentJs, /isBackupQuery/u);
+});

@@ -42,6 +42,7 @@ test("transformManifestForFirefox adds gecko id and transforms background to scr
   assert.equal(fxManifest.permissions.includes("bookmarks"), true);
   assert.equal(fxManifest.permissions.includes("storage"), true);
   assert.equal(fxManifest.permissions.includes("search"), true);
+  assert.equal(fxManifest.permissions.includes("tabs"), true);
 });
 
 test("transformManifestForFirefox fails closed on non-object input", () => {

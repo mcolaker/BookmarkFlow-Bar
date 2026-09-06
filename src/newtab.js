@@ -53,7 +53,12 @@ const elements = {
   greetingDisplay: document.getElementById("greetingDisplay"),
   shortcutsWrap: document.getElementById("shortcutsWrap"),
   shortcutsGrid: document.getElementById("shortcutsGrid"),
-  searchResults: document.getElementById("searchResults")
+  searchResults: document.getElementById("searchResults"),
+  saveOpenTabs: document.getElementById("saveOpenTabs"),
+  readingListBtn: document.getElementById("readingListBtn"),
+  readingDrawer: document.getElementById("readingDrawer"),
+  readingClose: document.getElementById("readingClose"),
+  readingListContainer: document.getElementById("readingListContainer")
 };
 
 let appState = null;
@@ -103,6 +108,9 @@ async function init() {
   elements.searchInput.addEventListener("keydown", handleSearchKeydown);
   document.addEventListener("click", handleSearchOutsideClick);
   elements.addBookmark.addEventListener("click", () => openAddBookmarkDialog());
+  elements.saveOpenTabs?.addEventListener("click", handleSaveOpenTabs);
+  elements.readingListBtn?.addEventListener("click", toggleReadingDrawer);
+  elements.readingClose?.addEventListener("click", closeReadingDrawer);
   elements.addForm.addEventListener("submit", handleAddBookmarkSubmit);
   elements.addClose.addEventListener("click", closeAddBookmarkDialog);
   elements.addCancel.addEventListener("click", closeAddBookmarkDialog);
@@ -192,6 +200,102 @@ function handleWindowResize() {
   scheduleTightenBookmarkRows(settings.streamerMode ? 1 : settings.rows);
 }
 
+async function applyBackgroundSettings() {
+  const bg = appState?.settings?.newTabBackground || "obsidian";
+  document.body.setAttribute("data-bg", bg);
+  if (bg === "custom") {
+    try {
+      const { bfCustomWallpaper } = await chrome.storage.local.get("bfCustomWallpaper");
+      if (bfCustomWallpaper) {
+        document.body.style.backgroundImage = `url("${bfCustomWallpaper}")`;
+      } else {
+        document.body.style.backgroundImage = "";
+      }
+    } catch {
+      document.body.style.backgroundImage = "";
+    }
+  } else {
+    document.body.style.backgroundImage = "";
+  }
+}
+
+async function handleSaveOpenTabs() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString(getTextLocale());
+  const defaultTitle = `${t("session") || "Oturum"} - ${dateStr}`;
+  const promptText = window.prompt(t("saveOpenTabsPrompt") || "Tüm açık sekmeler yeni bir klasöre kaydedilsin mi? Klasör ismi:", defaultTitle);
+  if (promptText === null) {
+    return;
+  }
+  const folderTitle = promptText.trim() || defaultTitle;
+  const response = await sendMessage({
+    type: "BF_SAVE_OPEN_TABS",
+    folderTitle
+  });
+
+  if (response?.ok) {
+    appState = response;
+    render();
+    window.alert(t("saveOpenTabsSuccess", String(response.savedCount || 0)) || `${response.savedCount} sekme kaydedildi.`);
+  } else {
+    window.alert(response?.error || t("saveOpenTabsFailed") || "Sekmeler kaydedilemedi.");
+  }
+}
+
+async function toggleReadingDrawer() {
+  if (elements.readingDrawer.hidden) {
+    elements.readingDrawer.hidden = false;
+    await loadAndRenderReadingList();
+  } else {
+    elements.readingDrawer.hidden = true;
+  }
+}
+
+function closeReadingDrawer() {
+  elements.readingDrawer.hidden = true;
+}
+
+async function loadAndRenderReadingList() {
+  const response = await sendMessage({ type: "BF_GET_READING_LIST" });
+  const list = response?.readingList || [];
+  elements.readingListContainer.innerHTML = "";
+
+  if (!list.length) {
+    const empty = document.createElement("div");
+    empty.className = "nt-reading-empty";
+    empty.textContent = t("readingListEmpty") || "Okuma listeniz boş.";
+    elements.readingListContainer.append(empty);
+    return;
+  }
+
+  list.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "nt-reading-item";
+
+    const link = document.createElement("a");
+    link.className = "nt-reading-item-title";
+    link.href = item.url;
+    link.textContent = item.title || item.url;
+    link.target = "_blank";
+    link.rel = "noreferrer noopener";
+
+    const doneBtn = document.createElement("button");
+    doneBtn.type = "button";
+    doneBtn.className = "nt-reading-item-done";
+    doneBtn.textContent = "✓ " + (t("markDone") || "Okundu");
+    doneBtn.title = t("removeFromReadingList") || "Okuma listesinden kaldır";
+    doneBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      await sendMessage({ type: "BF_REMOVE_READING_LIST", id: item.id });
+      await loadAndRenderReadingList();
+    });
+
+    row.append(link, doneBtn);
+    elements.readingListContainer.append(row);
+  });
+}
+
 function render() {
   const settings = normalizeSettings(appState?.settings);
   const children = appState?.bookmarkBar?.children || [];
@@ -203,6 +307,7 @@ function render() {
   const folderToRestore = activeFolderId;
 
   document.documentElement.dataset.theme = settings.theme || "gold-obsidian";
+  applyBackgroundSettings();
 
   elements.bookmarkBar.hidden = !settings.enabled;
   elements.bookmarkBar.style.setProperty("--nt-rows", String(settings.rows));
@@ -481,7 +586,42 @@ function handleSearchInput() {
       type: "action",
       action: "openHealthInspector",
       title: t("quickActionOpenHealth"),
+      desc: t("quickActionOpenHealthDesc"),
+      icon: "🩺",
       url: "src/bookmark-maintenance.html#health"
+    });
+  }
+
+  const isSaveTabsQuery = /^(stash|tabs|sekmeler|sakla|save tabs|#stash|#tabs)/i.test(query.toLowerCase());
+  if (isSaveTabsQuery) {
+    results.unshift({
+      type: "action",
+      action: "saveOpenTabs",
+      title: t("quickActionSaveTabs"),
+      desc: t("quickActionSaveTabsDesc"),
+      icon: "📥"
+    });
+  }
+
+  const isReadingQuery = /^(read|oku|later|reading|liste|#reading|#later)/i.test(query.toLowerCase());
+  if (isReadingQuery) {
+    results.unshift({
+      type: "action",
+      action: "openReadingList",
+      title: t("quickActionReadingList"),
+      desc: t("quickActionReadingListDesc"),
+      icon: "📖"
+    });
+  }
+
+  const isBackupQuery = /^(backup|yedek|export|restore|#backup)/i.test(query.toLowerCase());
+  if (isBackupQuery) {
+    results.unshift({
+      type: "action",
+      action: "exportBackup",
+      title: t("quickActionBackup"),
+      desc: t("quickActionBackupDesc"),
+      icon: "💾"
     });
   }
 
@@ -569,7 +709,7 @@ function renderSearchResults() {
 
     if (item.type === "action") {
       card.href = "#";
-      iconBox.textContent = "🩺";
+      iconBox.textContent = item.icon || "⚡";
     } else if (item.type === "bookmark") {
       card.href = item.url;
       const favicon = document.createElement("img");
@@ -597,7 +737,7 @@ function renderSearchResults() {
     const urlEl = document.createElement("div");
     urlEl.className = "nt-search-item-url";
     urlEl.textContent = item.type === "action"
-      ? t("quickActionOpenHealthDesc")
+      ? (item.desc || t("quickActionOpenHealthDesc"))
       : (item.type === "bookmark" ? item.url : (t("webSearch") || "Search"));
 
     info.append(titleEl, urlEl);
@@ -643,12 +783,37 @@ function renderSearchResults() {
   }
 }
 
-function openSearchResult(item, event) {
+async function openSearchResult(item, event) {
   const isNewTab = event.ctrlKey || event.metaKey;
 
-  if (item.type === "action" && item.action === "openHealthInspector") {
+  if (item.type === "action") {
     hideSearchResults();
-    chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html#health") });
+    if (item.action === "openHealthInspector") {
+      chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html#health") });
+      return;
+    }
+    if (item.action === "saveOpenTabs") {
+      handleSaveOpenTabs();
+      return;
+    }
+    if (item.action === "openReadingList") {
+      toggleReadingDrawer();
+      return;
+    }
+    if (item.action === "exportBackup") {
+      const response = await sendMessage({ type: "BF_EXPORT_BACKUP" });
+      if (response?.ok && response.backup) {
+        const blob = new Blob([JSON.stringify(response.backup, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const dateStr = new Date().toISOString().slice(0, 10);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `bookmarkflow-backup-${dateStr}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+      return;
+    }
     return;
   }
 
