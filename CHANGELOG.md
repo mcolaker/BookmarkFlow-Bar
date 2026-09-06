@@ -4,6 +4,17 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
+## [0.2.0] — 2026-09-07
+
+### Added
+
+- Add Stash All Open Tabs to Folder (`BF_SAVE_OPEN_TABS`): Save all active window tabs into an organized timestamped bookmark session folder via New Tab action button, Popup, or Spotlight command palette (`#stash`).
+- Add Offline JSON Backup & Restore (`BF_EXPORT_BACKUP`, `BF_IMPORT_BACKUP`): Export full offline backup in `bookmarkflow-backup-v1` schema and restore settings, folder colors, bookmark tags, pinned rails, reading list, and bookmark trees.
+- Add Zero-Cloud Smart Auto-Tagging: Local domain and path rules automatically suggesting `#dev`, `#ai`, `#video`, `#social`, `#design`, and `#reading` tags without external network calls, with user toggle in popup settings.
+- Add Offline Reading List (`bfReadingList`): Interactive sliding Reading Drawer in New Tab page with one-click "✓ Done" removal and quick page stash from Spotlight palette.
+- Add New Tab Wallpapers & Ambient Themes: Support for Obsidian dark, Midnight Gradient, Emerald Aurora, and custom offline user-uploaded wallpapers.
+- Add Spotlight Command Palette Quick Actions: Instant launcher actions for `#stash`, `#reading`, `#backup`, and `#health` directly from `Alt+Shift+K` search.
+
 ## [0.1.45] — 2026-09-04
 
 ### Added
