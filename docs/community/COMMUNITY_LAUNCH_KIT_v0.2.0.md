@@ -124,14 +124,14 @@ Would love any thoughts, bug reports, or feature ideas!
 ## 4. X (Twitter) Announcement (< 280 characters)
 
 ```text
-BookmarkFlow Bar v0.2.0 Power Suite is live! 📦⚡
+BookmarkFlow Bar v0.2.0 is live! 📦⚡
 
-Transform bookmarks into an offline workstation:
-✨ Stash open tabs to folder (#stash)
-💾 Offline JSON backup & merge restore
-🏷️ Zero-cloud smart auto-tags
-📚 Reading List drawer & ambient themes
-🛡️ 100% local-first
+A 100% local-first bookmark workstation:
+✨ Stash tabs to folder (#stash)
+💾 Offline JSON backup & merge
+🏷️ Zero-cloud auto-tags
+📚 Reading List drawer & themes
+🛡️ 100% private
 
 github.com/mcolaker/BookmarkFlow-Bar
 ```
