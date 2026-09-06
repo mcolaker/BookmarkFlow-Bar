@@ -443,3 +443,24 @@ kbd,
   background: rgba(242, 201, 76, 0.16);
   border-color: var(--popup-accent);
 }
+
+.backup-row {
+  display: flex;
+  gap: 8px;
+}
+
+.backup-row > button {
+  flex: 1;
+}
+
+.compact-status {
+  font-size: 11px;
+  color: var(--popup-accent);
+  margin: 0;
+  text-align: center;
+}
+
+.compact-status[hidden] {
+  display: none;
+}
+

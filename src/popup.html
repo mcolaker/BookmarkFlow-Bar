@@ -95,6 +95,22 @@
         <span data-i18n="avoidAppTopBars">Move below conflicting app bars</span>
       </label>
 
+      <label class="check" title="Automatically suggest tags like #dev, #video, #social based on domain and URL" data-i18n-title="autoTaggingTitle">
+        <input id="autoTagging" type="checkbox">
+        <span data-i18n="autoTagging">Automatic smart tagging</span>
+      </label>
+
+      <section class="control">
+        <span class="label" data-i18n="newTabBackground">New tab background</span>
+        <div class="segments" role="group" aria-label="New tab background" data-i18n-aria-label="newTabBackgroundAria">
+          <button type="button" data-bg="obsidian" data-i18n="bgObsidian">Obsidian</button>
+          <button type="button" data-bg="midnight-gradient" data-i18n="bgMidnight">Midnight</button>
+          <button type="button" data-bg="emerald-aurora" data-i18n="bgEmerald">Aurora</button>
+          <button type="button" data-bg="custom" data-i18n="bgCustom">Custom</button>
+        </div>
+        <input id="customWallpaperInput" type="file" accept="image/*" hidden>
+      </section>
+
       <section id="siteControl" class="site-control" hidden>
         <span id="siteHost" class="label" data-i18n="thisSite">This site</span>
         <button id="toggleSite" class="secondary" type="button" data-i18n="hideOnThisSite">Hide on this site</button>
@@ -130,8 +146,15 @@
         </dl>
       </section>
 
+      <button id="saveOpenTabsBtn" class="secondary" type="button" data-i18n="saveOpenTabs">📥 Save open tabs</button>
       <button id="openHealthInspector" class="secondary health-button" type="button" data-i18n="openHealthInspector" data-i18n-title="openHealthInspectorTitle">🩺 Bookmark health & dead link inspector</button>
       <button id="openBookmarkMaintenance" class="secondary" type="button" data-i18n="mergeDuplicateFolders">📁 Merge duplicate folders</button>
+      <div class="backup-row">
+        <button id="exportBackupBtn" class="secondary" type="button" data-i18n="exportBackup">💾 Export backup</button>
+        <button id="importBackupBtn" class="secondary" type="button" data-i18n="importBackup">📥 Restore</button>
+        <input id="importFileInput" type="file" accept=".json,application/json" hidden>
+      </div>
+      <p id="backupStatus" class="status compact-status" role="status" aria-live="polite" hidden></p>
       <button id="resetPosition" class="secondary subtle" type="button" data-i18n="resetPosition">Reset panel position</button>
     </main>
     <script src="i18n.js"></script>

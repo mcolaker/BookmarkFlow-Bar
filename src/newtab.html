@@ -21,6 +21,8 @@
       <div class="nt-brand">BF</div>
       <div class="nt-strip" id="bookmarkStrip" role="navigation" aria-label="Bookmarks" data-i18n-aria-label="bookmarks"></div>
       <div class="nt-actions">
+        <button class="nt-icon-button" id="saveOpenTabs" type="button" title="Save open tabs" aria-label="Save open tabs" data-i18n-title="saveOpenTabs" data-i18n-aria-label="saveOpenTabs">📥</button>
+        <button class="nt-icon-button" id="readingListBtn" type="button" title="Reading list" aria-label="Reading list" data-i18n-title="readingList" data-i18n-aria-label="readingList">📖</button>
         <button class="nt-icon-button" id="addBookmark" type="button" title="Add bookmark" aria-label="Add bookmark" data-i18n-title="addBookmark" data-i18n-aria-label="addBookmark">+</button>
         <button class="nt-icon-button" id="scrollLeft" type="button" title="Scroll left" aria-label="Scroll left" data-i18n-title="scrollLeft" data-i18n-aria-label="scrollLeft">&lsaquo;</button>
         <button class="nt-icon-button" id="scrollRight" type="button" title="Scroll right" aria-label="Scroll right" data-i18n-title="scrollRight" data-i18n-aria-label="scrollRight">&rsaquo;</button>
@@ -31,6 +33,13 @@
           <button class="nt-folder-rail-add" id="addFolder" type="button" title="Add folder" aria-label="Add folder" data-i18n-title="addFolder" data-i18n-aria-label="addFolder">+</button>
         </div>
         <div class="nt-folder-rail-list" id="folderRailList"></div>
+      </aside>
+      <aside class="nt-reading-drawer" id="readingDrawer" aria-label="Reading list" data-i18n-aria-label="readingList" hidden>
+        <div class="nt-reading-head">
+          <span data-i18n="readingList">Reading List</span>
+          <button class="nt-reading-close" id="readingClose" type="button" title="Close" aria-label="Close" data-i18n-title="close" data-i18n-aria-label="close">×</button>
+        </div>
+        <div class="nt-reading-list" id="readingListContainer"></div>
       </aside>
       <div class="nt-menu" id="folderMenu" hidden></div>
       <div class="nt-context-menu" id="contextMenu" hidden></div>

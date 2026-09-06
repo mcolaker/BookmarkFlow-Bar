@@ -6,8 +6,11 @@ const {
   DATA_CONSENT_VERSION,
   LOCAL_SETTINGS_DEFAULTS,
   SYNC_DEFAULT_SETTINGS,
+  BOOKMARK_TAGS_STORAGE_KEY,
+  READING_LIST_STORAGE_KEY,
   areBookmarkUrlsEqual,
   isSafeBookmarkUrl,
+  normalizeAllBookmarkTags,
   normalizeFolderColor,
   normalizeFolderColors,
   normalizeHosts,
@@ -26,6 +29,12 @@ const MESSAGE_CREATE_BOOKMARK = "BF_CREATE_BOOKMARK";
 const MESSAGE_CREATE_FOLDER = "BF_CREATE_FOLDER";
 const MESSAGE_RENAME_BOOKMARK = "BF_RENAME_BOOKMARK";
 const MESSAGE_SET_FOLDER_COLOR = "BF_SET_FOLDER_COLOR";
+const MESSAGE_SAVE_OPEN_TABS = "BF_SAVE_OPEN_TABS";
+const MESSAGE_EXPORT_BACKUP = "BF_EXPORT_BACKUP";
+const MESSAGE_IMPORT_BACKUP = "BF_IMPORT_BACKUP";
+const MESSAGE_GET_READING_LIST = "BF_GET_READING_LIST";
+const MESSAGE_ADD_READING_LIST = "BF_ADD_READING_LIST";
+const MESSAGE_REMOVE_READING_LIST = "BF_REMOVE_READING_LIST";
 const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 const FOLDER_RAIL_DEFAULT_MIGRATION_KEY = "bfFolderRailDefaultLeftV1";
 const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
@@ -208,6 +217,18 @@ function routeMessage(message, sender) {
       ? () => renameBookmark(message)
     : message?.type === MESSAGE_SET_FOLDER_COLOR
       ? () => setFolderColor(message)
+    : message?.type === MESSAGE_SAVE_OPEN_TABS
+      ? () => saveOpenTabs(message)
+    : message?.type === MESSAGE_EXPORT_BACKUP
+      ? () => exportBackup()
+    : message?.type === MESSAGE_IMPORT_BACKUP
+      ? () => importBackup(message)
+    : message?.type === MESSAGE_GET_READING_LIST
+      ? () => getReadingList()
+    : message?.type === MESSAGE_ADD_READING_LIST
+      ? () => addToReadingList(message)
+    : message?.type === MESSAGE_REMOVE_READING_LIST
+      ? () => removeFromReadingList(message)
       : null;
 
   return protectedTask ? runWithDataConsent(protectedTask) : null;
@@ -785,6 +806,238 @@ async function setFolderColor(message) {
 
   scheduleBroadcast();
   return getState();
+}
+
+async function saveOpenTabs(message) {
+  const tabs = await chrome.tabs.query({ currentWindow: true });
+  const validTabs = tabs.filter((t) => t.url && isSafeBookmarkUrl(t.url));
+
+  if (!validTabs.length) {
+    return {
+      ok: false,
+      error: t("noSaveableTabsFound") || "Kaydedilecek geçerli sekme bulunamadı."
+    };
+  }
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString(getLanguage() === "tr" ? "tr-TR" : "en-US");
+  const timeStr = now.toLocaleTimeString(getLanguage() === "tr" ? "tr-TR" : "en-US", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+  const defaultTitle = `${t("session") || "Oturum"} - ${dateStr}, ${timeStr}`;
+  const folderTitle = (typeof message?.folderTitle === "string" && message.folderTitle.trim())
+    ? message.folderTitle.trim()
+    : defaultTitle;
+
+  const root = await getBookmarkTreeRoot();
+  const bookmarkBar = selectBookmarkBarNode(root);
+  const targetParent = getBookmarkCreateParent(root, bookmarkBar, message?.parentId) || bookmarkBar;
+
+  const folder = await chrome.bookmarks.create({
+    parentId: targetParent.id,
+    title: folderTitle
+  });
+
+  for (const tab of validTabs) {
+    await chrome.bookmarks.create({
+      parentId: folder.id,
+      title: tab.title || tab.url,
+      url: tab.url
+    });
+  }
+
+  if (message?.closeSavedTabs === true) {
+    const tabIdsToClose = validTabs.map((t) => t.id).filter((id) => typeof id === "number");
+    if (tabIdsToClose.length > 0) {
+      await chrome.tabs.create({ url: chrome.runtime.getURL("src/newtab.html") }).catch(() => {});
+      await chrome.tabs.remove(tabIdsToClose).catch(() => {});
+    }
+  }
+
+  scheduleBroadcast();
+  const nextState = await getState();
+  return {
+    ...nextState,
+    ok: true,
+    savedCount: validTabs.length,
+    folderId: folder.id,
+    folderTitle
+  };
+}
+
+async function exportBackup() {
+  const [settings, localData, [treeRoot]] = await Promise.all([
+    getSettings(),
+    chrome.storage.local.get([
+      "folderColors",
+      BOOKMARK_TAGS_STORAGE_KEY,
+      FOLDER_RAIL_PINNED_STORAGE_KEY,
+      READING_LIST_STORAGE_KEY
+    ]),
+    chrome.bookmarks.getTree()
+  ]);
+
+  return {
+    ok: true,
+    backup: {
+      schema: "bookmarkflow-backup-v1",
+      exportedAt: new Date().toISOString(),
+      settings,
+      folderColors: localData.folderColors || {},
+      bookmarkTags: localData[BOOKMARK_TAGS_STORAGE_KEY] || {},
+      pinnedFolderIds: localData[FOLDER_RAIL_PINNED_STORAGE_KEY] || [],
+      readingList: localData[READING_LIST_STORAGE_KEY] || [],
+      bookmarkTree: treeRoot || null
+    }
+  };
+}
+
+async function importBackup(message) {
+  const backup = message?.backup;
+  if (!backup || typeof backup !== "object") {
+    return {
+      ok: false,
+      error: t("invalidBackupFile") || "Geçersiz yedekleme dosyası."
+    };
+  }
+
+  if (backup.settings && typeof backup.settings === "object") {
+    const validSettings = normalizeSyncedSettings(backup.settings);
+    await chrome.storage.sync.set(validSettings);
+  }
+
+  const localUpdates = {};
+  if (backup.folderColors && typeof backup.folderColors === "object") {
+    localUpdates.folderColors = normalizeFolderColors(backup.folderColors);
+  }
+  if (backup.bookmarkTags && typeof backup.bookmarkTags === "object") {
+    localUpdates[BOOKMARK_TAGS_STORAGE_KEY] = normalizeAllBookmarkTags(backup.bookmarkTags);
+  }
+  if (Array.isArray(backup.pinnedFolderIds)) {
+    localUpdates[FOLDER_RAIL_PINNED_STORAGE_KEY] = backup.pinnedFolderIds.filter((id) => typeof id === "string");
+  }
+  if (Array.isArray(backup.readingList)) {
+    localUpdates[READING_LIST_STORAGE_KEY] = backup.readingList.filter((item) => item?.url && isSafeBookmarkUrl(item.url));
+  }
+
+  if (Object.keys(localUpdates).length > 0) {
+    await chrome.storage.local.set(localUpdates);
+  }
+
+  if (message?.restoreBookmarks === true && backup.bookmarkTree) {
+    const root = await getBookmarkTreeRoot();
+    const bookmarkBar = selectBookmarkBarNode(root);
+    const dateStr = new Date().toLocaleDateString(getLanguage() === "tr" ? "tr-TR" : "en-US");
+    const container = await chrome.bookmarks.create({
+      parentId: bookmarkBar.id,
+      title: `${t("restoredBookmarks") || "Geri Yüklenen Yer İmleri"} - ${dateStr}`
+    });
+
+    async function restoreNodesRecursively(node, targetParentId) {
+      if (!node) return;
+      if (Array.isArray(node.children)) {
+        let currentParent = targetParentId;
+        if (node.title && node.id !== "0" && node.id !== "1" && node.id !== "2") {
+          const createdFolder = await chrome.bookmarks.create({
+            parentId: targetParentId,
+            title: node.title
+          });
+          currentParent = createdFolder.id;
+        }
+        for (const child of node.children) {
+          await restoreNodesRecursively(child, currentParent);
+        }
+      } else if (node.url && isSafeBookmarkUrl(node.url)) {
+        await chrome.bookmarks.create({
+          parentId: targetParentId,
+          title: node.title || node.url,
+          url: node.url
+        });
+      }
+    }
+
+    await restoreNodesRecursively(backup.bookmarkTree, container.id);
+  }
+
+  scheduleBroadcast();
+  const nextState = await getState();
+  return {
+    ...nextState,
+    ok: true
+  };
+}
+
+async function getReadingList() {
+  const data = await chrome.storage.local.get(READING_LIST_STORAGE_KEY);
+  const list = Array.isArray(data[READING_LIST_STORAGE_KEY]) ? data[READING_LIST_STORAGE_KEY] : [];
+  return {
+    ok: true,
+    readingList: list
+  };
+}
+
+async function addToReadingList(message) {
+  const rawUrl = String(message?.url || "").trim();
+  const title = String(message?.title || "").trim();
+  const url = normalizeBookmarkUrl(rawUrl);
+
+  if (!url || !isSafeBookmarkUrl(url)) {
+    return {
+      ok: false,
+      error: t("validUrlRequired")
+    };
+  }
+
+  const data = await chrome.storage.local.get(READING_LIST_STORAGE_KEY);
+  const list = Array.isArray(data[READING_LIST_STORAGE_KEY]) ? data[READING_LIST_STORAGE_KEY] : [];
+
+  const existing = list.some((item) => areBookmarkUrlsEqual(item.url, url));
+  if (existing) {
+    return {
+      ok: true,
+      alreadyInList: true,
+      readingList: list
+    };
+  }
+
+  const item = {
+    id: `rl_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    title: title || url,
+    url,
+    addedAt: new Date().toISOString()
+  };
+
+  const updatedList = [item, ...list].slice(0, 200);
+  await chrome.storage.local.set({ [READING_LIST_STORAGE_KEY]: updatedList });
+  scheduleBroadcast();
+
+  return {
+    ok: true,
+    addedItem: item,
+    readingList: updatedList
+  };
+}
+
+async function removeFromReadingList(message) {
+  const id = String(message?.id || "");
+  const rawUrl = String(message?.url || "");
+  const data = await chrome.storage.local.get(READING_LIST_STORAGE_KEY);
+  const list = Array.isArray(data[READING_LIST_STORAGE_KEY]) ? data[READING_LIST_STORAGE_KEY] : [];
+
+  const updatedList = list.filter((item) => {
+    if (id && item.id === id) return false;
+    if (rawUrl && areBookmarkUrlsEqual(item.url, rawUrl)) return false;
+    return true;
+  });
+
+  await chrome.storage.local.set({ [READING_LIST_STORAGE_KEY]: updatedList });
+  scheduleBroadcast();
+
+  return {
+    ok: true,
+    readingList: updatedList
+  };
 }
 
 function getBookmarkCreateParent(root, bookmarkBar, requestedParentId) {

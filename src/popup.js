@@ -37,7 +37,15 @@ const controls = {
   siteControl: document.getElementById("siteControl"),
   siteHost: document.getElementById("siteHost"),
   siteStatus: document.getElementById("siteStatus"),
-  toggleSite: document.getElementById("toggleSite")
+  toggleSite: document.getElementById("toggleSite"),
+  autoTagging: document.getElementById("autoTagging"),
+  newTabBackground: Array.from(document.querySelectorAll("[data-bg]")),
+  customWallpaperInput: document.getElementById("customWallpaperInput"),
+  saveOpenTabsBtn: document.getElementById("saveOpenTabsBtn"),
+  exportBackupBtn: document.getElementById("exportBackupBtn"),
+  importBackupBtn: document.getElementById("importBackupBtn"),
+  importFileInput: document.getElementById("importFileInput"),
+  backupStatus: document.getElementById("backupStatus")
 };
 
 let currentSettings = { ...DEFAULT_SETTINGS };
@@ -146,6 +154,135 @@ async function init() {
     });
   });
 
+  if (controls.autoTagging) {
+    controls.autoTagging.addEventListener("change", () => {
+      chrome.storage.sync.set({
+        autoTagging: controls.autoTagging.checked
+      });
+    });
+  }
+
+  controls.newTabBackground.forEach((button) => {
+    button.addEventListener("click", () => {
+      const bg = button.dataset.bg;
+      if (bg === "custom") {
+        controls.customWallpaperInput?.click();
+      } else {
+        chrome.storage.sync.set({ newTabBackground: bg });
+      }
+    });
+  });
+
+  if (controls.customWallpaperInput) {
+    controls.customWallpaperInput.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        await chrome.storage.local.set({ bfCustomWallpaper: reader.result });
+        await chrome.storage.sync.set({ newTabBackground: "custom" });
+        currentSettings.newTabBackground = "custom";
+        render(currentSettings);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (controls.saveOpenTabsBtn) {
+    controls.saveOpenTabsBtn.addEventListener("click", async () => {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString();
+      const defaultTitle = `${t("session") || "Session"} - ${dateStr}`;
+      const promptText = window.prompt(t("saveOpenTabsPrompt"), defaultTitle);
+      if (promptText === null) {
+        return;
+      }
+      const folderTitle = promptText.trim() || defaultTitle;
+      const response = await sendMessage({
+        type: "BF_SAVE_OPEN_TABS",
+        folderTitle
+      });
+      if (response?.ok) {
+        window.alert(t("saveOpenTabsSuccess", String(response.savedCount || 0)));
+      } else {
+        window.alert(response?.error || t("saveOpenTabsFailed"));
+      }
+    });
+  }
+
+  if (controls.exportBackupBtn) {
+    controls.exportBackupBtn.addEventListener("click", async () => {
+      const response = await sendMessage({ type: "BF_EXPORT_BACKUP" });
+      if (!response?.ok || !response.backup) {
+        if (controls.backupStatus) {
+          controls.backupStatus.hidden = false;
+          controls.backupStatus.textContent = t("backupExportFailed");
+        }
+        return;
+      }
+      const blob = new Blob([JSON.stringify(response.backup, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `bookmarkflow-backup-${dateStr}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      if (controls.backupStatus) {
+        controls.backupStatus.hidden = false;
+        controls.backupStatus.textContent = t("backupExportSuccess");
+        window.setTimeout(() => {
+          if (controls.backupStatus) controls.backupStatus.hidden = true;
+        }, 3000);
+      }
+    });
+  }
+
+  if (controls.importBackupBtn) {
+    controls.importBackupBtn.addEventListener("click", () => {
+      controls.importFileInput?.click();
+    });
+  }
+
+  if (controls.importFileInput) {
+    controls.importFileInput.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const confirmRestore = window.confirm(t("backupImportConfirm"));
+      if (!confirmRestore) {
+        e.target.value = "";
+        return;
+      }
+      try {
+        const text = await file.text();
+        const backupData = JSON.parse(text);
+        const response = await sendMessage({
+          type: "BF_IMPORT_BACKUP",
+          backup: backupData,
+          restoreBookmarks: true
+        });
+        if (response?.ok) {
+          if (controls.backupStatus) {
+            controls.backupStatus.hidden = false;
+            controls.backupStatus.textContent = t("backupImportSuccess");
+          }
+          window.setTimeout(() => window.location.reload(), 1000);
+        } else {
+          if (controls.backupStatus) {
+            controls.backupStatus.hidden = false;
+            controls.backupStatus.textContent = response?.error || t("backupImportInvalid");
+          }
+        }
+      } catch {
+        if (controls.backupStatus) {
+          controls.backupStatus.hidden = false;
+          controls.backupStatus.textContent = t("backupImportInvalid");
+        }
+      }
+      e.target.value = "";
+    });
+  }
+
   controls.rows.forEach((button) => {
     button.addEventListener("click", () => {
       chrome.storage.sync.set({ rows: Number(button.dataset.rows) });
@@ -248,6 +385,9 @@ function render(settings) {
   controls.streamerMode.checked = normalized.streamerMode;
   controls.autoHideSensitiveSites.checked = normalized.autoHideSensitiveSites;
   controls.avoidAppTopBars.checked = normalized.avoidAppTopBars;
+  if (controls.autoTagging) {
+    controls.autoTagging.checked = normalized.autoTagging;
+  }
 
   document.documentElement.dataset.theme = normalized.theme;
 
@@ -257,6 +397,10 @@ function render(settings) {
 
   controls.theme.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.theme === normalized.theme);
+  });
+
+  controls.newTabBackground.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.bg === normalized.newTabBackground);
   });
 
   controls.rows.forEach((button) => {

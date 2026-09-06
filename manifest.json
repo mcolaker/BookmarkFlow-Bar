@@ -9,7 +9,8 @@
     "bookmarks",
     "storage",
     "favicon",
-    "search"
+    "search",
+    "tabs"
   ],
   "action": {
     "default_title": "__MSG_appName__",

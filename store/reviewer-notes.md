@@ -42,6 +42,6 @@ Right-clicking a BookmarkFlow bookmark opens a local extension menu for opening 
 
 ## Permissions
 
-The extension uses only `bookmarks`, `storage`, `favicon`, and `search` permissions plus a content script on regular web pages.
+The extension uses only `bookmarks`, `storage`, `favicon`, `search`, and `tabs` permissions plus a content script on regular web pages.
 
-`bookmarks` is required to render bookmarks and to create, move, or delete bookmarks only after explicit user actions. `storage` is required for preferences. `favicon` is required for bookmark favicons. `search` is required to submit new-tab web searches through the user's existing default search provider. The content script is required to render the overlay on websites.
+`bookmarks` is required to render bookmarks and to create, move, or delete bookmarks only after explicit user actions. `storage` is required for preferences. `favicon` is required for bookmark favicons. `search` is required to submit new-tab web searches through the user's existing default search provider. `tabs` is required solely to read titles and URLs of open tabs when the user explicitly triggers "Save all tabs to folder" (Stash Tabs), saving them locally into a bookmark folder. The content script is required to render the overlay on websites.
