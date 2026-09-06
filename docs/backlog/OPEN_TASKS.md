@@ -364,3 +364,20 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all` (59/59 test), `node scripts/validate-backlog.mjs`, `git diff --check` temizdir; exact-tag ZIP ve SHA-256 değerleri GitHub Release varlıklarıyla birebir eşleşti.
 - Sonraki adım: Yok; v0.1.45 sürümü GitHub'da yayımlandı, çapraz tarayıcı paketleri doğrulandı ve lansman kitleri teslim edildi.
 - Son güncelleme: 2026-09-04.
+
+## BF-QA-001 - Yer imi özelliklerinin (ekleme, silme, taşıma/sıralama, yeniden adlandırma, klasörler, etiketler, arama ve senkronizasyon) kapsamlı canlı Video QA ve fonksiyonel doğrulamasını gerçekleştir
+
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-07 tarihinde yer imi özelliklerinin (ekleme, silme, yer değiştirme, yeniden adlandırma, klasör yönetimi, akıllı etiketler, arama ve canlı senkronizasyon) baştan sona canlı olarak test edilmesini talep etti. `scratch/test-all-bookmark-features.mjs` betiği oluşturuldu ve gerçek izole Chrome profili ile Playwright üzerinde 32 ayrı otomatik fonksiyonel ve UI testi icra edildi. Testlerin 32/32'si (100%) başarıyla geçti:
+  1. Yer imi ekleme: API üzerinden oluşturma, `javascript:` ve `data:` güvensiz URL'lerin fail-closed engellenmesi, tekilleştirme denetimi (`allowDuplicate: false/true`), toplu oluşturma ve New Tab modal formu üzerinden doğrudan yer imi ekleme.
+  2. Klasör yönetimi: Üst düzey klasör oluşturma, klasör içine alt yer imi yerleştirme, özel renk paleti (`#41d17d`) atama ve `chrome.storage.local` üzerinde kalıcılık.
+  3. Yeniden sıralama ve taşıma: Üst düzey çubukta yer imlerini hedefin önüne/arkasına taşıma (`BF_MOVE_TOP_LEVEL`), hedef indeks doğrulama, kendine taşıma girişimini güvenle reddetme ve kök çubuktan klasör içine taşıma.
+  4. Yeniden adlandırma: Yer imini `BF_RENAME_BOOKMARK` ile yeniden adlandırma, ağaçtaki başlık güncellenmesi ve boş başlık denemelerini güvenle engelleme.
+  5. Akıllı etiketler: `#tag` etiketlerinin `chrome.storage.local` üzerinde depolanması ve Spotlight aramasında filtreleme.
+  6. Sayfa içi UI ve New Tab: Sayfa içi çubuk enjeksiyonu, `toggle-bar` komutu ile genişletme, `--bookmarkflow-offset` sayfa payı ayarı, Spotlight komut paleti açılışı, New Tab yer imi ve klasör render'ı, `+` modalı ile yer imi ekleme ve gerçek zamanlı arama sonuç listesi.
+  7. Silme: Yer imi silme, ağaçtan kalkış denetimi, klasör ağacı silme (`removeTree`) ve tüm alt düğümlerin temizlenmesi.
+  8. Canlı reaktif senkronizasyon: Dışarıdan (`chrome.bookmarks.create`) eklenen yer iminin anında açık New Tab DOM'una yansıması.
+- Kabul kriteri: Gerçek Chrome uzantı ortamında ve Playwright üzerinde yer imi ekleme, silme, taşıma ve yeniden sıralama, yeniden adlandırma, klasör oluşturma/renklendirme/silme, akıllı etiketleme (#tag), Spotlight arama ve canlı reactive senkronizasyon test edilir; video kaydı alınır ve zaman damgalı karelerle akıcılık/arayüz doğrulanır; sıfır regresyon sağlanır.
+- Doğrulama kapısı: 32/32 otomatik test başarılı (kod 0); `scratch/videos/bookmark_flow_qa.webm` video kaydı alındı; `qa_frame_001.png` ve `qa_frame_002.png` zaman damgalı kareleri incelenerek koyu lacivert/altın kontrastı, modal açılışı ve arama tepki süresi doğrulandı; `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir.
+- Sonraki adım: Yok; tüm yer imi özellikleri, kullanıcı arayüzü ve canlı senkronizasyon yetenekleri eksiksiz doğrulandı.
+- Son güncelleme: 2026-09-07.
