@@ -14,24 +14,24 @@
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
   <img alt="Firefox Add-ons Ready" src="https://img.shields.io/badge/Firefox-Add--ons%20Ready-FF7139?logo=firefoxbrowser&logoColor=white">
   <img alt="Microsoft Edge Compatible" src="https://img.shields.io/badge/Edge-Compatible-0078D7?logo=microsoftedge&logoColor=white">
-  <img alt="Source version 0.1.45" src="https://img.shields.io/badge/source-0.1.45-F2C94C">
+  <img alt="Source version 0.2.0" src="https://img.shields.io/badge/source-0.2.0-F2C94C">
   <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
 
 <p align="center">
   <strong><a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf">Install from Chrome Web Store</a></strong> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45.zip">Chrome ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-firefox.zip">Firefox ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-edge.zip">Edge ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45.zip.sha256">Verify SHA-256</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0.zip">Chrome ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0-firefox.zip">Firefox ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0-edge.zip">Edge ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0.zip.sha256">Verify SHA-256</a> ·
   <a href="#install-from-source">Installation guide</a> ·
   <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Product website</a> ·
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/discussions">Join Discussions</a>
 </p>
 
 <p align="center">
-  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.1.45 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
+  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.2.0 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
 </p>
 
 > [!NOTE]
@@ -54,6 +54,11 @@
 
 Chrome's native bookmarks bar is intentionally simple, but it cannot become a true multi-row workspace. BookmarkFlow adds a compact interface on top of regular web pages and replaces the new-tab page with a focused bookmark dashboard—without moving your bookmarks into a separate service.
 
+- **Stash all open tabs to folder.** Save all open tabs in your current window into an organized timestamped bookmark session folder with a single click or keyboard command (`#stash`).
+- **Offline JSON backup & restore.** Download complete, local-first snapshots of your bookmarks, settings, tags, and reading list in standard JSON format, and restore with safe merge.
+- **Zero-cloud smart auto-tagging.** Local, private tag engine that automatically associates bookmarks with `#dev`, `#ai`, `#video`, `#social`, `#design`, and `#reading` tags based on domain and URL patterns.
+- **Offline reading list drawer.** Keep a dedicated "Read Later" queue right in your New Tab page, check off read articles, or add pages instantly from the Spotlight command palette.
+- **Ambient New Tab wallpapers.** Choose between Obsidian dark, Midnight Gradient, Emerald Aurora, or custom offline user-uploaded wallpapers.
 - **See more at once.** Use multiple rows, compact density, horizontal scrolling, favicons, and readable titles.
 - **Find anything at the speed of thought.** Spotlight / Raycast style real-time search palette with cyclic arrow navigation (`ArrowDown`/`ArrowUp`), active result highlight, and instant keyboard shortcuts.
 - **Personalize your visual experience.** Switch effortlessly between 4 curated obsidian dark palettes: Gold Obsidian, OLED Midnight Black, Emerald Matrix, and Cyber Indigo, with instant real-time sync across popup, new tab, and page bar.
@@ -184,7 +189,7 @@ For development, testing, auditing, or reproducible offline installation, downlo
 
 #### 🌐 Google Chrome & Chromium (Brave, Vivaldi, Opera)
 
-1. Download [`bookmarkflow-bar-0.1.45.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45.zip.sha256).
+1. Download [`bookmarkflow-bar-0.2.0.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0.zip.sha256).
 2. Extract the archive into a folder.
 3. Navigate to `chrome://extensions` in your browser.
 4. Toggle on **Developer mode** in the upper-right corner.
@@ -193,7 +198,7 @@ For development, testing, auditing, or reproducible offline installation, downlo
 
 #### 🦊 Mozilla Firefox (Gecko MV3)
 
-1. Download [`bookmarkflow-bar-0.1.45-firefox.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-firefox.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-firefox.zip.sha256).
+1. Download [`bookmarkflow-bar-0.2.0-firefox.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0-firefox.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0-firefox.zip.sha256).
 2. Extract the archive.
 3. Open a new tab and navigate to `about:debugging#/runtime/this-firefox`.
 4. Click **Load Temporary Add-on...**.
@@ -202,7 +207,7 @@ For development, testing, auditing, or reproducible offline installation, downlo
 
 #### 🌊 Microsoft Edge
 
-1. Download [`bookmarkflow-bar-0.1.45-edge.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-edge.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.45/bookmarkflow-bar-0.1.45-edge.zip.sha256).
+1. Download [`bookmarkflow-bar-0.2.0-edge.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0-edge.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0-edge.zip.sha256).
 2. Extract the archive into a local folder.
 3. Navigate to `edge://extensions`.
 4. Turn on **Developer mode** in the left sidebar menu.

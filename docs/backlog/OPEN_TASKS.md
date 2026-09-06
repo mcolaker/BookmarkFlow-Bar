@@ -1,6 +1,6 @@
 # BookmarkFlow Bar Açık İşler
 
-Son güncelleme: 2026-09-03
+Son güncelleme: 2026-09-07
 
 Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kuralları için [AGENTS.md](../../AGENTS.md) otoritedir.
 
@@ -389,5 +389,14 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Kabul kriteri: `manifest.json` içine açık sekmeleri okuyup yer imi klasörüne toplamak amacıyla `"tabs"` izni eklenir; `store/reviewer-notes.md`, cross-browser testleri ve doğrulama betikleri güncellenir; `BF_SAVE_OPEN_TABS` ile pencerelerdeki sekmeler tarihli klasöre kaydedilir; `BF_EXPORT_BACKUP` ve `BF_IMPORT_BACKUP` ile tüm ayarlar, etiketler ve yer imleri doğrulanmış JSON dosyası olarak dışa/içe aktarılır; `AUTO_TAG_RULES` ile yerel sıfır-bulut akıllı etiketleme çalışır; geçici okuma listesi (`bfReadingList`) ve Yeni Sekme duvar kağıdı stilleri (obsidian, gradient, aurora, custom) entegre edilir; iki dilli yerelleştirme tam tutarlılık sağlar; `npm run validate:all` ve tarayıcı regresyonları temiz geçer.
 - Doğrulama kapısı: 60/60 otomatik birim ve sözleşme testi başarılı (`npm run test`); `npm run validate:all` (açık kaynak, DCO, sözleşmeler, project doğrulama, public tree ve backlog doğrulama) temiz geçti; `node scripts/security-regression.mjs` fail-closed gizlilik denetimlerini `pass` ile tamamladı; Playwright üzerinde `scratch/power_suite_qa.webm` video QA kaydı alındı ve `power_suite_frame_01.png` ile `power_suite_frame_02.png` incelenerek 5/5 yetenek (sekmeleri saklama, okuma listesi çekmecesi, JSON yedek aktarımı, akıllı etiketleme, midnight-gradient duvar kağıdı) başarıyla doğrulandı.
 - Sonraki adım: Yok; 5 temel yenilik eksiksiz tamamlandı ve doğrulandı.
+- Son güncelleme: 2026-09-07.
+
+## BF-REL-010 - v0.2.0 Power Suite sürümünü hazırla, çapraz tarayıcı paketlerini üret, görsel lansman varlıklarını oluştur ve GitHub Release yayınını gerçekleştir
+
+- Öncelik ve durum: P1, IN_PROGRESS.
+- Kök neden ve kanıt: Kullanıcı 2026-09-07 tarihinde 5 temel yeni özelliği içeren dönüm noktası sürümünün (v0.2.0 Power Suite) hazırlanmasını, çapraz tarayıcı (Chromium, Firefox, Edge) dağıtım paketlerinin üretilmesini, README'nin güncellenmesini, görsel lansman kitinin (X, LinkedIn, vitrin) hazırlanmasını ve GitHub Release yayınının yapılmasını onayladı. `manifest.json`, `package.json`, `CHANGELOG.md` 0.2.0 olarak güncellendi; `README.md` v0.2.0 rozetleri, yeni özellikler listesi ve kurulum bağlantıları ile eşitlendi.
+- Kabul kriteri: `manifest.json`, `package.json` ve `CHANGELOG.md` 0.2.0 sürümünü taşır; `README.md` zorunlu kural uyarınca v0.2.0 rozetleri, indirme bağlantıları ve yeni özellik açıklamaları ile güncellenir; PR oluşturulup CI testleri (60/60 test) geçtikten sonra `main` dalına merge edilir; annotated `v0.2.0` etiketi oluşturulup push edilir; Chromium, Firefox ve Edge dağıtım paketleri ile SHA-256 sağlama toplamları üretilir; GitHub Release `v0.2.0` paketlerle birlikte yayımlanır; X ve LinkedIn için görsel ve metin standartlarına uygun topluluk lansman kiti (`docs/community/COMMUNITY_LAUNCH_KIT_v0.2.0.md`) hazırlanır; görseller doğrudan kullanıcıya sunulur.
+- Doğrulama kapısı: `npm run validate:all` (60/60 test), `node scripts/validate-backlog.mjs`, `git diff --check` temiz geçer; exact-tag ZIP ve SHA-256 değerleri GitHub Release varlıklarıyla birebir eşleşir.
+- Sonraki adım: PR oluşturma, CI kontrolü, `main` merge, etiketleme, paketleme, görsel üretimi ve sürüm yayını.
 - Son güncelleme: 2026-09-07.
 
