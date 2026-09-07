@@ -58,7 +58,10 @@ const elements = {
   readingListBtn: document.getElementById("readingListBtn"),
   readingDrawer: document.getElementById("readingDrawer"),
   readingClose: document.getElementById("readingClose"),
-  readingListContainer: document.getElementById("readingListContainer")
+  readingListContainer: document.getElementById("readingListContainer"),
+  quickGuideBtn: document.getElementById("quickGuideBtn"),
+  quickTipsWidget: document.getElementById("quickTipsWidget"),
+  dismissQuickTips: document.getElementById("dismissQuickTips")
 };
 
 let appState = null;
@@ -107,6 +110,7 @@ async function init() {
   elements.searchInput.addEventListener("input", handleSearchInput);
   elements.searchInput.addEventListener("keydown", handleSearchKeydown);
   document.addEventListener("click", handleSearchOutsideClick);
+  initQuickTips();
   elements.addBookmark.addEventListener("click", () => openAddBookmarkDialog());
   elements.saveOpenTabs?.addEventListener("click", handleSaveOpenTabs);
   elements.readingListBtn?.addEventListener("click", toggleReadingDrawer);
@@ -239,6 +243,29 @@ async function handleSaveOpenTabs() {
     window.alert(t("saveOpenTabsSuccess", String(response.savedCount || 0)) || `${response.savedCount} sekme kaydedildi.`);
   } else {
     window.alert(response?.error || t("saveOpenTabsFailed") || "Sekmeler kaydedilemedi.");
+  }
+}
+
+async function initQuickTips() {
+  if (!elements.quickTipsWidget) return;
+
+  elements.quickGuideBtn?.addEventListener("click", () => {
+    elements.quickTipsWidget.hidden = !elements.quickTipsWidget.hidden;
+  });
+
+  elements.dismissQuickTips?.addEventListener("click", () => {
+    elements.quickTipsWidget.hidden = true;
+    chrome.storage.local.set({ bfQuickTipsDismissed: true }).catch(() => {});
+  });
+
+  try {
+    const quickTipsData = await chrome.storage.local.get("bfQuickTipsDismissed");
+    const hasAmpleScreenSpace = window.innerWidth >= 1024 && window.innerHeight >= 720;
+    if (!quickTipsData?.bfQuickTipsDismissed && hasAmpleScreenSpace) {
+      elements.quickTipsWidget.hidden = false;
+    }
+  } catch {
+    // Fail-safe
   }
 }
 

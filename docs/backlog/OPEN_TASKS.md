@@ -400,4 +400,11 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Sonraki adım: Yok; v0.2.0 Power Suite sürümü GitHub'da yayımlandı, çapraz tarayıcı paketleri doğrulandı ve görsel lansman kitleri teslim edildi.
 - Son güncelleme: 2026-09-07.
 
+## BF-UX-010 - 3 Katmanlı Bağlamsal Keşif Sistemini Uygula (Canlı Kurulum Sandbox'ı, Tek Seferlik Web İpucu ve Yeni Sekme Süper Güçler Rozeti)
 
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-07 tarihinde eklentiyi ilk kez kuran bir kullanıcının BookmarkFlow Bar'ın sunduğu yetenekleri (sayfa içi çubuk, Spotlight komut paleti, açık sekmeleri kaydetme, okuma listesi, sağlık merkezi ve temalar) en kolay, en doğal ve kalıcı şekilde öğrenebilmesi için 3 katmanlı bağlamsal ve yaşayan keşif mimarisinin uygulanmasını onayladı.
+- Kabul kriteri: `src/onboarding.html` ve `src/onboarding.js` içine `Alt+Shift+K` kısayolunu ve `#stash`, `#health`, `#reading` komutlarını canlı simüle eden interaktif klavye sandbox'ı (`#interactiveSandbox`) eklenir; `src/content.js` içinde `bfFirstRunTooltipSeen` bayrağı ile web sitelerinde `.bf-mark` butonunun yanında yalnızca ilk ziyarette beliren 6 saniyelik altın fısıltı (`.bf-intro-tooltip`, `Alt+Shift+B`) render edilir ve tetiklendiğinde kalıcı gizlenir; `src/newtab.html` ve `src/newtab.js` içine kapatılabilir `#quickTipsWidget` kartı ve araç çubuğuna `💡` hızlı rehber butonu eklenir; Türkçe ve İngilizce tüm 19 yeni anahtar tam pariteyle yerelleştirilir; sözleşme ve proje testleri temiz geçer.
+- Doğrulama kapısı: `npm run validate:all` (61/61 test, backlog ve asset sözleşmeleri), `scripts/security-regression.mjs` (fail-closed Chrome CDP güvenlik denetimi) ve Playwright video/ekran görüntüsü QA doğrulamaları yeşil geçmiş, `git diff --check` temizdir.
+- Sonraki adım: Yok; 3 katmanlı yaşayan keşif sistemi başarıyla tamamlandı ve doğrulandı.
+- Son güncelleme: 2026-09-07.

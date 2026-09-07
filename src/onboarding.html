@@ -37,6 +37,39 @@
       </section>
 
       <div id="setupContent" hidden>
+      <section class="section interactive-sandbox" id="interactiveSandbox" aria-labelledby="sandboxTitle">
+        <div class="sandbox-card">
+          <div class="sandbox-head">
+            <span class="sandbox-badge" data-i18n="sandboxBadge">Interactive Muscle Memory</span>
+            <span class="sandbox-try-pill" id="sandboxTryPill" data-i18n="sandboxTryAction">Click to test</span>
+          </div>
+          <h2 id="sandboxTitle" data-i18n="sandboxHeading">Try your superpower right now</h2>
+          <p class="sandbox-desc" data-i18n="sandboxPrompt">Press Alt + Shift + K (or click the terminal) to test the Spotlight Command Palette:</p>
+
+          <div class="sandbox-terminal" id="sandboxTerminal" tabindex="0" role="region" aria-label="Spotlight simulator">
+            <div class="terminal-bar">
+              <span class="terminal-dots"><i class="dot-red"></i><i class="dot-yellow"></i><i class="dot-green"></i></span>
+              <span class="terminal-title">Spotlight Command Simulator</span>
+            </div>
+            <div class="terminal-body" id="sandboxTerminalBody">
+              <div class="terminal-input-row">
+                <span class="terminal-prefix">#</span>
+                <span class="terminal-command" id="sandboxCommand">stash</span>
+                <span class="terminal-cursor"></span>
+              </div>
+              <div class="terminal-feedback" id="sandboxFeedback" hidden>
+                <div class="feedback-badge" data-i18n="sandboxSuccess">✨ Perfect! Alt + Shift + K opens this instantly anywhere on the web.</div>
+                <div class="feedback-chips">
+                  <span class="feedback-chip active">📦 #stash &mdash; Save open tabs</span>
+                  <span class="feedback-chip">🩺 #health &mdash; Inspect dead links</span>
+                  <span class="feedback-chip">📚 #reading &mdash; Reading list drawer</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="summary" aria-label="Bookmark source" data-i18n-aria-label="source">
         <article>
           <span class="mini-label" data-i18n="source">Source</span>

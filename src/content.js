@@ -75,6 +75,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let contextMenuState = null;
   let suppressNextClick = false;
   let pinnedFolderIds = [];
+  let firstRunTooltipSeen = true;
   let extensionContextInvalidated = false;
   let addDialogReturnFocus = null;
   let commandDialogReturnFocus = null;
@@ -104,11 +105,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         return;
       }
 
-      const [response, , savedPinnedFolderIds] = await Promise.all([
+      const [response, , savedPinnedFolderIds, , firstRunTooltipState] = await Promise.all([
         sendMessage({ type: MESSAGE_GET_STATE }),
         loadPanelPosition(),
         loadPinnedFolderIds(),
-        loadBookmarkTags()
+        loadBookmarkTags(),
+        hasExtensionContext() ? chrome.storage.local.get("bfFirstRunTooltipSeen") : Promise.resolve({})
       ]);
       if (!response?.ok) {
         return;
@@ -117,6 +119,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       injectPageStyle();
       appState = response;
       pinnedFolderIds = savedPinnedFolderIds;
+      firstRunTooltipSeen = Boolean(firstRunTooltipState?.bfFirstRunTooltipSeen);
       interfaceInitialized = true;
       renderFromState();
 
@@ -501,6 +504,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     if (command === "toggle-bar") {
+      dismissFirstRunTooltip();
       const returnFocus = closeModalDialogsForRender();
       closeFolderMenu();
       closeContextMenu();
@@ -535,6 +539,19 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       ok: false,
       error: t("unknownCommand")
     };
+  }
+
+  function dismissFirstRunTooltip() {
+    if (firstRunTooltipSeen) {
+      return;
+    }
+    firstRunTooltipSeen = true;
+    if (hasExtensionContext()) {
+      try {
+        chrome.storage.local.set({ bfFirstRunTooltipSeen: true }).catch(() => {});
+      } catch {}
+    }
+    shadow?.querySelector(".bf-intro-tooltip")?.remove();
   }
 
   function ensureHost() {
@@ -794,6 +811,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     shadow.querySelector(".bf-app")?.remove();
     host.dataset.theme = settings.theme || "gold-obsidian";
 
+    const introTooltipHtml = (!firstRunTooltipSeen && !isExpanded)
+      ? `<div class="bf-intro-tooltip" role="tooltip" data-bf-action="dismiss-tooltip"><span class="bf-intro-arrow"></span><span class="bf-intro-text">${escapeHtml(t("firstRunTooltipText"))}</span></div>`
+      : "";
+
     const app = document.createElement("div");
     app.dataset.theme = settings.theme || "gold-obsidian";
     app.className = [
@@ -807,6 +828,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       <div class="bf-shell ${settings.compact ? "is-compact" : ""}" style="--bf-rows: ${settings.rows}">
         <div class="bf-layout">
           <button class="bf-mark" type="button" data-bf-action="toggle-expanded" data-bf-drag-handle="true" title="${escapeAttribute(t("dragOrExpand"))}" aria-label="${escapeAttribute(t("dragOrExpand"))}">BF</button>
+          ${introTooltipHtml}
           <div class="bf-main">
             <label class="bf-search" ${settings.showSearch ? "" : "hidden"}>
               <input type="search" autocomplete="off" spellcheck="false" placeholder="${escapeAttribute(t("bookmarkSearchShortPlaceholder"))}" value="${escapeAttribute(searchQuery)}">
@@ -899,6 +921,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     renderSearchResults(app);
     renderCommandResults(app);
     restoreOpenFolder(app);
+    if (!firstRunTooltipSeen && !isExpanded) {
+      setTimeout(dismissFirstRunTooltip, 6000);
+    }
   }
 
   function getRenderedFolderRailFolders(bookmarkBarChildren) {
@@ -1686,7 +1711,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function handleAction(action) {
     const grid = shadow.querySelector(".bf-grid");
 
+    if (action === "dismiss-tooltip") {
+      dismissFirstRunTooltip();
+      return;
+    }
+
     if (action === "toggle-expanded") {
+      dismissFirstRunTooltip();
       const returnFocus = closeModalDialogsForRender();
       isExpanded = !isExpanded;
       closeFolderMenu();

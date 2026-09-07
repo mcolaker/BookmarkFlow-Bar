@@ -17,6 +17,10 @@ const elements = {
   finish: document.getElementById("finish"),
   openBookmarks: document.getElementById("openBookmarks"),
   openShortcuts: document.getElementById("openShortcuts"),
+  sandboxTerminal: document.getElementById("sandboxTerminal"),
+  sandboxTryPill: document.getElementById("sandboxTryPill"),
+  sandboxFeedback: document.getElementById("sandboxFeedback"),
+  sandboxCommand: document.getElementById("sandboxCommand"),
   shortcutRows: Array.from(document.querySelectorAll("[data-command]")),
   status: document.getElementById("status")
 };
@@ -69,6 +73,31 @@ async function enableSetup() {
   });
   elements.openShortcuts.addEventListener("click", () => {
     chrome.tabs.create({ url: "chrome://extensions/shortcuts" }).catch(() => {});
+  });
+  initSandbox();
+}
+
+function initSandbox() {
+  if (!elements.sandboxTerminal) return;
+  const triggerSandbox = () => {
+    if (!elements.sandboxFeedback) return;
+    elements.sandboxFeedback.hidden = false;
+    elements.sandboxTerminal.classList.add("is-activated");
+    if (elements.sandboxTryPill) {
+      elements.sandboxTryPill.textContent = "✓ " + t("markDone");
+      elements.sandboxTryPill.classList.add("is-done");
+    }
+  };
+
+  elements.sandboxTerminal.addEventListener("click", triggerSandbox);
+  if (elements.sandboxTryPill) {
+    elements.sandboxTryPill.addEventListener("click", triggerSandbox);
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.altKey && e.shiftKey && (e.code === "KeyK" || e.key === "K" || e.key === "k")) {
+      triggerSandbox();
+    }
   });
 }
 
