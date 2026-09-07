@@ -69,7 +69,38 @@ for (const [source, destination] of motionAssets) {
   );
 }
 
-writeBrightTechBed(join(generatedRoot, "audio", "bookmarkflow-bed.wav"), 60, 48_000);
+const customSoundtrackCandidates = [
+  join(workspaceRoot, "soundtrack-tech-momentum.mp3"),
+  join(workspaceRoot, "soundtrack-custom.mp3"),
+  join(workspaceRoot, "soundtrack-custom.wav"),
+];
+const customSoundtrack = customSoundtrackCandidates.find((candidate) => existsSync(candidate));
+
+if (customSoundtrack) {
+  const audioDestination = join(generatedRoot, "audio", "bookmarkflow-bed.wav");
+  mkdirSync(dirname(audioDestination), {recursive: true});
+  execFileSync(
+    "ffmpeg",
+    [
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-y",
+      "-i",
+      customSoundtrack,
+      "-ar",
+      "48000",
+      "-ac",
+      "2",
+      "-t",
+      "60",
+      audioDestination,
+    ],
+    {cwd: repoRoot, stdio: "inherit"},
+  );
+} else {
+  writeBrightTechBed(join(generatedRoot, "audio", "bookmarkflow-bed.wav"), 60, 48_000);
+}
 
 const manifest = {
   schemaVersion: 1,
