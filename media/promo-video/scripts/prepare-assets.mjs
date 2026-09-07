@@ -70,7 +70,6 @@ for (const [source, destination] of motionAssets) {
 }
 
 const customSoundtrackCandidates = [
-  join(workspaceRoot, "soundtrack-tech-momentum.mp3"),
   join(workspaceRoot, "soundtrack-custom.mp3"),
   join(workspaceRoot, "soundtrack-custom.wav"),
 ];
