@@ -21,6 +21,7 @@
       <div class="nt-brand">BF</div>
       <div class="nt-strip" id="bookmarkStrip" role="navigation" aria-label="Bookmarks" data-i18n-aria-label="bookmarks"></div>
       <div class="nt-actions">
+        <button class="nt-icon-button" id="quickGuideBtn" type="button" title="Quick guide" aria-label="Quick guide" data-i18n-title="quickGuide" data-i18n-aria-label="quickGuide">💡</button>
         <button class="nt-icon-button" id="saveOpenTabs" type="button" title="Save open tabs" aria-label="Save open tabs" data-i18n-title="saveOpenTabs" data-i18n-aria-label="saveOpenTabs">📥</button>
         <button class="nt-icon-button" id="readingListBtn" type="button" title="Reading list" aria-label="Reading list" data-i18n-title="readingList" data-i18n-aria-label="readingList">📖</button>
         <button class="nt-icon-button" id="addBookmark" type="button" title="Add bookmark" aria-label="Add bookmark" data-i18n-title="addBookmark" data-i18n-aria-label="addBookmark">+</button>
@@ -62,6 +63,49 @@
         <div class="nt-shortcuts-grid" id="shortcutsGrid"></div>
       </nav>
     </main>
+
+    <aside class="nt-quick-tips" id="quickTipsWidget" aria-label="Quick tips" data-i18n-aria-label="quickTips" hidden>
+      <div class="nt-quick-tips-head">
+        <div class="nt-quick-tips-title">
+          <span class="nt-tips-icon">💡</span>
+          <div>
+            <strong data-i18n="quickTipsTitle">Quick Tips</strong>
+            <small data-i18n="quickTipsSubtitle">Your BookmarkFlow superpowers</small>
+          </div>
+        </div>
+        <button class="nt-quick-tips-close" id="dismissQuickTips" type="button" title="Dismiss" aria-label="Dismiss" data-i18n-title="dismiss" data-i18n-aria-label="dismiss">×</button>
+      </div>
+      <ul class="nt-quick-tips-list">
+        <li class="nt-tip-item" id="tipSpotlight">
+          <span class="nt-tip-badge">⚡</span>
+          <div>
+            <strong data-i18n="tipSpotlightTitle">Spotlight Palette</strong>
+            <p data-i18n="tipSpotlightDesc">Press Alt+Shift+K on any website to search or run #tag commands.</p>
+          </div>
+        </li>
+        <li class="nt-tip-item" id="tipStash">
+          <span class="nt-tip-badge">📦</span>
+          <div>
+            <strong data-i18n="tipStashTitle">Stash Open Tabs</strong>
+            <p data-i18n="tipStashDesc">Click 📥 or Alt+Shift+S to save all window tabs into a session folder.</p>
+          </div>
+        </li>
+        <li class="nt-tip-item" id="tipReading">
+          <span class="nt-tip-badge">📖</span>
+          <div>
+            <strong data-i18n="tipReadingTitle">Reading List</strong>
+            <p data-i18n="tipReadingDesc">Click 📖 to open the Read Later drawer and check off articles.</p>
+          </div>
+        </li>
+        <li class="nt-tip-item" id="tipHealth">
+          <span class="nt-tip-badge">🩺</span>
+          <div>
+            <strong data-i18n="tipHealthTitle">Health Inspector</strong>
+            <p data-i18n="tipHealthDesc">Type #health in Spotlight to audit broken or duplicate links.</p>
+          </div>
+        </li>
+      </ul>
+    </aside>
     </div>
 
     <div class="nt-add" id="addDialog" hidden>

@@ -398,3 +398,73 @@ test("power suite: stash tabs, backup & restore, auto-tagging, reading list, new
   assert.match(contentJs, /isReadingQuery/u);
   assert.match(contentJs, /isBackupQuery/u);
 });
+
+test("3-layer living discovery: interactive sandbox, first-run tooltip, and quick tips widget contract", () => {
+  // Layer 1: Interactive Sandbox in Onboarding
+  const onboardingHtml = readFileSync(path.join(root, "src/onboarding.html"), "utf8");
+  const onboardingJs = readFileSync(path.join(root, "src/onboarding.js"), "utf8");
+  const onboardingCss = readFileSync(path.join(root, "src/onboarding.css"), "utf8");
+
+  assert.match(onboardingHtml, /id="interactiveSandbox"/u);
+  assert.match(onboardingHtml, /id="sandboxTerminal"/u);
+  assert.match(onboardingHtml, /id="sandboxCommand"/u);
+  assert.match(onboardingHtml, /id="sandboxFeedback"/u);
+  assert.match(onboardingJs, /initSandbox/u);
+  assert.match(onboardingCss, /\.interactive-sandbox/u);
+  assert.match(onboardingCss, /\.sandbox-terminal/u);
+
+  // Layer 2: First-Run Gold Micro-Tooltip on web pages
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+
+  assert.match(contentJs, /bfFirstRunTooltipSeen/u);
+  assert.match(contentJs, /dismissFirstRunTooltip/u);
+  assert.match(contentJs, /bf-intro-tooltip/u);
+  assert.match(contentCss, /\.bf-intro-tooltip/u);
+  assert.match(contentCss, /\.bf-intro-arrow/u);
+
+  // Layer 3: Living Quick Tips in New Tab
+  const newTabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  const newTabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+
+  assert.match(newTabHtml, /id="quickTipsWidget"/u);
+  assert.match(newTabHtml, /id="quickGuideBtn"/u);
+  assert.match(newTabHtml, /id="dismissQuickTips"/u);
+  assert.match(newTabJs, /quickGuideBtn/u);
+  assert.match(newTabJs, /quickTipsWidget/u);
+  assert.match(newTabJs, /bfQuickTipsDismissed/u);
+  assert.match(newTabCss, /\.nt-quick-tips/u);
+  assert.match(newTabCss, /\.nt-quick-tips-head/u);
+  assert.match(newTabCss, /\.nt-tip-item/u);
+
+  // Localization keys contract in both en and tr
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  const requiredKeys = [
+    "sandboxBadge",
+    "sandboxHeading",
+    "sandboxPrompt",
+    "sandboxSuccess",
+    "sandboxTryAction",
+    "firstRunTooltipText",
+    "quickTips",
+    "quickTipsTitle",
+    "quickTipsSubtitle",
+    "tipSpotlightTitle",
+    "tipSpotlightDesc",
+    "tipStashTitle",
+    "tipStashDesc",
+    "tipReadingTitle",
+    "tipReadingDesc",
+    "tipHealthTitle",
+    "tipHealthDesc",
+    "quickGuide",
+    "dismiss"
+  ];
+
+  for (const key of requiredKeys) {
+    assert.ok(en[key]?.message, `Missing en message key: ${key}`);
+    assert.ok(tr[key]?.message, `Missing tr message key: ${key}`);
+  }
+});

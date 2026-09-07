@@ -743,7 +743,8 @@ body[data-bg="custom"] {
 .nt-add-primary:focus-visible,
 .nt-add-secondary:focus-visible,
 .nt-search-box input:focus-visible,
-.nt-search-box button:focus-visible {
+.nt-search-box button:focus-visible,
+.nt-quick-tips-close:focus-visible {
   outline: 2px solid #f2c94c !important;
   outline-offset: 2px;
 }
@@ -1381,4 +1382,145 @@ body[data-bg="custom"] {
 .nt-reading-item-done:hover {
   background: var(--nt-theme-accent);
   color: var(--nt-theme-accent-contrast);
+}
+
+/* Quick Tips Widget (Living Discovery Layer 3) */
+.nt-quick-tips {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 320px;
+  max-width: calc(100vw - 48px);
+  background: var(--nt-theme-card-bg);
+  border: 1px solid var(--nt-theme-border);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--nt-theme-accent-subtle);
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  animation: ntTipsSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nt-quick-tips[hidden] {
+  display: none !important;
+}
+
+@keyframes ntTipsSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.nt-quick-tips-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--nt-theme-surface);
+  border-bottom: 1px solid var(--nt-theme-border-subtle);
+}
+
+.nt-quick-tips-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nt-tips-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.nt-quick-tips-title strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--nt-theme-text);
+}
+
+.nt-quick-tips-title small {
+  display: block;
+  font-size: 11px;
+  color: var(--nt-theme-text-muted);
+}
+
+.nt-quick-tips-close {
+  background: transparent;
+  border: none;
+  color: var(--nt-theme-text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nt-quick-tips-close:hover {
+  background: var(--nt-theme-surface-hover);
+  color: var(--nt-theme-text);
+}
+
+.nt-quick-tips-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nt-tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--nt-theme-surface);
+  border: 1px solid var(--nt-theme-border-subtle);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.nt-tip-item:hover {
+  border-color: var(--nt-theme-accent);
+  transform: translateX(2px);
+}
+
+.nt-tip-badge {
+  font-size: 15px;
+  line-height: 1.2;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+.nt-tip-item strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nt-theme-accent);
+  margin-bottom: 2px;
+}
+
+.nt-tip-item p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--nt-theme-text-muted);
+}
+
+@media (max-width: 1023px), (max-height: 719px) {
+  .nt-quick-tips {
+    top: 56px;
+    bottom: auto;
+    right: 18px;
+    max-height: calc(100vh - 72px);
+    overflow-y: auto;
+  }
 }
