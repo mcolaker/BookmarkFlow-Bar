@@ -179,6 +179,8 @@ function muxSoundtrack({videoOnlyOutput, finalOutput, duration}) {
       "bt709",
       "-color_trc",
       "bt709",
+      "-af",
+      `afade=t=out:st=${(duration - 1.5).toFixed(2)}:d=1.5`,
       "-c:a",
       "aac",
       "-b:a",

@@ -49,3 +49,5 @@
 /media/**/*.log
 /media/**/.env
 /media/**/.env.*
+/media/**/*.mp3
+/media/**/*.wav
