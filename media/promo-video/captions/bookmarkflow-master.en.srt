@@ -1,31 +1,31 @@
 1
 00:00:00,000 --> 00:00:04,000
-Your bookmarks. Your flow.
+BookmarkFlow Bar v2.0. The power suite for bookmarks.
 
 2
 00:00:04,000 --> 00:00:17,000
-Stay on the page you are already using.
+Fluid multi-row access. Expand only when you need it.
 
 3
 00:00:17,000 --> 00:00:26,000
-Find any bookmark without leaving the keyboard.
+Spotlight command palette. Alt + Shift + K for instant action.
 
 4
 00:00:26,000 --> 00:00:34,000
-Pin the folders that matter.
+Stash open tabs in one click. Pinned folders on your rail.
 
 5
 00:00:34,000 --> 00:00:40,000
-Share your screen with less visual noise.
+Offline reading drawer and built-in health inspector.
 
 6
 00:00:40,000 --> 00:00:47,000
-A focused new-tab workspace, built around your bookmarks.
+Focused new tab with dynamic themes and midnight wallpapers.
 
 7
 00:00:47,000 --> 00:00:53,000
-No BookmarkFlow account. No analytics. No developer-operated server.
+100% local-first privacy. Zero tracking. Zero cloud bloat.
 
 8
 00:00:53,000 --> 00:00:58,000
-Install on Chrome. Star or contribute on GitHub.
+Install for Chrome, Firefox, and Edge. Open source on GitHub.

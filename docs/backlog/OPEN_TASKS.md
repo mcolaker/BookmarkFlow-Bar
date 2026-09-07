@@ -408,3 +408,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `npm run validate:all` (61/61 test, backlog ve asset sözleşmeleri), `scripts/security-regression.mjs` (fail-closed Chrome CDP güvenlik denetimi) ve Playwright video/ekran görüntüsü QA doğrulamaları yeşil geçmiş, `git diff --check` temizdir.
 - Sonraki adım: Yok; 3 katmanlı yaşayan keşif sistemi başarıyla tamamlandı ve doğrulandı.
 - Son güncelleme: 2026-09-07.
+
+## BF-MKT-002 - BookmarkFlow Bar v2.0 Power Suite Resmi Lansman Videosunu ve Sosyal Medya Video Paketini Hazırla
+
+- Öncelik ve durum: P2, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-07 tarihinde BookmarkFlow Bar v2.0 Power Suite dönüm noktası sürümü için yüksek kaliteli bir tanıtım ve lansman videosu hazırlanmasını talep etti. `media/promo-video/src/video.tsx` içine v2.0 Power Suite yetenekleri (v2.0 Power Suite altın rozeti, 3 katmanlı keşif ve ilk çalıştırma ipucu simülasyonu, Spotlight komut paleti ve etiket çipleri `#stash`/`#health`/`#reading`/`#dev`, 1-tık açık sekmeleri kaydetme 📥, okuma listesi çekmecesi 📖, sağlık denetleyicisi 🩺, 4 renk teması Gold Obsidian/OLED Black/Emerald Matrix/Cyber Indigo ve Gece Yarısı duvar kağıdı, çoklu tarayıcı rozetleri Chrome/Firefox/Edge/Brave) entegre edildi. Altyazılar (`bookmarkflow-master.en.srt` ve `bookmarkflow-x.en.srt`) v2.0 anlatısıyla tam senkronize edildi.
+- Kabul kriteri: `media/promo-video/src/video.tsx` içine v2.0 Power Suite yetenekleri entegre edilir; `captions/` altındaki altyazılar senkronize edilir; `npm run validate` ve `npm run render` temiz geçer; çıktı videoları (58s Master, 58s LinkedIn, 32s X cutdown, 15s dikey Teaser, 1920x1080 Poster, 960x540 Preview GIF) FFprobe doğrulamasıyla eksiksiz üretilir.
+- Doğrulama kapısı: `media/promo-video/` altında `npm run validate` hatasız geçti; `npm run render` ile 8 promo çıktısı `output/promo-video/` içinde üretildi ve FFprobe akış/sözleşme kontrollerinden geçti (`bookmarkflow-bar-master-1920x1080.mp4` [3a3d706cac...], `bookmarkflow-bar-linkedin-1920x1080.mp4`, `bookmarkflow-bar-x-1920x1080.mp4` [7dd2122e4a...], `bookmarkflow-bar-teaser-1080x1350.mp4` [40c35ae179...], `bookmarkflow-bar-poster-1920x1080.png` [15764e5341...], `bookmarkflow-bar-preview-960x540.gif` [e069af57e8...]); `npm run validate:all` (61/61 test) ve `node --test scripts/backlog-contract.test.mjs` temizdir.
+- Sonraki adım: Yok; BookmarkFlow Bar v2.0 Power Suite resmi lansman ve tanıtım video paketi başarıyla üretildi, doğrulandı ve teslim edildi.
+- Son güncelleme: 2026-09-07.

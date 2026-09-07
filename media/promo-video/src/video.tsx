@@ -257,6 +257,7 @@ const BrowserFrame: React.FC<{
 const Intro: React.FC<{duration: number}> = ({duration}) => {
   const frame = useCurrentFrame();
   const titleProgress = spring({frame: frame - 12, fps: 30, config: {damping: 16, stiffness: 85}});
+  const badgeProgress = spring({frame: frame - 4, fps: 30, config: {damping: 16, stiffness: 95}});
   const lineProgress = interpolate(frame, [20, 74], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -265,13 +266,31 @@ const Intro: React.FC<{duration: number}> = ({duration}) => {
   return (
     <SceneShell duration={duration}>
       <AbsoluteFill style={{padding: "90px 110px"}}>
-        <Wordmark compact />
-        <div style={{marginTop: 132, maxWidth: 1260}}>
+        <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%"}}>
+          <Wordmark compact />
           <div
             style={{
-              fontSize: 112,
-              lineHeight: 0.98,
-              letterSpacing: "-.07em",
+              opacity: clip(badgeProgress),
+              transform: `scale(${clip(badgeProgress)})`,
+              border: "1px solid rgba(242,201,76,.45)",
+              borderRadius: 999,
+              padding: "8px 20px",
+              background: "rgba(242,201,76,.12)",
+              color: theme.gold,
+              fontSize: 16,
+              fontWeight: 850,
+              letterSpacing: ".08em",
+            }}
+          >
+            v2.0 POWER SUITE
+          </div>
+        </div>
+        <div style={{marginTop: 110, maxWidth: 1260}}>
+          <div
+            style={{
+              fontSize: 104,
+              lineHeight: 1.0,
+              letterSpacing: "-.065em",
               fontWeight: 900,
               transform: `translateY(${(1 - clip(titleProgress)) * 40}px)`,
               opacity: clip(titleProgress),
@@ -279,11 +298,11 @@ const Intro: React.FC<{duration: number}> = ({duration}) => {
           >
             Your bookmarks.
             <br />
-            <span style={{color: theme.gold}}>Your flow.</span>
+            <span style={{color: theme.gold}}>Supercharged.</span>
           </div>
           <div
             style={{
-              marginTop: 34,
+              marginTop: 30,
               width: `${lineProgress * 680}px`,
               height: 3,
               borderRadius: 99,
@@ -296,29 +315,60 @@ const Intro: React.FC<{duration: number}> = ({duration}) => {
   );
 };
 
-const BarScene: React.FC<{duration: number}> = ({duration}) => (
-  <SceneShell duration={duration} accent="blue">
-    <AbsoluteFill style={{padding: "92px 96px", display: "flex", alignItems: "center", gap: 86}}>
-      <CopyBlock
-        eyebrow="Multi-row bookmark bar"
-        title={<>More room for the work that matters.</>}
-        body="Expand a focused bookmark workspace on ordinary web pages, then collapse it when you want more space."
-        chips={["Alt + Shift + B", "Multiple rows", "Compact density"]}
-      />
-      <BrowserFrame
-        sequence="generated/sequences/bar-open-close"
-        sequenceFrames={60}
-        title="Real extension · synthetic bookmarks"
-        loopFrames={150}
-        style={{width: 1020, height: 590}}
-      />
-    </AbsoluteFill>
-  </SceneShell>
-);
+const BarScene: React.FC<{duration: number}> = ({duration}) => {
+  const frame = useCurrentFrame();
+  const tooltipProgress = spring({frame: frame - 45, fps: 30, config: {damping: 15, stiffness: 90}});
+  return (
+    <SceneShell duration={duration} accent="blue">
+      <AbsoluteFill style={{padding: "92px 96px", display: "flex", alignItems: "center", gap: 86}}>
+        <CopyBlock
+          eyebrow="Fluid multi-row workspace"
+          title={<>More room for the work that matters.</>}
+          body="Expand a clean bookmark bar on any web page with Alt+Shift+B, guided by subtle first-run living discovery."
+          chips={["Alt + Shift + B", "Multi-Row Density", "Living Discovery"]}
+        />
+        <div style={{position: "relative"}}>
+          <BrowserFrame
+            sequence="generated/sequences/bar-open-close"
+            sequenceFrames={60}
+            title="Real extension · synthetic bookmarks"
+            loopFrames={150}
+            style={{width: 1020, height: 590}}
+          />
+          {frame >= 40 && frame <= 280 ? (
+            <div
+              style={{
+                position: "absolute",
+                top: 72,
+                left: 64,
+                opacity: clip(tooltipProgress),
+                transform: `translateY(${(1 - clip(tooltipProgress)) * 10}px)`,
+                background: "#0e1420",
+                border: "1px solid rgba(242,201,76,.4)",
+                boxShadow: "0 12px 32px rgba(0,0,0,.6), 0 0 16px rgba(242,201,76,.2)",
+                borderRadius: 10,
+                padding: "8px 14px",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 13,
+                fontWeight: 700,
+                color: theme.gold,
+                zIndex: 20,
+              }}
+            >
+              <span>✨</span> Click or Alt + Shift + B to open bookmarks
+            </div>
+          ) : null}
+        </div>
+      </AbsoluteFill>
+    </SceneShell>
+  );
+};
 
 const SearchScene: React.FC<{duration: number}> = ({duration}) => {
   const frame = useCurrentFrame();
-  const zoom = interpolate(frame, [0, duration], [1.02, 1.09], {
+  const zoom = interpolate(frame, [0, duration], [1.02, 1.08], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
@@ -328,18 +378,37 @@ const SearchScene: React.FC<{duration: number}> = ({duration}) => {
       <AbsoluteFill style={{padding: "84px 96px"}}>
         <div style={{display: "flex", alignItems: "flex-end", justifyContent: "space-between"}}>
           <CopyBlock
-            eyebrow="Keyboard search"
-            title={<>Find anything.<br />Stay in flow.</>}
-            body="Search your existing Chrome bookmark library, move with the arrow keys, and open with Enter."
-            chips={["Alt + Shift + K", "Arrow keys", "Enter"]}
+            eyebrow="Spotlight Command Palette"
+            title={<>Search anything.<br />Run any superpower.</>}
+            body="Press Alt+Shift+K on any page. Instant fuzzy search across thousands of bookmarks and zero-latency #tag commands."
+            chips={["Alt + Shift + K", "#stash", "#health", "#reading", "#ai"]}
             width={540}
           />
-          <div style={{transform: `scale(${zoom})`, transformOrigin: "bottom right"}}>
+          <div style={{transform: `scale(${zoom})`, transformOrigin: "bottom right", position: "relative"}}>
             <BrowserFrame
               image="generated/assets/palette.png"
-              title="Search palette · project"
+              title="Spotlight Palette · #tag commands"
               style={{width: 1080, height: 675}}
             />
+            <div
+              style={{
+                position: "absolute",
+                bottom: 36,
+                left: 48,
+                display: "flex",
+                gap: 10,
+                background: "rgba(13,17,24,.94)",
+                border: "1px solid rgba(242,201,76,.35)",
+                borderRadius: 14,
+                padding: "10px 16px",
+                boxShadow: "0 16px 40px rgba(0,0,0,.6)",
+              }}
+            >
+              <span style={{fontSize: 13, fontWeight: 800, color: theme.gold}}>📦 #stash</span>
+              <span style={{fontSize: 13, fontWeight: 800, color: "#818cf8"}}>🩺 #health</span>
+              <span style={{fontSize: 13, fontWeight: 800, color: "#41d17d"}}>📚 #reading</span>
+              <span style={{fontSize: 13, fontWeight: 800, color: "#f87171"}}>⚡ #dev</span>
+            </div>
           </div>
         </div>
       </AbsoluteFill>
@@ -347,45 +416,93 @@ const SearchScene: React.FC<{duration: number}> = ({duration}) => {
   );
 };
 
-const FolderScene: React.FC<{duration: number}> = ({duration}) => (
-  <SceneShell duration={duration} accent="green">
-    <AbsoluteFill style={{padding: "82px 96px", display: "flex", alignItems: "center", gap: 82}}>
-      <BrowserFrame
-        sequence="generated/sequences/folder-rail"
-        sequenceFrames={37}
-        title="Folder rail · device-local choices"
-        loopFrames={93}
-        style={{width: 1060, height: 690}}
-      />
-      <CopyBlock
-        eyebrow="Pinned folders"
-        title={<>Keep your structure close.</>}
-        body="Pin important folders to an optional left or right rail without moving your bookmarks into another service."
-        chips={["Left or right", "Chrome bookmark IDs", "Device-local"]}
-        width={590}
-      />
-    </AbsoluteFill>
-  </SceneShell>
-);
+const FolderScene: React.FC<{duration: number}> = ({duration}) => {
+  const frame = useCurrentFrame();
+  const stashPill = spring({frame: frame - 30, fps: 30, config: {damping: 16, stiffness: 90}});
+  return (
+    <SceneShell duration={duration} accent="green">
+      <AbsoluteFill style={{padding: "82px 96px", display: "flex", alignItems: "center", gap: 82}}>
+        <div style={{position: "relative"}}>
+          <BrowserFrame
+            sequence="generated/sequences/folder-rail"
+            sequenceFrames={37}
+            title="Folder rail · 1-click stash"
+            loopFrames={93}
+            style={{width: 1060, height: 690}}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: 80,
+              right: 48,
+              opacity: clip(stashPill),
+              transform: `scale(${clip(stashPill)})`,
+              background: "rgba(22,27,36,.95)",
+              border: "1px solid rgba(242,201,76,.4)",
+              borderRadius: 16,
+              padding: "16px 20px",
+              boxShadow: "0 20px 48px rgba(0,0,0,.6)",
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+            }}
+          >
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                background: "rgba(242,201,76,.15)",
+                display: "grid",
+                placeItems: "center",
+                fontSize: 22,
+              }}
+            >
+              📥
+            </div>
+            <div>
+              <div style={{fontSize: 16, fontWeight: 800, color: theme.gold}}>1-Click Stash Tabs</div>
+              <div style={{fontSize: 13, color: theme.muted, marginTop: 2}}>Saved 14 tabs into session folder</div>
+            </div>
+          </div>
+        </div>
+        <CopyBlock
+          eyebrow="Stash tabs & pinned rail"
+          title={<>Save sessions.<br />Keep structure close.</>}
+          body="Click 📥 or Alt+Shift+S to save entire window sessions into dated folders in seconds, alongside your pinned folder rail."
+          chips={["📥 Alt + Shift + S", "Zero RAM Bloat", "Pinned Folders"]}
+          width={590}
+        />
+      </AbsoluteFill>
+    </SceneShell>
+  );
+};
 
 const StreamerScene: React.FC<{duration: number}> = ({duration}) => (
   <SceneShell duration={duration} accent="gold">
-    <AbsoluteFill style={{padding: "100px 96px", display: "flex", flexDirection: "column", gap: 50}}>
+    <AbsoluteFill style={{padding: "90px 96px", display: "flex", flexDirection: "column", gap: 36}}>
       <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-end"}}>
         <CopyBlock
-          eyebrow="Streamer mode"
-          title={<>Less visible text.<br />Same bookmarks.</>}
-          body="Reduce bookmark labels to an icon-focused view when you record or share your screen."
-          width={800}
+          eyebrow="Reading list & health inspector"
+          title={<>Read later offline.<br />Audit broken links.</>}
+          body="Access your Read Later drawer with 📖 and inspect 404 links, redirects, and duplicates with 🩺 Health Inspector."
+          width={900}
         />
-        <span style={{color: theme.muted, fontSize: 18, fontWeight: 750}}>Alt + Shift + M</span>
+        <div style={{display: "flex", gap: 12}}>
+          <span style={{border: `1px solid ${theme.panelBorder}`, borderRadius: 999, padding: "8px 16px", background: "rgba(27,34,45,.72)", color: theme.gold, fontSize: 14, fontWeight: 800}}>
+            📖 Reading Drawer
+          </span>
+          <span style={{border: `1px solid ${theme.panelBorder}`, borderRadius: 999, padding: "8px 16px", background: "rgba(27,34,45,.72)", color: "#818cf8", fontSize: 14, fontWeight: 800}}>
+            🩺 Health Inspector
+          </span>
+        </div>
       </div>
       <BrowserFrame
         sequence="generated/sequences/streamer-mode"
         sequenceFrames={34}
-        title="Before → icon-focused"
+        title="Privacy mode & tool suite"
         loopFrames={85}
-        style={{width: 1728, height: 350}}
+        style={{width: 1728, height: 380}}
       />
     </AbsoluteFill>
   </SceneShell>
@@ -401,16 +518,36 @@ const NewTabScene: React.FC<{duration: number}> = ({duration}) => {
     <SceneShell duration={duration} accent="blue">
       <AbsoluteFill style={{padding: "78px 96px"}}>
         <div style={{display: "flex", alignItems: "center", gap: 82}}>
-          <CopyBlock
-            eyebrow="Focused new tab"
-            title={<>A calmer start to every tab.</>}
-            body="Keep bookmarks close and send web searches through the provider already selected in Chrome."
-            chips={["Existing bookmarks", "Chrome default search", "English & Turkish"]}
-          />
+          <div style={{width: 610}}>
+            <Eyebrow>Themes & Living Discovery</Eyebrow>
+            <h1
+              style={{
+                margin: "28px 0 22px",
+                fontSize: 62,
+                lineHeight: 1.02,
+                letterSpacing: "-.052em",
+                fontWeight: 850,
+              }}
+            >
+              Tailored to your flow.
+            </h1>
+            <p style={{margin: 0, color: theme.muted, fontSize: 24, lineHeight: 1.55}}>
+              4 distinct color themes, midnight wallpapers, and living quick tips right on your new tab.
+            </p>
+            <div style={{display: "flex", gap: 12, marginTop: 28, alignItems: "center"}}>
+              <div style={{display: "flex", gap: 8, padding: "8px 14px", background: "rgba(27,34,45,.8)", borderRadius: 12, border: `1px solid ${theme.panelBorder}`}}>
+                <span title="Gold Obsidian" style={{width: 22, height: 22, borderRadius: 99, background: "#f2c94c", border: "2px solid #fff"}} />
+                <span title="OLED Black" style={{width: 22, height: 22, borderRadius: 99, background: "#000", border: "1px solid #555"}} />
+                <span title="Emerald Matrix" style={{width: 22, height: 22, borderRadius: 99, background: "#41d17d", border: "1px solid #222"}} />
+                <span title="Cyber Indigo" style={{width: 22, height: 22, borderRadius: 99, background: "#818cf8", border: "1px solid #222"}} />
+              </div>
+              <span style={{fontSize: 14, color: theme.gold, fontWeight: 700}}>💡 Quick Guide Widget</span>
+            </div>
+          </div>
           <div style={{transform: `translateY(${pan}px)`}}>
             <BrowserFrame
               image="generated/assets/newtab.png"
-              title="New-tab workspace"
+              title="New-tab workspace · Midnight theme"
               style={{width: 1040, height: 650}}
             />
           </div>
@@ -423,9 +560,9 @@ const NewTabScene: React.FC<{duration: number}> = ({duration}) => {
 const PrivacyScene: React.FC<{duration: number}> = ({duration}) => {
   const frame = useCurrentFrame();
   const items = [
-    ["No BookmarkFlow account", "Use the bookmarks already stored in Chrome."],
-    ["No analytics SDK", "No advertising SDK is included."],
-    ["No developer-operated server", "The product is designed to work locally first."],
+    ["100% Local-First Storage", "All bookmarks and settings stay safely inside Chrome."],
+    ["Zero Analytics or Tracking", "No third-party SDKs, telemetry, or behavioral profiling."],
+    ["Open Source & Auditable", "Fully licensed under Apache 2.0 with complete DCO provenance."],
   ] as const;
   return (
     <SceneShell duration={duration} accent="green">
@@ -434,8 +571,8 @@ const PrivacyScene: React.FC<{duration: number}> = ({duration}) => {
         <div style={{marginTop: 76, display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 90}}>
           <CopyBlock
             eyebrow="Privacy by design"
-            title={<>Your bookmark library stays in Chrome.</>}
-            body="BookmarkFlow has no separate cloud account and does not move your library into a developer-operated service."
+            title={<>Your bookmarks never leave your machine.</>}
+            body="BookmarkFlow operates with zero external server dependencies, fail-closed consent, and strict local sandboxing."
             width={690}
           />
           <div style={{display: "grid", gap: 18}}>
@@ -504,32 +641,36 @@ const CtaScene: React.FC<{duration: number; vertical?: boolean}> = ({duration, v
         </div>
         <div
           style={{
-            marginTop: 54,
+            marginTop: 50,
             maxWidth: vertical ? 900 : 1220,
-            fontSize: vertical ? 66 : 82,
+            fontSize: vertical ? 64 : 80,
             lineHeight: 1.03,
             letterSpacing: "-.055em",
             fontWeight: 900,
           }}
         >
-          Add to Chrome.
+          v2.0 Power Suite is live.
           <br />
-          <span style={{color: theme.gold}}>Open source on GitHub.</span>
+          <span style={{color: theme.gold}}>Available everywhere.</span>
         </div>
         <div
           style={{
             display: "flex",
             flexDirection: vertical ? "column" : "row",
-            gap: 16,
-            marginTop: 46,
+            gap: 20,
+            marginTop: 42,
             color: theme.muted,
             fontSize: vertical ? 18 : 20,
             fontWeight: 700,
+            alignItems: "center",
           }}
         >
-          <span>Chrome Web Store</span>
+          <span style={{color: theme.white, background: "rgba(255,255,255,.08)", padding: "6px 14px", borderRadius: 8}}>Chrome</span>
+          <span style={{color: theme.white, background: "rgba(255,255,255,.08)", padding: "6px 14px", borderRadius: 8}}>Firefox</span>
+          <span style={{color: theme.white, background: "rgba(255,255,255,.08)", padding: "6px 14px", borderRadius: 8}}>Edge</span>
+          <span style={{color: theme.white, background: "rgba(255,255,255,.08)", padding: "6px 14px", borderRadius: 8}}>Brave</span>
           {!vertical ? <span style={{color: theme.dim}}>·</span> : null}
-          <span>github.com/mcolaker/BookmarkFlow-Bar</span>
+          <span style={{color: theme.gold}}>github.com/mcolaker/BookmarkFlow-Bar</span>
         </div>
       </AbsoluteFill>
     </SceneShell>
@@ -556,15 +697,15 @@ const XBarScene: React.FC<{duration: number}> = ({duration}) => (
   <SceneShell duration={duration} accent="blue">
     <AbsoluteFill style={{padding: "88px 100px", justifyContent: "center"}}>
       <CopyBlock
-        eyebrow="One crowded row → your workspace"
+        eyebrow="v2.0 Power Suite · Fast Workflow"
         title={<>See more.<br />Find faster.</>}
-        body="A multi-row bookmark bar and keyboard search, built on the bookmarks already in Chrome."
-        chips={["Alt + Shift + B", "Alt + Shift + K", "Local-first"]}
+        body="Multi-row bookmark bar, Spotlight command palette, and 1-click tab stash built into your browser."
+        chips={["Alt + Shift + B", "Spotlight Palette", "1-Click Stash"]}
       />
       <BrowserFrame
         sequence="generated/sequences/bar-open-close"
         sequenceFrames={60}
-        title="BookmarkFlow Bar"
+        title="BookmarkFlow Bar · v2.0 Power Suite"
         loopFrames={150}
         style={{position: "absolute", right: 92, top: 214, width: 1040, height: 590}}
       />
@@ -589,15 +730,18 @@ const VerticalProduct: React.FC<{duration: number}> = ({duration}) => (
   <SceneShell duration={duration} accent="blue">
     <AbsoluteFill style={{padding: "72px 60px"}}>
       <Wordmark compact />
-      <div style={{marginTop: 74, fontSize: 70, lineHeight: 1.02, letterSpacing: "-.055em", fontWeight: 900}}>
-        More room for your bookmarks.
+      <div style={{display: "inline-flex", marginTop: 40, padding: "6px 14px", borderRadius: 99, background: "rgba(242,201,76,.15)", border: `1px solid ${theme.gold}`, color: theme.gold, fontSize: 16, fontWeight: 800, width: "fit-content"}}>
+        v2.0 POWER SUITE
       </div>
-      <div style={{marginTop: 26, color: theme.muted, fontSize: 25, lineHeight: 1.5}}>
-        Multi-row access and fast keyboard search.
+      <div style={{marginTop: 24, fontSize: 66, lineHeight: 1.02, letterSpacing: "-.055em", fontWeight: 900}}>
+        More room for your flow.
+      </div>
+      <div style={{marginTop: 20, color: theme.muted, fontSize: 24, lineHeight: 1.5}}>
+        Spotlight search, tab stash, reading drawer & 4 themes.
       </div>
       <BrowserFrame
         image="generated/assets/overlay.png"
-        title="Real extension · synthetic data"
+        title="BookmarkFlow Bar · v2.0"
         style={{position: "absolute", left: 58, bottom: 86, width: 964, height: 600}}
       />
     </AbsoluteFill>
@@ -622,18 +766,21 @@ export const BookmarkFlowPoster: React.FC = () => (
       <Wordmark compact />
       <div style={{display: "grid", gridTemplateColumns: "0.86fr 1.14fr", gap: 70, alignItems: "center", height: "100%"}}>
         <div>
+          <div style={{display: "inline-flex", padding: "6px 14px", borderRadius: 99, background: "rgba(242,201,76,.15)", border: `1px solid ${theme.gold}`, color: theme.gold, fontSize: 16, fontWeight: 800, marginBottom: 20}}>
+            v2.0 POWER SUITE
+          </div>
           <Eyebrow>Local-first bookmark workspace</Eyebrow>
-          <div style={{marginTop: 28, fontSize: 94, lineHeight: 0.98, letterSpacing: "-.065em", fontWeight: 900}}>
+          <div style={{marginTop: 20, fontSize: 90, lineHeight: 0.98, letterSpacing: "-.065em", fontWeight: 900}}>
             Your bookmarks.
             <br />
-            <span style={{color: theme.gold}}>Your flow.</span>
+            <span style={{color: theme.gold}}>Supercharged.</span>
           </div>
-          <p style={{margin: "30px 0 0", color: theme.muted, fontSize: 23, lineHeight: 1.5}}>
-            Multi-row access, keyboard search, pinned folders, and a focused new tab.
+          <p style={{margin: "24px 0 0", color: theme.muted, fontSize: 22, lineHeight: 1.5}}>
+            Multi-row access, Spotlight command palette, 1-click tab stash, reading drawer, and 4 custom themes.
           </p>
-          <div style={{marginTop: 32, color: theme.green, fontSize: 17, fontWeight: 800}}>Private by design · Open source</div>
+          <div style={{marginTop: 28, color: theme.green, fontSize: 17, fontWeight: 800}}>100% Local · Zero Tracking · Open Source (Apache-2.0)</div>
         </div>
-        <BrowserFrame image="generated/assets/overlay.png" title="BookmarkFlow Bar" style={{width: 1000, height: 625}} />
+        <BrowserFrame image="generated/assets/overlay.png" title="BookmarkFlow Bar · v2.0" style={{width: 1000, height: 625}} />
       </div>
     </AbsoluteFill>
   </AbsoluteFill>
