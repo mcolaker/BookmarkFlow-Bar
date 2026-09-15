@@ -22,6 +22,14 @@ Required to display favicons for bookmark URLs using Chrome's favicon API.
 
 Required to send web searches submitted from the custom new tab page to the default search provider already selected by the user in Chrome. BookmarkFlow Bar does not choose or replace that provider and does not receive or store the query.
 
+## tabs
+
+Required solely to read the URLs and titles of open tabs when the user explicitly triggers the "Save open tabs to folder" (#stash) action, saving them locally into a bookmark folder.
+
+## scripting
+
+Required solely to inject the content script into already-open HTTP and HTTPS tabs when the extension is installed or when the user affirmatively grants initial data consent, ensuring the bookmark bar is immediately available without requiring users to restart the browser or reload tabs.
+
 ## content_scripts on <all_urls>
 
 Required to show the BookmarkFlow overlay on regular web pages. The content script renders the bar locally in closed Shadow DOM. It uses the current page URL, hostname, path, and title for the user-opened add-bookmark form, current-page bookmark matching, per-site visibility, optional sensitive-site hiding, and admin-page docking. It also performs a bounded local inspection of element geometry, computed positioning styles, and selected body classes so the expanded bar can avoid covering fixed top navigation. It does not transmit page or bookmark data to external servers.

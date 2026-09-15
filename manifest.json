@@ -10,7 +10,8 @@
     "storage",
     "favicon",
     "search",
-    "tabs"
+    "tabs",
+    "scripting"
   ],
   "action": {
     "default_title": "__MSG_appName__",

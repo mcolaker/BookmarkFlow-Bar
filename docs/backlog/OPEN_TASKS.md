@@ -1,6 +1,6 @@
 # BookmarkFlow Bar Açık İşler
 
-Son güncelleme: 2026-09-15
+Son güncelleme: 2026-09-16
 
 Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kuralları için [AGENTS.md](../../AGENTS.md) otoritedir.
 
@@ -418,3 +418,13 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `media/promo-video/` altında `npm run validate` hatasız geçti; `npm run render` ile 8 promo çıktısı `output/promo-video/` içinde üretildi ve FFprobe akış/sözleşme kontrollerinden geçti (`bookmarkflow-bar-master-1920x1080.mp4` [58.0s, H.264/AAC 48kHz, 9.2MB], `bookmarkflow-bar-linkedin-1920x1080.mp4`, `bookmarkflow-bar-x-1920x1080.mp4` [32.0s, 4.5MB], `bookmarkflow-bar-teaser-1080x1350.mp4` [15.0s, 3.0MB], `bookmarkflow-bar-poster-1920x1080.png`, `bookmarkflow-bar-preview-960x540.gif`); `npm run validate:all` (61/61 test) ve `node --test scripts/backlog-contract.test.mjs` temizdir.
 - Sonraki adım: Yok; BookmarkFlow Bar v2.0 Power Suite resmi lansman ve tanıtım video paketi yeni stüdyo müziğiyle başarıyla üretildi, doğrulandı ve teslim edildi.
 - Son güncelleme: 2026-09-07.
+
+## BF-UX-011 - Kurulum ve rıza anında mevcut açık sekmelere içerik betiklerini dinamik enjekte et ve karşılama geçişini güçlendir
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı geri bildiriminde, eklenti kurulduğunda mevcut açık sekmelerde hiçbir şeyin değişmediği ve kullanıcının tarayıcıyı kapatıp açtığında çubuğun göründüğü bildirildi. Chrome Manifest V3 kuralı gereği manifest `content_scripts` yalnız kurulumdan sonra açılan veya yenilenen sekmelere uygulanır; kurulum anında açık olan sayfalara enjeksiyon yapılmaz. Ayrıca Chrome Web Mağazası korumalı URL olduğu için kurulum sonrasında eklenti orada çalışmaz ve ilk kurulum rızası (consent gate) verilmeden önce eklenti pasif kalır. Bu durum kullanıcıda "çalışmıyor" algısı oluşturuyordu.
+- Kabul kriteri: `manifest.json` içine `scripting` izni eklenir ve `store/reviewer-notes.md` ile `store/permission-justifications.md` güncellenir; `src/background.js` içinde `injectContentScriptsIntoExistingTabs()` fonksiyonu kurularak hem güncelleme durumunda hem de onboarding'de ilk rıza (`BF_SET_DATA_CONSENT`) verildiği anda korumalı olmayan tüm açık `http://` ve `https://` sekmelerine `content.js` dinamik enjekte edilir; `src/onboarding.js` içinde kurulum tamamlandığında (`finishOnboarding`) kullanıcı doğrudan BookmarkFlow Yeni Sekme (`chrome://newtab`) çalışma alanına yönlendirilir; `npm run validate:all` ve `npm run test:regression` temiz geçer.
+- Doğrulama kapısı: `npm run validate:all` (sözleşmeler, açık kaynak, DCO, public tree), `node scripts/validate-backlog.mjs` ve `node scripts/security-regression.mjs` (İngilizce ve Türkçe CDP güvenlik regresyonu) temiz geçer; `git diff --check` hatasızdır.
+- Sonraki adım: Yok; açık sekmelere anında dinamik enjeksiyon ve yeni sekme geçişi uygulandı ve doğrulandı.
+- Son güncelleme: 2026-09-16.
+
