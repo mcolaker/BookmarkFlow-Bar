@@ -458,6 +458,9 @@ async function findChrome() {
   const candidates = [
     process.env.BOOKMARKFLOW_CHROME_PATH,
     ...playwrightCandidates,
+    process.platform === "win32" ? path.join(process.env["PROGRAMFILES(X86)"] || "", "Microsoft", "Edge", "Application", "msedge.exe") : "",
+    process.platform === "win32" ? path.join(process.env.PROGRAMFILES || "", "Microsoft", "Edge", "Application", "msedge.exe") : "",
+    process.platform === "win32" ? path.join(process.env.LOCALAPPDATA || "", "Microsoft", "Edge", "Application", "msedge.exe") : "",
     process.platform === "win32" ? path.join(process.env.PROGRAMFILES || "", "Google", "Chrome", "Application", "chrome.exe") : "",
     process.platform === "win32" ? path.join(process.env["PROGRAMFILES(X86)"] || "", "Google", "Chrome", "Application", "chrome.exe") : "",
     process.platform === "win32" ? path.join(process.env.LOCALAPPDATA || "", "Google", "Chrome", "Application", "chrome.exe") : "",
