@@ -1,6 +1,6 @@
 # BookmarkFlow Bar Açık İşler
 
-Son güncelleme: 2026-09-07
+Son güncelleme: 2026-09-15
 
 Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kuralları için [AGENTS.md](../../AGENTS.md) otoritedir.
 
@@ -85,8 +85,9 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Kabul kriteri: Chrome Search API kullanıcının mevcut varsayılan arama motorunu korur; izin, iki dil, mağaza açıklamaları, reviewer notları, gizlilik politikası ve paket içindeki açık-kaynak/kanonik URL kimliği davranışla tutarlıdır; tüm yerel P1 düzeltmelerini içeren yeni patch ZIP aynı mağaza kaydına yüklenir; dashboard gizlilik ve destek URL'leri çalışan `mcolaker` kanonik adreslerini kullanır; kullanıcı nihai gönderimi onayladıktan sonra inceleme durumu kanıtlanır.
 - Doğrulama kapısı: Backlog sözleşmesi, proje doğrulaması, public-tree, iki dilde güvenlik regresyonu ve gerçek Chrome'da varsayılan arama sağlayıcısı akışı temizdir. PR #5 `validate` kontrolü terminal `success` verdi ve `main` dalına birleştirildi; GitHub Pages gizlilik rotası Limited Use metniyle HTTPS `200` döndürdü. `v0.1.36` release ZIP'i ve SHA-256 dosyası `uploaded` durumda ve GitHub asset digest'i `d53fed4685fbf4b19c879a9180c08623d08a5f751ab0f3e5fdb649c809da9a33` değeriyle yerel paketi doğruluyor. Dashboard'a `0.1.36` yüklendi ve kullanıcı gönderimi tamamladığını bildirdi; 2026-08-04 kullanıcı teyidi aynı uzantı kimliğinin artık canlı olduğunu kanıtlıyor. 2026-08-05 kaynak doğrulaması **Web history**, **Website content**, **User activity seçilmemeli** ve üç Limited Use beyanını davranışla eşleştirdi; proje validator'ü bu beş dashboard metnini fail-closed denetliyor. Canlı dashboard read-only kontrolü Google yeniden kimlik doğrulaması beklediği, `0.1.38` ZIP yükleme ve inceleme ise kullanıcı hesabı/onayı gerektirdiği için açık kalır.
  2026-08-09 canlı dashboard doğrulaması: oturumlu kullanıcı hesabıyla `iaikobkol…` kaydı 0.1.38 `Yayımlandı - herkese açık` (2 kullanıcı, 5 yıldız) gösterdi; homepage `https://mcolaker.github.io/BookmarkFlow-Bar/`, destek `https://github.com/mcolaker/BookmarkFlow-Bar/issues`, gizlilik `https://mcolaker.github.io/BookmarkFlow-Bar/privacy/` kanonik; bookmarks/storage/favicon/search/ana-makine gerekçeleri ve üç Limited Use onayı mevcuttu; Kullanıcı etkinliği işaretsizdi; ancak Web geçmişi ve Web sitesi içeriği işaretsizdi ve açıklama metni eski `Ctrl+Shift+E` kısayolunu taşıyordu. Açıklama `store/listing-en.md` ile eşitlendi (`Alt+Shift+K`), iki veri kategorisi işaretlendi, taslak kaydedildi ve öğe otomatik yayınla seçeneğiyle `İncelenmeyi bekliyor` durumuna gönderildi; `0.1.38` paketinde değişiklik yapılmadı.
-- Sonraki adım: Google inceleme sonucunu bekle; inceleme geçince öğe otomatik yayınlanır. Canlı kayıt korundu, kanonik URL'ler ve veri beyanları doğrulandı; görev inceleme sonucu gelene kadar `BLOCKED` kalır.
-- Son güncelleme: 2026-08-09.
+- 2026-09-15 mağaza metinleri uzlaştırması: `store/listing-en.md` ve `store/listing-tr.md` dosyalarındaki öne çıkan özellikler listesi v0.2.0 Power Suite yetenekleriyle (açık sekmeleri kaydetme `#stash`, yerel JSON yedekleme/geri yükleme, sıfır-bulut akıllı etiketler `#tag`, okuma listesi çekmecesi, 4 obsidian koyu tema, yerel sağlık denetleyicisi, döngüsel Spotlight arama ve yaşayan keşif) tam pariteye kavuşturuldu. `dist/bookmarkflow-bar-0.2.0.zip` paketi ve güncellenmiş mağaza açıklamaları panoya yüklenmeye hazır.
+- Sonraki adım: Google inceleme sonucunu bekle; inceleme geçince öğe otomatik yayınlanır. Canlı kayıt korundu, kanonik URL'ler, v0.2.0 veri beyanları ve iki dilli mağaza metinleri doğrulandı; görev inceleme sonucu gelene kadar `BLOCKED` kalır.
+- Son güncelleme: 2026-09-15.
 
 ## BF-PRIV-001 - İlk kullanım veri erişimini açık onayla sınırla
 
