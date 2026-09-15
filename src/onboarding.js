@@ -203,6 +203,9 @@ async function applySelectedProfile() {
 async function finishOnboarding() {
   await chrome.storage.local.set({ bfOnboardingSeen: true });
   renderStatus(t("setupComplete"), false);
+  try {
+    await chrome.tabs.create({});
+  } catch {}
   window.setTimeout(() => {
     window.close();
   }, 250);

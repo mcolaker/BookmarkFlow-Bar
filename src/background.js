@@ -62,6 +62,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   }
 
   await ensureSettingsReady();
+  injectContentScriptsIntoExistingTabs().catch(() => {});
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -277,7 +278,42 @@ async function setDataConsent(message, sender) {
   await ensureSettingsReady();
   await chrome.storage.local.set({ [DATA_CONSENT_STORAGE_KEY]: DATA_CONSENT_VERSION });
   scheduleBroadcast();
+  injectContentScriptsIntoExistingTabs().catch(() => {});
   return getDataConsentStatus();
+}
+
+async function injectContentScriptsIntoExistingTabs() {
+  if (!chrome.scripting || typeof chrome.scripting.executeScript !== "function") {
+    return;
+  }
+
+  const consent = await getDataConsentStatus();
+  if (!consent.consentGranted) {
+    return;
+  }
+
+  try {
+    const tabs = await chrome.tabs.query({ url: ["http://*/*", "https://*/*"] });
+    const contentFiles = ["src/i18n.js", "src/settings.js", "src/content.js"];
+
+    for (const tab of tabs) {
+      if (!tab.id || !tab.url) continue;
+      if (
+        tab.url.startsWith("https://chromewebstore.google.com") ||
+        tab.url.startsWith("https://chrome.google.com") ||
+        tab.url.startsWith("chrome://") ||
+        tab.url.startsWith("edge://") ||
+        tab.url.startsWith("about:")
+      ) {
+        continue;
+      }
+
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: contentFiles
+      }).catch(() => {});
+    }
+  } catch {}
 }
 
 function consentRequiredResponse() {

@@ -468,3 +468,19 @@ test("3-layer living discovery: interactive sandbox, first-run tooltip, and quic
     assert.ok(tr[key]?.message, `Missing tr message key: ${key}`);
   }
 });
+
+test("dynamic tab injection on consent and onboarding completion workspace transition contract", () => {
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  assert.ok(manifest.permissions.includes("scripting"), "manifest must include scripting permission for dynamic tab injection");
+
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(backgroundJs, /async function injectContentScriptsIntoExistingTabs\(\)/u, "background.js must implement injectContentScriptsIntoExistingTabs");
+  assert.match(backgroundJs, /injectContentScriptsIntoExistingTabs\(\)\.catch/u, "background.js must trigger dynamic injection");
+
+  const onboardingJs = readFileSync(path.join(root, "src/onboarding.js"), "utf8");
+  assert.match(onboardingJs, /chrome\.tabs\.create\(\{\}\)/u, "onboarding.js must open new tab workspace on finish");
+
+  const reviewerNotes = readFileSync(path.join(root, "store/reviewer-notes.md"), "utf8");
+  assert.match(reviewerNotes, /`scripting`/u, "reviewer-notes.md must document scripting permission");
+});
+
