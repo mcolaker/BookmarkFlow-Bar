@@ -16,13 +16,20 @@ Normal web sayfalarına özelleştirilebilir, çok satırlı bir yer imi çubuğ
 
 ÖNE ÇIKAN ÖZELLİKLER
 
+• Tek tıkla veya klavye komutuyla tüm açık sekmeleri klasöre kaydetme (#stash)
+• Yer imleri, ayarlar, etiketler ve okuma listesi için çevrimdışı JSON yedekleme ve geri yükleme
+• Sıfır-bulut akıllı otomatik etiketleme (#tag) ve Spotlight etiket filtreleme
+• Yeni Sekme sayfasında yerleşik çevrimdışı okuma listesi çekmecesi
+• 4 özel obsidian koyu tema (Gold Obsidian, OLED Siyah, Zümrüt Matrisi, Siber İndigo)
+• Sıfır telemetrili yerel Yer İmi Sağlık ve Kırık Bağlantı Denetleyicisi
+• Klavye ile döngüsel gezinilebilen Spotlight / Raycast tarzı gerçek zamanlı arama paleti
+• Dijital saat, selamlama ve Hızlı Kısayollar ızgarası içeren odaklanmış Yeni Sekme
 • Favicon, başlık, kompakt yoğunluk ve yatay kaydırma desteğine sahip çok satırlı yer imi çubuğu
-• Klavye ile gezinilebilen hızlı komut paleti
 • Cihazda yerel tutulan sabitlenmiş klasörlerle isteğe bağlı sol veya sağ klasör rayı
 • Açma, kopyalama, yeniden adlandırma, ekleme, silme, renklendirme ve sıralama işlemleri
 • Ekran paylaşımı sırasında daha temiz, ikon odaklı sunum için yayıncı modu
 • Site bazlı görünürlük denetimleri ve giriş, ödeme veya banka sayfalarında isteğe bağlı gizleme
-• Hazır başlangıç profilleri ve animasyonlu özellik turu
+• Yerleşik başlangıç profilleri, etkileşimli deneme alanı ve 3 katmanlı yaşayan keşif
 • Yer imi veya sayfa erişimi başlamadan önce belirgin ilk kullanım gizlilik seçimi
 • BookmarkFlow hesabı, analiz sistemi, reklam SDK'sı veya harici yer imi sunucusu yok
 
