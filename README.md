@@ -14,24 +14,24 @@
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
   <img alt="Firefox Add-ons Ready" src="https://img.shields.io/badge/Firefox-Add--ons%20Ready-FF7139?logo=firefoxbrowser&logoColor=white">
   <img alt="Microsoft Edge Compatible" src="https://img.shields.io/badge/Edge-Compatible-0078D7?logo=microsoftedge&logoColor=white">
-  <img alt="Source version 0.2.0" src="https://img.shields.io/badge/source-0.2.0-F2C94C">
+  <img alt="Source version 0.2.1" src="https://img.shields.io/badge/source-0.2.1-F2C94C">
   <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
 
 <p align="center">
   <strong><a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf">Install from Chrome Web Store</a></strong> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0.zip">Chrome ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0-firefox.zip">Firefox ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0-edge.zip">Edge ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0.zip.sha256">Verify SHA-256</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.1/bookmarkflow-bar-0.2.1.zip">Chrome ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.1/bookmarkflow-bar-0.2.1-firefox.zip">Firefox ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.1/bookmarkflow-bar-0.2.1-edge.zip">Edge ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.1/bookmarkflow-bar-0.2.1.zip.sha256">Verify SHA-256</a> ·
   <a href="#install-from-source">Installation guide</a> ·
   <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Product website</a> ·
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/discussions">Join Discussions</a>
 </p>
 
 <p align="center">
-  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.2.0 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
+  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.2.1 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
 </p>
 
 > [!NOTE]
@@ -54,6 +54,7 @@
 
 Chrome's native bookmarks bar is intentionally simple, but it cannot become a true multi-row workspace. BookmarkFlow adds a compact interface on top of regular web pages and replaces the new-tab page with a focused bookmark dashboard—without moving your bookmarks into a separate service.
 
+- **Launcher quick context menu & zero-restart injection.** Right-click the floating `BF` button on any page to hide the bar (`Alt+Shift+H`), disable it on specific sites, or open settings. Automatically activates on open tabs upon install without restarting the browser.
 - **Stash all open tabs to folder.** Save all open tabs in your current window into an organized timestamped bookmark session folder with a single click or keyboard command (`#stash`).
 - **Offline JSON backup & restore.** Download complete, local-first snapshots of your bookmarks, settings, tags, and reading list in standard JSON format, and restore with safe merge.
 - **Zero-cloud smart auto-tagging.** Local, private tag engine that automatically associates bookmarks with `#dev`, `#ai`, `#video`, `#social`, `#design`, and `#reading` tags based on domain and URL patterns.

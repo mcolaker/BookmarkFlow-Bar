@@ -437,3 +437,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Sonraki adım: Yok; BF başlatıcı ikonu için sağ tık hızlı menüsü, güçlendirilmiş keşif ipucu ve popup sayfa kontrolleri rozeti başarıyla uygulandı, video QA ve izole logcat ile doğrulandı.
 - Son güncelleme: 2026-09-16.
 
+## BF-REL-011 - v0.2.1 Sürümünü Hazırla, Çapraz Tarayıcı Paketlerini Üret ve Lansman Kitini Teslim Et
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-16 tarihinde BF-UX-011 (açık sekmelere anında dinamik içerik betiği enjeksiyonu) ve BF-UX-012 (BF başlatıcı sağ tık hızlı bağlam menüsü, 5 saniyelik adaptif ilk çalıştırma ipucu ve popup kontroller rozeti) yeteneklerini içeren v0.2.1 patch sürümünün hazırlanmasını, çoklu tarayıcı dağıtım paketlerinin derlenmesini, tanıtım görsellerinin ve iki dilli lansman duyuru paketinin hazırlanmasını onayladı. manifest.json, package.json, CHANGELOG.md ve README.md sürüm referansları 0.2.1 olarak eşitlendi.
+- Kabul kriteri: manifest.json, package.json ve CHANGELOG.md 0.2.1 sürümünü taşır; README.md v0.2.1 rozetleri, indirme bağlantıları ve yeni özellik açıklamaları ile güncellenir; node scripts/package-cross-browser.mjs ile Chromium, Firefox ve Edge paketleri üretilir; X (1200x675) ve LinkedIn (1200x627) standartlarında lansman görselleri ile iki dilli mağaza güncelleme notları ve duyuru kiti hazırlanır; npm run validate:all ve npm run test:regression temiz geçer.
+- Doğrulama kapısı: 63/63 otomatik test başarılı (npm test); npm run validate:all (açık kaynak, DCO, sözleşmeler, proje doğrulama, public tree ve backlog doğrulama) temiz geçti; npm run test:regression fail-closed CDP güvenlik ve Chrome regresyon denetimini pass ile tamamladı; git diff --check hatasızdır; paket arşivleri ve SHA-256 sağlama toplamları üretildi.
+- Sonraki adım: Yok; v0.2.1 patch sürümü hazırlandı, çapraz tarayıcı paketleri ve görsel lansman kiti teslim edildi.
+- Son güncelleme: 2026-09-16.
+
