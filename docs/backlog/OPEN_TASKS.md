@@ -428,3 +428,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Sonraki adım: Yok; açık sekmelere anında dinamik enjeksiyon ve yeni sekme geçişi uygulandı ve doğrulandı.
 - Son güncelleme: 2026-09-16.
 
+## BF-UX-012 - BF Başlatıcı İkonu İçin Sağ Tık Hızlı Menüsü (Quick Context Menu) ve Güçlendirilmiş Canlı Keşif İpucunu Uygula
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı geri bildiriminde web sayfalarında beliren yüzen `BF` butonunun ne işe yaradığı, nasıl açılıp kapandığı veya siteden nasıl gizlendiğinin kullanıcılar tarafından anlaşılamadığı bildirildi. Buton üzerinde yalnızca "BF" yazması, kısayolların (`Alt+Shift+B`, `Alt+Shift+H`) keşfedilememesi, ilk çalıştırma balonunun tek bir ziyarette erkenden kaybolabilmesi ve buton üzerinde standart sağ tık menüsünün çalışıp eklenti kontrollerini sunmaması temel kök nedendir.
+- Kabul kriteri: `src/content.js` içinde `.bf-mark` ve `.bf-restore` butonlarına sağ tıklandığında (ve klavye `ContextMenu` / `Shift+F10` ile odaklandığında) özel bir hızlı menü (`.bf-context-menu`) açılır; hızlı menüde "Çubuğu Gizle (Alt + Shift + H)" (uykudaysa "Çubuğu Göster"), "Bu Sitede Devre Dışı Bırak" ve "Ayarlar" seçenekleri sunulur; "Çubuğu Gizle" seçildiğinde çubuk anında uyku moduna geçer; "Bu Sitede Devre Dışı Bırak" seçildiğinde aktif host `disabledHosts` listesine eklenip yerel çubuk anında sayfadan kaldırılır; "Ayarlar" seçildiğinde bakım/ayarlar sayfası yeni sekmede açılır; ilk kurulum canlı ipucu (`.bf-intro-tooltip`) "Tıkla veya Alt + Shift + B ile aç/kapat" (EN: "Click or Alt + Shift + B to toggle bar") metniyle 5 saniye boyunca görünür kalır, tıklandığında veya buton tetiklendiğinde kalıcı gizlenir; buton hover `title` metinleri ("Sürükle / Tıkla: Aç/Kapat (Alt+Shift+B) | Sağ tık: Menü") ile zenginleştirilir; iki dilli (`en`, `tr`) yerelleştirme tam pariteyle güncellenir ve `ui-behavior-contract.test.mjs` testleri eklenir; `npm run validate:all` ve `npm run test:regression` temiz geçer.
+- Doğrulama kapısı: 63/63 test başarılı (`npm test`); `npm run validate:all` (açık kaynak, DCO, sözleşmeler, proje doğrulama, public tree ve backlog doğrulama) temiz geçti; `npm run test:regression` fail-closed CDP güvenlik ve Chrome regresyon denetimini `pass` ile tamamladı; `git diff --check` hatasızdır.
+- Sonraki adım: Yok; BF başlatıcı ikonu için sağ tık hızlı menüsü ve güçlendirilmiş keşif ipucu başarıyla uygulandı ve doğrulandı.
+- Son güncelleme: 2026-09-16.
+
