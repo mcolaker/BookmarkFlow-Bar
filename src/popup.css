@@ -464,3 +464,27 @@ kbd,
   display: none;
 }
 
+.page-controls-badge {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(242, 201, 76, 0.08);
+  border: 1px solid rgba(242, 201, 76, 0.25);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--popup-text);
+}
+
+.page-controls-badge-icon {
+  flex-shrink: 0;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.page-controls-badge-text {
+  flex: 1;
+  color: rgba(247, 249, 252, 0.88);
+}
+

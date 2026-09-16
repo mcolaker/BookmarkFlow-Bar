@@ -371,5 +371,6 @@
   "quickMenuHideBar": { "message": "Hide Bar (Alt + Shift + H)" },
   "quickMenuRestoreBar": { "message": "Restore Bar (Alt + Shift + H)" },
   "quickMenuDisableSite": { "message": "Disable on this site" },
-  "quickMenuSettings": { "message": "Settings" }
+  "quickMenuSettings": { "message": "Settings" },
+  "pageControlsTip": { "message": "Tip: Right-click the BF button on any page to open quick actions or toggle with Alt+Shift+B." }
 }

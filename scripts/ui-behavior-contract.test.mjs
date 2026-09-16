@@ -464,7 +464,8 @@ test("3-layer living discovery: interactive sandbox, first-run tooltip, and quic
     "quickMenuHideBar",
     "quickMenuRestoreBar",
     "quickMenuDisableSite",
-    "quickMenuSettings"
+    "quickMenuSettings",
+    "pageControlsTip"
   ];
 
   for (const key of requiredKeys) {
@@ -501,4 +502,8 @@ test("launcher quick context menu and adaptive discovery contract (BF-UX-012)", 
 
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   assert.match(contentCss, /\.bf-intro-tooltip\.is-left/u, "content.css must style adaptive is-left tooltip");
+
+  const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
+  assert.match(popupHtml, /id="pageControlsBadge"/u, "popup.html must contain pageControlsBadge element");
+  assert.match(popupHtml, /data-i18n="pageControlsTip"/u, "popup.html must reference pageControlsTip translation");
 });

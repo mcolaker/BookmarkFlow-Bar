@@ -85,7 +85,7 @@ function assertCompleteBinaryInventory() {
     { cwd: root, encoding: "utf8" },
   ).split("\0").filter(Boolean).map((entry) => entry.replaceAll("\\", "/"));
   const textExtensions = new Set([
-    ".css", ".gitattributes", ".gitignore", ".html", ".js", ".json", ".md", ".mjs",
+    ".css", ".editorconfig", ".gitattributes", ".gitignore", ".html", ".js", ".json", ".md", ".mjs",
     ".srt", ".svg", ".ts", ".tsx", ".txt", ".xml", ".yaml", ".yml",
   ]);
   const extensionlessTextFiles = new Set(["DCO", "NOTICE", ".imgbotconfig"]);
