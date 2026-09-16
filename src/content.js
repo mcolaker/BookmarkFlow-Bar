@@ -3476,12 +3476,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const hostName = getCurrentHost();
     const settings = appState?.settings || {};
     const renderedApp = shadow?.querySelector(".bf-app");
+    const launcher = shadow?.querySelector(".bf-mark, .bf-restore");
     const command = shadow?.querySelector(".bf-command");
     const folderMenu = shadow?.querySelector(".bf-menu");
     const folderRail = shadow?.querySelector(".bf-folder-rail");
     const contextMenu = shadow?.querySelector(".bf-context-menu");
     const commandResults = shadow?.querySelectorAll(".bf-command-item")?.length || 0;
     const renderedAppBounds = getVisibleElementBounds(renderedApp);
+    const launcherBounds = getVisibleElementBounds(launcher);
     const renderedAppVisible = Boolean(
       renderedAppBounds
       && renderedAppBounds.width > 0
@@ -3507,6 +3509,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       renderedAppExpanded: Boolean(renderedApp?.classList.contains("is-expanded")),
       renderedAppVisible,
       renderedAppBounds,
+      launcherBounds,
+      introTooltipText: shadow?.querySelector(".bf-intro-tooltip")?.textContent?.trim() || null,
       searchOpen: Boolean(command && !command.hidden),
       commandResults,
       commandActiveIndex,

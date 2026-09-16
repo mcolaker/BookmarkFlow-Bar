@@ -153,8 +153,11 @@
         <button id="exportBackupBtn" class="secondary" type="button" data-i18n="exportBackup">💾 Export backup</button>
         <button id="importBackupBtn" class="secondary" type="button" data-i18n="importBackup">📥 Restore</button>
         <input id="importFileInput" type="file" accept=".json,application/json" hidden>
-      </div>
       <p id="backupStatus" class="status compact-status" role="status" aria-live="polite" hidden></p>
+      <div id="pageControlsBadge" class="page-controls-badge">
+        <span class="page-controls-badge-icon" aria-hidden="true">💡</span>
+        <span class="page-controls-badge-text" data-i18n="pageControlsTip">Tip: Right-click the BF button on any page to open quick actions or toggle with Alt+Shift+B</span>
+      </div>
       <button id="resetPosition" class="secondary subtle" type="button" data-i18n="resetPosition">Reset panel position</button>
     </main>
     <script src="i18n.js"></script>

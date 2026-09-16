@@ -371,5 +371,6 @@
   "quickMenuHideBar": { "message": "Çubuğu Gizle (Alt + Shift + H)" },
   "quickMenuRestoreBar": { "message": "Çubuğu Göster (Alt + Shift + H)" },
   "quickMenuDisableSite": { "message": "Bu Sitede Devre Dışı Bırak" },
-  "quickMenuSettings": { "message": "Ayarlar" }
+  "quickMenuSettings": { "message": "Ayarlar" },
+  "pageControlsTip": { "message": "İpucu: Sayfadaki BF butonuna sağ tıklayarak hızlı menüyü açabilir veya Alt+Shift+B ile açıp kapatabilirsiniz." }
 }
