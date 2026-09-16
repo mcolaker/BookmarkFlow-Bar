@@ -49,6 +49,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     resolveItemTags,
     matchesTagFilter,
     isHostDisabled,
+    addDisabledHost,
     isSafeBookmarkUrl,
     isSensitiveHost,
     areBookmarkUrlsEqual,
@@ -790,6 +791,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     app.className = "bf-app is-snoozed";
     app.innerHTML = `
       <button class="bf-restore" type="button" data-bf-action="restore" data-bf-drag-handle="true" title="${escapeAttribute(t("dragOrOpen"))}" aria-label="${escapeAttribute(t("dragOrOpen"))}">BF</button>
+      <div class="bf-context-menu" hidden></div>
     `;
 
     shadow.append(app);
@@ -811,8 +813,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     shadow.querySelector(".bf-app")?.remove();
     host.dataset.theme = settings.theme || "gold-obsidian";
 
+    const isDockedRight = Boolean(panelPosition && panelPosition.x > (window.innerWidth / 2));
     const introTooltipHtml = (!firstRunTooltipSeen && !isExpanded)
-      ? `<div class="bf-intro-tooltip" role="tooltip" data-bf-action="dismiss-tooltip"><span class="bf-intro-arrow"></span><span class="bf-intro-text">${escapeHtml(t("firstRunTooltipText"))}</span></div>`
+      ? `<div class="bf-intro-tooltip ${isDockedRight ? "is-left" : ""}" role="tooltip" data-bf-action="dismiss-tooltip"><span class="bf-intro-arrow"></span><span class="bf-intro-text">${escapeHtml(t("firstRunTooltipText"))}</span></div>`
       : "";
 
     const app = document.createElement("div");
@@ -922,7 +925,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     renderCommandResults(app);
     restoreOpenFolder(app);
     if (!firstRunTooltipSeen && !isExpanded) {
-      setTimeout(dismissFirstRunTooltip, 6000);
+      setTimeout(dismissFirstRunTooltip, 5000);
     }
   }
 
@@ -990,6 +993,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     app.addEventListener("pointerdown", createSafeEventHandler(handlePanelPointerDown));
     app.addEventListener("contextmenu", createSafeEventHandler(handleBookmarkContextMenu));
     app.addEventListener("dragstart", createSafeEventHandler(preventNativeBookmarkDrag));
+    app.addEventListener("keydown", createSafeEventHandler((event) => {
+      if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
+        const targetElement = getEventTargetElement(event);
+        const launcher = targetElement?.closest(".bf-mark, .bf-restore");
+        if (launcher) {
+          event.preventDefault();
+          event.stopPropagation();
+          openLauncherContextMenu(launcher, 0, 0);
+        }
+      }
+    }));
 
     app.addEventListener("click", createSafeEventHandler((event) => {
       const targetElement = getEventTargetElement(event);
@@ -1845,6 +1859,51 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       closeContextMenu();
       renderFromState();
       restoreFocusTarget(returnFocus);
+      return;
+    }
+
+    if (action === "quick-hide-bar") {
+      closeContextMenu();
+      isSnoozed = true;
+      isExpanded = false;
+      closeFolderMenu();
+      renderFromState();
+      return;
+    }
+
+    if (action === "quick-restore-bar") {
+      closeContextMenu();
+      isSnoozed = false;
+      isExpanded = false;
+      renderFromState();
+      return;
+    }
+
+    if (action === "quick-disable-site") {
+      closeContextMenu();
+      const currentHost = getCurrentHost();
+      if (currentHost) {
+        const existingDisabled = appState?.settings?.disabledHosts || [];
+        const updatedDisabled = addDisabledHost(existingDisabled, currentHost);
+        if (appState?.settings) {
+          appState.settings.disabledHosts = updatedDisabled;
+        }
+        if (hasExtensionContext()) {
+          try {
+            chrome.storage.local.set({ disabledHosts: updatedDisabled }).catch(() => {});
+          } catch {}
+        }
+        renderFromState();
+      }
+      return;
+    }
+
+    if (action === "quick-open-settings") {
+      closeContextMenu();
+      try {
+        window.open(chrome.runtime.getURL("src/bookmark-maintenance.html"), "_blank", "noopener,noreferrer");
+      } catch {}
+      return;
     }
   }
 
@@ -2591,6 +2650,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    const launcher = targetElement.closest(".bf-mark, .bf-restore");
+    if (launcher) {
+      event.preventDefault();
+      event.stopPropagation();
+      openLauncherContextMenu(launcher, event.clientX, event.clientY);
+      return;
+    }
+
     const item = targetElement.closest("[data-node-id]");
     if (!item || item.closest(".bf-context-menu, .bf-command, .bf-control, .bf-search")) {
       return;
@@ -2604,6 +2671,52 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     event.preventDefault();
     event.stopPropagation();
     openBookmarkContextMenu(node, event.clientX, event.clientY);
+  }
+
+  function openLauncherContextMenu(targetElement, clientX, clientY) {
+    const menu = shadow?.querySelector(".bf-context-menu");
+    if (!menu) {
+      return;
+    }
+
+    const rect = targetElement.getBoundingClientRect();
+    const x = (typeof clientX === "number" && clientX > 0) ? clientX : Math.round(rect.left + rect.width / 2);
+    const y = (typeof clientY === "number" && clientY > 0) ? clientY : Math.round(rect.top + rect.height / 2);
+
+    contextMenuState = {
+      isLauncher: true
+    };
+
+    menu.replaceChildren();
+
+    const isCurrentlySnoozed = Boolean(isSnoozed);
+    const hideOrRestoreAction = isCurrentlySnoozed ? "quick-restore-bar" : "quick-hide-bar";
+    const hideOrRestoreLabel = isCurrentlySnoozed ? t("quickMenuRestoreBar") : t("quickMenuHideBar");
+
+    menu.append(
+      createContextMenuButton(hideOrRestoreAction, hideOrRestoreLabel)
+    );
+
+    const currentHost = getCurrentHost();
+    if (currentHost && /^https?:$/.test(window.location.protocol)) {
+      menu.append(
+        createContextMenuButton("quick-disable-site", t("quickMenuDisableSite"))
+      );
+    }
+
+    menu.append(createContextMenuSeparator());
+    menu.append(
+      createContextMenuButton("quick-open-settings", t("quickMenuSettings"))
+    );
+
+    menu.style.left = `${x}px`;
+    menu.style.top = `${y}px`;
+    menu.hidden = false;
+
+    const left = clamp(x, 8, Math.max(8, window.innerWidth - menu.offsetWidth - 8));
+    const top = clamp(y, 8, Math.max(8, window.innerHeight - menu.offsetHeight - 8));
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
   }
 
   function openBookmarkContextMenu(node, clientX, clientY) {

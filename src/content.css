@@ -291,6 +291,17 @@
   border-color: transparent rgba(242, 201, 76, 0.45) transparent transparent;
 }
 
+.bf-intro-tooltip.is-left {
+  left: auto;
+  right: calc(100% + 10px);
+}
+
+.bf-intro-tooltip.is-left .bf-intro-arrow {
+  right: auto;
+  left: 100%;
+  border-color: transparent transparent transparent rgba(242, 201, 76, 0.45);
+}
+
 
 .bf-main {
   min-width: 0;

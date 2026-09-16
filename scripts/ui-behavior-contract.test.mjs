@@ -460,7 +460,11 @@ test("3-layer living discovery: interactive sandbox, first-run tooltip, and quic
     "tipHealthTitle",
     "tipHealthDesc",
     "quickGuide",
-    "dismiss"
+    "dismiss",
+    "quickMenuHideBar",
+    "quickMenuRestoreBar",
+    "quickMenuDisableSite",
+    "quickMenuSettings"
   ];
 
   for (const key of requiredKeys) {
@@ -484,3 +488,17 @@ test("dynamic tab injection on consent and onboarding completion workspace trans
   assert.match(reviewerNotes, /`scripting`/u, "reviewer-notes.md must document scripting permission");
 });
 
+test("launcher quick context menu and adaptive discovery contract (BF-UX-012)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /function openLauncherContextMenu\(/u, "content.js must define openLauncherContextMenu");
+  assert.match(contentJs, /closest\("\.bf-mark, \.bf-restore"\)/u, "content.js must handle contextmenu on launcher mark and restore");
+  assert.match(contentJs, /quick-hide-bar/u, "content.js must support quick-hide-bar action");
+  assert.match(contentJs, /quick-restore-bar/u, "content.js must support quick-restore-bar action");
+  assert.match(contentJs, /quick-disable-site/u, "content.js must support quick-disable-site action");
+  assert.match(contentJs, /quick-open-settings/u, "content.js must support quick-open-settings action");
+  assert.match(contentJs, /"is-left"/u, "content.js must adapt tooltip orientation near edge");
+  assert.match(contentJs, /setTimeout\(dismissFirstRunTooltip, 5000\)/u, "content.js must dismiss first-run tooltip after 5000ms");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-intro-tooltip\.is-left/u, "content.css must style adaptive is-left tooltip");
+});
