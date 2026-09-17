@@ -1,0 +1,9 @@
+{
+  "name": "com.bookmarkflow.companion",
+  "description": "BookmarkFlow Bar Fast Windows UIA Desktop Companion",
+  "path": "bookmarkflow-companion.bat",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://iaikobkolclhhpcogacjkenijlfaibpf/"
+  ]
+}

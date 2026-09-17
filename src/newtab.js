@@ -581,6 +581,34 @@ function resolveDirectNavigationTarget(value) {
   return "";
 }
 
+let cachedSearchIndex = null;
+let lastIndexedBookmarkBar = null;
+let lastIndexedTagsMap = null;
+
+function getSearchIndex() {
+  if (
+    cachedSearchIndex &&
+    lastIndexedBookmarkBar === appState?.bookmarkBar &&
+    lastIndexedTagsMap === bookmarkTagsMap
+  ) {
+    return cachedSearchIndex;
+  }
+
+  lastIndexedBookmarkBar = appState?.bookmarkBar;
+  lastIndexedTagsMap = bookmarkTagsMap;
+  const rawBookmarks = collectSearchableBookmarks(appState?.bookmarkBar);
+
+  cachedSearchIndex = rawBookmarks.map((b) => ({
+    id: b.id,
+    title: b.title,
+    url: b.url,
+    path: b.path,
+    tags: resolveItemTags(b, bookmarkTagsMap)
+  }));
+
+  return cachedSearchIndex;
+}
+
 function handleSearchInput() {
   const query = elements.searchInput.value.trim();
   elements.searchInput.setCustomValidity("");
@@ -590,14 +618,19 @@ function handleSearchInput() {
     return;
   }
 
-  const allBookmarks = collectSearchableBookmarks(appState?.bookmarkBar);
+  const allBookmarks = getSearchIndex();
+  const textLocale = getTextLocale();
+  const matchedBookmarks = [];
 
-  const matchedBookmarks = allBookmarks
-    .filter((b) => {
-      const itemTags = resolveItemTags(b, bookmarkTagsMap);
-      return matchesTagFilter(query, itemTags, b, getTextLocale());
-    })
-    .slice(0, 8);
+  for (let i = 0; i < allBookmarks.length; i += 1) {
+    const b = allBookmarks[i];
+    if (matchesTagFilter(query, b.tags, b, textLocale)) {
+      matchedBookmarks.push(b);
+      if (matchedBookmarks.length >= 8) {
+        break;
+      }
+    }
+  }
 
   const results = matchedBookmarks.map((b) => ({
     type: "bookmark",

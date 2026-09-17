@@ -18,6 +18,7 @@
 /docs export-ignore
 /scripts export-ignore
 /store export-ignore
+/tools export-ignore
 /LICENSE.md -export-ignore
 /NOTICE -export-ignore
 /TRADEMARKS.md -export-ignore

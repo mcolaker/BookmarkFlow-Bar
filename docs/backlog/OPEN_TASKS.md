@@ -446,3 +446,11 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Sonraki adım: Yok; v0.2.1 patch sürümü hazırlandı, çapraz tarayıcı paketleri ve görsel lansman kiti teslim edildi.
 - Son güncelleme: 2026-09-16.
 
+## BF-ARCH-001 - ev-ultrafast ve Fast Windows UIA Sistemlerini Eklentiye ve Masaüstüne Entegre Et
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-17 tarihinde web/DOM dünyası için ev-ultrafast karar motorunun ve Windows masaüstü dünyası için Fast Windows UIA köprüsünün projeye entegrasyonunu onayladı. Mevcut arama mekanizması (`src/newtab.js`) her girdi olayında tüm yer imi ağacını yinelemeli taramakta; `src/content.js` içindeki üst çubuk algılama ise tüm DOM elementlerini döngüye alarak forced synchronous reflow üretmektedir. Masaüstü düzeyinde ise eklenti tarayıcı dışı global kısayolları ve harici pencere/UIA durumunu algılayamamaktadır.
+- Kabul kriteri: `src/newtab.js` içine önceden indekslenmiş, sıfır-tahsisli arama önbelleği (`searchIndexCache`) entegre edilir ve arama tepki süresi <1ms seviyesine çekilir; `src/content.js` içinde semantik hedefli ve batch edilmiş reflow-free `detectLikelyFixedTopSurface()` optimizasyonu yapılır; `tools/windows-companion/` altında bağımsız ve hafif Windows Native Messaging companion prototipi (`com.bookmarkflow.companion.json`, `bookmarkflow-companion.mjs`, `install-companion.ps1`) hazırlanır; `src/background.js` içine fail-safe bağlantı köprüsü eklenir; testler ve backlog sözleşmesi temiz geçer.
+- Doğrulama kapısı: 63/63 otomatik test başarılı (`npm test`); `npm run validate:all` (açık kaynak, DCO, sözleşmeler, proje doğrulama, public tree ve backlog doğrulama) temiz geçti; `node tools/windows-companion/test-companion-ipc.mjs` ile PING/PONG el sıkışması, komut iletimi ve Windows UIA aktif pencere denetimi başarıyla doğrulandı; `npm run test:regression` fail-closed CDP güvenlik ve Chrome regresyon denetimini `pass` ile tamamladı; `git diff --check` hatasızdır.
+- Sonraki adım: Yok; ev-ultrafast arama ve reflow optimizasyonları ile Fast Windows UIA masaüstü companion prototipi başarıyla uygulandı ve doğrulandı.
+- Son güncelleme: 2026-09-17.

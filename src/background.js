@@ -1197,3 +1197,43 @@ function sanitizeNode(node) {
     children: Array.isArray(node.children) ? node.children.map(sanitizeNode).filter(Boolean) : []
   };
 }
+
+let nativeCompanionPort = null;
+
+function initNativeCompanionBridge() {
+  if (typeof chrome?.runtime?.connectNative !== "function") {
+    return;
+  }
+
+  try {
+    const port = chrome.runtime.connectNative("com.bookmarkflow.companion");
+    port.onMessage.addListener((message) => {
+      if (message?.type === "DISPATCH_COMMAND" && message.command) {
+        handleNativeCompanionCommand(message.command);
+      }
+    });
+
+    port.onDisconnect.addListener(() => {
+      nativeCompanionPort = null;
+      if (chrome.runtime?.lastError) {
+        // Fail-safe: companion is optional, clear lastError without throwing
+      }
+    });
+
+    nativeCompanionPort = port;
+  } catch {
+    // Fail-safe: companion is optional
+  }
+}
+
+function handleNativeCompanionCommand(command) {
+  if (command === "GLOBAL_TOGGLE_BAR") {
+    runCommand("toggle-bar").catch(() => {});
+  } else if (command === "GLOBAL_STASH_TABS") {
+    runWithDataConsent(() => saveOpenTabs({})).catch(() => {});
+  } else if (command === "GLOBAL_OPEN_SEARCH") {
+    runCommand("open-search").catch(() => {});
+  }
+}
+
+initNativeCompanionBridge();

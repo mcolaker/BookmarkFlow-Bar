@@ -3601,7 +3601,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function detectLikelyFixedTopSurface() {
-    const nodes = Array.from(document.body?.querySelectorAll("*") || []);
+    if (!document.body) return false;
+
+    // ev-ultrafast: Query semantic top bars, banners, and navigation containers first
+    const candidates = document.body.querySelectorAll(
+      "header, nav, [role='banner'], [role='navigation'], [class*='header' i], [class*='nav' i], [class*='top' i], [id*='header' i], [id*='nav' i]"
+    );
+    const nodes = candidates.length > 0 ? Array.from(candidates) : Array.from(document.body.children || []);
     const max = Math.min(nodes.length, TOP_SURFACE_SCAN_LIMIT);
 
     for (let index = 0; index < max; index += 1) {
@@ -3610,6 +3616,21 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         continue;
       }
 
+      // ev-ultrafast: check computed style position FIRST before triggering layout recalculation
+      const style = window.getComputedStyle(node);
+      if (style.position !== "fixed" && style.position !== "sticky") {
+        continue;
+      }
+
+      if (
+        style.display === "none" ||
+        style.visibility === "hidden" ||
+        Number(style.opacity) === 0
+      ) {
+        continue;
+      }
+
+      // Only perform geometry check for confirmed fixed/sticky candidates
       const rect = node.getBoundingClientRect();
       if (
         rect.width < TOP_SURFACE_MIN_WIDTH ||
@@ -3621,18 +3642,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         continue;
       }
 
-      const style = window.getComputedStyle(node);
-      if (
-        style.display === "none" ||
-        style.visibility === "hidden" ||
-        Number(style.opacity) === 0
-      ) {
-        continue;
-      }
-
-      if (style.position === "fixed" || style.position === "sticky") {
-        return true;
-      }
+      return true;
     }
 
     return false;
