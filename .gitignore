@@ -32,6 +32,8 @@
 !/src/**
 !/store/
 !/store/**
+!/tools/
+!/tools/**
 !/LICENSE*
 !/SECURITY.md
 !/.imgbotconfig

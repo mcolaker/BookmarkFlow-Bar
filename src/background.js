@@ -62,6 +62,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   }
 
   await ensureSettingsReady();
+  injectContentScriptsIntoExistingTabs().catch(() => {});
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -201,6 +202,14 @@ function routeMessage(message, sender) {
     return setDataConsent(message, sender);
   }
 
+  if (message?.type === "BF_GET_COMPANION_STATUS") {
+    return Promise.resolve({ ok: true, connected: !!nativeCompanionPort });
+  }
+
+  if (message?.type === "BF_UPDATE_COMPANION_HOTKEYS") {
+    return updateCompanionHotkeys(message.hotkeys);
+  }
+
   const protectedTask = message?.type === MESSAGE_GET_STATE
     ? () => getState()
     : message?.type === MESSAGE_MOVE_BOOKMARK
@@ -277,7 +286,42 @@ async function setDataConsent(message, sender) {
   await ensureSettingsReady();
   await chrome.storage.local.set({ [DATA_CONSENT_STORAGE_KEY]: DATA_CONSENT_VERSION });
   scheduleBroadcast();
+  injectContentScriptsIntoExistingTabs().catch(() => {});
   return getDataConsentStatus();
+}
+
+async function injectContentScriptsIntoExistingTabs() {
+  if (!chrome.scripting || typeof chrome.scripting.executeScript !== "function") {
+    return;
+  }
+
+  const consent = await getDataConsentStatus();
+  if (!consent.consentGranted) {
+    return;
+  }
+
+  try {
+    const tabs = await chrome.tabs.query({ url: ["http://*/*", "https://*/*"] });
+    const contentFiles = ["src/i18n.js", "src/settings.js", "src/content.js"];
+
+    for (const tab of tabs) {
+      if (!tab.id || !tab.url) continue;
+      if (
+        tab.url.startsWith("https://chromewebstore.google.com") ||
+        tab.url.startsWith("https://chrome.google.com") ||
+        tab.url.startsWith("chrome://") ||
+        tab.url.startsWith("edge://") ||
+        tab.url.startsWith("about:")
+      ) {
+        continue;
+      }
+
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: contentFiles
+      }).catch(() => {});
+    }
+  } catch {}
 }
 
 function consentRequiredResponse() {
@@ -1161,3 +1205,85 @@ function sanitizeNode(node) {
     children: Array.isArray(node.children) ? node.children.map(sanitizeNode).filter(Boolean) : []
   };
 }
+
+let nativeCompanionPort = null;
+
+function updateCompanionHotkeys(hotkeys) {
+  if (!nativeCompanionPort) {
+    return Promise.resolve({ ok: true, connected: false });
+  }
+
+  try {
+    nativeCompanionPort.postMessage({
+      type: "UPDATE_HOTKEYS",
+      id: "ext_" + Date.now(),
+      hotkeys
+    });
+    return Promise.resolve({ ok: true, connected: true });
+  } catch (err) {
+    return Promise.resolve({ ok: false, error: err?.message || String(err) });
+  }
+}
+
+function initNativeCompanionBridge() {
+  if (typeof chrome?.runtime?.connectNative !== "function") {
+    return;
+  }
+
+  try {
+    const port = chrome.runtime.connectNative("com.bookmarkflow.companion");
+    port.onMessage.addListener((message) => {
+      if (message?.type === "DISPATCH_COMMAND" && message.command) {
+        handleNativeCompanionCommand(message.command);
+      } else if (message?.type === "OPEN_SETTINGS_REQUESTED") {
+        chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html#desktop") });
+      }
+    });
+
+    port.onDisconnect.addListener(() => {
+      nativeCompanionPort = null;
+      if (chrome.runtime?.lastError) {
+        // Fail-safe: companion is optional, clear lastError without throwing
+      }
+    });
+
+    nativeCompanionPort = port;
+
+    chrome.storage.local.get(["customGlobalHotkeys"], (result) => {
+      const custom = result?.customGlobalHotkeys;
+      if (custom && nativeCompanionPort) {
+        const parseRow = (str, id, command, defKey, defMods) => {
+          if (!str) return { id, key: defKey, modifiers: defMods, command };
+          const parts = str.split("+").map((p) => p.trim()).filter(Boolean);
+          const key = parts[parts.length - 1]?.toUpperCase() || defKey;
+          const modifiers = parts.slice(0, -1);
+          return { id, key: key[0], modifiers: modifiers.length > 0 ? modifiers : defMods, command };
+        };
+        const hotkeyList = [
+          parseRow(custom.toggle, 1, "GLOBAL_TOGGLE_BAR", "B", ["Win", "Shift"]),
+          parseRow(custom.search, 2, "GLOBAL_OPEN_SEARCH", "K", ["Win", "Shift"]),
+          parseRow(custom.stash, 3, "GLOBAL_STASH_TABS", "S", ["Win", "Alt"])
+        ];
+        nativeCompanionPort.postMessage({
+          type: "UPDATE_HOTKEYS",
+          id: "init_sync",
+          hotkeys: hotkeyList
+        });
+      }
+    });
+  } catch {
+    // Fail-safe: companion is optional
+  }
+}
+
+function handleNativeCompanionCommand(command) {
+  if (command === "GLOBAL_TOGGLE_BAR") {
+    runCommand("toggle-bar").catch(() => {});
+  } else if (command === "GLOBAL_STASH_TABS") {
+    runWithDataConsent(() => saveOpenTabs({})).catch(() => {});
+  } else if (command === "GLOBAL_OPEN_SEARCH") {
+    runCommand("open-search").catch(() => {});
+  }
+}
+
+initNativeCompanionBridge();

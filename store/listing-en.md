@@ -16,13 +16,20 @@ Add a customizable multi-row bookmark bar to ordinary web pages, search your boo
 
 HIGHLIGHTS
 
+• Stash all open tabs to folder with a single click or keyboard command (#stash)
+• Offline JSON backup & restore for bookmarks, settings, tags, and reading list
+• Zero-cloud smart auto-tagging (#tag) and Spotlight tag filtering
+• Offline reading list drawer right inside your New Tab page
+• 4 curated obsidian dark themes (Gold Obsidian, OLED Black, Emerald Matrix, Cyber Indigo)
+• Bookmark Health & Dead Link Inspector with zero-telemetry local auditing
+• Spotlight / Raycast style real-time search palette with cyclic arrow navigation
+• Focused New Tab with digital clock, contextual greetings, and Quick Shortcuts
 • Multi-row bookmark bar with favicons, titles, compact density, and horizontal scrolling
-• Fast command palette with keyboard navigation
 • Optional left or right folder rail with device-local pinned folders
 • Context actions for opening, copying, renaming, adding, deleting, coloring, and reordering
 • Streamer mode for a cleaner icon-focused presentation during screen sharing
 • Per-site visibility controls and optional hiding on login, payment, and banking pages
-• Built-in onboarding profiles and an animated feature tour
+• Built-in onboarding profiles, interactive sandbox, and 3-layer living discovery
 • Prominent first-run privacy choice before bookmark or page access begins
 • No BookmarkFlow account, analytics, advertising SDK, or external bookmark server
 

@@ -4,6 +4,16 @@ All notable public changes to BookmarkFlow Bar are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project does not currently claim Semantic Versioning compatibility.
 
+## [0.2.1] — 2026-09-16
+
+### Added
+
+- Add Launcher Quick Context Menu (`.bf-context-menu`): Right-click (or keyboard `ContextMenu` / `Shift+F10`) on the floating launcher button (`.bf-mark` or `.bf-restore`) to open quick controls ("Hide Bar (Alt + Shift + H)", "Disable on this site", and "Settings").
+- Add Dynamic Tab Injection on Install & Consent: Automatically inject BookmarkFlow Bar into existing open tabs upon extension update and onboarding consent completion, eliminating the need to restart the browser.
+- Add Adaptive First-Run Discovery Tooltip: 5-second contextual guidance balloon ("Click or Alt + Shift + B to toggle bar") with edge-adaptive positioning (`.is-left`) and persistent one-time dismissal.
+- Add Popup Page Controls Tip Badge (`#pageControlsBadge`): Golden shortcut and control reminder card in the extension popup home screen.
+- Add Seamless Onboarding Workspace Transition: Direct transition to the BookmarkFlow New Tab workspace immediately upon completing initial setup.
+
 ## [0.2.0] — 2026-09-07
 
 ### Added

@@ -39,12 +39,15 @@ if (forbiddenPath) {
 }
 
 const textExtensions = new Set([
+  ".bat",
   ".css",
+  ".editorconfig",
   ".html",
   ".js",
   ".json",
   ".md",
   ".mjs",
+  ".ps1",
   ".srt",
   ".ts",
   ".tsx",

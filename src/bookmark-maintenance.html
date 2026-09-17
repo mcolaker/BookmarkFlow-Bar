@@ -16,6 +16,7 @@
           <a href="#health" class="nav-chip is-active" id="navHealthLink" data-i18n="navHealth">🩺 Link Health</a>
           <a href="#folders" class="nav-chip" id="navFoldersLink" data-i18n="navFolders">📁 Folder Merger</a>
           <a href="#pickerTitle" class="nav-chip" id="navRailLink" data-i18n="navRail">📌 Pinned Rail</a>
+          <a href="#desktop" class="nav-chip" id="navDesktopLink" data-i18n="navDesktop">💻 Desktop & Hotkeys</a>
         </nav>
       </header>
 
@@ -105,6 +106,37 @@
 
       <p id="status" class="status" role="status" aria-live="polite" data-i18n="scanningFolders">Scanning bookmark folders…</p>
       <div id="groups" class="groups" aria-label="Duplicate folder groups" data-i18n-aria-label="duplicateFolderGroups"></div>
+
+      <section class="desktop-section" id="desktop" aria-labelledby="desktopTitle">
+        <div class="desktop-head">
+          <div>
+            <h2 id="desktopTitle" data-i18n="desktopIntegrationHeading">Windows Desktop Companion & Global Hotkeys</h2>
+            <p data-i18n="desktopIntegrationLead">Trigger BookmarkFlow Bar and Spotlight from anywhere in Windows, even when Chrome is unfocused.</p>
+          </div>
+          <div id="companionStatusBadge" class="companion-badge" data-i18n="companionStatusInactive">⚪ Companion Not Detected (Optional Desktop Helper)</div>
+        </div>
+
+        <div class="desktop-hotkeys-card">
+          <div class="hotkey-field-row">
+            <label for="hotkeyToggleInput" class="hotkey-label" data-i18n="hotkeyToggleBarLabel">Toggle Bar Shortcut:</label>
+            <input id="hotkeyToggleInput" class="hotkey-input" type="text" value="Win+Shift+B" placeholder="Win+Shift+B" spellcheck="false" autocomplete="off">
+          </div>
+          <div class="hotkey-field-row">
+            <label for="hotkeySearchInput" class="hotkey-label" data-i18n="hotkeySpotlightLabel">Spotlight Palette Shortcut:</label>
+            <input id="hotkeySearchInput" class="hotkey-input" type="text" value="Win+Shift+K" placeholder="Win+Shift+K" spellcheck="false" autocomplete="off">
+          </div>
+          <div class="hotkey-field-row">
+            <label for="hotkeyStashInput" class="hotkey-label" data-i18n="hotkeyStashTabsLabel">Stash Tabs Shortcut:</label>
+            <input id="hotkeyStashInput" class="hotkey-input" type="text" value="Win+Alt+S" placeholder="Win+Alt+S" spellcheck="false" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="desktop-actions">
+          <button id="saveDesktopHotkeys" class="primary" type="button" data-i18n="saveDesktopHotkeys">Save & Apply to Desktop</button>
+          <button id="resetDesktopHotkeys" class="secondary" type="button" data-i18n="resetDesktopHotkeys">Reset to Defaults</button>
+        </div>
+        <p id="desktopHotkeysStatus" class="status compact-status" role="status" aria-live="polite"></p>
+      </section>
     </main>
 
 

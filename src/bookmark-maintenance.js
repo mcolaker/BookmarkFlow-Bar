@@ -31,7 +31,15 @@ const elements = {
   healthProgressWrap: document.getElementById("healthProgressWrap"),
   healthProgressBar: document.getElementById("healthProgressBar"),
   healthStatus: document.getElementById("healthStatus"),
-  healthIssuesList: document.getElementById("healthIssuesList")
+  healthIssuesList: document.getElementById("healthIssuesList"),
+  navDesktopLink: document.getElementById("navDesktopLink"),
+  companionStatusBadge: document.getElementById("companionStatusBadge"),
+  hotkeyToggleInput: document.getElementById("hotkeyToggleInput"),
+  hotkeySearchInput: document.getElementById("hotkeySearchInput"),
+  hotkeyStashInput: document.getElementById("hotkeyStashInput"),
+  saveDesktopHotkeys: document.getElementById("saveDesktopHotkeys"),
+  resetDesktopHotkeys: document.getElementById("resetDesktopHotkeys"),
+  desktopHotkeysStatus: document.getElementById("desktopHotkeysStatus")
 };
 
 let duplicateGroups = [];
@@ -118,7 +126,8 @@ async function init() {
 
   await Promise.all([
     loadDuplicateGroups(),
-    loadFolderPicker()
+    loadFolderPicker(),
+    initDesktopHotkeys()
   ]);
 }
 
@@ -976,6 +985,11 @@ function handleHashNavigation() {
     if (folderSec) {
       folderSec.scrollIntoView({ behavior: "smooth" });
     }
+  } else if (hash === "#desktop") {
+    const desktopSec = document.getElementById("desktop");
+    if (desktopSec) {
+      desktopSec.scrollIntoView({ behavior: "smooth" });
+    }
   }
 }
 
@@ -991,4 +1005,92 @@ function renderHealthStatus(message, kind = "") {
 function handleHealthScanError(error) {
   stopHealthScan();
   renderHealthStatus(error?.message || String(error), "error");
+}
+
+function parseHotkeyString(str, id, command, fallbackKey, fallbackMods) {
+  if (!str || typeof str !== "string") {
+    return { id, key: fallbackKey, modifiers: fallbackMods, command };
+  }
+  const parts = str.split("+").map((p) => p.trim()).filter(Boolean);
+  if (parts.length === 0) {
+    return { id, key: fallbackKey, modifiers: fallbackMods, command };
+  }
+  const key = parts[parts.length - 1].toUpperCase();
+  const modifiers = parts.slice(0, -1);
+  return {
+    id,
+    key: key.length > 0 ? key[0] : fallbackKey,
+    modifiers: modifiers.length > 0 ? modifiers : fallbackMods,
+    command
+  };
+}
+
+async function initDesktopHotkeys() {
+  if (!elements.companionStatusBadge) return;
+
+  const companionStatus = await sendMessage({ type: "BF_GET_COMPANION_STATUS" });
+  if (companionStatus?.connected) {
+    elements.companionStatusBadge.classList.add("is-active");
+    elements.companionStatusBadge.textContent = t("companionStatusActive");
+  } else {
+    elements.companionStatusBadge.classList.remove("is-active");
+    elements.companionStatusBadge.textContent = t("companionStatusInactive");
+  }
+
+  chrome.storage.local.get(["customGlobalHotkeys"], (result) => {
+    const custom = result?.customGlobalHotkeys;
+    if (custom) {
+      if (custom.toggle && elements.hotkeyToggleInput) elements.hotkeyToggleInput.value = custom.toggle;
+      if (custom.search && elements.hotkeySearchInput) elements.hotkeySearchInput.value = custom.search;
+      if (custom.stash && elements.hotkeyStashInput) elements.hotkeyStashInput.value = custom.stash;
+    }
+  });
+
+  elements.saveDesktopHotkeys?.addEventListener("click", async () => {
+    const toggleVal = elements.hotkeyToggleInput?.value.trim() || "Win+Shift+B";
+    const searchVal = elements.hotkeySearchInput?.value.trim() || "Win+Shift+K";
+    const stashVal = elements.hotkeyStashInput?.value.trim() || "Win+Alt+S";
+
+    const customHotkeys = {
+      toggle: toggleVal,
+      search: searchVal,
+      stash: stashVal
+    };
+
+    const hotkeyList = [
+      parseHotkeyString(toggleVal, 1, "GLOBAL_TOGGLE_BAR", "B", ["Win", "Shift"]),
+      parseHotkeyString(searchVal, 2, "GLOBAL_OPEN_SEARCH", "K", ["Win", "Shift"]),
+      parseHotkeyString(stashVal, 3, "GLOBAL_STASH_TABS", "S", ["Win", "Alt"])
+    ];
+
+    chrome.storage.local.set({ customGlobalHotkeys: customHotkeys });
+    await sendMessage({ type: "BF_UPDATE_COMPANION_HOTKEYS", hotkeys: hotkeyList });
+
+    if (elements.desktopHotkeysStatus) {
+      elements.desktopHotkeysStatus.textContent = t("desktopHotkeysSaved");
+      elements.desktopHotkeysStatus.classList.remove("is-error");
+      elements.desktopHotkeysStatus.classList.add("is-success");
+      setTimeout(() => {
+        if (elements.desktopHotkeysStatus) elements.desktopHotkeysStatus.textContent = "";
+      }, 3500);
+    }
+  });
+
+  elements.resetDesktopHotkeys?.addEventListener("click", async () => {
+    if (elements.hotkeyToggleInput) elements.hotkeyToggleInput.value = "Win+Shift+B";
+    if (elements.hotkeySearchInput) elements.hotkeySearchInput.value = "Win+Shift+K";
+    if (elements.hotkeyStashInput) elements.hotkeyStashInput.value = "Win+Alt+S";
+
+    chrome.storage.local.remove(["customGlobalHotkeys"]);
+    await sendMessage({ type: "BF_UPDATE_COMPANION_HOTKEYS", hotkeys: null });
+
+    if (elements.desktopHotkeysStatus) {
+      elements.desktopHotkeysStatus.textContent = t("desktopHotkeysSaved");
+      elements.desktopHotkeysStatus.classList.remove("is-error");
+      elements.desktopHotkeysStatus.classList.add("is-success");
+      setTimeout(() => {
+        if (elements.desktopHotkeysStatus) elements.desktopHotkeysStatus.textContent = "";
+      }, 3500);
+    }
+  });
 }

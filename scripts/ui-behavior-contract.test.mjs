@@ -460,11 +460,50 @@ test("3-layer living discovery: interactive sandbox, first-run tooltip, and quic
     "tipHealthTitle",
     "tipHealthDesc",
     "quickGuide",
-    "dismiss"
+    "dismiss",
+    "quickMenuHideBar",
+    "quickMenuRestoreBar",
+    "quickMenuDisableSite",
+    "quickMenuSettings",
+    "pageControlsTip"
   ];
 
   for (const key of requiredKeys) {
     assert.ok(en[key]?.message, `Missing en message key: ${key}`);
     assert.ok(tr[key]?.message, `Missing tr message key: ${key}`);
   }
+});
+
+test("dynamic tab injection on consent and onboarding completion workspace transition contract", () => {
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  assert.ok(manifest.permissions.includes("scripting"), "manifest must include scripting permission for dynamic tab injection");
+
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(backgroundJs, /async function injectContentScriptsIntoExistingTabs\(\)/u, "background.js must implement injectContentScriptsIntoExistingTabs");
+  assert.match(backgroundJs, /injectContentScriptsIntoExistingTabs\(\)\.catch/u, "background.js must trigger dynamic injection");
+
+  const onboardingJs = readFileSync(path.join(root, "src/onboarding.js"), "utf8");
+  assert.match(onboardingJs, /chrome\.tabs\.create\(\{\}\)/u, "onboarding.js must open new tab workspace on finish");
+
+  const reviewerNotes = readFileSync(path.join(root, "store/reviewer-notes.md"), "utf8");
+  assert.match(reviewerNotes, /`scripting`/u, "reviewer-notes.md must document scripting permission");
+});
+
+test("launcher quick context menu and adaptive discovery contract (BF-UX-012)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /function openLauncherContextMenu\(/u, "content.js must define openLauncherContextMenu");
+  assert.match(contentJs, /closest\("\.bf-mark, \.bf-restore"\)/u, "content.js must handle contextmenu on launcher mark and restore");
+  assert.match(contentJs, /quick-hide-bar/u, "content.js must support quick-hide-bar action");
+  assert.match(contentJs, /quick-restore-bar/u, "content.js must support quick-restore-bar action");
+  assert.match(contentJs, /quick-disable-site/u, "content.js must support quick-disable-site action");
+  assert.match(contentJs, /quick-open-settings/u, "content.js must support quick-open-settings action");
+  assert.match(contentJs, /"is-left"/u, "content.js must adapt tooltip orientation near edge");
+  assert.match(contentJs, /setTimeout\(dismissFirstRunTooltip, 5000\)/u, "content.js must dismiss first-run tooltip after 5000ms");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-intro-tooltip\.is-left/u, "content.css must style adaptive is-left tooltip");
+
+  const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
+  assert.match(popupHtml, /id="pageControlsBadge"/u, "popup.html must contain pageControlsBadge element");
+  assert.match(popupHtml, /data-i18n="pageControlsTip"/u, "popup.html must reference pageControlsTip translation");
 });
