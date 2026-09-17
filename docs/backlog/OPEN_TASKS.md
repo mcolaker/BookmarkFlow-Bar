@@ -442,9 +442,9 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Öncelik ve durum: P1, DONE.
 - Kök neden ve kanıt: Kullanıcı 2026-09-16 tarihinde BF-UX-011 (açık sekmelere anında dinamik içerik betiği enjeksiyonu) ve BF-UX-012 (BF başlatıcı sağ tık hızlı bağlam menüsü, 5 saniyelik adaptif ilk çalıştırma ipucu ve popup kontroller rozeti) yeteneklerini içeren v0.2.1 patch sürümünün hazırlanmasını, çoklu tarayıcı dağıtım paketlerinin derlenmesini, tanıtım görsellerinin ve iki dilli lansman duyuru paketinin hazırlanmasını onayladı. manifest.json, package.json, CHANGELOG.md ve README.md sürüm referansları 0.2.1 olarak eşitlendi.
 - Kabul kriteri: manifest.json, package.json ve CHANGELOG.md 0.2.1 sürümünü taşır; README.md v0.2.1 rozetleri, indirme bağlantıları ve yeni özellik açıklamaları ile güncellenir; node scripts/package-cross-browser.mjs ile Chromium, Firefox ve Edge paketleri üretilir; X (1200x675) ve LinkedIn (1200x627) standartlarında lansman görselleri ile iki dilli mağaza güncelleme notları ve duyuru kiti hazırlanır; npm run validate:all ve npm run test:regression temiz geçer.
-- Doğrulama kapısı: 63/63 otomatik test başarılı (npm test); npm run validate:all (açık kaynak, DCO, sözleşmeler, proje doğrulama, public tree ve backlog doğrulama) temiz geçti; npm run test:regression fail-closed CDP güvenlik ve Chrome regresyon denetimini pass ile tamamladı; git diff --check hatasızdır; paket arşivleri ve SHA-256 sağlama toplamları üretildi.
-- Sonraki adım: Yok; v0.2.1 patch sürümü hazırlandı, çapraz tarayıcı paketleri ve görsel lansman kiti teslim edildi.
-- Son güncelleme: 2026-09-16.
+- Doğrulama kapısı: 63/63 otomatik test başarılı (npm test); npm run validate:all (açık kaynak, DCO, sözleşmeler, proje doğrulama, public tree ve backlog doğrulama) temiz geçti; npm run test:regression fail-closed CDP güvenlik ve Chrome regresyon denetimini pass ile tamamladı; git diff --check hatasızdır; PR #67 (828e3f4) 4 GitHub Actions kapısından terminal success alarak main dalına merge edildi; annotated v0.2.1 etiketi uzak repoya iletildi; GitHub Release https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.2.1 yayımlandı ve Chrome, Firefox, Edge ZIP paketleri ile SHA-256 doğrulama özetleri başarıyla yüklendi.
+- Sonraki adım: Yok; v0.2.1 patch sürümü GitHub üzerinde tam çapraz tarayıcı paketleriyle ve doğrulanmış sağlama toplamlarıyla yayımlandı.
+- Son güncelleme: 2026-09-17.
 
 ## BF-ARCH-001 - ev-ultrafast ve Fast Windows UIA Sistemlerini Eklentiye ve Masaüstüne Entegre Et
 
