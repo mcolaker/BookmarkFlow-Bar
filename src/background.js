@@ -202,6 +202,14 @@ function routeMessage(message, sender) {
     return setDataConsent(message, sender);
   }
 
+  if (message?.type === "BF_GET_COMPANION_STATUS") {
+    return Promise.resolve({ ok: true, connected: !!nativeCompanionPort });
+  }
+
+  if (message?.type === "BF_UPDATE_COMPANION_HOTKEYS") {
+    return updateCompanionHotkeys(message.hotkeys);
+  }
+
   const protectedTask = message?.type === MESSAGE_GET_STATE
     ? () => getState()
     : message?.type === MESSAGE_MOVE_BOOKMARK
@@ -1200,6 +1208,23 @@ function sanitizeNode(node) {
 
 let nativeCompanionPort = null;
 
+function updateCompanionHotkeys(hotkeys) {
+  if (!nativeCompanionPort) {
+    return Promise.resolve({ ok: true, connected: false });
+  }
+
+  try {
+    nativeCompanionPort.postMessage({
+      type: "UPDATE_HOTKEYS",
+      id: "ext_" + Date.now(),
+      hotkeys
+    });
+    return Promise.resolve({ ok: true, connected: true });
+  } catch (err) {
+    return Promise.resolve({ ok: false, error: err?.message || String(err) });
+  }
+}
+
 function initNativeCompanionBridge() {
   if (typeof chrome?.runtime?.connectNative !== "function") {
     return;
@@ -1210,6 +1235,8 @@ function initNativeCompanionBridge() {
     port.onMessage.addListener((message) => {
       if (message?.type === "DISPATCH_COMMAND" && message.command) {
         handleNativeCompanionCommand(message.command);
+      } else if (message?.type === "OPEN_SETTINGS_REQUESTED") {
+        chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html#desktop") });
       }
     });
 
@@ -1221,6 +1248,29 @@ function initNativeCompanionBridge() {
     });
 
     nativeCompanionPort = port;
+
+    chrome.storage.local.get(["customGlobalHotkeys"], (result) => {
+      const custom = result?.customGlobalHotkeys;
+      if (custom && nativeCompanionPort) {
+        const parseRow = (str, id, command, defKey, defMods) => {
+          if (!str) return { id, key: defKey, modifiers: defMods, command };
+          const parts = str.split("+").map((p) => p.trim()).filter(Boolean);
+          const key = parts[parts.length - 1]?.toUpperCase() || defKey;
+          const modifiers = parts.slice(0, -1);
+          return { id, key: key[0], modifiers: modifiers.length > 0 ? modifiers : defMods, command };
+        };
+        const hotkeyList = [
+          parseRow(custom.toggle, 1, "GLOBAL_TOGGLE_BAR", "B", ["Win", "Shift"]),
+          parseRow(custom.search, 2, "GLOBAL_OPEN_SEARCH", "K", ["Win", "Shift"]),
+          parseRow(custom.stash, 3, "GLOBAL_STASH_TABS", "S", ["Win", "Alt"])
+        ];
+        nativeCompanionPort.postMessage({
+          type: "UPDATE_HOTKEYS",
+          id: "init_sync",
+          hotkeys: hotkeyList
+        });
+      }
+    });
   } catch {
     // Fail-safe: companion is optional
   }

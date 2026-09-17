@@ -372,5 +372,16 @@
   "quickMenuRestoreBar": { "message": "Çubuğu Göster (Alt + Shift + H)" },
   "quickMenuDisableSite": { "message": "Bu Sitede Devre Dışı Bırak" },
   "quickMenuSettings": { "message": "Ayarlar" },
-  "pageControlsTip": { "message": "İpucu: Sayfadaki BF butonuna sağ tıklayarak hızlı menüyü açabilir veya Alt+Shift+B ile açıp kapatabilirsiniz." }
+  "pageControlsTip": { "message": "İpucu: Sayfadaki BF butonuna sağ tıklayarak hızlı menüyü açabilir veya Alt+Shift+B ile açıp kapatabilirsiniz." },
+  "navDesktop": { "message": "💻 Masaüstü ve Kısayollar" },
+  "desktopIntegrationHeading": { "message": "Windows Masaüstü Entegrasyonu ve Global Kısayollar" },
+  "desktopIntegrationLead": { "message": "Chrome odakta değilken bile BookmarkFlow Bar ve Spotlight'ı Windows masaüstünün her yerinden tetikleyin." },
+  "companionStatusActive": { "message": "🟢 Windows Companion Bağlı (Native Messaging Aktif)" },
+  "companionStatusInactive": { "message": "⚪ Companion Algılanmadı (İsteğe Bağlı Masaüstü Yardımcısı)" },
+  "hotkeyToggleBarLabel": { "message": "Çubuğu Aç/Kapat Kısayolu:" },
+  "hotkeySpotlightLabel": { "message": "Spotlight Paleti Kısayolu:" },
+  "hotkeyStashTabsLabel": { "message": "Sekmeleri Sakla Kısayolu:" },
+  "saveDesktopHotkeys": { "message": "Kaydet ve Masaüstüne Uygula" },
+  "resetDesktopHotkeys": { "message": "Varsayılanlara Sıfırla" },
+  "desktopHotkeysSaved": { "message": "Global masaüstü kısayolları başarıyla güncellendi!" }
 }

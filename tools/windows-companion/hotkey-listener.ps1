@@ -5,7 +5,8 @@
 # Registers Win+Shift+B, Win+Shift+K, Win+Shift+S and outputs JSON events to stdout.
 
 param(
-    [int]$ParentPid = 0
+    [int]$ParentPid = 0,
+    [string]$CustomConfigBase64 = ""
 )
 
 $ErrorActionPreference = 'SilentlyContinue'
@@ -49,23 +50,68 @@ if (-not ([System.Management.Automation.PSTypeName]'WinHotKey').Type) {
     Add-Type -TypeDefinition $source -Language CSharp | Out-Null
 }
 
+function Get-ModifierMask([string[]]$mods) {
+    $mask = 0x4000 # MOD_NOREPEAT
+    foreach ($m in $mods) {
+        switch ($m.ToLower()) {
+            'alt' { $mask = $mask -bor 0x0001 }
+            'ctrl' { $mask = $mask -bor 0x0002 }
+            'control' { $mask = $mask -bor 0x0002 }
+            'shift' { $mask = $mask -bor 0x0004 }
+            'win' { $mask = $mask -bor 0x0008 }
+            'windows' { $mask = $mask -bor 0x0008 }
+        }
+    }
+    return $mask
+}
+
 # Modifiers:
 # MOD_ALT = 0x0001, MOD_CONTROL = 0x0002, MOD_SHIFT = 0x0004, MOD_WIN = 0x0008, MOD_NOREPEAT = 0x4000
 $MOD_WIN_SHIFT_NOREPEAT = 0x400C
 $MOD_WIN_ALT_NOREPEAT = 0x4009
 
-$hotkeyCandidates = @(
-    @{ id = 1; key = 'B'; mod = $MOD_WIN_SHIFT_NOREPEAT; vk = 0x42; hotkey = 'Win+Shift+B'; command = 'GLOBAL_TOGGLE_BAR' },
-    @{ id = 2; key = 'K'; mod = $MOD_WIN_SHIFT_NOREPEAT; vk = 0x4B; hotkey = 'Win+Shift+K'; command = 'GLOBAL_OPEN_SEARCH' },
-    @{
-        id = 3;
-        command = 'GLOBAL_STASH_TABS';
-        attempts = @(
-            @{ key = 'S'; mod = $MOD_WIN_SHIFT_NOREPEAT; vk = 0x53; hotkey = 'Win+Shift+S' },
-            @{ key = 'S'; mod = $MOD_WIN_ALT_NOREPEAT; vk = 0x53; hotkey = 'Win+Alt+S' }
-        )
-    }
-)
+$hotkeyCandidates = @()
+
+if ($CustomConfigBase64) {
+    try {
+        $bytes = [System.Convert]::FromBase64String($CustomConfigBase64)
+        $rawJson = [System.Text.Encoding]::UTF8.GetString($bytes)
+        $parsed = $rawJson | ConvertFrom-Json
+        $list = @()
+        foreach ($c in $parsed) {
+            $charKey = $c.key.ToString().ToUpper()[0]
+            $vk = [int][char]$charKey
+            $mod = Get-ModifierMask -mods $c.modifiers
+            $hotkeyLabel = ($c.modifiers -join '+') + "+$charKey"
+            $list += @{
+                id = [int]$c.id
+                key = [string]$charKey
+                mod = $mod
+                vk = $vk
+                hotkey = $hotkeyLabel
+                command = $c.command
+            }
+        }
+        if ($list.Count -gt 0) {
+            $hotkeyCandidates = $list
+        }
+    } catch {}
+}
+
+if ($hotkeyCandidates.Count -eq 0) {
+    $hotkeyCandidates = @(
+        @{ id = 1; key = 'B'; mod = $MOD_WIN_SHIFT_NOREPEAT; vk = 0x42; hotkey = 'Win+Shift+B'; command = 'GLOBAL_TOGGLE_BAR' },
+        @{ id = 2; key = 'K'; mod = $MOD_WIN_SHIFT_NOREPEAT; vk = 0x4B; hotkey = 'Win+Shift+K'; command = 'GLOBAL_OPEN_SEARCH' },
+        @{
+            id = 3;
+            command = 'GLOBAL_STASH_TABS';
+            attempts = @(
+                @{ key = 'S'; mod = $MOD_WIN_SHIFT_NOREPEAT; vk = 0x53; hotkey = 'Win+Shift+S' },
+                @{ key = 'S'; mod = $MOD_WIN_ALT_NOREPEAT; vk = 0x53; hotkey = 'Win+Alt+S' }
+            )
+        }
+    )
+}
 
 $registeredList = @()
 $hotkeyMap = @{}

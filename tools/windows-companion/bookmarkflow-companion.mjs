@@ -87,39 +87,49 @@ if ($proc -and $browserNames -contains $proc.ProcessName.ToLower()) {
 
 let hotkeyProcess = null;
 let registeredHotkeys = [];
+let currentCustomConfig = null;
+let trayProcess = null;
+let isHotkeysPaused = false;
 
-function startHotkeyListener() {
+function startHotkeyListener(customConfig = null) {
   if (process.platform !== "win32") {
     return;
   }
   if (hotkeyProcess) {
     return;
   }
+  if (isHotkeysPaused) {
+    return;
+  }
 
   const __dirname = dirname(fileURLToPath(import.meta.url));
   const scriptPath = join(__dirname, "hotkey-listener.ps1");
 
+  const args = [
+    "-NoProfile",
+    "-ExecutionPolicy",
+    "Bypass",
+    "-File",
+    scriptPath,
+    "-ParentPid",
+    String(process.pid)
+  ];
+
+  if (customConfig && Array.isArray(customConfig) && customConfig.length > 0) {
+    const b64 = Buffer.from(JSON.stringify(customConfig), "utf8").toString("base64");
+    args.push("-CustomConfigBase64", b64);
+  }
+
   try {
-    hotkeyProcess = spawn(
-      "powershell.exe",
-      [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        scriptPath,
-        "-ParentPid",
-        String(process.pid)
-      ],
-      {
-        stdio: ["pipe", "pipe", "pipe"],
-        windowsHide: true
-      }
-    );
+    const proc = spawn("powershell.exe", args, {
+      stdio: ["pipe", "pipe", "pipe"],
+      windowsHide: true
+    });
+    hotkeyProcess = proc;
 
     let lineBuffer = "";
 
-    hotkeyProcess.stdout.on("data", (chunk) => {
+    proc.stdout.on("data", (chunk) => {
       lineBuffer += chunk.toString("utf8");
       const lines = lineBuffer.split(/\r?\n/);
       lineBuffer = lines.pop() ?? "";
@@ -148,12 +158,16 @@ function startHotkeyListener() {
       }
     });
 
-    hotkeyProcess.on("exit", () => {
-      hotkeyProcess = null;
+    proc.on("exit", () => {
+      if (hotkeyProcess === proc) {
+        hotkeyProcess = null;
+      }
     });
 
-    hotkeyProcess.on("error", () => {
-      hotkeyProcess = null;
+    proc.on("error", () => {
+      if (hotkeyProcess === proc) {
+        hotkeyProcess = null;
+      }
     });
   } catch {
     hotkeyProcess = null;
@@ -161,13 +175,111 @@ function startHotkeyListener() {
 }
 
 function stopHotkeyListener() {
-  if (hotkeyProcess) {
+  const p = hotkeyProcess;
+  hotkeyProcess = null;
+  registeredHotkeys = [];
+  if (p) {
     try {
-      hotkeyProcess.kill();
+      p.kill();
     } catch {
       // Process already closed
     }
-    hotkeyProcess = null;
+  }
+}
+
+function startTrayIcon() {
+  if (process.platform !== "win32") {
+    return;
+  }
+  if (trayProcess) {
+    return;
+  }
+
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  const trayScript = join(__dirname, "companion-tray.ps1");
+  const iconPath = join(__dirname, "..", "..", "icons", "icon32.png");
+
+  try {
+    const proc = spawn(
+      "powershell.exe",
+      [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        trayScript,
+        "-ParentPid",
+        String(process.pid),
+        "-IconPath",
+        iconPath
+      ],
+      {
+        stdio: ["pipe", "pipe", "ignore"],
+        windowsHide: true
+      }
+    );
+    trayProcess = proc;
+
+    let lineBuffer = "";
+    proc.stdout.on("data", (chunk) => {
+      lineBuffer += chunk.toString("utf8");
+      const lines = lineBuffer.split(/\r?\n/);
+      lineBuffer = lines.pop() ?? "";
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith("{")) {
+          continue;
+        }
+        try {
+          const event = JSON.parse(trimmed);
+          if (event.type === "TRAY_ACTION") {
+            if (event.action === "PAUSE_HOTKEYS") {
+              isHotkeysPaused = true;
+              stopHotkeyListener();
+              sendNativeMessage({ type: "HOTKEYS_PAUSED", source: "tray" });
+            } else if (event.action === "RESUME_HOTKEYS") {
+              isHotkeysPaused = false;
+              startHotkeyListener(currentCustomConfig);
+              sendNativeMessage({ type: "HOTKEYS_RESUMED", source: "tray" });
+            } else if (event.action === "OPEN_SETTINGS") {
+              sendNativeMessage({ type: "OPEN_SETTINGS_REQUESTED", source: "tray" });
+            } else if (event.action === "EXIT") {
+              stopHotkeyListener();
+              stopTrayIcon();
+              process.exit(0);
+            }
+          }
+        } catch {
+          // Ignore partial line
+        }
+      }
+    });
+
+    proc.on("exit", () => {
+      if (trayProcess === proc) {
+        trayProcess = null;
+      }
+    });
+    proc.on("error", () => {
+      if (trayProcess === proc) {
+        trayProcess = null;
+      }
+    });
+  } catch {
+    trayProcess = null;
+  }
+}
+
+function stopTrayIcon() {
+  const p = trayProcess;
+  trayProcess = null;
+  if (p) {
+    try {
+      p.kill();
+    } catch {
+      // Process already closed
+    }
   }
 }
 
@@ -193,7 +305,9 @@ async function handleMessage(message) {
           "zero_latency_ipc",
           "fast_windows_uia",
           "win32_global_hotkeys",
-          "hotkey_listener"
+          "hotkey_listener",
+          "companion_tray",
+          "customizable_hotkeys"
         ]
       });
       break;
@@ -215,6 +329,8 @@ async function handleMessage(message) {
         type: "HOTKEY_STATUS_RESULT",
         id,
         running: !!hotkeyProcess,
+        paused: isHotkeysPaused,
+        trayActive: !!trayProcess,
         registered: registeredHotkeys,
         timestamp: Date.now()
       });
@@ -222,7 +338,8 @@ async function handleMessage(message) {
     }
 
     case "START_HOTKEY_LISTENER": {
-      startHotkeyListener();
+      isHotkeysPaused = false;
+      startHotkeyListener(currentCustomConfig);
       sendNativeMessage({
         type: "HOTKEY_LISTENER_STARTED",
         id,
@@ -238,6 +355,44 @@ async function handleMessage(message) {
         type: "HOTKEY_LISTENER_STOPPED",
         id,
         running: false,
+        timestamp: Date.now()
+      });
+      break;
+    }
+
+    case "UPDATE_HOTKEYS": {
+      currentCustomConfig = Array.isArray(message.hotkeys) ? message.hotkeys : null;
+      stopHotkeyListener();
+      startHotkeyListener(currentCustomConfig);
+      sendNativeMessage({
+        type: "HOTKEYS_UPDATED",
+        id,
+        success: true,
+        registered: registeredHotkeys,
+        timestamp: Date.now()
+      });
+      break;
+    }
+
+    case "PAUSE_HOTKEYS": {
+      isHotkeysPaused = true;
+      stopHotkeyListener();
+      sendNativeMessage({
+        type: "HOTKEYS_PAUSED",
+        id,
+        running: false,
+        timestamp: Date.now()
+      });
+      break;
+    }
+
+    case "RESUME_HOTKEYS": {
+      isHotkeysPaused = false;
+      startHotkeyListener(currentCustomConfig);
+      sendNativeMessage({
+        type: "HOTKEYS_RESUMED",
+        id,
+        running: true,
         timestamp: Date.now()
       });
       break;
@@ -276,8 +431,9 @@ async function handleMessage(message) {
 function startCompanion() {
   let buffer = Buffer.alloc(0);
 
-  // Auto-start background Win32 global hotkey listener on Windows
+  // Auto-start background Win32 global hotkey listener and tray icon on Windows
   startHotkeyListener();
+  startTrayIcon();
 
   process.stdin.on("data", (chunk) => {
     buffer = Buffer.concat([buffer, chunk]);
@@ -304,11 +460,15 @@ function startCompanion() {
 
   const cleanupAndExit = () => {
     stopHotkeyListener();
+    stopTrayIcon();
     process.exit(0);
   };
 
   process.stdin.on("end", cleanupAndExit);
-  process.on("exit", stopHotkeyListener);
+  process.on("exit", () => {
+    stopHotkeyListener();
+    stopTrayIcon();
+  });
   process.on("SIGINT", cleanupAndExit);
   process.on("SIGTERM", cleanupAndExit);
 }

@@ -68,7 +68,9 @@ function runTest() {
         assert.ok(pong.capabilities.includes("zero_latency_ipc"));
         assert.ok(pong.capabilities.includes("win32_global_hotkeys"));
         assert.ok(pong.capabilities.includes("hotkey_listener"));
-        console.log("✔ PING / PONG handshake verified (v0.2.0 with Win32 Global Hotkeys)");
+        assert.ok(pong.capabilities.includes("companion_tray"));
+        assert.ok(pong.capabilities.includes("customizable_hotkeys"));
+        console.log("✔ PING / PONG handshake verified (v0.2.0 with Win32 Hotkeys & Tray)");
 
         // Step 2: Test DISPATCH_COMMAND
         sendPacket({ type: "DISPATCH_COMMAND", id: "req_2", command: "GLOBAL_TOGGLE_BAR" });
@@ -109,6 +111,50 @@ function runTest() {
         assert.ok(toggleBarRegistered, "Win+Shift+B must be registered for GLOBAL_TOGGLE_BAR");
         console.log(`✔ Win32 RegisterHotKey verified (${hotkeyReply.registered.length} global shortcuts active)`);
 
+        // Step 5: Test UPDATE_HOTKEYS (Dynamic Custom Configuration)
+        sendPacket({
+          type: "UPDATE_HOTKEYS",
+          id: "req_update_1",
+          hotkeys: [
+            { id: 1, key: "Z", modifiers: ["Win", "Shift"], command: "GLOBAL_TOGGLE_BAR" },
+            { id: 2, key: "K", modifiers: ["Win", "Shift"], command: "GLOBAL_OPEN_SEARCH" }
+          ]
+        });
+        const updateReply = await waitForMessage((m) => m.id === "req_update_1");
+        assert.equal(updateReply.type, "HOTKEYS_UPDATED");
+        assert.equal(updateReply.success, true);
+
+        // Poll for updated hotkeys
+        let updatedHotkeyReply = null;
+        const updatePollStart = Date.now();
+        let updateAttempt = 0;
+        while (Date.now() - updatePollStart < 8000) {
+          updateAttempt++;
+          const reqId = `req_updated_poll_${updateAttempt}`;
+          sendPacket({ type: "GET_HOTKEY_STATUS", id: reqId });
+          const reply = await waitForMessage((m) => m.id === reqId, 1500).catch(() => null);
+          if (reply && reply.running && Array.isArray(reply.registered) && reply.registered.some((h) => h.hotkey === "Win+Shift+Z")) {
+            updatedHotkeyReply = reply;
+            break;
+          }
+          await new Promise((r) => setTimeout(r, 200));
+        }
+        assert.ok(updatedHotkeyReply, "Updated hotkeys (Win+Shift+Z) must be active");
+        console.log("✔ UPDATE_HOTKEYS dynamic customization verified (Win+Shift+Z active)");
+
+        // Step 6: Test PAUSE_HOTKEYS & RESUME_HOTKEYS
+        sendPacket({ type: "PAUSE_HOTKEYS", id: "req_pause" });
+        const pauseReply = await waitForMessage((m) => m.id === "req_pause");
+        assert.equal(pauseReply.type, "HOTKEYS_PAUSED");
+        assert.equal(pauseReply.running, false);
+        console.log("✔ PAUSE_HOTKEYS verified");
+
+        sendPacket({ type: "RESUME_HOTKEYS", id: "req_resume" });
+        const resumeReply = await waitForMessage((m) => m.id === "req_resume");
+        assert.equal(resumeReply.type, "HOTKEYS_RESUMED");
+        assert.equal(resumeReply.running, true);
+        console.log("✔ RESUME_HOTKEYS verified");
+
         child.stdin.end();
         resolve();
       } catch (err) {
@@ -130,7 +176,7 @@ function runTest() {
     setTimeout(() => {
       child.kill();
       reject(new Error("Companion IPC test timed out"));
-    }, 8000);
+    }, 20000);
   });
 }
 
