@@ -38,58 +38,84 @@ function runTest() {
       child.stdin.write(json);
     }
 
-    // Step 1: Send PING
-    sendPacket({ type: "PING", id: "req_1" });
+    function waitForMessage(predicate, timeoutMs = 8000) {
+      return new Promise((res, rej) => {
+        const start = Date.now();
+        const check = () => {
+          const found = receivedMessages.find(predicate);
+          if (found) {
+            return res(found);
+          }
+          if (Date.now() - start > timeoutMs) {
+            return rej(new Error("Timed out waiting for message predicate"));
+          }
+          setTimeout(check, 50);
+        };
+        check();
+      });
+    }
 
-    // Wait for PONG, then send GET_ACTIVE_WINDOW
-    const checkInterval = setInterval(async () => {
-      const pong = receivedMessages.find((m) => m.id === "req_1");
-      if (pong) {
-        clearInterval(checkInterval);
+    (async () => {
+      try {
+        // Step 1: PING / PONG
+        sendPacket({ type: "PING", id: "req_1" });
+        const pong = await waitForMessage((m) => m.id === "req_1");
+        assert.equal(pong.type, "PONG");
+        assert.equal(pong.version, "0.2.0");
+        assert.equal(pong.platform, "win32");
+        assert.ok(Array.isArray(pong.capabilities));
+        assert.ok(pong.capabilities.includes("fast_windows_uia"));
+        assert.ok(pong.capabilities.includes("zero_latency_ipc"));
+        assert.ok(pong.capabilities.includes("win32_global_hotkeys"));
+        assert.ok(pong.capabilities.includes("hotkey_listener"));
+        console.log("✔ PING / PONG handshake verified (v0.2.0 with Win32 Global Hotkeys)");
 
-        try {
-          assert.equal(pong.type, "PONG");
-          assert.equal(pong.version, "0.1.0");
-          assert.equal(pong.platform, "win32");
-          assert.ok(Array.isArray(pong.capabilities));
-          assert.ok(pong.capabilities.includes("fast_windows_uia"));
-          assert.ok(pong.capabilities.includes("zero_latency_ipc"));
-          console.log("✔ PING / PONG handshake verified");
+        // Step 2: Test DISPATCH_COMMAND
+        sendPacket({ type: "DISPATCH_COMMAND", id: "req_2", command: "GLOBAL_TOGGLE_BAR" });
+        const cmdReply = await waitForMessage((m) => m.id === "req_2");
+        assert.equal(cmdReply.type, "COMMAND_DISPATCHED");
+        assert.equal(cmdReply.command, "GLOBAL_TOGGLE_BAR");
+        console.log("✔ Command dispatch verified");
 
-          // Step 2: Test DISPATCH_COMMAND
-          sendPacket({ type: "DISPATCH_COMMAND", id: "req_2", command: "GLOBAL_TOGGLE_BAR" });
+        // Step 3: Test GET_ACTIVE_WINDOW
+        sendPacket({ type: "GET_ACTIVE_WINDOW", id: "req_3" });
+        const winReply = await waitForMessage((m) => m.id === "req_3");
+        assert.equal(winReply.type, "ACTIVE_WINDOW_RESULT");
+        assert.ok(winReply.window && typeof winReply.window === "object");
+        assert.ok("title" in winReply.window);
+        assert.ok("process" in winReply.window);
+        console.log(`✔ Windows UIA Active Window verified: [${winReply.window.process}] "${winReply.window.title}"`);
 
-          // Step 3: Test GET_ACTIVE_WINDOW
-          sendPacket({ type: "GET_ACTIVE_WINDOW", id: "req_3" });
-
-          const checkSecond = setInterval(() => {
-            const cmdReply = receivedMessages.find((m) => m.id === "req_2");
-            const winReply = receivedMessages.find((m) => m.id === "req_3");
-
-            if (cmdReply && winReply) {
-              clearInterval(checkSecond);
-              assert.equal(cmdReply.type, "COMMAND_DISPATCHED");
-              assert.equal(cmdReply.command, "GLOBAL_TOGGLE_BAR");
-              console.log("✔ Command dispatch verified");
-
-              assert.equal(winReply.type, "ACTIVE_WINDOW_RESULT");
-              assert.ok(winReply.window && typeof winReply.window === "object");
-              assert.ok("title" in winReply.window);
-              assert.ok("process" in winReply.window);
-              console.log(`✔ Windows UIA Active Window verified: [${winReply.window.process}] "${winReply.window.title}"`);
-
-              child.stdin.end();
-              resolve();
-            }
-          }, 100);
-
-        } catch (err) {
-          clearInterval(checkInterval);
-          child.kill();
-          reject(err);
+        // Step 4: Poll GET_HOTKEY_STATUS until PowerShell hotkey listener initializes
+        let hotkeyReply = null;
+        const pollStart = Date.now();
+        let attempt = 0;
+        while (Date.now() - pollStart < 8000) {
+          attempt++;
+          const reqId = `req_hotkey_${attempt}`;
+          sendPacket({ type: "GET_HOTKEY_STATUS", id: reqId });
+          const reply = await waitForMessage((m) => m.id === reqId, 1500).catch(() => null);
+          if (reply && reply.running && Array.isArray(reply.registered) && reply.registered.length > 0) {
+            hotkeyReply = reply;
+            break;
+          }
+          await new Promise((r) => setTimeout(r, 200));
         }
+
+        assert.ok(hotkeyReply, "Hotkey status with registered hotkeys must be received within 8s");
+        assert.equal(hotkeyReply.type, "HOTKEY_STATUS_RESULT");
+        assert.equal(hotkeyReply.running, true);
+        const toggleBarRegistered = hotkeyReply.registered.some((h) => h.command === "GLOBAL_TOGGLE_BAR" && h.hotkey === "Win+Shift+B");
+        assert.ok(toggleBarRegistered, "Win+Shift+B must be registered for GLOBAL_TOGGLE_BAR");
+        console.log(`✔ Win32 RegisterHotKey verified (${hotkeyReply.registered.length} global shortcuts active)`);
+
+        child.stdin.end();
+        resolve();
+      } catch (err) {
+        child.kill();
+        reject(err);
       }
-    }, 50);
+    })();
 
     child.on("error", (err) => {
       reject(err);

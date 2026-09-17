@@ -1,7 +1,10 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
+import { dirname, join } from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
-const COMPANION_VERSION = "0.1.0";
+const COMPANION_VERSION = "0.2.0";
+
 
 function sendNativeMessage(msg) {
   try {
@@ -82,6 +85,92 @@ if ($proc -and $browserNames -contains $proc.ProcessName.ToLower()) {
   });
 }
 
+let hotkeyProcess = null;
+let registeredHotkeys = [];
+
+function startHotkeyListener() {
+  if (process.platform !== "win32") {
+    return;
+  }
+  if (hotkeyProcess) {
+    return;
+  }
+
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  const scriptPath = join(__dirname, "hotkey-listener.ps1");
+
+  try {
+    hotkeyProcess = spawn(
+      "powershell.exe",
+      [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        scriptPath,
+        "-ParentPid",
+        String(process.pid)
+      ],
+      {
+        stdio: ["pipe", "pipe", "pipe"],
+        windowsHide: true
+      }
+    );
+
+    let lineBuffer = "";
+
+    hotkeyProcess.stdout.on("data", (chunk) => {
+      lineBuffer += chunk.toString("utf8");
+      const lines = lineBuffer.split(/\r?\n/);
+      lineBuffer = lines.pop() ?? "";
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith("{")) {
+          continue;
+        }
+        try {
+          const event = JSON.parse(trimmed);
+          if (event.type === "HOTKEY_READY") {
+            registeredHotkeys = event.registered ?? [];
+          } else if (event.type === "HOTKEY_TRIGGERED" && event.command) {
+            sendNativeMessage({
+              type: "DISPATCH_COMMAND",
+              command: event.command,
+              hotkey: event.hotkey,
+              source: "win32_register_hotkey",
+              timestamp: event.timestamp || Date.now()
+            });
+          }
+        } catch {
+          // Ignore partial line or invalid JSON
+        }
+      }
+    });
+
+    hotkeyProcess.on("exit", () => {
+      hotkeyProcess = null;
+    });
+
+    hotkeyProcess.on("error", () => {
+      hotkeyProcess = null;
+    });
+  } catch {
+    hotkeyProcess = null;
+  }
+}
+
+function stopHotkeyListener() {
+  if (hotkeyProcess) {
+    try {
+      hotkeyProcess.kill();
+    } catch {
+      // Process already closed
+    }
+    hotkeyProcess = null;
+  }
+}
+
 async function handleMessage(message) {
   if (!message || typeof message !== "object") {
     sendNativeMessage({ type: "ERROR", error: "Invalid message payload: expected object" });
@@ -102,7 +191,9 @@ async function handleMessage(message) {
           "uia_window_detect",
           "global_command_dispatch",
           "zero_latency_ipc",
-          "fast_windows_uia"
+          "fast_windows_uia",
+          "win32_global_hotkeys",
+          "hotkey_listener"
         ]
       });
       break;
@@ -114,6 +205,39 @@ async function handleMessage(message) {
         type: "ACTIVE_WINDOW_RESULT",
         id,
         window: activeWindow,
+        timestamp: Date.now()
+      });
+      break;
+    }
+
+    case "GET_HOTKEY_STATUS": {
+      sendNativeMessage({
+        type: "HOTKEY_STATUS_RESULT",
+        id,
+        running: !!hotkeyProcess,
+        registered: registeredHotkeys,
+        timestamp: Date.now()
+      });
+      break;
+    }
+
+    case "START_HOTKEY_LISTENER": {
+      startHotkeyListener();
+      sendNativeMessage({
+        type: "HOTKEY_LISTENER_STARTED",
+        id,
+        running: !!hotkeyProcess,
+        timestamp: Date.now()
+      });
+      break;
+    }
+
+    case "STOP_HOTKEY_LISTENER": {
+      stopHotkeyListener();
+      sendNativeMessage({
+        type: "HOTKEY_LISTENER_STOPPED",
+        id,
+        running: false,
         timestamp: Date.now()
       });
       break;
@@ -152,6 +276,9 @@ async function handleMessage(message) {
 function startCompanion() {
   let buffer = Buffer.alloc(0);
 
+  // Auto-start background Win32 global hotkey listener on Windows
+  startHotkeyListener();
+
   process.stdin.on("data", (chunk) => {
     buffer = Buffer.concat([buffer, chunk]);
 
@@ -175,9 +302,15 @@ function startCompanion() {
     }
   });
 
-  process.stdin.on("end", () => {
+  const cleanupAndExit = () => {
+    stopHotkeyListener();
     process.exit(0);
-  });
+  };
+
+  process.stdin.on("end", cleanupAndExit);
+  process.on("exit", stopHotkeyListener);
+  process.on("SIGINT", cleanupAndExit);
+  process.on("SIGTERM", cleanupAndExit);
 }
 
 startCompanion();

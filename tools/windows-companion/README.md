@@ -6,14 +6,21 @@ The **Fast Windows UIA Companion** is a lightweight, zero-dependency native mess
 
 ## Capabilities
 
-1. **Fast Windows UIA Window Inspector (`GET_ACTIVE_WINDOW`)**:
+1. **Win32 Global Hotkey Engine (`RegisterHotKey`)**:
+   - Registers system-wide global hotkeys with `MOD_NOREPEAT` flag:
+     - `Win+Shift+B`: Toggle BookmarkFlow Bar (`GLOBAL_TOGGLE_BAR`)
+     - `Win+Shift+K`: Open Spotlight Command Palette (`GLOBAL_OPEN_SEARCH`)
+     - `Win+Alt+S` / `Win+Shift+S`: Stash Open Tabs (`GLOBAL_STASH_TABS`)
+   - Operates even when the browser is unfocused, minimized, or in the background.
+   - Built-in watchdog guarantees zero orphan background processes when Chrome/Node exits.
+2. **Fast Windows UIA Window Inspector (`GET_ACTIVE_WINDOW`)**:
    - Queries the active foreground window, window title, process ID, and process name across Windows.
    - Enables the browser extension to detect when users are working in IDEs, office suites, or secondary browser instances.
-2. **Global Command Dispatcher (`DISPATCH_COMMAND`)**:
-   - Forwards desktop-level triggers (such as `GLOBAL_TOGGLE_BAR` or `GLOBAL_STASH_TABS`) directly into the active browser extension.
-3. **Zero-Latency Binary IPC**:
+3. **Global Command Dispatcher (`DISPATCH_COMMAND`)**:
+   - Forwards desktop-level triggers directly into the active browser extension via Chrome Native Messaging.
+4. **Zero-Latency Binary IPC**:
    - Communicates strictly via standard input/output (STDIN/STDOUT) using 32-bit native length-prefixed JSON messages conforming to the Chrome/Edge Native Messaging specification.
-4. **100% Local-First & Private**:
+5. **100% Local-First & Private**:
    - Zero telemetry, zero external network requests, zero background cloud dependencies.
 
 ---
