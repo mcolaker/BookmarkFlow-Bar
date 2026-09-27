@@ -529,6 +529,10 @@ test("link capture and quick folder selector contract (BF-UX-013)", () => {
   const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
   assert.match(backgroundJs, /chrome\.omnibox\.onInputChanged\.addListener/u, "background.js must handle omnibox input changed");
   assert.match(backgroundJs, /chrome\.omnibox\.onInputEntered\.addListener/u, "background.js must handle omnibox input entered");
+  assert.match(backgroundJs, /bfLastUsedFolderId/u, "background.js omnibox must support last used folder ID");
+
+  assert.match(newtabJs, /bfLastUsedFolderId/u, "newtab.js must support last used folder memory");
+  assert.match(contentJs, /bfLastUsedFolderId/u, "content.js must support last used folder memory");
 
   const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
   const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));

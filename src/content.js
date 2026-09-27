@@ -25,6 +25,7 @@
   const BOOKMARK_GHOST_OFFSET = 12;
   const FOLDER_MENU_GAP = 16;
   const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
+  const LAST_USED_FOLDER_STORAGE_KEY = "bfLastUsedFolderId";
   const MESSAGE_GET_CONSENT_STATUS = "BF_GET_CONSENT_STATUS";
   const MESSAGE_GET_STATE = "BF_GET_STATE";
   const MESSAGE_GET_PAGE_INFO = "BF_GET_PAGE_INFO";
@@ -76,6 +77,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let contextMenuState = null;
   let suppressNextClick = false;
   let pinnedFolderIds = [];
+  let lastUsedFolderId = "";
   let firstRunTooltipSeen = true;
   let extensionContextInvalidated = false;
   let addDialogReturnFocus = null;
@@ -106,12 +108,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         return;
       }
 
-      const [response, , savedPinnedFolderIds, , firstRunTooltipState] = await Promise.all([
+      const [response, , savedPinnedFolderIds, , firstRunTooltipState, savedLastUsedFolderId] = await Promise.all([
         sendMessage({ type: MESSAGE_GET_STATE }),
         loadPanelPosition(),
         loadPinnedFolderIds(),
         loadBookmarkTags(),
-        hasExtensionContext() ? chrome.storage.local.get("bfFirstRunTooltipSeen") : Promise.resolve({})
+        hasExtensionContext() ? chrome.storage.local.get("bfFirstRunTooltipSeen") : Promise.resolve({}),
+        loadLastUsedFolderId()
       ]);
       if (!response?.ok) {
         return;
@@ -120,6 +123,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       injectPageStyle();
       appState = response;
       pinnedFolderIds = savedPinnedFolderIds;
+      if (savedLastUsedFolderId) {
+        lastUsedFolderId = savedLastUsedFolderId;
+      }
       firstRunTooltipSeen = Boolean(firstRunTooltipState?.bfFirstRunTooltipSeen);
       interfaceInitialized = true;
       renderFromState();
@@ -376,6 +382,19 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
   }
 
+  async function loadLastUsedFolderId() {
+    if (!hasExtensionContext()) {
+      return "";
+    }
+    try {
+      const localState = await chrome.storage.local.get(LAST_USED_FOLDER_STORAGE_KEY);
+      return typeof localState[LAST_USED_FOLDER_STORAGE_KEY] === "string" ? localState[LAST_USED_FOLDER_STORAGE_KEY] : "";
+    } catch (error) {
+      handleExtensionContextError(error);
+      return "";
+    }
+  }
+
   async function loadPinnedFolderIds() {
     try {
       const localState = await chrome.storage.local.get(FOLDER_RAIL_PINNED_STORAGE_KEY);
@@ -426,6 +445,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function handleStorageChanged(changes, areaName) {
     if (areaName !== "local") {
       return;
+    }
+
+    if (LAST_USED_FOLDER_STORAGE_KEY in changes) {
+      lastUsedFolderId = typeof changes[LAST_USED_FOLDER_STORAGE_KEY].newValue === "string"
+        ? changes[LAST_USED_FOLDER_STORAGE_KEY].newValue
+        : "";
     }
 
     if (BOOKMARK_TAGS_STORAGE_KEY in changes) {
@@ -2184,7 +2209,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       });
     }
 
-    const effectiveSelected = selectedParentId || barNode?.id || "";
+    const effectiveSelected = selectedParentId || (folders.some(f => f.id === lastUsedFolderId) ? lastUsedFolderId : (barNode?.id || ""));
 
     folders.forEach((f) => {
       const option = document.createElement("option");
@@ -2426,6 +2451,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     resetAddDuplicateState(dialog, submit);
+    if (parentId) {
+      lastUsedFolderId = parentId;
+      if (hasExtensionContext()) {
+        chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: parentId }).catch(() => {});
+      }
+    }
     renderAddBookmarkStatus(parentId ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
     window.setTimeout(() => {
       const returnFocus = closeAddBookmarkDialog({ restoreFocus: false });

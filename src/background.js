@@ -1377,12 +1377,23 @@ function initOmniboxIntegration() {
       }
 
       await runWithDataConsent(async () => {
+        if (!targetParentId) {
+          try {
+            const stored = await chrome.storage.local.get("bfLastUsedFolderId");
+            if (stored.bfLastUsedFolderId) {
+              targetParentId = stored.bfLastUsedFolderId;
+            }
+          } catch {}
+        }
         await createBookmark({
           url: targetUrl,
           title: getHostname(targetUrl) || targetUrl,
           parentId: targetParentId,
           allowDuplicate: true
         });
+        if (targetParentId) {
+          chrome.storage.local.set({ bfLastUsedFolderId: targetParentId }).catch(() => {});
+        }
       });
     } catch {}
   });

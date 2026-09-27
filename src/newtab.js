@@ -23,6 +23,8 @@ const BOOKMARK_DROP_TOLERANCE = 36;
 const BOOKMARK_GHOST_OFFSET = 12;
 const FOLDER_MENU_GAP = 16;
 const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
+const LAST_USED_FOLDER_STORAGE_KEY = "bfLastUsedFolderId";
+let lastUsedFolderId = "";
 
 const elements = {
   bookmarkBar: document.getElementById("bookmarkBar"),
@@ -95,10 +97,11 @@ async function init() {
 
   elements.consentGate.hidden = true;
   elements.newTabWorkspace.hidden = false;
-  [appState, pinnedFolderIds, bookmarkTagsMap] = await Promise.all([
+  [appState, pinnedFolderIds, bookmarkTagsMap, lastUsedFolderId] = await Promise.all([
     getState(),
     getPinnedFolderIds(),
-    loadBookmarkTags()
+    loadBookmarkTags(),
+    loadLastUsedFolderId()
   ]);
   render();
 
@@ -144,6 +147,12 @@ async function init() {
       return;
     }
 
+    if (LAST_USED_FOLDER_STORAGE_KEY in changes) {
+      lastUsedFolderId = typeof changes[LAST_USED_FOLDER_STORAGE_KEY].newValue === "string"
+        ? changes[LAST_USED_FOLDER_STORAGE_KEY].newValue
+        : "";
+    }
+
     if (BOOKMARK_TAGS_STORAGE_KEY in changes) {
       bookmarkTagsMap = normalizeAllBookmarkTags(changes[BOOKMARK_TAGS_STORAGE_KEY].newValue);
       render();
@@ -154,6 +163,15 @@ async function init() {
       render();
     }
   });
+}
+
+async function loadLastUsedFolderId() {
+  try {
+    const localState = await chrome.storage.local.get(LAST_USED_FOLDER_STORAGE_KEY);
+    return typeof localState[LAST_USED_FOLDER_STORAGE_KEY] === "string" ? localState[LAST_USED_FOLDER_STORAGE_KEY] : "";
+  } catch {
+    return "";
+  }
 }
 
 function getState() {
@@ -1030,7 +1048,7 @@ function populateFolderSelect(selectedParentId = "") {
     });
   }
 
-  const effectiveSelected = selectedParentId || barNode?.id || "";
+  const effectiveSelected = selectedParentId || (folders.some(f => f.id === lastUsedFolderId) ? lastUsedFolderId : (barNode?.id || ""));
 
   folders.forEach((f) => {
     const option = document.createElement("option");
@@ -1120,6 +1138,10 @@ async function handleAddBookmarkSubmit(event) {
   }
 
   resetAddDuplicateState();
+  if (parentId) {
+    lastUsedFolderId = parentId;
+    chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: parentId }).catch(() => {});
+  }
   renderAddBookmarkStatus(parentId ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
   window.setTimeout(() => {
     const returnFocus = closeAddBookmarkDialog({ restoreFocus: false });
