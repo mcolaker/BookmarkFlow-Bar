@@ -569,3 +569,28 @@ test("quick folder chips contract (BF-UX-014)", () => {
   assert.ok(en.quickFolders?.message, "Missing en quickFolders message");
   assert.ok(tr.quickFolders?.message, "Missing tr quickFolders message");
 });
+
+test("search live card instant folder chips contract (BF-UX-015)", () => {
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-search-action-chips/u, "newtab.css must style .nt-search-action-chips");
+  assert.match(newtabCss, /\.nt-search-action-chip/u, "newtab.css must style .nt-search-action-chip");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /nt-search-action-chips/u, "newtab.js must render nt-search-action-chips in capture card");
+  assert.match(newtabJs, /async function handleDirectSaveBookmark\(/u, "newtab.js must define handleDirectSaveBookmark");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-command-action-chips/u, "content.css must style .bf-command-action-chips");
+  assert.match(contentCss, /\.bf-command-action-chip/u, "content.css must style .bf-command-action-chip");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /bf-command-action-chips/u, "content.js must render bf-command-action-chips in capture card");
+  assert.match(contentJs, /async function handleDirectSaveBookmark\(/u, "content.js must define handleDirectSaveBookmark");
+
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  assert.ok(en.saveToBar?.message, "Missing en saveToBar message");
+  assert.ok(tr.saveToBar?.message, "Missing tr saveToBar message");
+  assert.ok(en.saveToFolder?.message, "Missing en saveToFolder message");
+  assert.ok(tr.saveToFolder?.message, "Missing tr saveToFolder message");
+});

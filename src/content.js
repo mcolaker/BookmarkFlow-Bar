@@ -2547,6 +2547,30 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }, 900);
   }
 
+  async function handleDirectSaveBookmark(url, parentId) {
+    if (!url || !isSafeBookmarkUrl(url)) {
+      return;
+    }
+    const title = getHostname(url) || url;
+    const response = await sendMessage({
+      type: MESSAGE_CREATE_BOOKMARK,
+      title,
+      url,
+      parentId: parentId || "",
+      allowDuplicate: true
+    });
+    if (response?.ok) {
+      appState = response;
+      if (parentId) {
+        lastUsedFolderId = parentId;
+        if (hasExtensionContext()) {
+          chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: parentId }).catch(() => {});
+        }
+      }
+      renderFromState();
+    }
+  }
+
   function markAddDuplicateState(dialog, submit, url, parentId) {
     if (dialog) {
       dialog.dataset.duplicateUrl = url;
@@ -3145,6 +3169,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         path: t("addBookmarkToTargetDesc"),
         icon: "⭐",
         isQuickAction: true,
+        directTarget,
         handler: () => {
           openAddBookmarkDialog(getActiveDialogElement(), {
             url: directTarget,
@@ -3439,6 +3464,59 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       path.textContent = entry.path;
 
       copy.append(title, path);
+
+      if (entry.id === "bf-action-capture-url" && entry.directTarget) {
+        const chips = document.createElement("span");
+        chips.className = "bf-command-action-chips";
+
+        const barNode = appState?.bookmarkBar;
+        const barChip = document.createElement("button");
+        barChip.type = "button";
+        barChip.className = "bf-command-action-chip";
+        barChip.textContent = `⭐ ${t("saveToBar") || "Add to Bar"}`;
+        barChip.title = t("saveToBar") || "Add to Bar";
+        barChip.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeCommandPalette();
+          await handleDirectSaveBookmark(entry.directTarget, barNode?.id || "");
+        });
+        chips.append(barChip);
+
+        const folders = [];
+        const walk = (node) => {
+          if (!node) return;
+          if (Array.isArray(node.children)) {
+            const isRootBar = node.id === appState?.bookmarkBar?.id;
+            const tTitle = node.title || (isRootBar ? (t("bookmarksBar") || "Bookmarks Bar") : "");
+            if (node.id && node.id !== "0") {
+              folders.push({ id: node.id, title: tTitle, isBar: isRootBar });
+            }
+            for (const c of node.children) {
+              if (Array.isArray(c.children)) walk(c);
+            }
+          }
+        };
+        walk(barNode);
+
+        const targetFolder = folders.find(f => !f.isBar && (f.id === lastUsedFolderId || pinnedFolderIds.includes(f.id))) || folders.find(f => !f.isBar);
+        if (targetFolder) {
+          const folderChip = document.createElement("button");
+          folderChip.type = "button";
+          folderChip.className = "bf-command-action-chip";
+          folderChip.textContent = `📁 ${targetFolder.title}`;
+          folderChip.title = `${t("saveToFolder") || "Add to Folder"}: ${targetFolder.title}`;
+          folderChip.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeCommandPalette();
+            await handleDirectSaveBookmark(entry.directTarget, targetFolder.id);
+          });
+          chips.append(folderChip);
+        }
+        copy.append(chips);
+      }
+
       link.append(icon, copy);
       return link;
     }

@@ -850,6 +850,41 @@ function renderSearchResults() {
 
     info.append(titleEl, urlEl);
 
+    if (item.action === "captureUrlToBookmark") {
+      const chips = document.createElement("div");
+      chips.className = "nt-search-action-chips";
+
+      const barNode = appState?.bookmarkBar;
+      const barChip = document.createElement("button");
+      barChip.type = "button";
+      barChip.className = "nt-search-action-chip";
+      barChip.textContent = `⭐ ${t("saveToBar") || "Add to Bar"}`;
+      barChip.title = t("saveToBar") || "Add to Bar";
+      barChip.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        await handleDirectSaveBookmark(item.targetUrl, barNode?.id || "");
+      });
+      chips.append(barChip);
+
+      const allFolders = collectAllFolders(barNode);
+      const targetFolder = allFolders.find(f => !f.isBar && (f.id === lastUsedFolderId || pinnedFolderIds.includes(f.id))) || allFolders.find(f => !f.isBar);
+      if (targetFolder) {
+        const folderChip = document.createElement("button");
+        folderChip.type = "button";
+        folderChip.className = "nt-search-action-chip";
+        folderChip.textContent = `📁 ${targetFolder.title}`;
+        folderChip.title = `${t("saveToFolder") || "Add to Folder"}: ${targetFolder.path || targetFolder.title}`;
+        folderChip.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          await handleDirectSaveBookmark(item.targetUrl, targetFolder.id);
+        });
+        chips.append(folderChip);
+      }
+      info.append(chips);
+    }
+
     if (item.type === "bookmark") {
       const itemTags = resolveItemTags(item, bookmarkTagsMap);
       if (itemTags.length > 0) {
@@ -951,6 +986,30 @@ async function openSearchResult(item, event) {
     window.open(item.url, "_blank");
   } else {
     window.location.href = item.url;
+  }
+}
+
+async function handleDirectSaveBookmark(url, parentId) {
+  if (!url || !isSafeBookmarkUrl(url)) {
+    return;
+  }
+  const title = getHostname(url) || url;
+  const response = await sendMessage({
+    type: "BF_CREATE_BOOKMARK",
+    title,
+    url,
+    parentId: parentId || "",
+    allowDuplicate: true
+  });
+  if (response?.ok) {
+    appState = response;
+    if (parentId) {
+      lastUsedFolderId = parentId;
+      chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: parentId }).catch(() => {});
+    }
+    hideSearchResults();
+    elements.searchInput.value = "";
+    render();
   }
 }
 

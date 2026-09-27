@@ -44,13 +44,19 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
   - Kullanıcı dropdown açmaya gerek kalmadan tek tıkla hedef klasörü değiştirebilir.
   - Seçilen çip altın vurgu (`#f2c94c`) ve `is-active` durumu kazanır; aynı zamanda `<select>` açılır kutusu ve `bfLastUsedFolderId` hafızası ile çift yönlü olarak senkronize çalışır.
 
+### 🚀 5. Arama Öneri Kartında Sıfır Adımlı Hızlı Klasör Ekleme Butonları (Instant Folder Save Chips - BF-UX-015)
+- **Doğrudan Arama Kartından Kayıt**:
+  - Yeni Sekme arama kutusuna veya sayfa içi Spotlight (`Alt+Shift+K`) paletine bir web adresi yazıldığında beliren "⭐ Yer İmlerine Ekle" kartının içerisine mini inline eylem butonları (`[⭐ Çubuğa Ekle] [📁 Klasöre Ekle]`) yerleştirildi.
+  - Kullanıcı bu butonlara tıkladığında ekleme diyaloğu dahi açılmadan arka planda tek tıkla ("zero-click") yer imi hedef klasöre kaydedilir, arama kutusu temizlenir ve arayüz güncellenir.
+  - Kartın gövdesine tıklandığında ise tüm detayları düzenlemek isteyen kullanıcılar için standart diyalog açılmaya devam eder.
+
 ---
 
 ### 📋 Etkilenen Dosyalar ve Bileşenler
 - `manifest.json`: Omnibox `bf` anahtar kelimesi eklendi.
-- `src/newtab.html`, `src/newtab.css`, `src/newtab.js`: Arama yakalama, klasör dropdown'u, hızlı klasör çipleri (`#addFolderChips`), klavye kontrolleri, smart folder memory entegrasyonu.
-- `src/content.js`, `src/content.css`: Shadow DOM ekleme diyaloğuna klasör seçici, hızlı klasör çipleri (`.bf-folder-chips`), command palette URL eylem kartı, smart folder memory entegrasyonu.
+- `src/newtab.html`, `src/newtab.css`, `src/newtab.js`: Arama yakalama, arama içi hızlı kayıt çipleri (`.nt-search-action-chips`), klasör dropdown'u, hızlı klasör çipleri (`#addFolderChips`), klavye kontrolleri, smart folder memory entegrasyonu.
+- `src/content.js`, `src/content.css`: Shadow DOM ekleme diyaloğuna klasör seçici, hızlı klasör çipleri (`.bf-folder-chips`), command palette URL eylem kartı ve hızlı kayıt çipleri (`.bf-command-action-chips`), smart folder memory entegrasyonu.
 - `src/background.js`: Omnibox `onInputChanged` ve `onInputEntered` dinleyicileri, smart folder memory entegrasyonu.
-- `_locales/en/messages.json`, `_locales/tr/messages.json`: 12 yeni yerelleştirme anahtarı (`quickFolders` dahil).
-- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013` sözleşme testi, `bfLastUsedFolderId` hafıza doğrulaması ve `BF-UX-014` Quick Folder Chips testi.
+- `_locales/en/messages.json`, `_locales/tr/messages.json`: 14 yeni yerelleştirme anahtarı (`quickFolders`, `saveToBar`, `saveToFolder` dahil).
+- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014` ve `BF-UX-015` sözleşme testleri.
 - `AGENTS.md`: Sürüm Öncesi Değişiklik Günlüğü standardı.

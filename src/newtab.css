@@ -1314,6 +1314,42 @@ body[data-bg="custom"] {
   color: var(--nt-theme-accent);
 }
 
+.nt-search-action-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.nt-search-action-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+.nt-search-action-chip:hover {
+  background: rgba(242, 201, 76, 0.2);
+  border-color: #f2c94c;
+  color: #f2c94c;
+  transform: translateY(-1px);
+}
+
 .nt-tag-list {
   display: flex;
   flex-wrap: wrap;
