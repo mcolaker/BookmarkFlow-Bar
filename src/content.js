@@ -917,6 +917,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
           <div class="bf-command-list" id="bf-command-list" role="listbox" aria-label="${escapeAttribute(t("bookmarkSearch"))}"></div>
         </div>
       </div>
+      <div class="bf-toast" role="status" aria-live="polite" hidden></div>
     `;
 
     const grid = app.querySelector(".bf-grid");
@@ -2568,7 +2569,53 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         }
       }
       renderFromState();
+
+      const barNode = appState?.bookmarkBar;
+      let toastMsg = "";
+      if (parentId && parentId !== barNode?.id) {
+        const folders = [];
+        const walk = (node) => {
+          if (!node) return;
+          if (Array.isArray(node.children)) {
+            if (node.id && node.id !== "0") {
+              folders.push({ id: node.id, title: node.title || "" });
+            }
+            for (const c of node.children) {
+              if (Array.isArray(c.children)) walk(c);
+            }
+          }
+        };
+        walk(barNode);
+        const targetFolder = folders.find(f => f.id === parentId);
+        const folderName = targetFolder?.title || "";
+        toastMsg = t("bookmarkSavedToFolderToast", folderName) || `✓ ${folderName} klasörüne kaydedildi`;
+      } else {
+        toastMsg = t("bookmarkSavedToBarToast") || "✓ Yer İmleri Çubuğuna kaydedildi";
+      }
+      showContentToastNotification(toastMsg);
     }
+  }
+
+  let contentToastTimeoutId = null;
+
+  function showContentToastNotification(message, durationMs = 1800) {
+    const toast = shadow?.querySelector(".bf-toast");
+    if (!toast) return;
+    if (contentToastTimeoutId) {
+      clearTimeout(contentToastTimeoutId);
+      contentToastTimeoutId = null;
+    }
+    toast.textContent = message;
+    toast.classList.remove("is-leaving");
+    toast.hidden = false;
+
+    contentToastTimeoutId = window.setTimeout(() => {
+      toast.classList.add("is-leaving");
+      window.setTimeout(() => {
+        toast.hidden = true;
+        toast.classList.remove("is-leaving");
+      }, 250);
+    }, durationMs);
   }
 
   function markAddDuplicateState(dialog, submit, url, parentId) {

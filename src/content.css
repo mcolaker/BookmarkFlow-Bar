@@ -1363,3 +1363,45 @@
     left: 7px;
   }
 }
+
+.bf-toast {
+  position: fixed;
+  top: 24px;
+  right: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(15, 23, 42, 0.94);
+  color: #f7f9fc;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--bf-theme-accent, #f2c94c);
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 16px rgba(242, 201, 76, 0.22);
+  backdrop-filter: blur(10px);
+  z-index: 2147483647;
+  pointer-events: none;
+  animation: bfToastSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.bf-toast[hidden] {
+  display: none;
+}
+
+.bf-toast.is-leaving {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+@keyframes bfToastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

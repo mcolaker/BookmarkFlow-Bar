@@ -397,5 +397,7 @@
   "bookmarksBar": { "message": "Yer İmleri Çubuğu" },
   "quickFolders": { "message": "Hızlı Klasörler" },
   "saveToBar": { "message": "Çubuğa Ekle" },
-  "saveToFolder": { "message": "Klasöre Ekle" }
+  "saveToFolder": { "message": "Klasöre Ekle" },
+  "bookmarkSavedToBarToast": { "message": "✓ Yer İmleri Çubuğuna kaydedildi" },
+  "bookmarkSavedToFolderToast": { "message": "✓ $1 klasörüne kaydedildi", "placeholders": { "title": { "content": "$1" } } }
 }

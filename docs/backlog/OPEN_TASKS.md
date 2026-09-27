@@ -1,6 +1,6 @@
 # BookmarkFlow Bar Açık İşler
 
-Son güncelleme: 2026-09-16
+Son güncelleme: 2026-09-27
 
 Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kuralları için [AGENTS.md](../../AGENTS.md) otoritedir.
 
@@ -498,4 +498,13 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Kabul kriteri: Yeni Sekme arama kutusuna veya Spotlight paletine URL yazıldığında "⭐ Yer İmlerine Ekle" eylem kartının içinde doğrudan yer imleri çubuğuna ve son kullanılan/sabitlenen klasöre işaret eden mini çip butonları listelenir; çiplere tıklandığında diyalog açılmadan doğrudan o klasöre yer imi kaydedilir; iki dilde (`en`, `tr`) `saveToBar` ve `saveToFolder` yerelleştirmeleri sağlanır; testler ve backlog sözleşmesi temiz geçer.
 - Doğrulama kapısı: 66/66 otomatik test başarılı (`npm test`); `scripts/ui-behavior-contract.test.mjs` içinde `search live card instant folder chips contract (BF-UX-015)` testi doğrulandı; `node scripts/validate-project.mjs`, `node scripts/verify-public-tree.mjs` ve `node scripts/validate-backlog.mjs` sıfır hatayla geçti; `git diff --check` temizdir.
 - Sonraki adım: Yok; arama öneri kartında sıfır adımlı doğrudan klasöre yer imi kaydetme butonları (Instant Folder Save Chips) başarıyla tamamlandı ve doğrulandı.
+- Son güncelleme: 2026-09-27.
+
+## BF-UX-016 - Sıfır Adımlı Yer İmi Kaydında Canlı Toast Geri Bildirimi (Instant Toast Feedback)
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-27 tarihinde arama öneri kartındaki hızlı kaydetme çipine basılıp yer imi arka planda kaydedildiğinde, kullanıcının göz ucuyla kaydı teyit edebilmesi için ekranın sağ üstünde 1.5 - 1.8 saniyelik altın çerçeveli hafif bir bildirim rozetinin ("✓ Yer İmleri Çubuğuna kaydedildi" veya "✓ İş klasörüne kaydedildi") gösterilmesini talep etti. `src/newtab.html` ve `src/newtab.css` içerisine `.nt-toast` ve `.nt-toast.is-leaving` yapıları eklendi; `src/newtab.js` içine `showToastNotification` motoru ve hedef klasör adıyla dinamik bildirim üretimi entegre edildi; `src/content.js` ve `src/content.css` içinde Shadow DOM izole `.bf-toast` ve `showContentToastNotification` uygulandı; `_locales/en/messages.json` ve `_locales/tr/messages.json` içerisine `bookmarkSavedToBarToast` ve `bookmarkSavedToFolderToast` anahtarları eklendi.
+- Kabul kriteri: Arama öneri kartındaki hızlı kaydetme çipine tıklandığında veya doğrudan yer imi oluşturulduğunda, hem Yeni Sekme sayfasında hem de Spotlight / Content Script sayfa içi çubuğunda ekranın sağ üst köşesinde altın çerçeveli (`#f2c94c`), bulanık zeminli zarif bir toast bildirim rozeti belirir; kaydedilen hedef klasörün adını taşır; 1.8 saniye sonra yumuşak bir fade/slide animasyonuyla kendiliğinden kapanır; iki dilde (`en`, `tr`) `bookmarkSavedToBarToast` ve `bookmarkSavedToFolderToast` yerelleştirmeleri eksiksiz sağlanır; testler ve backlog sözleşmesi temiz geçer.
+- Doğrulama kapısı: 67/67 otomatik test başarılı (`npm test`); `scripts/ui-behavior-contract.test.mjs` içinde `instant toast feedback contract (BF-UX-016)` testi doğrulandı; `node scripts/validate-project.mjs`, `node scripts/verify-public-tree.mjs` ve `node scripts/validate-backlog.mjs` sıfır hatayla geçti; `git diff --check` temizdir.
+- Sonraki adım: Yok; arama öneri kartından yapılan sıfır adımlı yer imi kayıtlarında hafif ve modern toast geri bildirimi (Instant Toast Feedback) Yeni Sekme ve Spotlight arayüzlerinde başarıyla tamamlandı ve doğrulandı.
 - Son güncelleme: 2026-09-27.

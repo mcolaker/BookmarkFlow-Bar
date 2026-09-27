@@ -594,3 +594,33 @@ test("search live card instant folder chips contract (BF-UX-015)", () => {
   assert.ok(en.saveToFolder?.message, "Missing en saveToFolder message");
   assert.ok(tr.saveToFolder?.message, "Missing tr saveToFolder message");
 });
+
+test("instant toast feedback contract (BF-UX-016)", () => {
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(newtabHtml, /id="toastNotification"/u, "newtab.html must contain toastNotification element");
+  assert.match(newtabHtml, /class="nt-toast"/u, "newtab.html must contain nt-toast class");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-toast\b/u, "newtab.css must style .nt-toast");
+  assert.match(newtabCss, /\.nt-toast\.is-leaving\b/u, "newtab.css must style .nt-toast.is-leaving");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /function showToastNotification\(/u, "newtab.js must define showToastNotification");
+  assert.match(newtabJs, /showToastNotification\(toastMsg\)/u, "newtab.js must trigger toast on direct save");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /class="bf-toast"/u, "content.js template must contain bf-toast");
+  assert.match(contentJs, /function showContentToastNotification\(/u, "content.js must define showContentToastNotification");
+  assert.match(contentJs, /showContentToastNotification\(toastMsg\)/u, "content.js must trigger toast on direct save");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-toast\b/u, "content.css must style .bf-toast");
+  assert.match(contentCss, /\.bf-toast\.is-leaving\b/u, "content.css must style .bf-toast.is-leaving");
+
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  assert.ok(en.bookmarkSavedToBarToast?.message, "Missing en bookmarkSavedToBarToast message");
+  assert.ok(tr.bookmarkSavedToBarToast?.message, "Missing tr bookmarkSavedToBarToast message");
+  assert.ok(en.bookmarkSavedToFolderToast?.message, "Missing en bookmarkSavedToFolderToast message");
+  assert.ok(tr.bookmarkSavedToFolderToast?.message, "Missing tr bookmarkSavedToFolderToast message");
+});

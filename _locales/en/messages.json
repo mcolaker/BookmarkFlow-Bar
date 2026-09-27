@@ -397,5 +397,7 @@
   "bookmarksBar": { "message": "Bookmarks Bar" },
   "quickFolders": { "message": "Quick Folders" },
   "saveToBar": { "message": "Add to Bar" },
-  "saveToFolder": { "message": "Add to Folder" }
+  "saveToFolder": { "message": "Add to Folder" },
+  "bookmarkSavedToBarToast": { "message": "✓ Saved to Bookmarks Bar" },
+  "bookmarkSavedToFolderToast": { "message": "✓ Saved to $1", "placeholders": { "title": { "content": "$1" } } }
 }

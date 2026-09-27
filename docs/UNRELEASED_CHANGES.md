@@ -50,13 +50,22 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
   - Kullanıcı bu butonlara tıkladığında ekleme diyaloğu dahi açılmadan arka planda tek tıkla ("zero-click") yer imi hedef klasöre kaydedilir, arama kutusu temizlenir ve arayüz güncellenir.
   - Kartın gövdesine tıklandığında ise tüm detayları düzenlemek isteyen kullanıcılar için standart diyalog açılmaya devam eder.
 
+### 🔔 6. Sıfır Adımlı Kayıt Sonrası Canlı Toast Geri Bildirimi (Instant Toast Feedback - BF-UX-016)
+- **Hafif ve Mikro Görsel Teyit (Toast Notification)**:
+  - Arama öneri kartındaki hızlı kaydetme çipine basılıp yer imi arka planda kaydedildiğinde, kullanıcının göz ucuyla kaydı teyit edebilmesi için ekranın sağ üst köşesinde 1.8 saniyelik altın çerçeveli (`#f2c94c`), bulanık lacivert zeminli zarif bir bildirim rozeti belirir.
+  - Toast mesajı dinamik olarak hedef klasörün adını içerir (örneğin: `"✓ Yer İmleri Çubuğuna kaydedildi"` veya `"✓ İş klasörüne kaydedildi"`).
+  - Süre dolduğunda yumuşak bir dikey kayma ve kaybolma animasyonuyla (`.is-leaving`) kendiliğinden kapanır.
+  - Hem Yeni Sekme sayfasında (`.nt-toast`) hem de sayfa içi Spotlight / Content Script Shadow DOM yapısında (`.bf-toast`) tam izole ve erişilebilir (`role="status"`, `aria-live="polite"`) olarak çalışır.
+- **İki Dilli Yerelleştirme**:
+  - `_locales/en` ve `_locales/tr` sözlüklerine `bookmarkSavedToBarToast` ve parametrik `bookmarkSavedToFolderToast` anahtarları eklendi.
+
 ---
 
 ### 📋 Etkilenen Dosyalar ve Bileşenler
 - `manifest.json`: Omnibox `bf` anahtar kelimesi eklendi.
-- `src/newtab.html`, `src/newtab.css`, `src/newtab.js`: Arama yakalama, arama içi hızlı kayıt çipleri (`.nt-search-action-chips`), klasör dropdown'u, hızlı klasör çipleri (`#addFolderChips`), klavye kontrolleri, smart folder memory entegrasyonu.
-- `src/content.js`, `src/content.css`: Shadow DOM ekleme diyaloğuna klasör seçici, hızlı klasör çipleri (`.bf-folder-chips`), command palette URL eylem kartı ve hızlı kayıt çipleri (`.bf-command-action-chips`), smart folder memory entegrasyonu.
+- `src/newtab.html`, `src/newtab.css`, `src/newtab.js`: Arama yakalama, arama içi hızlı kayıt çipleri (`.nt-search-action-chips`), klasör dropdown'u, hızlı klasör çipleri (`#addFolderChips`), anlık bildirim rozeti (`.nt-toast`, `showToastNotification`), klavye kontrolleri, smart folder memory entegrasyonu.
+- `src/content.js`, `src/content.css`: Shadow DOM ekleme diyaloğuna klasör seçici, hızlı klasör çipleri (`.bf-folder-chips`), command palette URL eylem kartı ve hızlı kayıt çipleri (`.bf-command-action-chips`), anlık bildirim rozeti (`.bf-toast`, `showContentToastNotification`), smart folder memory entegrasyonu.
 - `src/background.js`: Omnibox `onInputChanged` ve `onInputEntered` dinleyicileri, smart folder memory entegrasyonu.
-- `_locales/en/messages.json`, `_locales/tr/messages.json`: 14 yeni yerelleştirme anahtarı (`quickFolders`, `saveToBar`, `saveToFolder` dahil).
-- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014` ve `BF-UX-015` sözleşme testleri.
+- `_locales/en/messages.json`, `_locales/tr/messages.json`: 16 yeni yerelleştirme anahtarı (`quickFolders`, `saveToBar`, `saveToFolder`, `bookmarkSavedToBarToast`, `bookmarkSavedToFolderToast` dahil).
+- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014`, `BF-UX-015` ve `BF-UX-016` sözleşme testleri.
 - `AGENTS.md`: Sürüm Öncesi Değişiklik Günlüğü standardı.

@@ -65,7 +65,8 @@ const elements = {
   readingListContainer: document.getElementById("readingListContainer"),
   quickGuideBtn: document.getElementById("quickGuideBtn"),
   quickTipsWidget: document.getElementById("quickTipsWidget"),
-  dismissQuickTips: document.getElementById("dismissQuickTips")
+  dismissQuickTips: document.getElementById("dismissQuickTips"),
+  toastNotification: document.getElementById("toastNotification")
 };
 
 let appState = null;
@@ -1010,7 +1011,40 @@ async function handleDirectSaveBookmark(url, parentId) {
     hideSearchResults();
     elements.searchInput.value = "";
     render();
+
+    const barNode = appState?.bookmarkBar;
+    let toastMsg = "";
+    if (parentId && parentId !== barNode?.id) {
+      const allFolders = collectAllFolders(barNode);
+      const targetFolder = allFolders.find(f => f.id === parentId);
+      const folderName = targetFolder?.title || "";
+      toastMsg = t("bookmarkSavedToFolderToast", folderName) || `✓ ${folderName} klasörüne kaydedildi`;
+    } else {
+      toastMsg = t("bookmarkSavedToBarToast") || "✓ Yer İmleri Çubuğuna kaydedildi";
+    }
+    showToastNotification(toastMsg);
   }
+}
+
+let toastTimeoutId = null;
+
+function showToastNotification(message, durationMs = 1800) {
+  if (!elements.toastNotification) return;
+  if (toastTimeoutId) {
+    clearTimeout(toastTimeoutId);
+    toastTimeoutId = null;
+  }
+  elements.toastNotification.textContent = message;
+  elements.toastNotification.classList.remove("is-leaving");
+  elements.toastNotification.hidden = false;
+
+  toastTimeoutId = window.setTimeout(() => {
+    elements.toastNotification.classList.add("is-leaving");
+    window.setTimeout(() => {
+      elements.toastNotification.hidden = true;
+      elements.toastNotification.classList.remove("is-leaving");
+    }, 250);
+  }, durationMs);
 }
 
 async function triggerWebSearch(query, disposition = "CURRENT_TAB") {
