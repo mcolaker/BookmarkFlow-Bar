@@ -38,6 +38,7 @@ const elements = {
   addTitle: document.getElementById("addTitle"),
   addUrl: document.getElementById("addUrl"),
   addFolderSelect: document.getElementById("addFolderSelect"),
+  addFolderChips: document.getElementById("addFolderChips"),
   addStatus: document.getElementById("addStatus"),
   addSubmit: document.getElementById("addSubmit"),
   addClose: document.getElementById("addClose"),
@@ -122,6 +123,7 @@ async function init() {
   elements.addForm.addEventListener("submit", handleAddBookmarkSubmit);
   elements.addFolderSelect?.addEventListener("change", () => {
     elements.addDialog.dataset.parentId = elements.addFolderSelect.value;
+    updateFolderChipsActive(elements.addFolderSelect.value);
   });
   elements.addClose.addEventListener("click", closeAddBookmarkDialog);
   elements.addCancel.addEventListener("click", closeAddBookmarkDialog);
@@ -1058,6 +1060,80 @@ function populateFolderSelect(selectedParentId = "") {
       option.selected = true;
     }
     elements.addFolderSelect.appendChild(option);
+  });
+
+  renderFolderChips(folders, effectiveSelected);
+}
+
+function renderFolderChips(folders, currentSelectedId) {
+  if (!elements.addFolderChips) return;
+  elements.addFolderChips.innerHTML = "";
+
+  if (!Array.isArray(folders) || folders.length === 0) {
+    elements.addFolderChips.hidden = true;
+    return;
+  }
+
+  const barFolder = folders.find(f => f.isBar);
+  const otherFolders = folders.filter(f => !f.isBar);
+  const prioritized = [];
+
+  if (Array.isArray(pinnedFolderIds)) {
+    for (const pid of pinnedFolderIds) {
+      const match = otherFolders.find(f => f.id === pid);
+      if (match && !prioritized.some(p => p.id === match.id)) {
+        prioritized.push(match);
+      }
+    }
+  }
+
+  for (const f of otherFolders) {
+    if (!prioritized.some(p => p.id === f.id)) {
+      prioritized.push(f);
+    }
+  }
+
+  const chipCandidates = [];
+  if (barFolder) {
+    chipCandidates.push(barFolder);
+  }
+  chipCandidates.push(...prioritized.slice(0, 3));
+
+  if (chipCandidates.length <= 1) {
+    elements.addFolderChips.hidden = true;
+    return;
+  }
+
+  elements.addFolderChips.hidden = false;
+
+  chipCandidates.forEach((f) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "nt-folder-chip" + (f.id === currentSelectedId ? " is-active" : "");
+    btn.setAttribute("aria-pressed", f.id === currentSelectedId ? "true" : "false");
+    btn.dataset.folderId = f.id;
+    btn.title = f.path || f.title;
+    btn.textContent = f.isBar ? `⭐ ${t("bookmarksBar") || "Bar"}` : `📁 ${f.title}`;
+
+    btn.addEventListener("click", () => {
+      elements.addFolderSelect.value = f.id;
+      elements.addDialog.dataset.parentId = f.id;
+      lastUsedFolderId = f.id;
+      chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: f.id }).catch(() => {});
+      updateFolderChipsActive(f.id);
+    });
+
+    elements.addFolderChips.appendChild(btn);
+  });
+}
+
+function updateFolderChipsActive(selectedId) {
+  if (!elements.addFolderChips) return;
+  const chips = elements.addFolderChips.querySelectorAll(".nt-folder-chip");
+  chips.forEach((chip) => {
+    const isActive = chip.dataset.folderId === selectedId;
+    chip.classList.toggle("is-active", isActive);
+    chip.setAttribute("aria-pressed", isActive ? "true" : "false");
   });
 }
 

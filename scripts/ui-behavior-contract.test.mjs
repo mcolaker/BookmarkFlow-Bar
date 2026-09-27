@@ -542,3 +542,30 @@ test("link capture and quick folder selector contract (BF-UX-013)", () => {
     assert.ok(tr[k]?.message, `Missing tr message key: ${k}`);
   }
 });
+
+test("quick folder chips contract (BF-UX-014)", () => {
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(newtabHtml, /id="addFolderChips"/u, "newtab.html must contain addFolderChips container");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-folder-chips/u, "newtab.css must style .nt-folder-chips");
+  assert.match(newtabCss, /\.nt-folder-chip/u, "newtab.css must style .nt-folder-chip");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /function renderFolderChips\(/u, "newtab.js must define renderFolderChips");
+  assert.match(newtabJs, /function updateFolderChipsActive\(/u, "newtab.js must define updateFolderChipsActive");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /class="bf-folder-chips"/u, "content.js template must contain bf-folder-chips");
+  assert.match(contentJs, /function renderContentFolderChips\(/u, "content.js must define renderContentFolderChips");
+  assert.match(contentJs, /function updateContentFolderChipsActive\(/u, "content.js must define updateContentFolderChipsActive");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-folder-chips/u, "content.css must style .bf-folder-chips");
+  assert.match(contentCss, /\.bf-folder-chip/u, "content.css must style .bf-folder-chip");
+
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  assert.ok(en.quickFolders?.message, "Missing en quickFolders message");
+  assert.ok(tr.quickFolders?.message, "Missing tr quickFolders message");
+});

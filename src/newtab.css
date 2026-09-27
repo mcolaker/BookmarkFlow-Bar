@@ -794,6 +794,51 @@ body[data-bg="custom"] {
   border-color: rgba(242, 201, 76, 0.72);
 }
 
+.nt-folder-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: -2px 0 8px 0;
+}
+
+.nt-folder-chips[hidden] {
+  display: none;
+}
+
+.nt-folder-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  line-height: 1.2;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nt-folder-chip:hover {
+  background: rgba(242, 201, 76, 0.12);
+  border-color: rgba(242, 201, 76, 0.35);
+  color: #f2c94c;
+}
+
+.nt-folder-chip.is-active {
+  background: rgba(242, 201, 76, 0.2);
+  border-color: #f2c94c;
+  color: #f2c94c;
+  font-weight: 600;
+}
+
 .nt-add-status {
   min-height: 16px;
   margin: 0;

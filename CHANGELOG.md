@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - Add Search Bar Link Capture & Quick Folder Selector (BF-UX-013): Typing a URL into the New Tab search box captures the link into an add dialog instead of navigating away immediately, with quick action cards ("⭐ Add to Bookmarks" and "🌐 Open in New Tab").
 - Add Hierarchical Folder Selector Dropdown (`#addFolderSelect`, `.bf-add-select`): Added folder dropdown selector to both New Tab and in-page Shadow DOM add bookmark dialogs to pick any parent folder before saving.
 - Add Smart Folder Memory (`bfLastUsedFolderId`): Automatically persist the last selected bookmark folder locally and preselect it on subsequent add operations across New Tab, In-Page Dialog, and Omnibox.
+- Add Quick Folder Chips (BF-UX-014): One-click compact folder pills ([⭐ Bar] [📁 Folder 1] [📁 Folder 2]) in add bookmark dialogs for instant folder assignment with two-way dropdown synchronization.
 - Add In-Page Command Palette URL Action (`Alt+Shift+K`): Typing or pasting a web link into the Spotlight command palette surfaces a direct "Add to folder" quick card.
 - Add Chrome Omnibox Keyword Integration (`bf <url>`): Type `bf` in the Chrome address bar to quickly save any link to the bookmarks bar or subfolders without switching tabs.
 - Add Windows Desktop Companion with Global Hotkey (`Win+Shift+B`), System Tray status icon, and customizable hotkey settings.

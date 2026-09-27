@@ -900,6 +900,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
             <span>${escapeHtml(t("targetFolder"))}</span>
             <select class="bf-add-select"></select>
           </label>
+          <div class="bf-folder-chips" aria-label="${escapeAttribute(t("quickFolders"))}" hidden></div>
           <p class="bf-add-status" aria-live="polite"></p>
           <div class="bf-add-actions">
             <button class="bf-add-secondary" type="button" data-bf-action="close-add-bookmark">${escapeHtml(t("cancel"))}</button>
@@ -2221,9 +2222,90 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       select.appendChild(option);
     });
 
+    renderContentFolderChips(dialog, folders, effectiveSelected);
+
     select.onchange = () => {
       dialog.dataset.parentId = select.value;
+      updateContentFolderChipsActive(dialog, select.value);
     };
+  }
+
+  function renderContentFolderChips(dialog, folders, currentSelectedId) {
+    const chipsContainer = dialog?.querySelector(".bf-folder-chips");
+    if (!chipsContainer) return;
+    chipsContainer.replaceChildren();
+
+    if (!Array.isArray(folders) || folders.length === 0) {
+      chipsContainer.hidden = true;
+      return;
+    }
+
+    const barFolder = folders.find(f => f.isBar);
+    const otherFolders = folders.filter(f => !f.isBar);
+    const prioritized = [];
+
+    if (Array.isArray(pinnedFolderIds)) {
+      for (const pid of pinnedFolderIds) {
+        const match = otherFolders.find(f => f.id === pid);
+        if (match && !prioritized.some(p => p.id === match.id)) {
+          prioritized.push(match);
+        }
+      }
+    }
+
+    for (const f of otherFolders) {
+      if (!prioritized.some(p => p.id === f.id)) {
+        prioritized.push(f);
+      }
+    }
+
+    const chipCandidates = [];
+    if (barFolder) {
+      chipCandidates.push(barFolder);
+    }
+    chipCandidates.push(...prioritized.slice(0, 3));
+
+    if (chipCandidates.length <= 1) {
+      chipsContainer.hidden = true;
+      return;
+    }
+
+    chipsContainer.hidden = false;
+    const select = dialog.querySelector(".bf-add-select");
+
+    chipCandidates.forEach((f) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "bf-folder-chip" + (f.id === currentSelectedId ? " is-active" : "");
+      btn.setAttribute("aria-pressed", f.id === currentSelectedId ? "true" : "false");
+      btn.dataset.folderId = f.id;
+      btn.title = f.path || f.title;
+      btn.textContent = f.isBar ? `⭐ ${t("bookmarksBar") || "Bar"}` : `📁 ${f.title}`;
+
+      btn.addEventListener("click", () => {
+        if (select) {
+          select.value = f.id;
+        }
+        dialog.dataset.parentId = f.id;
+        lastUsedFolderId = f.id;
+        if (hasExtensionContext()) {
+          chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: f.id }).catch(() => {});
+        }
+        updateContentFolderChipsActive(dialog, f.id);
+      });
+
+      chipsContainer.appendChild(btn);
+    });
+  }
+
+  function updateContentFolderChipsActive(dialog, selectedId) {
+    const chips = dialog?.querySelectorAll(".bf-folder-chip");
+    if (!chips) return;
+    chips.forEach((chip) => {
+      const isActive = chip.dataset.folderId === selectedId;
+      chip.classList.toggle("is-active", isActive);
+      chip.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
   }
 
   function openAddBookmarkDialog(returnFocusElement = getActiveDialogElement(), customData = null) {

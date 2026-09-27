@@ -394,5 +394,6 @@
   "omniboxAddToBar": { "message": "Yer İmleri Çubuğuna Ekle" },
   "omniboxAddToFolder": { "message": "Klasöre ekle" },
   "bookmarkAddedNotification": { "message": "Yer imi başarıyla kaydedildi!" },
-  "bookmarksBar": { "message": "Yer İmleri Çubuğu" }
+  "bookmarksBar": { "message": "Yer İmleri Çubuğu" },
+  "quickFolders": { "message": "Hızlı Klasörler" }
 }

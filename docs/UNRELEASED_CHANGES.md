@@ -38,13 +38,19 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - **Özelleştirilebilir Kısayol Ayarları**:
   - Eklenti Ayarlar sayfasından Windows Companion kısayolunun tuş kombinasyonunu dinamik olarak değiştirebilme imkanı.
 
+### ⚡ 4. Sık Kullanılan Klasörler İçin Hızlı Çip Rozetleri (Quick Folder Chips - BF-UX-014)
+- **Tek Tıkla Klasör Seçimi (Chips)**:
+  - Hem Yeni Sekme hem de Sayfa İçi yer imi ekleme diyaloglarında hedef klasör dropdown'unun hemen altında en çok kullanılan ve sabitlenen klasörler kompakt çip rozetleri (`[⭐ Çubuk] [📁 Klasör 1] [📁 Klasör 2]`) olarak listelenir.
+  - Kullanıcı dropdown açmaya gerek kalmadan tek tıkla hedef klasörü değiştirebilir.
+  - Seçilen çip altın vurgu (`#f2c94c`) ve `is-active` durumu kazanır; aynı zamanda `<select>` açılır kutusu ve `bfLastUsedFolderId` hafızası ile çift yönlü olarak senkronize çalışır.
+
 ---
 
 ### 📋 Etkilenen Dosyalar ve Bileşenler
 - `manifest.json`: Omnibox `bf` anahtar kelimesi eklendi.
-- `src/newtab.html`, `src/newtab.css`, `src/newtab.js`: Arama yakalama, klasör dropdown'u, klavye kontrolleri, smart folder memory entegrasyonu.
-- `src/content.js`, `src/content.css`: Shadow DOM ekleme diyaloğuna klasör seçici, command palette URL eylem kartı, smart folder memory entegrasyonu.
+- `src/newtab.html`, `src/newtab.css`, `src/newtab.js`: Arama yakalama, klasör dropdown'u, hızlı klasör çipleri (`#addFolderChips`), klavye kontrolleri, smart folder memory entegrasyonu.
+- `src/content.js`, `src/content.css`: Shadow DOM ekleme diyaloğuna klasör seçici, hızlı klasör çipleri (`.bf-folder-chips`), command palette URL eylem kartı, smart folder memory entegrasyonu.
 - `src/background.js`: Omnibox `onInputChanged` ve `onInputEntered` dinleyicileri, smart folder memory entegrasyonu.
-- `_locales/en/messages.json`, `_locales/tr/messages.json`: 11 yeni yerelleştirme anahtarı.
-- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013` sözleşme testi ve `bfLastUsedFolderId` hafıza doğrulaması.
+- `_locales/en/messages.json`, `_locales/tr/messages.json`: 12 yeni yerelleştirme anahtarı (`quickFolders` dahil).
+- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013` sözleşme testi, `bfLastUsedFolderId` hafıza doğrulaması ve `BF-UX-014` Quick Folder Chips testi.
 - `AGENTS.md`: Sürüm Öncesi Değişiklik Günlüğü standardı.

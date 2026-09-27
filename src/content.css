@@ -1133,6 +1133,51 @@
   border-color: var(--bf-theme-accent);
 }
 
+.bf-folder-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: -2px 0 8px 0;
+}
+
+.bf-folder-chips[hidden] {
+  display: none;
+}
+
+.bf-folder-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--bf-theme-text-muted, #cbd5e1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--bf-theme-border, rgba(255, 255, 255, 0.12));
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  line-height: 1.2;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bf-folder-chip:hover {
+  background: rgba(242, 201, 76, 0.12);
+  border-color: var(--bf-theme-accent, #f2c94c);
+  color: var(--bf-theme-accent, #f2c94c);
+}
+
+.bf-folder-chip.is-active {
+  background: rgba(242, 201, 76, 0.2);
+  border-color: var(--bf-theme-accent, #f2c94c);
+  color: var(--bf-theme-accent, #f2c94c);
+  font-weight: 600;
+}
+
 .bf-command-close {
   width: 42px;
   height: 42px;

@@ -394,5 +394,6 @@
   "omniboxAddToBar": { "message": "Add to Bookmarks Bar" },
   "omniboxAddToFolder": { "message": "Add to folder" },
   "bookmarkAddedNotification": { "message": "Bookmark saved successfully!" },
-  "bookmarksBar": { "message": "Bookmarks Bar" }
+  "bookmarksBar": { "message": "Bookmarks Bar" },
+  "quickFolders": { "message": "Quick Folders" }
 }
