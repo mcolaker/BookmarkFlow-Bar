@@ -1286,4 +1286,116 @@ function handleNativeCompanionCommand(command) {
   }
 }
 
+function initOmniboxIntegration() {
+  if (typeof chrome.omnibox === "undefined") {
+    return;
+  }
+
+  try {
+    chrome.omnibox.setDefaultSuggestion({
+      description: t("omniboxDefaultSuggestion") || "BookmarkFlow Bar: Press Enter to save link to bookmarks"
+    });
+  } catch {}
+
+  chrome.omnibox.onInputChanged.addListener(async (rawText, suggest) => {
+    const text = String(rawText || "").trim();
+    if (!text) {
+      return;
+    }
+
+    const directTarget = normalizeBookmarkUrl(text) || (/^[a-z][a-z0-9+.-]*:\/\//i.test(text) ? text : (`https://${text}`));
+    if (!directTarget || !isSafeBookmarkUrl(directTarget)) {
+      return;
+    }
+
+    try {
+      const root = await getBookmarkTreeRoot();
+      const bookmarkBar = selectBookmarkBarNode(root);
+      const folders = [];
+      const walk = (node, path = "") => {
+        if (!node) return;
+        if (Array.isArray(node.children)) {
+          const isRootBar = node.id === bookmarkBar?.id;
+          const title = node.title || (isRootBar ? (t("bookmarksBar") || "Bookmarks Bar") : "");
+          const currentPath = path ? (title ? `${path} / ${title}` : path) : title;
+          if (node.id && node.id !== "0") {
+            folders.push({
+              id: node.id,
+              title: title || (t("bookmarksBar") || "Bookmarks Bar"),
+              path: currentPath,
+              isBar: isRootBar
+            });
+          }
+          for (const child of node.children) {
+            if (Array.isArray(child.children)) {
+              walk(child, currentPath);
+            }
+          }
+        }
+      };
+      walk(bookmarkBar);
+
+      const suggestions = [];
+      suggestions.push({
+        content: JSON.stringify({ url: directTarget, parentId: bookmarkBar?.id || "" }),
+        description: `⭐ ${escapeOmniboxXml(t("omniboxAddToBar") || "Add to Bookmarks Bar")}: <url>${escapeOmniboxXml(directTarget)}</url>`
+      });
+
+      folders.filter(f => !f.isBar).slice(0, 5).forEach((f) => {
+        suggestions.push({
+          content: JSON.stringify({ url: directTarget, parentId: f.id }),
+          description: `📁 <match>${escapeOmniboxXml(f.path || f.title)}</match> ${escapeOmniboxXml(t("omniboxAddToFolder") || "Add to folder")}: <url>${escapeOmniboxXml(directTarget)}</url>`
+        });
+      });
+
+      suggest(suggestions);
+    } catch {
+      // Fail-safe
+    }
+  });
+
+  chrome.omnibox.onInputEntered.addListener(async (content) => {
+    try {
+      let targetUrl = "";
+      let targetParentId = "";
+
+      if (content.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(content);
+          targetUrl = parsed.url;
+          targetParentId = parsed.parentId;
+        } catch {}
+      }
+
+      if (!targetUrl) {
+        const text = String(content || "").trim();
+        targetUrl = normalizeBookmarkUrl(text) || (/^[a-z][a-z0-9+.-]*:\/\//i.test(text) ? text : (`https://${text}`));
+      }
+
+      if (!targetUrl || !isSafeBookmarkUrl(targetUrl)) {
+        return;
+      }
+
+      await runWithDataConsent(async () => {
+        await createBookmark({
+          url: targetUrl,
+          title: getHostname(targetUrl) || targetUrl,
+          parentId: targetParentId,
+          allowDuplicate: true
+        });
+      });
+    } catch {}
+  });
+}
+
+function escapeOmniboxXml(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 initNativeCompanionBridge();
+initOmniboxIntegration();

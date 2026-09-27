@@ -383,5 +383,16 @@
   "hotkeyStashTabsLabel": { "message": "Sekmeleri Sakla Kısayolu:" },
   "saveDesktopHotkeys": { "message": "Kaydet ve Masaüstüne Uygula" },
   "resetDesktopHotkeys": { "message": "Varsayılanlara Sıfırla" },
-  "desktopHotkeysSaved": { "message": "Global masaüstü kısayolları başarıyla güncellendi!" }
+  "desktopHotkeysSaved": { "message": "Global masaüstü kısayolları başarıyla güncellendi!" },
+  "addBookmarkToTarget": { "message": "Yer İmlerine Ekle" },
+  "addBookmarkToTargetDesc": { "message": "Klasör seçip kaydetmek için Enter'a basın" },
+  "openInBrowser": { "message": "Web Sayfasını Aç" },
+  "openInBrowserDesc": { "message": "Bu adrese doğrudan git" },
+  "targetFolder": { "message": "Hedef Klasör" },
+  "selectFolder": { "message": "Klasör Seçin" },
+  "omniboxDefaultSuggestion": { "message": "BookmarkFlow Bar: Bağlantıyı yer imlerine kaydetmek için Enter'a basın" },
+  "omniboxAddToBar": { "message": "Yer İmleri Çubuğuna Ekle" },
+  "omniboxAddToFolder": { "message": "Klasöre ekle" },
+  "bookmarkAddedNotification": { "message": "Yer imi başarıyla kaydedildi!" },
+  "bookmarksBar": { "message": "Yer İmleri Çubuğu" }
 }

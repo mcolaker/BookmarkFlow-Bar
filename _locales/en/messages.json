@@ -383,5 +383,16 @@
   "hotkeyStashTabsLabel": { "message": "Stash Tabs Shortcut:" },
   "saveDesktopHotkeys": { "message": "Save & Apply to Desktop" },
   "resetDesktopHotkeys": { "message": "Reset to Defaults" },
-  "desktopHotkeysSaved": { "message": "Global desktop hotkeys updated successfully!" }
+  "desktopHotkeysSaved": { "message": "Global desktop hotkeys updated successfully!" },
+  "addBookmarkToTarget": { "message": "Add to Bookmarks" },
+  "addBookmarkToTargetDesc": { "message": "Press Enter to choose a folder and save" },
+  "openInBrowser": { "message": "Open Web Page" },
+  "openInBrowserDesc": { "message": "Navigate directly to this address" },
+  "targetFolder": { "message": "Target Folder" },
+  "selectFolder": { "message": "Select Folder" },
+  "omniboxDefaultSuggestion": { "message": "BookmarkFlow Bar: Press Enter to save link to bookmarks" },
+  "omniboxAddToBar": { "message": "Add to Bookmarks Bar" },
+  "omniboxAddToFolder": { "message": "Add to folder" },
+  "bookmarkAddedNotification": { "message": "Bookmark saved successfully!" },
+  "bookmarksBar": { "message": "Bookmarks Bar" }
 }

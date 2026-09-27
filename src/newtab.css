@@ -740,6 +740,7 @@ body[data-bg="custom"] {
 .nt-context-swatch:focus-visible,
 .nt-add-close:focus-visible,
 .nt-add-field input:focus-visible,
+.nt-add-field select:focus-visible,
 .nt-add-primary:focus-visible,
 .nt-add-secondary:focus-visible,
 .nt-search-box input:focus-visible,
@@ -770,7 +771,8 @@ body[data-bg="custom"] {
   font-size: 11px;
 }
 
-.nt-add-field input {
+.nt-add-field input,
+.nt-add-field select {
   height: 36px;
   min-width: 0;
   border: 1px solid #303743;
@@ -783,7 +785,12 @@ body[data-bg="custom"] {
   font-size: 13px;
 }
 
-.nt-add-field input:focus {
+.nt-add-field select {
+  cursor: pointer;
+}
+
+.nt-add-field input:focus,
+.nt-add-field select:focus {
   border-color: rgba(242, 201, 76, 0.72);
 }
 

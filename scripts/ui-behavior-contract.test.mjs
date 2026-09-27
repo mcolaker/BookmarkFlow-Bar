@@ -507,3 +507,34 @@ test("launcher quick context menu and adaptive discovery contract (BF-UX-012)", 
   assert.match(popupHtml, /id="pageControlsBadge"/u, "popup.html must contain pageControlsBadge element");
   assert.match(popupHtml, /data-i18n="pageControlsTip"/u, "popup.html must reference pageControlsTip translation");
 });
+
+test("link capture and quick folder selector contract (BF-UX-013)", () => {
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  assert.equal(manifest.omnibox?.keyword, "bf", "manifest must configure omnibox keyword 'bf'");
+
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(newtabHtml, /id="addFolderSelect"/u, "newtab.html must contain addFolderSelect dropdown");
+  assert.match(newtabHtml, /data-i18n="targetFolder"/u, "newtab.html must reference targetFolder localization");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /function populateFolderSelect\(/u, "newtab.js must implement populateFolderSelect");
+  assert.match(newtabJs, /captureUrlToBookmark/u, "newtab.js must support captureUrlToBookmark action");
+  assert.match(newtabJs, /openDirectUrl/u, "newtab.js must support openDirectUrl action");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /class="bf-add-select"/u, "content.js template must contain bf-add-select");
+  assert.match(contentJs, /function populateContentFolderSelect\(/u, "content.js must implement populateContentFolderSelect");
+  assert.match(contentJs, /bf-action-capture-url/u, "content.js command palette must support bf-action-capture-url");
+
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(backgroundJs, /chrome\.omnibox\.onInputChanged\.addListener/u, "background.js must handle omnibox input changed");
+  assert.match(backgroundJs, /chrome\.omnibox\.onInputEntered\.addListener/u, "background.js must handle omnibox input entered");
+
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  const requiredKeys = ["addBookmarkToTarget", "addBookmarkToTargetDesc", "openInBrowser", "openInBrowserDesc", "targetFolder", "selectFolder", "omniboxDefaultSuggestion", "omniboxAddToBar", "omniboxAddToFolder", "bookmarkAddedNotification", "bookmarksBar"];
+  for (const k of requiredKeys) {
+    assert.ok(en[k]?.message, `Missing en message key: ${k}`);
+    assert.ok(tr[k]?.message, `Missing tr message key: ${k}`);
+  }
+});

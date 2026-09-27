@@ -1106,7 +1106,8 @@
   font-size: 15px;
 }
 
-.bf-add-field input {
+.bf-add-field input,
+.bf-add-field select {
   height: 36px;
   min-width: 0;
   border: 1px solid var(--bf-theme-border-subtle);
@@ -1119,11 +1120,16 @@
   font-size: 13px;
 }
 
+.bf-add-field select {
+  cursor: pointer;
+}
+
 .bf-command-input:focus {
   border-color: var(--bf-theme-accent);
 }
 
-.bf-add-field input:focus {
+.bf-add-field input:focus,
+.bf-add-field select:focus {
   border-color: var(--bf-theme-accent);
 }
 
@@ -1148,6 +1154,7 @@
 .bf-command-input:focus-visible,
 .bf-command-close:focus-visible,
 .bf-add-field input:focus-visible,
+.bf-add-field select:focus-visible,
 .bf-add-primary:focus-visible,
 .bf-add-secondary:focus-visible,
 .bf-folder-rail-add:focus-visible,

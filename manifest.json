@@ -13,6 +13,9 @@
     "tabs",
     "scripting"
   ],
+  "omnibox": {
+    "keyword": "bf"
+  },
   "action": {
     "default_title": "__MSG_appName__",
     "default_popup": "src/popup.html",

@@ -871,6 +871,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
             <span>${escapeHtml(t("address"))}</span>
             <input class="bf-add-url" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
           </label>
+          <label class="bf-add-field">
+            <span>${escapeHtml(t("targetFolder"))}</span>
+            <select class="bf-add-select"></select>
+          </label>
           <p class="bf-add-status" aria-live="polite"></p>
           <div class="bf-add-actions">
             <button class="bf-add-secondary" type="button" data-bf-action="close-add-bookmark">${escapeHtml(t("cancel"))}</button>
@@ -2141,7 +2145,63 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     window.alert(response?.error || t("bookmarkMoveFailed"));
   }
 
-  function openAddBookmarkDialog(returnFocusElement = getActiveDialogElement()) {
+  function populateContentFolderSelect(dialog, selectedParentId = "") {
+    const select = dialog?.querySelector(".bf-add-select");
+    if (!select) return;
+    select.replaceChildren();
+
+    const barNode = appState?.bookmarkBar;
+    const folders = [];
+    const walk = (node, path = "") => {
+      if (!node) return;
+      if (Array.isArray(node.children)) {
+        const isRootBar = node.id === appState?.bookmarkBar?.id;
+        const title = node.title || (isRootBar ? (t("bookmarksBar") || "Bookmarks Bar") : "");
+        const currentPath = path ? (title ? `${path} / ${title}` : path) : title;
+        if (node.id && node.id !== "0") {
+          folders.push({
+            id: node.id,
+            title: title || (t("bookmarksBar") || "Bookmarks Bar"),
+            path: currentPath,
+            isBar: isRootBar
+          });
+        }
+        for (const child of node.children) {
+          if (Array.isArray(child.children)) {
+            walk(child, currentPath);
+          }
+        }
+      }
+    };
+    walk(barNode);
+
+    if (!folders.length && barNode?.id) {
+      folders.push({
+        id: barNode.id,
+        title: t("bookmarksBar") || "Bookmarks Bar",
+        path: t("bookmarksBar") || "Bookmarks Bar",
+        isBar: true
+      });
+    }
+
+    const effectiveSelected = selectedParentId || barNode?.id || "";
+
+    folders.forEach((f) => {
+      const option = document.createElement("option");
+      option.value = f.id;
+      option.textContent = f.isBar ? `⭐ ${f.title}` : `📁 ${f.path || f.title}`;
+      if (f.id === effectiveSelected) {
+        option.selected = true;
+      }
+      select.appendChild(option);
+    });
+
+    select.onchange = () => {
+      dialog.dataset.parentId = select.value;
+    };
+  }
+
+  function openAddBookmarkDialog(returnFocusElement = getActiveDialogElement(), customData = null) {
     const dialog = shadow?.querySelector(".bf-add");
     const titleInput = shadow?.querySelector(".bf-add-title");
     const urlInput = shadow?.querySelector(".bf-add-url");
@@ -2158,11 +2218,19 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       addDialogReturnFocus = inheritedReturnFocus || createFocusReturnTarget(returnFocusElement);
     }
 
-    const suggestion = getSuggestedBookmarkData();
+    const suggestion = customData ? {
+      title: customData.title || "",
+      url: customData.url || "",
+      parentId: customData.parentId || dialog.dataset.parentId || "",
+      status: ""
+    } : getSuggestedBookmarkData();
+
     resetAddDuplicateState(dialog, submit);
-    dialog.dataset.parentId = suggestion.parentId || "";
+    const parentId = suggestion.parentId || dialog.dataset.parentId || "";
+    dialog.dataset.parentId = parentId;
     titleInput.value = suggestion.title;
     urlInput.value = suggestion.url;
+    populateContentFolderSelect(dialog, parentId);
     if (status) {
       status.textContent = suggestion.status || (suggestion.url ? "" : t("pageAddressUnavailable"));
       status.classList.remove("is-error", "is-success");
@@ -2316,7 +2384,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const dialog = shadow?.querySelector(".bf-add");
     const title = titleInput?.value.trim() || "";
     const url = normalizeBookmarkInputUrl(urlInput?.value || "");
-    const parentId = dialog?.dataset.parentId || "";
+    const select = dialog?.querySelector(".bf-add-select");
+    const parentId = select?.value || dialog?.dataset.parentId || "";
     const allowDuplicate = Boolean(dialog?.dataset.duplicateUrl && areBookmarkUrlsEqual(dialog.dataset.duplicateUrl, url) && (dialog.dataset.duplicateParentId || "") === parentId);
 
     if (!url || !isSafeBookmarkUrl(url)) {
@@ -2955,6 +3024,33 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       })
       .slice(0, query ? 40 : 14);
 
+    const directTarget = resolveDirectNavigationTarget(commandQuery);
+    if (directTarget) {
+      entries.unshift({
+        id: "bf-action-capture-url",
+        title: `${t("addBookmarkToTarget")}: ${directTarget}`,
+        path: t("addBookmarkToTargetDesc"),
+        icon: "⭐",
+        isQuickAction: true,
+        handler: () => {
+          openAddBookmarkDialog(getActiveDialogElement(), {
+            url: directTarget,
+            title: getHostname(directTarget) || directTarget
+          });
+        }
+      });
+      entries.splice(1, 0, {
+        id: "bf-action-open-direct",
+        title: `${t("openInBrowser")}: ${directTarget}`,
+        path: t("openInBrowserDesc"),
+        icon: "🌐",
+        isQuickAction: true,
+        handler: () => {
+          window.location.href = directTarget;
+        }
+      });
+    }
+
     const isHealthQuery = /^(health|sa[gğ]l[iı]k|k[iı]r[iı]k|dead|broken|duplicate|m[uü]kerrer|bak[iı]m|maintenance|#health)/i.test(query);
     if (isHealthQuery) {
       entries.unshift({
@@ -3422,6 +3518,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     url.searchParams.set("pageUrl", pageUrl);
     url.searchParams.set("size", "32");
     return url.toString();
+  }
+
+  function resolveDirectNavigationTarget(value) {
+    const trimmed = String(value || "").trim();
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    if (/^[^\s]+\.[^\s]{2,}(\/.*)?$/i.test(trimmed)) {
+      return `https://${trimmed}`;
+    }
+    return "";
   }
 
   function getHostname(url) {

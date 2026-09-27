@@ -35,6 +35,7 @@ const elements = {
   addForm: document.getElementById("addForm"),
   addTitle: document.getElementById("addTitle"),
   addUrl: document.getElementById("addUrl"),
+  addFolderSelect: document.getElementById("addFolderSelect"),
   addStatus: document.getElementById("addStatus"),
   addSubmit: document.getElementById("addSubmit"),
   addClose: document.getElementById("addClose"),
@@ -116,6 +117,9 @@ async function init() {
   elements.readingListBtn?.addEventListener("click", toggleReadingDrawer);
   elements.readingClose?.addEventListener("click", closeReadingDrawer);
   elements.addForm.addEventListener("submit", handleAddBookmarkSubmit);
+  elements.addFolderSelect?.addEventListener("change", () => {
+    elements.addDialog.dataset.parentId = elements.addFolderSelect.value;
+  });
   elements.addClose.addEventListener("click", closeAddBookmarkDialog);
   elements.addCancel.addEventListener("click", closeAddBookmarkDialog);
   elements.addFolder.addEventListener("click", () => createFolderFromPrompt(""));
@@ -554,7 +558,11 @@ async function handleSearchSubmit(event) {
 
   const directTarget = resolveDirectNavigationTarget(value);
   if (directTarget) {
-    window.location.href = directTarget;
+    hideSearchResults();
+    openAddBookmarkDialog(elements.searchInput, {
+      url: directTarget,
+      title: getHostname(directTarget) || directTarget
+    });
     return;
   }
 
@@ -639,6 +647,26 @@ function handleSearchInput() {
     url: b.url,
     path: b.path
   }));
+
+  const directTarget = resolveDirectNavigationTarget(query);
+  if (directTarget) {
+    results.unshift({
+      type: "action",
+      action: "captureUrlToBookmark",
+      title: `${t("addBookmarkToTarget")}: ${directTarget}`,
+      desc: t("addBookmarkToTargetDesc"),
+      icon: "⭐",
+      targetUrl: directTarget
+    });
+    results.splice(1, 0, {
+      type: "action",
+      action: "openDirectUrl",
+      title: `${t("openInBrowser")}: ${directTarget}`,
+      desc: t("openInBrowserDesc"),
+      icon: "🌐",
+      targetUrl: directTarget
+    });
+  }
 
   const isHealthQuery = /^(health|sa[gğ]l[iı]k|k[iı]r[iı]k|dead|broken|duplicate|m[uü]kerrer|bak[iı]m|maintenance|#health)/i.test(query.toLowerCase());
   if (isHealthQuery) {
@@ -848,6 +876,21 @@ async function openSearchResult(item, event) {
 
   if (item.type === "action") {
     hideSearchResults();
+    if (item.action === "captureUrlToBookmark") {
+      openAddBookmarkDialog(elements.searchInput, {
+        url: item.targetUrl,
+        title: getHostname(item.targetUrl) || item.targetUrl
+      });
+      return;
+    }
+    if (item.action === "openDirectUrl") {
+      if (isNewTab) {
+        window.open(item.targetUrl, "_blank");
+      } else {
+        window.location.href = item.targetUrl;
+      }
+      return;
+    }
     if (item.action === "openHealthInspector") {
       chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html#health") });
       return;
@@ -947,15 +990,76 @@ function collectSearchableBookmarks(node, results = [], path = "") {
   return results;
 }
 
-function openAddBookmarkDialog(returnFocusElement = document.activeElement) {
+function collectAllFolders(node, path = "", list = []) {
+  if (!node) return list;
+  const isFolder = Array.isArray(node.children);
+  if (isFolder) {
+    const isRootBar = node.id === appState?.bookmarkBar?.id;
+    const title = node.title || (isRootBar ? (t("bookmarksBar") || "Bookmarks Bar") : "");
+    const currentPath = path ? (title ? `${path} / ${title}` : path) : title;
+    if (node.id && node.id !== "0") {
+      list.push({
+        id: node.id,
+        title: title || (t("bookmarksBar") || "Bookmarks Bar"),
+        path: currentPath,
+        isBar: isRootBar
+      });
+    }
+    for (const child of node.children) {
+      if (Array.isArray(child.children)) {
+        collectAllFolders(child, currentPath, list);
+      }
+    }
+  }
+  return list;
+}
+
+function populateFolderSelect(selectedParentId = "") {
+  if (!elements.addFolderSelect) return;
+  elements.addFolderSelect.innerHTML = "";
+
+  const barNode = appState?.bookmarkBar;
+  const folders = collectAllFolders(barNode);
+
+  if (!folders.length && barNode?.id) {
+    folders.push({
+      id: barNode.id,
+      title: t("bookmarksBar") || "Bookmarks Bar",
+      path: t("bookmarksBar") || "Bookmarks Bar",
+      isBar: true
+    });
+  }
+
+  const effectiveSelected = selectedParentId || barNode?.id || "";
+
+  folders.forEach((f) => {
+    const option = document.createElement("option");
+    option.value = f.id;
+    option.textContent = f.isBar ? `⭐ ${f.title}` : `📁 ${f.path || f.title}`;
+    if (f.id === effectiveSelected) {
+      option.selected = true;
+    }
+    elements.addFolderSelect.appendChild(option);
+  });
+}
+
+function openAddBookmarkDialog(returnFocusElement = document.activeElement, customData = null) {
   if (elements.addDialog.hidden) {
     addDialogReturnFocus = createFocusReturnTarget(returnFocusElement);
   }
-  const suggestion = getAddBookmarkSuggestion();
+  const suggestion = customData ? {
+    title: customData.title || "",
+    url: customData.url || "",
+    parentId: customData.parentId || elements.addDialog.dataset.parentId || "",
+    status: ""
+  } : getAddBookmarkSuggestion();
+
   resetAddDuplicateState();
-  elements.addDialog.dataset.parentId = suggestion.parentId || "";
+  const parentId = suggestion.parentId || elements.addDialog.dataset.parentId || "";
+  elements.addDialog.dataset.parentId = parentId;
   elements.addTitle.value = suggestion.title;
   elements.addUrl.value = suggestion.url;
+  populateFolderSelect(parentId);
   renderAddBookmarkStatus(suggestion.status || (suggestion.url ? "" : t("enterAddressToAdd")), false);
   elements.addDialog.hidden = false;
   setNewTabModalBackground(true);
@@ -982,7 +1086,8 @@ async function handleAddBookmarkSubmit(event) {
 
   const title = elements.addTitle.value.trim();
   const url = normalizeBookmarkInputUrl(elements.addUrl.value);
-  const parentId = elements.addDialog.dataset.parentId || "";
+  const selectedParent = elements.addFolderSelect?.value;
+  const parentId = (selectedParent !== undefined && selectedParent !== "") ? selectedParent : (elements.addDialog.dataset.parentId || "");
   const allowDuplicate = Boolean(elements.addDialog.dataset.duplicateUrl && areBookmarkUrlsEqual(elements.addDialog.dataset.duplicateUrl, url) && (elements.addDialog.dataset.duplicateParentId || "") === parentId);
   if (!url || !isSafeBookmarkUrl(url)) {
     renderAddBookmarkStatus(t("validUrlRequired"), true);
