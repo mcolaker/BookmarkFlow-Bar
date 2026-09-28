@@ -1930,16 +1930,29 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
             chrome.storage.local.set({ disabledHosts: updatedDisabled }).catch(() => {});
           } catch {}
         }
-        renderFromState();
+        showContentToastNotification(t("siteDisabledToast"), 3500);
+        const app = shadow?.querySelector(".bf-app");
+        if (app) {
+          app.style.display = "none";
+        }
+        const mark = shadow?.querySelector(".bf-mark, .bf-restore");
+        if (mark) {
+          mark.style.display = "none";
+        }
+        window.setTimeout(() => {
+          renderFromState();
+        }, 3600);
       }
       return;
     }
 
     if (action === "quick-open-settings") {
       closeContextMenu();
-      try {
-        window.open(chrome.runtime.getURL("src/bookmark-maintenance.html"), "_blank", "noopener,noreferrer");
-      } catch {}
+      if (hasExtensionContext()) {
+        try {
+          chrome.runtime.sendMessage({ type: "BF_OPEN_SETTINGS" }).catch(() => {});
+        } catch {}
+      }
       return;
     }
   }
@@ -3317,10 +3330,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       entries.unshift({
         id: "bf-action-health",
         title: t("quickActionOpenHealth"),
-        url: chrome.runtime.getURL("src/bookmark-maintenance.html#health"),
+        url: "#health",
         path: t("quickActionOpenHealthDesc"),
         icon: "🩺",
-        isQuickAction: true
+        isQuickAction: true,
+        handler: () => {
+          if (hasExtensionContext()) {
+            try {
+              chrome.runtime.sendMessage({ type: "BF_OPEN_SETTINGS", hash: "health" }).catch(() => {});
+            } catch {}
+          }
+        }
       });
     }
 
@@ -3571,7 +3591,16 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         if (typeof entry.handler === "function") {
           entry.handler();
         } else if (entry.url && entry.url !== "#") {
-          window.open(entry.url, "_blank");
+          if (entry.url.startsWith("chrome-extension://") || entry.url.includes("bookmark-maintenance.html")) {
+            const hash = entry.url.includes("#") ? entry.url.split("#")[1] : "";
+            if (hasExtensionContext()) {
+              try {
+                chrome.runtime.sendMessage({ type: "BF_OPEN_SETTINGS", hash }).catch(() => {});
+              } catch {}
+            }
+          } else {
+            window.open(entry.url, "_blank");
+          }
         }
       });
 

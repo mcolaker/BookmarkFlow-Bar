@@ -405,5 +405,17 @@
   "intentTagMode": { "message": "Tag Mode" },
   "intentFolderMode": { "message": "Folder Mode" },
   "intentTabMode": { "message": "Tab Switch" },
-  "intentSearchMode": { "message": "Smart Search" }
+  "intentSearchMode": { "message": "Smart Search" },
+  "siteDisabledToast": { "message": "BookmarkFlow disabled on this site. Re-enable anytime from the popup or Settings." },
+  "navSites": { "message": "🌐 Disabled Sites" },
+  "disabledSitesHeading": { "message": "Disabled Websites & Site Exceptions" },
+  "disabledSitesDescription": { "message": "Websites where BookmarkFlow is hidden. Remove a domain anytime to restore BookmarkFlow on that site." },
+  "addDisabledHost": { "message": "Add Site" },
+  "addSitePlaceholder": { "message": "example.com" },
+  "disabledSitesEmpty": { "message": "No websites are disabled. BookmarkFlow is active on all supported sites." },
+  "removeDisabledHost": { "message": "Enable on Site" },
+  "hostAddedSuccess": { "message": "Site added to disabled list." },
+  "hostRemovedSuccess": { "message": "Site re-enabled." },
+  "invalidHostError": { "message": "Please enter a valid domain name (e.g. github.com)." },
+  "disabledWebsitesAria": { "message": "Disabled websites list" }
 }

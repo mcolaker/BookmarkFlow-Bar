@@ -16,6 +16,7 @@
           <a href="#health" class="nav-chip is-active" id="navHealthLink" data-i18n="navHealth">🩺 Link Health</a>
           <a href="#folders" class="nav-chip" id="navFoldersLink" data-i18n="navFolders">📁 Folder Merger</a>
           <a href="#pickerTitle" class="nav-chip" id="navRailLink" data-i18n="navRail">📌 Pinned Rail</a>
+          <a href="#sites" class="nav-chip" id="navSitesLink" data-i18n="navSites">🌐 Disabled Sites</a>
           <a href="#desktop" class="nav-chip" id="navDesktopLink" data-i18n="navDesktop">💻 Desktop & Hotkeys</a>
         </nav>
       </header>
@@ -106,6 +107,21 @@
 
       <p id="status" class="status" role="status" aria-live="polite" data-i18n="scanningFolders">Scanning bookmark folders…</p>
       <div id="groups" class="groups" aria-label="Duplicate folder groups" data-i18n-aria-label="duplicateFolderGroups"></div>
+
+      <section class="sites-section" id="sites" aria-labelledby="sitesTitle">
+        <div class="sites-head">
+          <div>
+            <h2 id="sitesTitle" data-i18n="disabledSitesHeading">Disabled Websites & Site Exceptions</h2>
+            <p data-i18n="disabledSitesDescription">Websites where BookmarkFlow Bar is hidden. You can remove a site anytime to restore BookmarkFlow on it.</p>
+          </div>
+          <div class="sites-add-box">
+            <input id="addDisabledHostInput" type="text" placeholder="example.com" data-i18n-placeholder="addSitePlaceholder" autocomplete="off" spellcheck="false">
+            <button id="addDisabledHostBtn" class="primary" type="button" data-i18n="addDisabledHost">Add Site</button>
+          </div>
+        </div>
+        <p id="sitesStatus" class="status compact-status" role="status" aria-live="polite"></p>
+        <div id="disabledSitesList" class="disabled-sites-list" role="region" aria-label="Disabled websites" data-i18n-aria-label="disabledWebsitesAria"></div>
+      </section>
 
       <section class="desktop-section" id="desktop" aria-labelledby="desktopTitle">
         <div class="desktop-head">

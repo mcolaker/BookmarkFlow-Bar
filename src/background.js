@@ -36,6 +36,7 @@ const MESSAGE_GET_READING_LIST = "BF_GET_READING_LIST";
 const MESSAGE_ADD_READING_LIST = "BF_ADD_READING_LIST";
 const MESSAGE_REMOVE_READING_LIST = "BF_REMOVE_READING_LIST";
 const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
+const MESSAGE_OPEN_SETTINGS = "BF_OPEN_SETTINGS";
 const FOLDER_RAIL_DEFAULT_MIGRATION_KEY = "bfFolderRailDefaultLeftV1";
 const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
 const DISABLED_HOSTS_MIGRATION_KEY = "bfDisabledHostsLocalV1";
@@ -212,6 +213,12 @@ function routeMessage(message, sender) {
 
   if (message?.type === "BF_SWITCH_TO_TAB") {
     return switchToMatchingTab(message.query);
+  }
+
+  if (message?.type === MESSAGE_OPEN_SETTINGS || message?.type === "OPEN_SETTINGS_REQUESTED") {
+    const hash = typeof message?.hash === "string" && message.hash ? `#${message.hash.replace(/^#/, "")}` : "";
+    const pageUrl = chrome.runtime.getURL(`src/bookmark-maintenance.html${hash}`);
+    return chrome.tabs.create({ url: pageUrl }).then(() => ({ ok: true })).catch((err) => ({ ok: false, error: err?.message || String(err) }));
   }
 
   const protectedTask = message?.type === MESSAGE_GET_STATE

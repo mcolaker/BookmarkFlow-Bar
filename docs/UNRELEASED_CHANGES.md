@@ -101,8 +101,24 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
     2. Görsel kadraj ve taşma (kırpılmamış menü alt kenarları, tam görünür kontroller),
     3. Görsel hijyen
     kriterleri Gemini Agentic Video ile doğrulanır; offline modda deterministik boyut ve format doğrulaması sunulur.
-- **Güvenli API Anahtarı Mimarisi**:
-  - API anahtarları asla kaynak koda veya dosyalara yazılmaz; Windows ortam değişkeni (`GEMINI_API_KEY`) üzerinden parametrik olarak güvenle okunur.
+### 🛡️ 10. Site Kontrolü, MV3 Ayarlar Güvenliği ve Popup Düzen Bütünlüğü (BF-UX-018)
+- **MV3 İzin ve Güvenlik Uyumluluğu (Zero ERR_BLOCKED_BY_CLIENT)**:
+  - Sayfa içi çubuk (`content.js`) içerisinden doğrudan `window.open` ile extension URL'si (`chrome-extension://.../bookmark-maintenance.html`) açma girişimi Chromium MV3 güvenlik kum havuzuna takılıyordu.
+  - Bu çağrı güvenli mesajlaşma modeline (`BF_OPEN_SETTINGS`) dönüştürülerek tam yetkili `background.js` Service Worker'a delege edildi (`chrome.tabs.create`).
+  - Hızlı arama ve Spotlight içerisindeki `#health` ve bakım eylemleri de bu güvenli köprü üzerinden hatasız çalışır hale getirildi.
+- **"Bu Sitede Devre Dışı Bırak / Gizle" Bildirim ve Geri Kazanım UX'i**:
+  - Kullanıcı BookmarkFlow çubuğuna sağ tıklayıp "Bu Sitede Devre Dışı Bırak" seçtiğinde çubuğun habersiz kaybolması engellendi.
+  - 3.5 saniye boyunca ekranın sağ üstünde altın vurgulu, açıklayıcı bir toast bildirimi (`siteDisabledToast`) gösterilerek kullanıcının çubuğu dilediğinde eklenti simgesinden veya Ayarlar'dan tekrar açabileceği açıklandı.
+- **Popup Menüsünde Akıllı "Bu Site" Kartı (Contextual Top Card)**:
+  - Popup arayüzünde (`popup.html`, `popup.css`) en altta ve 15 ayarın gerisinde kaybolan site kontrolü, en tepeye (header'ın hemen altına) taşındı.
+  - Aktif sekmenin alan adını (`github.com`), o sitedeki etkin/devre dışı durumunu ve tek tıkla açma/kapatma butonunu gösteren modern bir kart görünümü kazandı.
+- **Popup Alt Buton Taşma Kusuru Onarımı (P0-11)**:
+  - `popup.html` dosyasında `<div class="backup-row">` etiketinin kapanış `</div>` etiketinin eksik olması sebebiyle tek bir yatay satırda ezilerek okunmaz hale gelen yedek butonları, durum metni, ipucu kartı ve panel sıfırlama butonu temiz hiyerarşik satırlara bölündü.
+- **Ayarlar Sayfasına "Devre Dışı Bırakılan Siteler" Yönetim Paneli**:
+  - `bookmark-maintenance.html` sayfasına `#sites` sekmesi (`navSitesLink`) ve dinamik site yönetim paneli (`#disabledSitesList`, `#addDisabledHostBtn`) eklendi.
+  - Kullanıcı daha önce gizlediği tüm siteleri listeleyebilir, tek tıkla etkinleştirebilir veya yeni istisnalar tanımlayabilir.
+- **İki Dilli Yerelleştirme**:
+  - `_locales/en` ve `_locales/tr` sözlüklerine 12 yeni anahtar eklenerek %100 parite korundu.
 
 ---
 
@@ -110,11 +126,13 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - `manifest.json`: Omnibox `bf` anahtar kelimesi ve `content_scripts` içine `src/intent-router.js` eklendi.
 - `src/intent-router.js`: Evrensel yerel niyet sınıflandırma motoru (`BookmarkIntentRoutingEngine`).
 - `src/newtab.html`, `src/newtab.css`, `src/newtab.js`: Arama yakalama, arama içi hızlı kayıt çipleri (`.nt-search-action-chips`), klasör dropdown'u, hızlı klasör çipleri (`#addFolderChips`), anlık bildirim rozeti (`.nt-toast`, `showToastNotification`), akıllı niyet rozeti (`.nt-intent-badge`, `updateSearchIntentBadge`), klasör/sekme niyet entegrasyonu, klavye kontrolleri, smart folder memory entegrasyonu.
-- `src/content.js`, `src/content.css`: Shadow DOM ekleme diyaloğuna klasör seçici, hızlı klasör çipleri (`.bf-folder-chips`), command palette URL eylem kartı ve hızlı kayıt çipleri (`.bf-command-action-chips`), anlık bildirim rozeti (`.bf-toast`, `showContentToastNotification`), command palette akıllı niyet rozeti (`.bf-intent-badge`, `updateCommandIntentBadge`), smart folder memory entegrasyonu.
-- `src/background.js`: Omnibox `onInputChanged` ve `onInputEntered` dinleyicileri, `BF_SWITCH_TO_TAB` sekme değiştirme eylemi, smart folder memory entegrasyonu.
-- `_locales/en/messages.json`, `_locales/tr/messages.json`: 22 yeni yerelleştirme anahtarı (`quickFolders`, `saveToBar`, `saveToFolder`, `bookmarkSavedToBarToast`, `bookmarkSavedToFolderToast`, niyet modları dahil).
+- `src/content.js`, `src/content.css`: Shadow DOM ekleme diyaloğuna klasör seçici, hızlı klasör çipleri (`.bf-folder-chips`), command palette URL eylem kartı ve hızlı kayıt çipleri (`.bf-command-action-chips`), anlık bildirim rozeti (`.bf-toast`, `showContentToastNotification`), command palette akıllı niyet rozeti (`.bf-intent-badge`, `updateCommandIntentBadge`), smart folder memory entegrasyonu, MV3 ayarlar mesajlaşması (`BF_OPEN_SETTINGS`), site devre dışı bırakma toast bildirimi.
+- `src/background.js`: Omnibox dinleyicileri, `BF_SWITCH_TO_TAB` sekme değiştirme eylemi, `BF_OPEN_SETTINGS` sekme açma yöneticisi, smart folder memory entegrasyonu.
+- `src/popup.html`, `src/popup.css`: Akıllı site kontrol kartı, unclosed tag (`.backup-row`) onarımı, modern altın-obsidyen kart stilleri.
+- `src/bookmark-maintenance.html`, `src/bookmark-maintenance.css`, `src/bookmark-maintenance.js`: Devre dışı bırakılan siteler yönetimi (`#sites`, `#disabledSitesList`, `loadDisabledSites`).
+- `_locales/en/messages.json`, `_locales/tr/messages.json`: 34 yeni yerelleştirme anahtarı tam pariteyle sağlandı.
 - `scripts/intent-router.test.mjs`: `BookmarkIntentRoutingEngine` için 7 adet bağımsız birim testi.
-- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014`, `BF-UX-015`, `BF-UX-016` ve `BF-UX-017` sözleşme testleri.
+- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014`, `BF-UX-015`, `BF-UX-016`, `BF-UX-017` ve `BF-UX-018` sözleşme testleri.
 - `scripts/governance-contract.test.mjs`, `scripts/validate-governance.mjs`: Yönetişim ve Operating Kernel sözleşme testleri (`BF-GOV-010`).
 - `AGENTS.md`: Operating Kernel, P0 kuralları (P0-18 eklendi), Task Router ve Zorunlu Rapor Şablonu.
 - `docs/agent/`: `DECISION_INDEX.md` (Karar 17 eklendi), `PROJECT_STATE.md`, `RULE_CHANGELOG.md`.

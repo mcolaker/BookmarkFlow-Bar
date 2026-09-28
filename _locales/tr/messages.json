@@ -405,5 +405,17 @@
   "intentTagMode": { "message": "Etiket Modu" },
   "intentFolderMode": { "message": "Klasör Modu" },
   "intentTabMode": { "message": "Sekme Modu" },
-  "intentSearchMode": { "message": "Akıllı Arama" }
+  "intentSearchMode": { "message": "Akıllı Arama" },
+  "siteDisabledToast": { "message": "BookmarkFlow bu sitede devre dışı bırakıldı. Tekrar açmak için uzantı simgesine veya Ayarlar'a tıklayabilirsiniz." },
+  "navSites": { "message": "🌐 Devre Dışı Siteler" },
+  "disabledSitesHeading": { "message": "Devre Dışı Bırakılan Siteler" },
+  "disabledSitesDescription": { "message": "BookmarkFlow'un gizlendiği web siteleri. İstediğiniz sitenin engelini kaldırarak çubuğu tekrar aktif edebilirsiniz." },
+  "addDisabledHost": { "message": "Site Ekle" },
+  "addSitePlaceholder": { "message": "ornek.com" },
+  "disabledSitesEmpty": { "message": "Hiçbir site devre dışı bırakılmadı. BookmarkFlow tüm web sitelerinde aktif." },
+  "removeDisabledHost": { "message": "Etkinleştir" },
+  "hostAddedSuccess": { "message": "Site devre dışı bırakılanlar listesine eklendi." },
+  "hostRemovedSuccess": { "message": "Site etkinleştirildi." },
+  "invalidHostError": { "message": "Lütfen geçerli bir alan adı girin (örn. github.com)." },
+  "disabledWebsitesAria": { "message": "Devre dışı bırakılan siteler listesi" }
 }

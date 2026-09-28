@@ -672,3 +672,112 @@ test("smart intent router and routing badges contract (BF-UX-017)", () => {
     assert.ok(tr[key]?.message, `Missing tr ${key} message`);
   }
 });
+
+test("site control, settings navigation, and popup layout integrity contract (BF-UX-018)", () => {
+  const root = path.resolve(".");
+
+  // 1. content.js & background.js MV3 settings navigation contract
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.ok(
+    !contentJs.includes('window.open(chrome.runtime.getURL("src/bookmark-maintenance.html")'),
+    "content.js must not call window.open on bookmark-maintenance.html (triggers MV3 ERR_BLOCKED_BY_CLIENT)"
+  );
+  assert.match(
+    contentJs,
+    /type:\s*["']BF_OPEN_SETTINGS["']/u,
+    "content.js must dispatch BF_OPEN_SETTINGS message to background service worker"
+  );
+  assert.match(
+    contentJs,
+    /showContentToastNotification\(t\(["']siteDisabledToast["']\)/u,
+    "content.js must display siteDisabledToast when site is disabled"
+  );
+
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(
+    backgroundJs,
+    /const MESSAGE_OPEN_SETTINGS = ["']BF_OPEN_SETTINGS["']/u,
+    "background.js must define MESSAGE_OPEN_SETTINGS constant"
+  );
+  assert.match(
+    backgroundJs,
+    /message\?\.type === MESSAGE_OPEN_SETTINGS/u,
+    "background.js must route MESSAGE_OPEN_SETTINGS to chrome.tabs.create"
+  );
+
+  // 2. popup.html & popup.css layout integrity contract
+  const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
+  assert.match(
+    popupHtml,
+    /<section id="siteControl" class="site-control" hidden>/u,
+    "popup.html must contain siteControl section"
+  );
+  const siteControlIndex = popupHtml.indexOf('id="siteControl"');
+  const consentGateIndex = popupHtml.indexOf('id="popupConsentGate"');
+  assert.ok(
+    siteControlIndex < consentGateIndex,
+    "siteControl must appear at the top of popup before general settings"
+  );
+  assert.match(
+    popupHtml,
+    /<div class="backup-row">[\s\S]*?<\/div>\s*<p id="backupStatus"/u,
+    "popup.html .backup-row must be properly closed and not swallow subsequent elements"
+  );
+
+  // 3. bookmark-maintenance.html & bookmark-maintenance.js disabled sites management
+  const maintHtml = readFileSync(path.join(root, "src/bookmark-maintenance.html"), "utf8");
+  assert.match(
+    maintHtml,
+    /id="navSitesLink"/u,
+    "bookmark-maintenance.html must include navSitesLink"
+  );
+  assert.match(
+    maintHtml,
+    /id="disabledSitesList"/u,
+    "bookmark-maintenance.html must include disabledSitesList"
+  );
+  assert.match(
+    maintHtml,
+    /id="addDisabledHostBtn"/u,
+    "bookmark-maintenance.html must include addDisabledHostBtn"
+  );
+
+  const maintJs = readFileSync(path.join(root, "src/bookmark-maintenance.js"), "utf8");
+  assert.match(
+    maintJs,
+    /function loadDisabledSites\(/u,
+    "bookmark-maintenance.js must define loadDisabledSites"
+  );
+  assert.match(
+    maintJs,
+    /function removeSiteFromDisabled\(/u,
+    "bookmark-maintenance.js must define removeSiteFromDisabled"
+  );
+  assert.match(
+    maintJs,
+    /function handleAddDisabledHost\(/u,
+    "bookmark-maintenance.js must define handleAddDisabledHost"
+  );
+
+  // 4. i18n locale parity
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  const newKeys = [
+    "siteDisabledToast",
+    "navSites",
+    "disabledSitesHeading",
+    "disabledSitesDescription",
+    "addDisabledHost",
+    "addSitePlaceholder",
+    "disabledSitesEmpty",
+    "removeDisabledHost",
+    "hostAddedSuccess",
+    "hostRemovedSuccess",
+    "invalidHostError",
+    "disabledWebsitesAria"
+  ];
+  for (const key of newKeys) {
+    assert.ok(en[key]?.message, `Missing en message for key: ${key}`);
+    assert.ok(tr[key]?.message, `Missing tr message for key: ${key}`);
+  }
+});

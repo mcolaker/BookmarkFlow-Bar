@@ -19,6 +19,18 @@
         </label>
       </header>
 
+      <section id="siteControl" class="site-control" hidden>
+        <div class="site-control-head">
+          <span class="site-badge" aria-hidden="true">🌐</span>
+          <div class="site-info">
+            <span class="site-domain-label" data-i18n="thisSite">This site</span>
+            <strong id="siteHost" class="site-host-name"></strong>
+          </div>
+          <button id="toggleSite" class="site-toggle-btn" type="button" data-i18n="hideOnThisSite">Hide on this site</button>
+        </div>
+        <p id="siteStatus" class="status site-status-desc"></p>
+      </section>
+
       <section id="popupConsentGate" class="consent-gate" hidden>
         <strong data-i18n="dataConsentRequiredHeading">Review privacy choices to enable BookmarkFlow</strong>
         <p data-i18n="dataConsentRequiredDescription">Bookmark and page access remains off until you review the first-run disclosure and agree.</p>
@@ -111,12 +123,6 @@
         <input id="customWallpaperInput" type="file" accept="image/*" hidden>
       </section>
 
-      <section id="siteControl" class="site-control" hidden>
-        <span id="siteHost" class="label" data-i18n="thisSite">This site</span>
-        <button id="toggleSite" class="secondary" type="button" data-i18n="hideOnThisSite">Hide on this site</button>
-        <p id="siteStatus" class="status"></p>
-      </section>
-
       <section class="shortcuts" aria-labelledby="shortcutsTitle">
         <div class="shortcut-head">
           <span id="shortcutsTitle" class="label" data-i18n="shortcuts">Shortcuts</span>
@@ -153,6 +159,7 @@
         <button id="exportBackupBtn" class="secondary" type="button" data-i18n="exportBackup">💾 Export backup</button>
         <button id="importBackupBtn" class="secondary" type="button" data-i18n="importBackup">📥 Restore</button>
         <input id="importFileInput" type="file" accept=".json,application/json" hidden>
+      </div>
       <p id="backupStatus" class="status compact-status" role="status" aria-live="polite" hidden></p>
       <div id="pageControlsBadge" class="page-controls-badge">
         <span class="page-controls-badge-icon" aria-hidden="true">💡</span>
