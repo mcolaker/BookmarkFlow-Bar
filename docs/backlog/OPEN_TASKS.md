@@ -526,3 +526,21 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: 76/76 otomatik test başarılı (`npm test`); `scripts/intent-router.test.mjs` (7 test) ve `scripts/ui-behavior-contract.test.mjs` içindeki `BF-UX-017` sözleşme testi doğrulandı; `npm run validate:all` (açık kaynak, DCO, public tree, manifest, backlog, governance sözleşmeleri) sıfır hatayla geçti; `git diff --check` temizdir.
 - Sonraki adım: Yok; Yerel Niyet ve Akıllı Yönlendirme Motoru ile canlı rozetler Yeni Sekme ve Spotlight arayüzlerinde başarıyla tamamlandı ve doğrulandı.
 - Son güncelleme: 2026-09-28.
+
+## BF-QA-002 - Web Tabanlı Canlı Akıcılık ve Hareket Denetim Aracı (Agentic Motion & Video QA)
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-28 tarihinde JaponiGo projesindeki live_record_qa.ps1 akıcılık denetim sisteminin BookmarkFlow Bar'a uyarlanmasını onayladı. scripts/inspect-motion-qa.mjs geliştirilerek Playwright ile Chromium üzerinde eklenti yüklü halde sayfa içi çubuğun açılış/kapanışı (Alt+Shift+B), genişleme/daralma ve sayfa içeriği itilme reflow'u, Spotlight (Alt+Shift+K) ve New Tab animasyonları 3-5 saniyelik video olarak kaydedilip (recordVideo) Gemini Agentic Video motoruna (analyze_video.py) iletildi; jank, frame drop ve arayüz yırtılması alt-saniye zaman damgalarıyla denetlendi; package.json içerisine qa:motion komutu eklendi.
+- Kabul kriteri: scripts/inspect-motion-qa.mjs Playwright persistent context ile eklentiyi yükler; --surface seçeneğine göre hedef arayüzü kaydeder; analyze_video.py motoruyla analiz eder; hata durumunda videoyu kalıcı saklar, hatasız durumda otomatik temizler (Auto-Purge); --dry-run desteği sağlar.
+- Doğrulama kapısı: node scripts/inspect-motion-qa.mjs --dry-run başarılı; scripts/governance-contract.test.mjs içinde sözleşme testi doğrulandı; node scripts/validate-backlog.mjs sıfır hatayla geçti; git diff --check temizdir.
+- Sonraki adım: Yok; web tabanlı canlı akıcılık ve hareket denetim aracı başarıyla tamamlandı ve doğrulandı.
+- Son güncelleme: 2026-09-28.
+
+## BF-QA-003 - Tanıtım Videoları ve Medya Varlıkları İçin Otomatik Kalite Doğrulayıcı (Media QA Gate)
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-28 tarihinde sürüm öncesinde üretilen tanıtım videolarının ve tur GIF'lerinin otomatik kalite denetiminden geçirilmesini onayladı. scripts/validate-media-qa.mjs geliştirilerek src/assets/tour/ ve docs/assets/promo-video/ altındaki medya varlıkları taranarak kişisel veri sızıntısı (sıfır e-posta, sıfır yerel yol), kırpılmış menü alt kenarları ve taşma kusurlarına karşı Gemini Agentic Video motoruyla denetlendi; offline/yerel ortamlarda güvenli boyut ve format doğrulaması (graceful fallback) sağlandı; package.json içerisine qa:media komutu eklendi.
+- Kabul kriteri: scripts/validate-media-qa.mjs tanıtım varlıklarını tarar; online ortamda Gemini Agentic Video ile gizlilik ve kadraj denetimi yapar; offline modda boyut ve format doğrulaması sunar; package.json script'ine bağlanır.
+- Doğrulama kapısı: node scripts/validate-media-qa.mjs --offline 6 medya varlığını başarıyla doğruladı; scripts/governance-contract.test.mjs içinde sözleşme testi doğrulandı; npm run validate:all sıfır hatayla geçti; git diff --check temizdir.
+- Sonraki adım: Yok; tanıtım videoları ve medya varlıkları için otomatik kalite doğrulayıcı başarıyla tamamlandı ve doğrulandı.
+- Son güncelleme: 2026-09-28.

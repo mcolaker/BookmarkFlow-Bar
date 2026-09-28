@@ -12,6 +12,8 @@
     "validate": "node scripts/validate-project.mjs",
     "validate:assets": "node scripts/validate-assets.mjs",
     "validate:tree": "node scripts/verify-public-tree.mjs",
+    "qa:motion": "node scripts/inspect-motion-qa.mjs",
+    "qa:media": "node scripts/validate-media-qa.mjs",
     "package:cross-browser": "node scripts/package-cross-browser.mjs",
     "validate:all": "node scripts/validate-open-source.mjs && node --test scripts/*.test.mjs && node scripts/validate-project.mjs && node scripts/verify-public-tree.mjs && node scripts/validate-backlog.mjs && node scripts/validate-governance.mjs"
   }

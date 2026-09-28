@@ -90,6 +90,20 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - **İki Dilli Yerelleştirme**:
   - `_locales/en` ve `_locales/tr` sözlüklerine 6 yeni niyet anahtarı (`intentLinkMode`, `intentCommandMode`, `intentTagMode`, `intentFolderMode`, `intentTabMode`, `intentSearchMode`) tam pariteyle eklendi.
 
+### 🎥 9. Web Tabanlı Canlı Akıcılık ve Medya Kalite Denetim Sistemi (BF-QA-002, BF-QA-003)
+- **Web Tabanlı Canlı Akıcılık Denetim Aracı (`scripts/inspect-motion-qa.mjs` - `npm run qa:motion`)**:
+  - Playwright altyapısıyla Chromium tarayıcısında eklenti yüklü olarak sayfa içi çubuğun açılış/kapanışı (`Alt+Shift+B`), genişleme/daralma ve sayfa içeriği itilme reflow'u (`offsetPage`), Spotlight paleti (`Alt+Shift+K`) ve New Tab animasyonları 3-5 saniyelik video olarak kaydedilir.
+  - Video Gemini Agentic Video (`processing: "agentic"`) motoruna iletilerek 60 FPS akıcılık, frame drop (jank), yırtılma ve layout shift mikro saniyelik zaman damgalarıyla denetlenir.
+  - Hata/kusur durumunda video kalıcı saklanır (`live_motion_qa_<timestamp>_issue.webm`); kusur yoksa otomatik temizlenir (`Auto-Purge`).
+- **Tanıtım Videoları ve Medya Varlıkları Kalite Doğrulayıcısı (`scripts/validate-media-qa.mjs` - `npm run qa:media`)**:
+  - Sürüm öncesinde üretilen tanıtım videoları ve tur GIF'leri (`src/assets/tour/`, `docs/assets/promo-video/`) otomatik taranarak:
+    1. Kişisel veri sızıntısı (sıfır e-posta, sıfır yerel yol, sıfır token),
+    2. Görsel kadraj ve taşma (kırpılmamış menü alt kenarları, tam görünür kontroller),
+    3. Görsel hijyen
+    kriterleri Gemini Agentic Video ile doğrulanır; offline modda deterministik boyut ve format doğrulaması sunulur.
+- **Güvenli API Anahtarı Mimarisi**:
+  - API anahtarları asla kaynak koda veya dosyalara yazılmaz; Windows ortam değişkeni (`GEMINI_API_KEY`) üzerinden parametrik olarak güvenle okunur.
+
 ---
 
 ### 📋 Etkilenen Dosyalar ve Bileşenler
@@ -104,4 +118,7 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - `scripts/governance-contract.test.mjs`, `scripts/validate-governance.mjs`: Yönetişim ve Operating Kernel sözleşme testleri (`BF-GOV-010`).
 - `AGENTS.md`: Operating Kernel, P0 kuralları (P0-18 eklendi), Task Router ve Zorunlu Rapor Şablonu.
 - `docs/agent/`: `DECISION_INDEX.md` (Karar 17 eklendi), `PROJECT_STATE.md`, `RULE_CHANGELOG.md`.
-- `docs/agent-playbooks/`: 6 modüler alan kılavuzu (Bölüm 5 Intent Routing Engine eklendi).
+- `docs/agent-playbooks/`: 6 modüler alan kılavuzu (Bölüm 5 Intent Routing Engine eklendi, UI el kitabına Motion & Media QA eklendi).
+- `scripts/inspect-motion-qa.mjs`: Playwright ve Gemini Agentic Video canlı web akıcılık denetim aracı (`npm run qa:motion`).
+- `scripts/validate-media-qa.mjs`: Tanıtım videoları ve medya varlıkları kalite doğrulayıcısı (`npm run qa:media`).
+- `package.json`: `qa:motion` ve `qa:media` komutları eklendi.

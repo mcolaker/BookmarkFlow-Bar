@@ -2,6 +2,13 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-09-28] — Agentic Motion & Medya Kalite Standardı (BF-QA-002, BF-QA-003 / Karar 18)
+- **P0-19 Kuralı Tanımlandı**: Sayfa içi çubuk, Spotlight ve New Tab animasyon akıcılığı Playwright ve Gemini Agentic Video (`processing: "agentic"`) motoruyla (`npm run qa:motion`) doğrulanır.
+- **Tanıtım Medyası Kalite Kapısı (`npm run qa:media`)**: Sürüm tanıtım videoları ve tur GIF'leri sıfır kişisel veri ve tam kadraj için otomatik analizden geçirilir.
+- **Güvenli API Anahtarı Yönetimi**: API anahtarları asla koda yazılmaz; Windows ortamı (`GEMINI_API_KEY`) üzerinden parametrik ve güvenli yönetilir.
+
+---
+
 ## [2026-09-28] — Yerel Niyet ve Akıllı Yönlendirme Motoru Standardı (BF-UX-017 / Karar 17)
 - **P0-18 Kuralı Tanımlandı**: Arama çubuğu ve Spotlight paleti için harici sunucu bağımsız, sıfır gecikmeli kural bazlı niyet motoru (`BookmarkIntentRoutingEngine`) zorunlu kılındı.
 - **Canlı Akıllı Rozetler (Smart Routing Badges)**: Kullanıcı yazarken girdi türüne göre anlık rozet (`[🌐 Bağlantı Modu]`, `[⚡ Komut Modu]`, `[🏷️ Etiket Modu]`, `[📁 Klasör Modu]`, `[🗂️ Sekme Modu]`, `[🔍 Akıllı Arama]`) gösterilmesi kurala bağlandı.

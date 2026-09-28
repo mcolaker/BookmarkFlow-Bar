@@ -19,6 +19,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - Add Windows Desktop Companion with Global Hotkey (`Win+Shift+B`), System Tray status icon, and customizable hotkey settings.
 - Add JaponiGo Governance & Modular Playbook Architecture (BF-GOV-010): Upgraded `AGENTS.md` to Operating Kernel, established `DECISION_INDEX.md` (16 durable decisions), `PROJECT_STATE.md`, 6 modular domain playbooks (`docs/agent-playbooks/`), Proactive Holistic QA (P0-11), zero-end-user AI invariant (P0-13), mandatory verbatim terminal evidence, and `validate-governance.mjs`.
 - Add Zero-Latency Intent Engine & Live Smart Routing Badges (BF-UX-017): Instant local rule engine (`BookmarkIntentRoutingEngine` in `src/intent-router.js`) classifying search inputs across 6 modes (URL, command, tag, folder, tab switch, smart search) with live color-coded pill badges (`.nt-intent-badge`, `.bf-intent-badge`), folder deep navigation, and zero-end-user AI terminology.
+- Add Web-based Live Motion QA & Automated Media Quality Gate (BF-QA-002, BF-QA-003): Playwright browser screen recording (`recordVideo`) coupled with Gemini Agentic Video (`processing: "agentic"`) for sub-second jank and frame drop detection (`npm run qa:motion`), alongside automated promotional asset privacy and framing validation (`npm run qa:media`).
+
 
 
 ## [0.2.1] — 2026-09-16

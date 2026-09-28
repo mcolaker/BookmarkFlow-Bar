@@ -43,3 +43,13 @@ Bu kılavuz, BookmarkFlow Bar kullanıcı arayüzü, tasarım sistemi, erişileb
 - Arama kartından hızlı kayıt yapıldığında 1.8 saniyelik altın çerçeveli hafif toast (`.nt-toast`, `.bf-toast`) tetiklenir.
 - Toast mesajı dinamik olarak hedef klasörün adını içerir.
 - Çıkışta `.is-leaving` yumuşak dikey kayma animasyonu işletilir.
+
+---
+
+## 5. Agentic Motion & Medya Kalite Standardı (`scripts/inspect-motion-qa.mjs`, `scripts/validate-media-qa.mjs`)
+
+- **Canlı Akıcılık Denetimi (`npm run qa:motion`)**:
+  - Sayfa içi çubuk genişleme/daralma, Spotlight açılış yay fiziği ve New Tab geçişleri Playwright video kaydı (`recordVideo`) ve Gemini Flash Interactions API (`processing: "agentic"`) ile denetlenir.
+  - Saniyede 60 kare akıcılık, sayfa içeriği itilmesinde (`offsetPage`) reflow sıfır-yırtılma garantisi alınır.
+- **Medya Varlık Kalite Kapısı (`npm run qa:media`)**:
+  - Tanıtım videoları, sosyal medya kesitleri ve tur GIF'leri sıfır kişisel veri, tam kadraj (kırpılmamış alt kenarlar) ve görsel hijyen için fail-closed doğrulanır.

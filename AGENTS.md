@@ -37,6 +37,8 @@ Geçerli herhangi bir P0 kuralı ihlal edilmişse hiçbir görev tamamlanmış s
 16. **Profesyonel Görsel ve Sürüm Sunum Standardı**: Her sürümde profesyonel tanıtım görselleri (X 1200x675, LinkedIn 1200x627) hazır sunulur; `README.md` yeni sürüm yetenekleriyle eksiksiz güncellenir.
 17. **GitHub İşlem Yetkilendirmesi (BF-GOV-007)**: Dal oluşturma, push ve PR işlemleri onay beklenmeden yürütülür; sürüm etiketi, harici platform duyuruları ve force push açık kullanıcı onayı gerektirir.
 18. **Yerel Niyet ve Akıllı Yönlendirme Motoru (Zero-Latency Intent Engine)**: Arama ve Spotlight paletine girilen girdiler harici ağ isteği olmadan yerel kural motoruyla (`BookmarkIntentRoutingEngine`: URL, komut, etiket, klasör, sekme, arama) anında sınıflandırılır; kullanıcıya ne olacağını canlı gösteren akıllı rozet (`Smart Routing Badge`) sunulur. UI'da son kullanıcıya dönük AI/JEV teknik terimleri kullanılamaz (P0-13 ile tam uyumlu).
+19. **Agentic Motion & Medya Kalite Standardı (Zero-Jank & Video QA)**: Sayfa içi çubuk (`Alt+Shift+B`), Spotlight (`Alt+Shift+K`) ve New Tab geçişlerinde animasyon akıcılığı Playwright ve Gemini Agentic Video motoruyla (`npm run qa:motion`) denetlenir; tanıtım videoları ve GIF'ler (`npm run qa:media`) sıfır kişisel veri ve tam kadraj için fail-closed doğrulanır.
+
 
 ---
 
