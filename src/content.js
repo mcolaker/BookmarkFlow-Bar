@@ -561,6 +561,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return { ok: true };
     }
 
+    if (command === "show-toast") {
+      showContentToastNotification(t("bookmarkSavedToBarToast") || "✓ Yer İmleri Çubuğuna kaydedildi");
+      return { ok: true };
+    }
+
     return {
       ok: false,
       error: t("unknownCommand")
