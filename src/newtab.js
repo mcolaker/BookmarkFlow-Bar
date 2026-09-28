@@ -1124,22 +1124,27 @@ async function handleDirectSaveBookmark(url, parentId) {
 
 let toastTimeoutId = null;
 let toastKeydownHandler = null;
+let toastHoverCleanups = null;
 
 function cleanupToastKeydown() {
+  if (toastTimeoutId) {
+    clearTimeout(toastTimeoutId);
+    toastTimeoutId = null;
+  }
   if (toastKeydownHandler) {
     window.removeEventListener("keydown", toastKeydownHandler, true);
     toastKeydownHandler = null;
+  }
+  if (typeof toastHoverCleanups === "function") {
+    toastHoverCleanups();
+    toastHoverCleanups = null;
   }
 }
 
 function showToastNotification(message, durationMs = 1800, action = null) {
   if (!elements.toastNotification) return;
-  if (toastTimeoutId) {
-    clearTimeout(toastTimeoutId);
-    toastTimeoutId = null;
-  }
-  cleanupToastKeydown();
 
+  cleanupToastKeydown();
   elements.toastNotification.replaceChildren();
 
   const textSpan = document.createElement("span");
@@ -1156,24 +1161,21 @@ function showToastNotification(message, durationMs = 1800, action = null) {
       e.preventDefault();
       e.stopPropagation();
       cleanupToastKeydown();
-      if (toastTimeoutId) {
-        clearTimeout(toastTimeoutId);
-        toastTimeoutId = null;
-      }
       elements.toastNotification.hidden = true;
       action.onClick();
     });
     elements.toastNotification.appendChild(actionBtn);
+
+    const progressBar = document.createElement("div");
+    progressBar.className = "nt-toast-progress";
+    progressBar.style.animationDuration = `${durationMs}ms`;
+    elements.toastNotification.appendChild(progressBar);
 
     toastKeydownHandler = (e) => {
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === "z" || e.key === "Z")) {
         e.preventDefault();
         e.stopPropagation();
         cleanupToastKeydown();
-        if (toastTimeoutId) {
-          clearTimeout(toastTimeoutId);
-          toastTimeoutId = null;
-        }
         elements.toastNotification.hidden = true;
         action.onClick();
       }
@@ -1184,14 +1186,46 @@ function showToastNotification(message, durationMs = 1800, action = null) {
   elements.toastNotification.classList.remove("is-leaving");
   elements.toastNotification.hidden = false;
 
-  toastTimeoutId = window.setTimeout(() => {
-    cleanupToastKeydown();
-    elements.toastNotification.classList.add("is-leaving");
-    window.setTimeout(() => {
-      elements.toastNotification.hidden = true;
-      elements.toastNotification.classList.remove("is-leaving");
-    }, 250);
-  }, durationMs);
+  let remainingMs = durationMs;
+  let endTime = Date.now() + durationMs;
+  let isLeaving = false;
+
+  function startTimer(ms) {
+    toastTimeoutId = window.setTimeout(() => {
+      isLeaving = true;
+      elements.toastNotification.classList.add("is-leaving");
+      window.setTimeout(() => {
+        cleanupToastKeydown();
+        elements.toastNotification.hidden = true;
+        elements.toastNotification.classList.remove("is-leaving");
+      }, 250);
+    }, ms);
+  }
+
+  startTimer(remainingMs);
+
+  const onMouseEnter = () => {
+    if (isLeaving) return;
+    if (toastTimeoutId) {
+      clearTimeout(toastTimeoutId);
+      toastTimeoutId = null;
+    }
+    remainingMs = Math.max(250, endTime - Date.now());
+  };
+
+  const onMouseLeave = () => {
+    if (isLeaving || elements.toastNotification.hidden) return;
+    endTime = Date.now() + remainingMs;
+    startTimer(remainingMs);
+  };
+
+  elements.toastNotification.addEventListener("mouseenter", onMouseEnter);
+  elements.toastNotification.addEventListener("mouseleave", onMouseLeave);
+
+  toastHoverCleanups = () => {
+    elements.toastNotification.removeEventListener("mouseenter", onMouseEnter);
+    elements.toastNotification.removeEventListener("mouseleave", onMouseLeave);
+  };
 }
 
 async function triggerWebSearch(query, disposition = "CURRENT_TAB") {

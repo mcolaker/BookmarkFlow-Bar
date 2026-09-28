@@ -811,6 +811,26 @@ test("site control, settings navigation, and popup layout integrity contract (BF
     /\.bf-toast-action-btn\b/u,
     "content.css must style .bf-toast-action-btn"
   );
+  assert.match(
+    contentCss,
+    /\.bf-toast-progress\b/u,
+    "content.css must style .bf-toast-progress"
+  );
+  assert.match(
+    contentCss,
+    /\.bf-toast:hover \.bf-toast-progress\b/u,
+    "content.css must pause progress animation on hover"
+  );
+  assert.match(
+    contentJs,
+    /bf-toast-progress/u,
+    "content.js must append .bf-toast-progress element"
+  );
+  assert.match(
+    contentJs,
+    /toast\.addEventListener\("mouseenter"/u,
+    "content.js must support pause on hover (mouseenter)"
+  );
 
   const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
   assert.match(
@@ -828,12 +848,32 @@ test("site control, settings navigation, and popup layout integrity contract (BF
     /type:\s*["']BF_DELETE_BOOKMARK["']/u,
     "newtab.js handleDirectSaveBookmark undo must dispatch BF_DELETE_BOOKMARK"
   );
+  assert.match(
+    newtabJs,
+    /nt-toast-progress/u,
+    "newtab.js must append .nt-toast-progress element"
+  );
+  assert.match(
+    newtabJs,
+    /elements\.toastNotification\.addEventListener\("mouseenter"/u,
+    "newtab.js must support pause on hover (mouseenter)"
+  );
 
   const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
   assert.match(
     newtabCss,
     /\.nt-toast-action-btn\b/u,
     "newtab.css must style .nt-toast-action-btn"
+  );
+  assert.match(
+    newtabCss,
+    /\.nt-toast-progress\b/u,
+    "newtab.css must style .nt-toast-progress"
+  );
+  assert.match(
+    newtabCss,
+    /\.nt-toast:hover \.nt-toast-progress\b/u,
+    "newtab.css must pause progress animation on hover"
   );
 
   const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");

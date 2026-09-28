@@ -1454,6 +1454,7 @@
   backdrop-filter: blur(10px);
   z-index: 2147483647;
   pointer-events: auto;
+  overflow: hidden;
   animation: bfToastSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
@@ -1500,6 +1501,30 @@
 .bf-toast-action-btn:focus-visible {
   outline: 2px solid #ffffff;
   outline-offset: 1px;
+}
+
+.bf-toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--bf-theme-accent, #f2c94c);
+  transform-origin: left center;
+  animation: bfToastProgress linear forwards;
+}
+
+.bf-toast:hover .bf-toast-progress {
+  animation-play-state: paused;
+}
+
+@keyframes bfToastProgress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
 }
 
 @keyframes bfToastSlideIn {

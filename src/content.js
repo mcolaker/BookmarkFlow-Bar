@@ -2659,21 +2659,27 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
   let contentToastTimeoutId = null;
   let contentToastKeydownHandler = null;
+  let contentToastHoverCleanups = null;
 
   function cleanupContentToastKeydown() {
+    if (contentToastTimeoutId) {
+      clearTimeout(contentToastTimeoutId);
+      contentToastTimeoutId = null;
+    }
     if (contentToastKeydownHandler) {
       window.removeEventListener("keydown", contentToastKeydownHandler, true);
       contentToastKeydownHandler = null;
+    }
+    if (typeof contentToastHoverCleanups === "function") {
+      contentToastHoverCleanups();
+      contentToastHoverCleanups = null;
     }
   }
 
   function showContentToastNotification(message, durationMs = 1800, action = null) {
     const toast = shadow?.querySelector(".bf-toast");
     if (!toast) return;
-    if (contentToastTimeoutId) {
-      clearTimeout(contentToastTimeoutId);
-      contentToastTimeoutId = null;
-    }
+
     cleanupContentToastKeydown();
     toast.replaceChildren();
 
@@ -2691,24 +2697,21 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         e.preventDefault();
         e.stopPropagation();
         cleanupContentToastKeydown();
-        if (contentToastTimeoutId) {
-          clearTimeout(contentToastTimeoutId);
-          contentToastTimeoutId = null;
-        }
         toast.hidden = true;
         action.onClick();
       });
       toast.appendChild(actionBtn);
+
+      const progressBar = document.createElement("div");
+      progressBar.className = "bf-toast-progress";
+      progressBar.style.animationDuration = `${durationMs}ms`;
+      toast.appendChild(progressBar);
 
       contentToastKeydownHandler = (e) => {
         if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === "z" || e.key === "Z")) {
           e.preventDefault();
           e.stopPropagation();
           cleanupContentToastKeydown();
-          if (contentToastTimeoutId) {
-            clearTimeout(contentToastTimeoutId);
-            contentToastTimeoutId = null;
-          }
           toast.hidden = true;
           action.onClick();
         }
@@ -2719,14 +2722,46 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     toast.classList.remove("is-leaving");
     toast.hidden = false;
 
-    contentToastTimeoutId = window.setTimeout(() => {
-      cleanupContentToastKeydown();
-      toast.classList.add("is-leaving");
-      window.setTimeout(() => {
-        toast.hidden = true;
-        toast.classList.remove("is-leaving");
-      }, 250);
-    }, durationMs);
+    let remainingMs = durationMs;
+    let endTime = Date.now() + durationMs;
+    let isLeaving = false;
+
+    function startTimer(ms) {
+      contentToastTimeoutId = window.setTimeout(() => {
+        isLeaving = true;
+        toast.classList.add("is-leaving");
+        window.setTimeout(() => {
+          cleanupContentToastKeydown();
+          toast.hidden = true;
+          toast.classList.remove("is-leaving");
+        }, 250);
+      }, ms);
+    }
+
+    startTimer(remainingMs);
+
+    const onMouseEnter = () => {
+      if (isLeaving) return;
+      if (contentToastTimeoutId) {
+        clearTimeout(contentToastTimeoutId);
+        contentToastTimeoutId = null;
+      }
+      remainingMs = Math.max(250, endTime - Date.now());
+    };
+
+    const onMouseLeave = () => {
+      if (isLeaving || toast.hidden) return;
+      endTime = Date.now() + remainingMs;
+      startTimer(remainingMs);
+    };
+
+    toast.addEventListener("mouseenter", onMouseEnter);
+    toast.addEventListener("mouseleave", onMouseLeave);
+
+    contentToastHoverCleanups = () => {
+      toast.removeEventListener("mouseenter", onMouseEnter);
+      toast.removeEventListener("mouseleave", onMouseLeave);
+    };
   }
 
   function markAddDuplicateState(dialog, submit, url, parentId) {

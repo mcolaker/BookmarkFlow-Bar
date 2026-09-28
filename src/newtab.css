@@ -1702,6 +1702,7 @@ body[data-bg="custom"] {
   backdrop-filter: blur(10px);
   z-index: 10000;
   pointer-events: auto;
+  overflow: hidden;
   animation: ntToastSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
@@ -1748,6 +1749,30 @@ body[data-bg="custom"] {
 .nt-toast-action-btn:focus-visible {
   outline: 2px solid #ffffff;
   outline-offset: 1px;
+}
+
+.nt-toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--nt-theme-accent, #f2c94c);
+  transform-origin: left center;
+  animation: ntToastProgress linear forwards;
+}
+
+.nt-toast:hover .nt-toast-progress {
+  animation-play-state: paused;
+}
+
+@keyframes ntToastProgress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
 }
 
 @keyframes ntToastSlideIn {
