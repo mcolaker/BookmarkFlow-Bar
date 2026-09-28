@@ -88,6 +88,7 @@
   "enterAddressToAdd": { "message": "Enter the address you want to add." },
   "pageAddressUnavailable": { "message": "This page cannot be added automatically; enter an address manually." },
   "adding": { "message": "Adding…" },
+  "saving": { "message": "Saving…" },
   "addAnyway": { "message": "Add anyway" },
   "duplicateBookmarkPrompt": { "message": "This address already exists in the selected folder. Select Add again to create a duplicate." },
   "validUrlRequired": { "message": "Enter a valid http, https, or mailto address." },
@@ -441,5 +442,16 @@
         "example": "GitHub"
       }
     }
-  }
+  },
+  "editBookmark": { "message": "Edit Bookmark" },
+  "quickEditExistingBookmark": {
+    "message": "Edit Bookmark '$TITLE$' (Ctrl+S)",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      }
+    }
+  },
+  "bookmarkUpdatedToast": { "message": "✓ Bookmark updated" }
 }

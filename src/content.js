@@ -1799,6 +1799,21 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const inlineBtn = actionButton || shadow?.querySelector(".bf-command-inline-save");
       const targetUrl = inlineBtn?.dataset?.url;
       if (!targetUrl) return;
+
+      const existingId = inlineBtn?.dataset?.existingId;
+      if (existingId) {
+        const existingTitle = inlineBtn?.dataset?.existingTitle || "";
+        const existingParentId = inlineBtn?.dataset?.existingParentId || "";
+        closeCommandPalette({ restoreFocus: false });
+        openAddBookmarkDialog(getActiveDialogElement(), {
+          editNodeId: existingId,
+          title: existingTitle,
+          url: targetUrl,
+          parentId: existingParentId
+        });
+        return;
+      }
+
       triggerCommandSaveFlash();
       closeCommandPalette();
       const targetParentId = inlineBtn?.dataset?.parentId || appState?.bookmarkBar?.id || "";
@@ -2390,12 +2405,23 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       title: customData.title || "",
       url: customData.url || "",
       parentId: customData.parentId || dialog.dataset.parentId || "",
-      status: ""
+      status: "",
+      editNodeId: customData.editNodeId || ""
     } : getSuggestedBookmarkData();
 
     resetAddDuplicateState(dialog, submit);
     const parentId = suggestion.parentId || dialog.dataset.parentId || "";
     dialog.dataset.parentId = parentId;
+    const titleEl = shadow?.querySelector("#bf-add-dialog-title");
+    if (suggestion.editNodeId) {
+      dialog.dataset.editNodeId = suggestion.editNodeId;
+      if (titleEl) titleEl.textContent = t("editBookmark") || "Yer İmini Düzenle";
+      if (submit) submit.textContent = t("save") || "Kaydet";
+    } else {
+      delete dialog.dataset.editNodeId;
+      if (titleEl) titleEl.textContent = t("addBookmark") || "Yer İmi Ekle";
+      if (submit) submit.textContent = t("add") || "Ekle";
+    }
     titleInput.value = suggestion.title;
     urlInput.value = suggestion.url;
     populateContentFolderSelect(dialog, parentId);
@@ -2416,10 +2442,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function closeAddBookmarkDialog({ restoreFocus = true } = {}) {
     const dialog = shadow?.querySelector(".bf-add");
     const submit = shadow?.querySelector(".bf-add-primary");
+    const titleEl = shadow?.querySelector("#bf-add-dialog-title");
     const returnFocus = addDialogReturnFocus;
     addDialogReturnFocus = null;
     if (dialog) {
       resetAddDuplicateState(dialog, submit);
+      delete dialog.dataset.editNodeId;
+      if (titleEl) titleEl.textContent = t("addBookmark") || "Yer İmi Ekle";
+      if (submit) submit.textContent = t("add") || "Ekle";
       dialog.hidden = true;
     }
     updateModalBackgroundState();
@@ -2559,6 +2589,32 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (!url || !isSafeBookmarkUrl(url)) {
       renderAddBookmarkStatus(t("validUrlRequired"), true);
       urlInput?.focus();
+      return;
+    }
+
+    const editNodeId = dialog?.dataset?.editNodeId;
+    if (editNodeId) {
+      if (submit) submit.disabled = true;
+      if (status) {
+        status.textContent = t("saving") || "Kaydediliyor...";
+        status.classList.remove("is-error", "is-success");
+      }
+      const response = await sendMessage({
+        type: MESSAGE_RENAME_BOOKMARK,
+        nodeId: editNodeId,
+        title
+      });
+      if (submit) submit.disabled = false;
+      if (!response?.ok) {
+        renderAddBookmarkStatus(response?.error || t("bookmarkRenameFailed"), true);
+        return;
+      }
+      appState = response;
+      showContentToastNotification(t("bookmarkUpdatedToast") || "✓ Yer imi güncellendi", 1800, null, "is-undone");
+      window.setTimeout(() => {
+        closeAddBookmarkDialog({ restoreFocus: false });
+        renderFromState();
+      }, 600);
       return;
     }
 
@@ -2712,8 +2768,18 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const toast = shadow?.querySelector(".bf-toast");
     if (!toast) return;
 
+    const wasVisible = !toast.hidden;
     cleanupContentToastKeydown();
     toast.replaceChildren();
+
+    if (wasVisible) {
+      toast.classList.remove("is-switching");
+      void toast.offsetWidth;
+      toast.classList.add("is-switching");
+      window.setTimeout(() => {
+        toast?.classList.remove("is-switching");
+      }, 240);
+    }
 
     if (variant) {
       toast.classList.add(variant);
@@ -3409,15 +3475,15 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       ? (t("quickSaveToFolder", folderName) || `'${folderName}' Klasörüne Kaydet (Ctrl+S)`)
       : (t("quickSaveToBar") || "Yer İmleri Çubuğuna Kaydet (Ctrl+S)");
 
+    let existing = null;
     if (url) {
-      const existing = findExistingBookmarkByUrl(url);
+      existing = findExistingBookmarkByUrl(url);
       if (existing?.title) {
-        const existingNotice = t("existingBookmarkNotice", existing.title) || `Zaten yer imlerinde: ${existing.title}`;
-        titleText += ` • ${existingNotice}`;
+        titleText = t("quickEditExistingBookmark", existing.title) || `'${existing.title}' Yer İmini Düzenle (Ctrl+S)`;
       }
     }
 
-    return { parentId: parentId || barNode?.id || "", folderName, titleText };
+    return { parentId: parentId || barNode?.id || "", folderName, titleText, existingBookmark: existing };
   }
 
   function triggerCommandSaveFlash() {
@@ -3448,6 +3514,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     inlineSaveBtn.classList.add("is-leaving");
     delete inlineSaveBtn.dataset.url;
     delete inlineSaveBtn.dataset.parentId;
+    delete inlineSaveBtn.dataset.existingId;
+    delete inlineSaveBtn.dataset.existingTitle;
+    delete inlineSaveBtn.dataset.existingParentId;
+    inlineSaveBtn.classList.remove("is-edit-mode");
     if (commandInlineSaveLeaveTimeout) {
       clearTimeout(commandInlineSaveLeaveTimeout);
     }
@@ -3458,7 +3528,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }, 120);
   }
 
-  function showCommandInlineSaveBtn(inlineSaveBtn, url, parentId, titleText) {
+  function showCommandInlineSaveBtn(inlineSaveBtn, url, parentId, titleText, existingBookmark = null) {
     if (commandInlineSaveLeaveTimeout) {
       clearTimeout(commandInlineSaveLeaveTimeout);
       commandInlineSaveLeaveTimeout = null;
@@ -3467,6 +3537,19 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     inlineSaveBtn.hidden = false;
     inlineSaveBtn.dataset.url = url;
     inlineSaveBtn.dataset.parentId = parentId;
+    if (existingBookmark) {
+      inlineSaveBtn.classList.add("is-edit-mode");
+      inlineSaveBtn.dataset.existingId = existingBookmark.id;
+      inlineSaveBtn.dataset.existingTitle = existingBookmark.title || "";
+      inlineSaveBtn.dataset.existingParentId = existingBookmark.parentId || "";
+      inlineSaveBtn.textContent = "✏️";
+    } else {
+      inlineSaveBtn.classList.remove("is-edit-mode");
+      delete inlineSaveBtn.dataset.existingId;
+      delete inlineSaveBtn.dataset.existingTitle;
+      delete inlineSaveBtn.dataset.existingParentId;
+      inlineSaveBtn.textContent = "⭐";
+    }
     inlineSaveBtn.title = titleText;
     inlineSaveBtn.setAttribute("aria-label", titleText);
   }
@@ -3494,8 +3577,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     if (inlineSaveBtn) {
       if (intentResult.intent === "url" && intentResult.url) {
-        const { parentId, titleText } = getContentQuickSaveTargetInfo(intentResult.url);
-        showCommandInlineSaveBtn(inlineSaveBtn, intentResult.url, parentId, titleText);
+        const { parentId, titleText, existingBookmark } = getContentQuickSaveTargetInfo(intentResult.url);
+        showCommandInlineSaveBtn(inlineSaveBtn, intentResult.url, parentId, titleText, existingBookmark);
       } else {
         hideCommandInlineSaveBtnSmoothly(inlineSaveBtn);
       }

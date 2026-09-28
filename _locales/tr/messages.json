@@ -88,6 +88,7 @@
   "enterAddressToAdd": { "message": "Eklemek istediğiniz adresi yazın." },
   "pageAddressUnavailable": { "message": "Bu sayfa otomatik eklenemiyor; adresi elle yazın." },
   "adding": { "message": "Ekleniyor…" },
+  "saving": { "message": "Kaydediliyor…" },
   "addAnyway": { "message": "Yine de ekle" },
   "duplicateBookmarkPrompt": { "message": "Bu adres seçilen klasörde zaten var. Kopya oluşturmak için tekrar Ekle'yi seçin." },
   "validUrlRequired": { "message": "Geçerli bir http, https veya mailto adresi girin." },
@@ -441,5 +442,16 @@
         "example": "GitHub"
       }
     }
-  }
+  },
+  "editBookmark": { "message": "Yer İmini Düzenle" },
+  "quickEditExistingBookmark": {
+    "message": "'$TITLE$' Yer İmini Düzenle (Ctrl+S)",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      }
+    }
+  },
+  "bookmarkUpdatedToast": { "message": "✓ Yer imi güncellendi" }
 }

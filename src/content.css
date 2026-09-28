@@ -1177,10 +1177,22 @@
   pointer-events: none !important;
 }
 
+.bf-command-inline-save.is-edit-mode {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.6) !important;
+}
+
 .bf-command-inline-save:hover {
   background: var(--bf-theme-accent, #f2c94c);
   color: #12151b;
   transform: scale(1.04);
+}
+
+.bf-command-inline-save.is-edit-mode:hover {
+  background: #38bdf8 !important;
+  color: #0f172a !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
 }
 
 .bf-command-inline-save:active {
@@ -1605,6 +1617,21 @@
 
 .bf-toast.is-undone .bf-toast-progress {
   background: #27ae60;
+}
+
+.bf-toast.is-switching {
+  animation: bfToastSwitch 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bfToastSwitch {
+  0% {
+    transform: translateY(-8px) scale(0.96);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes bfToastProgress {

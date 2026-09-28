@@ -1296,10 +1296,28 @@ body[data-bg="custom"] {
   border-color: rgba(242, 201, 76, 0.6) !important;
 }
 
+.nt-inline-save-btn.is-edit-mode {
+  background: rgba(56, 189, 248, 0.16) !important;
+  color: #0284c7 !important;
+  border-color: rgba(56, 189, 248, 0.55) !important;
+}
+
+[data-nt-theme="dark"] .nt-inline-save-btn.is-edit-mode {
+  background: rgba(56, 189, 248, 0.22) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.65) !important;
+}
+
 .nt-inline-save-btn:hover {
   background: var(--nt-theme-accent, #f2c94c) !important;
   color: #12151b !important;
   transform: scale(1.04);
+}
+
+.nt-inline-save-btn.is-edit-mode:hover {
+  background: #38bdf8 !important;
+  color: #0f172a !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
 }
 
 .nt-inline-save-btn:active {
@@ -1857,6 +1875,21 @@ body[data-bg="custom"] {
 
 .nt-toast.is-undone .nt-toast-progress {
   background: #27ae60;
+}
+
+.nt-toast.is-switching {
+  animation: ntToastSwitch 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ntToastSwitch {
+  0% {
+    transform: translateY(-8px) scale(0.96);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes ntToastProgress {

@@ -1165,3 +1165,35 @@ test("text restore toast and live existing bookmark title preview contract (BF-U
     "content.js must invoke showContentToastNotification with queryRestoredToast on Ctrl+Z restore"
   );
 });
+
+test("existing bookmark edit mode and smooth toast switching contract (BF-UX-018)", () => {
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  assert.ok(enMessages.editBookmark, "EN must define editBookmark");
+  assert.ok(trMessages.editBookmark, "TR must define editBookmark");
+  assert.ok(enMessages.quickEditExistingBookmark, "EN must define quickEditExistingBookmark");
+  assert.ok(trMessages.quickEditExistingBookmark, "TR must define quickEditExistingBookmark");
+  assert.ok(enMessages.bookmarkUpdatedToast, "EN must define bookmarkUpdatedToast");
+  assert.ok(trMessages.bookmarkUpdatedToast, "TR must define bookmarkUpdatedToast");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-inline-save-btn\.is-edit-mode/u, "newtab.css must style .nt-inline-save-btn.is-edit-mode");
+  assert.match(newtabCss, /\.nt-toast\.is-switching/u, "newtab.css must style .nt-toast.is-switching");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-command-inline-save\.is-edit-mode/u, "content.css must style .bf-command-inline-save.is-edit-mode");
+  assert.match(contentCss, /\.bf-toast\.is-switching/u, "content.css must style .bf-toast.is-switching");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /is-edit-mode/u, "newtab.js must use is-edit-mode");
+  assert.match(newtabJs, /is-switching/u, "newtab.js must trigger is-switching on toast switch");
+  assert.match(newtabJs, /dataset\.editNodeId/u, "newtab.js must handle editNodeId in add dialog");
+  assert.match(newtabJs, /quickEditExistingBookmark/u, "newtab.js must use quickEditExistingBookmark key");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /is-edit-mode/u, "content.js must use is-edit-mode");
+  assert.match(contentJs, /is-switching/u, "content.js must trigger is-switching on toast switch");
+  assert.match(contentJs, /dataset\.editNodeId/u, "content.js must handle editNodeId in add dialog");
+  assert.match(contentJs, /quickEditExistingBookmark/u, "content.js must use quickEditExistingBookmark key");
+});

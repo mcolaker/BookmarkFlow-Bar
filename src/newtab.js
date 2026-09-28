@@ -122,6 +122,21 @@ async function init() {
     e.stopPropagation();
     const targetUrl = elements.searchInlineSaveBtn.dataset.url;
     if (!targetUrl) return;
+
+    const existingId = elements.searchInlineSaveBtn.dataset.existingId;
+    if (existingId) {
+      const existingTitle = elements.searchInlineSaveBtn.dataset.existingTitle || "";
+      const existingParentId = elements.searchInlineSaveBtn.dataset.existingParentId || "";
+      hideSearchResults();
+      openAddBookmarkDialog(elements.searchInput, {
+        editNodeId: existingId,
+        title: existingTitle,
+        url: targetUrl,
+        parentId: existingParentId
+      });
+      return;
+    }
+
     const targetParentId = elements.searchInlineSaveBtn.dataset.parentId || appState?.bookmarkBar?.id || "";
     hideSearchResults();
     elements.searchInput.value = "";
@@ -683,15 +698,15 @@ function getQuickSaveTargetInfo(url = "") {
     ? (t("quickSaveToFolder", folderName) || `'${folderName}' Klasörüne Kaydet (Ctrl+S)`)
     : (t("quickSaveToBar") || "Yer İmleri Çubuğuna Kaydet (Ctrl+S)");
 
+  let existing = null;
   if (url) {
-    const existing = findExistingBookmarkByUrl(url);
+    existing = findExistingBookmarkByUrl(url);
     if (existing?.title) {
-      const existingNotice = t("existingBookmarkNotice", existing.title) || `Zaten yer imlerinde: ${existing.title}`;
-      titleText += ` • ${existingNotice}`;
+      titleText = t("quickEditExistingBookmark", existing.title) || `'${existing.title}' Yer İmini Düzenle (Ctrl+S)`;
     }
   }
 
-  return { parentId: parentId || barNode?.id || "", folderName, titleText };
+  return { parentId: parentId || barNode?.id || "", folderName, titleText, existingBookmark: existing };
 }
 
 function triggerSearchSaveFlash() {
@@ -726,6 +741,10 @@ function hideInlineSaveBtnSmoothly(inlineSaveBtn) {
   inlineSaveBtn.classList.add("is-leaving");
   delete inlineSaveBtn.dataset.url;
   delete inlineSaveBtn.dataset.parentId;
+  delete inlineSaveBtn.dataset.existingId;
+  delete inlineSaveBtn.dataset.existingTitle;
+  delete inlineSaveBtn.dataset.existingParentId;
+  inlineSaveBtn.classList.remove("is-edit-mode");
   if (inlineSaveLeaveTimeout) {
     clearTimeout(inlineSaveLeaveTimeout);
   }
@@ -736,7 +755,7 @@ function hideInlineSaveBtnSmoothly(inlineSaveBtn) {
   }, 120);
 }
 
-function showInlineSaveBtn(inlineSaveBtn, url, parentId, titleText) {
+function showInlineSaveBtn(inlineSaveBtn, url, parentId, titleText, existingBookmark = null) {
   if (inlineSaveLeaveTimeout) {
     clearTimeout(inlineSaveLeaveTimeout);
     inlineSaveLeaveTimeout = null;
@@ -745,6 +764,19 @@ function showInlineSaveBtn(inlineSaveBtn, url, parentId, titleText) {
   inlineSaveBtn.hidden = false;
   inlineSaveBtn.dataset.url = url;
   inlineSaveBtn.dataset.parentId = parentId;
+  if (existingBookmark) {
+    inlineSaveBtn.classList.add("is-edit-mode");
+    inlineSaveBtn.dataset.existingId = existingBookmark.id;
+    inlineSaveBtn.dataset.existingTitle = existingBookmark.title || "";
+    inlineSaveBtn.dataset.existingParentId = existingBookmark.parentId || "";
+    inlineSaveBtn.textContent = "✏️";
+  } else {
+    inlineSaveBtn.classList.remove("is-edit-mode");
+    delete inlineSaveBtn.dataset.existingId;
+    delete inlineSaveBtn.dataset.existingTitle;
+    delete inlineSaveBtn.dataset.existingParentId;
+    inlineSaveBtn.textContent = "⭐";
+  }
   inlineSaveBtn.title = titleText;
   inlineSaveBtn.setAttribute("aria-label", titleText);
 }
@@ -773,8 +805,8 @@ function updateSearchIntentBadge(intentResult) {
 
   if (inlineSaveBtn) {
     if (intentResult.intent === "url" && intentResult.url) {
-      const { parentId, titleText } = getQuickSaveTargetInfo(intentResult.url);
-      showInlineSaveBtn(inlineSaveBtn, intentResult.url, parentId, titleText);
+      const { parentId, titleText, existingBookmark } = getQuickSaveTargetInfo(intentResult.url);
+      showInlineSaveBtn(inlineSaveBtn, intentResult.url, parentId, titleText, existingBookmark);
     } else {
       hideInlineSaveBtnSmoothly(inlineSaveBtn);
     }
@@ -1311,8 +1343,19 @@ function cleanupToastKeydown() {
 function showToastNotification(message, durationMs = 1800, action = null, variant = "") {
   if (!elements.toastNotification) return;
 
+  const wasVisible = !elements.toastNotification.hidden;
   cleanupToastKeydown();
   elements.toastNotification.replaceChildren();
+
+  if (wasVisible) {
+    elements.toastNotification.classList.remove("is-switching");
+    void elements.toastNotification.offsetWidth;
+    elements.toastNotification.classList.add("is-switching");
+    window.setTimeout(() => {
+      elements.toastNotification?.classList.remove("is-switching");
+    }, 240);
+  }
+
   if (variant) {
     elements.toastNotification.classList.add(variant);
   } else {
@@ -1602,12 +1645,22 @@ function openAddBookmarkDialog(returnFocusElement = document.activeElement, cust
     title: customData.title || "",
     url: customData.url || "",
     parentId: customData.parentId || elements.addDialog.dataset.parentId || "",
-    status: ""
+    status: "",
+    editNodeId: customData.editNodeId || ""
   } : getAddBookmarkSuggestion();
 
   resetAddDuplicateState();
   const parentId = suggestion.parentId || elements.addDialog.dataset.parentId || "";
   elements.addDialog.dataset.parentId = parentId;
+  if (suggestion.editNodeId) {
+    elements.addDialog.dataset.editNodeId = suggestion.editNodeId;
+    elements.addDialogTitle.textContent = t("editBookmark") || "Yer İmini Düzenle";
+    elements.addSubmit.textContent = t("save") || "Kaydet";
+  } else {
+    delete elements.addDialog.dataset.editNodeId;
+    elements.addDialogTitle.textContent = t("addBookmark") || "Yer İmi Ekle";
+    elements.addSubmit.textContent = t("add") || "Ekle";
+  }
   elements.addTitle.value = suggestion.title;
   elements.addUrl.value = suggestion.url;
   populateFolderSelect(parentId);
@@ -1624,6 +1677,9 @@ function closeAddBookmarkDialog({ restoreFocus = true } = {}) {
   const returnFocus = addDialogReturnFocus;
   addDialogReturnFocus = null;
   resetAddDuplicateState();
+  delete elements.addDialog.dataset.editNodeId;
+  elements.addDialogTitle.textContent = t("addBookmark") || "Yer İmi Ekle";
+  elements.addSubmit.textContent = t("add") || "Ekle";
   elements.addDialog.hidden = true;
   setNewTabModalBackground(false);
   if (restoreFocus) {
@@ -1643,6 +1699,31 @@ async function handleAddBookmarkSubmit(event) {
   if (!url || !isSafeBookmarkUrl(url)) {
     renderAddBookmarkStatus(t("validUrlRequired"), true);
     elements.addUrl.focus();
+    return;
+  }
+
+  const editNodeId = elements.addDialog.dataset.editNodeId;
+  if (editNodeId) {
+    elements.addSubmit.disabled = true;
+    renderAddBookmarkStatus(t("saving") || "Kaydediliyor...", false);
+    const response = await sendMessage({
+      type: "BF_RENAME_BOOKMARK",
+      nodeId: editNodeId,
+      title
+    });
+    elements.addSubmit.disabled = false;
+    if (!response?.ok) {
+      renderAddBookmarkStatus(response?.error || t("bookmarkRenameFailed"), true);
+      return;
+    }
+    appState = response;
+    renderAddBookmarkStatus(t("bookmarkUpdatedToast") || "✓ Yer imi güncellendi", false);
+    showToastNotification(t("bookmarkUpdatedToast") || "✓ Yer imi güncellendi", 1800, null, "is-undone");
+    window.setTimeout(() => {
+      const returnFocus = closeAddBookmarkDialog({ restoreFocus: false });
+      render();
+      restoreFocusTarget(returnFocus);
+    }, 600);
     return;
   }
 
