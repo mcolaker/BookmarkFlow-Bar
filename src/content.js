@@ -51,6 +51,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     matchesTagFilter,
     isHostDisabled,
     addDisabledHost,
+    removeDisabledHost,
     isSafeBookmarkUrl,
     isSensitiveHost,
     areBookmarkUrlsEqual,
@@ -1930,7 +1931,6 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
             chrome.storage.local.set({ disabledHosts: updatedDisabled }).catch(() => {});
           } catch {}
         }
-        showContentToastNotification(t("siteDisabledToast"), 3500);
         const app = shadow?.querySelector(".bf-app");
         if (app) {
           app.style.display = "none";
@@ -1939,9 +1939,35 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         if (mark) {
           mark.style.display = "none";
         }
-        window.setTimeout(() => {
+
+        let disableTeardownTimer = window.setTimeout(() => {
           renderFromState();
         }, 3600);
+
+        showContentToastNotification(t("siteDisabledToast"), 3500, {
+          label: t("undo") || "Geri Al",
+          onClick: () => {
+            clearTimeout(disableTeardownTimer);
+            const currentDisabled = appState?.settings?.disabledHosts || [];
+            const restoredDisabled = removeDisabledHost(currentDisabled, currentHost);
+            if (appState?.settings) {
+              appState.settings.disabledHosts = restoredDisabled;
+            }
+            if (hasExtensionContext()) {
+              try {
+                chrome.storage.local.set({ disabledHosts: restoredDisabled }).catch(() => {});
+              } catch {}
+            }
+            if (app) {
+              app.style.display = "";
+            }
+            if (mark) {
+              mark.style.display = "";
+            }
+            renderFromState();
+            showContentToastNotification(t("hostRemovedSuccess") || "✓ Site etkinleştirildi", 1800);
+          }
+        });
       }
       return;
     }
@@ -2618,14 +2644,38 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
   let contentToastTimeoutId = null;
 
-  function showContentToastNotification(message, durationMs = 1800) {
+  function showContentToastNotification(message, durationMs = 1800, action = null) {
     const toast = shadow?.querySelector(".bf-toast");
     if (!toast) return;
     if (contentToastTimeoutId) {
       clearTimeout(contentToastTimeoutId);
       contentToastTimeoutId = null;
     }
-    toast.textContent = message;
+    toast.replaceChildren();
+
+    const textSpan = document.createElement("span");
+    textSpan.className = "bf-toast-text";
+    textSpan.textContent = message;
+    toast.appendChild(textSpan);
+
+    if (action && typeof action.onClick === "function") {
+      const actionBtn = document.createElement("button");
+      actionBtn.type = "button";
+      actionBtn.className = "bf-toast-action-btn";
+      actionBtn.textContent = action.label || t("undo") || "Geri Al";
+      actionBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (contentToastTimeoutId) {
+          clearTimeout(contentToastTimeoutId);
+          contentToastTimeoutId = null;
+        }
+        toast.hidden = true;
+        action.onClick();
+      });
+      toast.appendChild(actionBtn);
+    }
+
     toast.classList.remove("is-leaving");
     toast.hidden = false;
 

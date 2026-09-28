@@ -774,10 +774,42 @@ test("site control, settings navigation, and popup layout integrity contract (BF
     "hostAddedSuccess",
     "hostRemovedSuccess",
     "invalidHostError",
-    "disabledWebsitesAria"
+    "disabledWebsitesAria",
+    "undo"
   ];
   for (const key of newKeys) {
     assert.ok(en[key]?.message, `Missing en message for key: ${key}`);
     assert.ok(tr[key]?.message, `Missing tr message for key: ${key}`);
   }
+
+  // 5. Toast undo and live journey menu interaction contract
+  assert.match(
+    contentJs,
+    /bf-toast-action-btn/u,
+    "content.js must create .bf-toast-action-btn for undo interaction"
+  );
+  assert.match(
+    contentJs,
+    /removeDisabledHost\(currentDisabled,\s*currentHost\)/u,
+    "content.js undo handler must call removeDisabledHost"
+  );
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(
+    contentCss,
+    /\.bf-toast-action-btn\b/u,
+    "content.css must style .bf-toast-action-btn"
+  );
+
+  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
+  assert.match(
+    journeyJs,
+    /rightClickElementByClass/u,
+    "user-journey-live-qa.mjs must define rightClickElementByClass"
+  );
+  assert.match(
+    journeyJs,
+    /clickElementByAttribute/u,
+    "user-journey-live-qa.mjs must define clickElementByAttribute"
+  );
 });

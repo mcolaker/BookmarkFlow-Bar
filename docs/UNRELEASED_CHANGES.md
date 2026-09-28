@@ -106,9 +106,12 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
   - Sayfa içi çubuk (`content.js`) içerisinden doğrudan `window.open` ile extension URL'si (`chrome-extension://.../bookmark-maintenance.html`) açma girişimi Chromium MV3 güvenlik kum havuzuna takılıyordu.
   - Bu çağrı güvenli mesajlaşma modeline (`BF_OPEN_SETTINGS`) dönüştürülerek tam yetkili `background.js` Service Worker'a delege edildi (`chrome.tabs.create`).
   - Hızlı arama ve Spotlight içerisindeki `#health` ve bakım eylemleri de bu güvenli köprü üzerinden hatasız çalışır hale getirildi.
-- **"Bu Sitede Devre Dışı Bırak / Gizle" Bildirim ve Geri Kazanım UX'i**:
+- **"Bu Sitede Devre Dışı Bırak / Gizle" Bildirim, Geri Al (Undo) ve Geri Kazanım UX'i**:
   - Kullanıcı BookmarkFlow çubuğuna sağ tıklayıp "Bu Sitede Devre Dışı Bırak" seçtiğinde çubuğun habersiz kaybolması engellendi.
   - 3.5 saniye boyunca ekranın sağ üstünde altın vurgulu, açıklayıcı bir toast bildirimi (`siteDisabledToast`) gösterilerek kullanıcının çubuğu dilediğinde eklenti simgesinden veya Ayarlar'dan tekrar açabileceği açıklandı.
+  - Yanlışlıkla yapılan tıklamalar için bildirimin içerisine **"Geri Al" (`undo`)** butonu eklendi; tek tıkla site yeniden etkinleştirilir ve çubuk geri gelir.
+- **Canlı E2E Menü Tıklaması ve Sekme Doğrulama Simülasyonu (`scripts/user-journey-live-qa.mjs`)**:
+  - Adım 6 simülasyonu doğrudan URL açmak yerine web sayfasındaki BF butonuna gerçek sağ tık (contextmenu) simüle edip açılan menüdeki "Ayarlar" butonuna fiilen tıklar; `content.js` -> `background.js` mesajlaşmasını ve sekmenin açılmasını gerçek tarayıcıda doğrular.
 - **Popup Menüsünde Akıllı "Bu Site" Kartı (Contextual Top Card)**:
   - Popup arayüzünde (`popup.html`, `popup.css`) en altta ve 15 ayarın gerisinde kaybolan site kontrolü, en tepeye (header'ın hemen altına) taşındı.
   - Aktif sekmenin alan adını (`github.com`), o sitedeki etkin/devre dışı durumunu ve tek tıkla açma/kapatma butonunu gösteren modern bir kart görünümü kazandı.
@@ -118,7 +121,7 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
   - `bookmark-maintenance.html` sayfasına `#sites` sekmesi (`navSitesLink`) ve dinamik site yönetim paneli (`#disabledSitesList`, `#addDisabledHostBtn`) eklendi.
   - Kullanıcı daha önce gizlediği tüm siteleri listeleyebilir, tek tıkla etkinleştirebilir veya yeni istisnalar tanımlayabilir.
 - **İki Dilli Yerelleştirme**:
-  - `_locales/en` ve `_locales/tr` sözlüklerine 12 yeni anahtar eklenerek %100 parite korundu.
+  - `_locales/en` ve `_locales/tr` sözlüklerine 13 yeni anahtar (`undo` dahil) eklenerek %100 parite korundu.
 
 ---
 

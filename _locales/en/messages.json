@@ -417,5 +417,6 @@
   "hostAddedSuccess": { "message": "Site added to disabled list." },
   "hostRemovedSuccess": { "message": "Site re-enabled." },
   "invalidHostError": { "message": "Please enter a valid domain name (e.g. github.com)." },
-  "disabledWebsitesAria": { "message": "Disabled websites list" }
+  "disabledWebsitesAria": { "message": "Disabled websites list" },
+  "undo": { "message": "Undo" }
 }

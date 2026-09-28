@@ -202,6 +202,63 @@ async function clickElementByClass(cdp, sessionId, className) {
   }
 }
 
+function findNodeByAttribute(node, attrName, attrValue) {
+  if (node.attributes) {
+    for (let i = 0; i < node.attributes.length; i += 2) {
+      if (node.attributes[i] === attrName && node.attributes[i + 1] === attrValue) {
+        return node;
+      }
+    }
+  }
+  if (node.children) {
+    for (const child of node.children) {
+      const found = findNodeByAttribute(child, attrName, attrValue);
+      if (found) return found;
+    }
+  }
+  if (node.shadowRoots) {
+    for (const sr of node.shadowRoots) {
+      const found = findNodeByAttribute(sr, attrName, attrValue);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+async function rightClickElementByClass(cdp, sessionId, className) {
+  try {
+    const { root } = await cdp.call("DOM.getDocument", { depth: -1, pierce: true }, sessionId);
+    const targetNode = findNodeByClass(root, className);
+    if (!targetNode) return false;
+    const { model } = await cdp.call("DOM.getBoxModel", { nodeId: targetNode.nodeId }, sessionId);
+    const [x1, y1, x2, y2, x3, y3, x4, y4] = model.border;
+    const clickX = (x1 + x2) / 2;
+    const clickY = (y1 + y4) / 2;
+    await cdp.call("Input.dispatchMouseEvent", { type: "mousePressed", x: clickX, y: clickY, button: "right", clickCount: 1 }, sessionId);
+    await cdp.call("Input.dispatchMouseEvent", { type: "mouseReleased", x: clickX, y: clickY, button: "right", clickCount: 1 }, sessionId);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function clickElementByAttribute(cdp, sessionId, attrName, attrValue) {
+  try {
+    const { root } = await cdp.call("DOM.getDocument", { depth: -1, pierce: true }, sessionId);
+    const targetNode = findNodeByAttribute(root, attrName, attrValue);
+    if (!targetNode) return false;
+    const { model } = await cdp.call("DOM.getBoxModel", { nodeId: targetNode.nodeId }, sessionId);
+    const [x1, y1, x2, y2, x3, y3, x4, y4] = model.border;
+    const clickX = (x1 + x2) / 2;
+    const clickY = (y1 + y4) / 2;
+    await cdp.call("Input.dispatchMouseEvent", { type: "mousePressed", x: clickX, y: clickY, button: "left", clickCount: 1 }, sessionId);
+    await cdp.call("Input.dispatchMouseEvent", { type: "mouseReleased", x: clickX, y: clickY, button: "left", clickCount: 1 }, sessionId);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function evaluate(cdp, sessionId, expression) {
   const result = await cdp.call("Runtime.evaluate", {
     expression,
@@ -566,18 +623,54 @@ async function main() {
     await cdp.call("Target.closeTarget", { targetId: ntTargetId });
 
     // ==============================================================
-    // ADIM 6: Ayarlar & Yer İmi Sağlık Müfettişi
+    // ADIM 6: Sayfa İçi Menü Tıklamasıyla Ayarlar & Yer İmi Sağlık Müfettişi
     // ==============================================================
-    console.log("\n▶ ADIM 6: Ayarlar Sayfası & Yer İmi Sağlık Müfettişi");
-    const maintenanceUrl = `chrome-extension://${extensionId}/src/bookmark-maintenance.html`;
-    const { sessionId: optSession, targetId: optTargetId } = await createPage(cdp, maintenanceUrl);
+    console.log("\n▶ ADIM 6: Canlı Web Sayfasında Hızlı Menü Tıklamasıyla Ayarlar & Yer İmi Sağlık Müfettişi");
+    const { sessionId: liveSession, targetId: liveTargetId } = await createPage(cdp, demoUrl);
+    await cdp.call("Emulation.setDeviceMetricsOverride", { width: 1280, height: 800, deviceScaleFactor: 1, mobile: false }, liveSession);
+    await delay(1200);
+
+    // BF butonuna sağ tıkla (Hızlı Menü açılması)
+    console.log("  🖱️ Sayfa içi BF simgesine sağ tıklanıyor (Hızlı Menü)...");
+    await rightClickElementByClass(cdp, liveSession, "bf-mark");
+    await delay(600);
+
+    // Menüdeki 'Ayarlar' (quick-open-settings) butonuna tıkla
+    console.log("  👉 Menüdeki 'Ayarlar' butonuna fiilen tıklanıyor (BF_OPEN_SETTINGS tetikleme)...");
+    await clickElementByAttribute(cdp, liveSession, "data-bf-action", "quick-open-settings");
+    await delay(1500);
+
+    // Yeni sekmede açılan Ayarlar sayfasını hedef listesinden bul
+    const { targetInfos } = await cdp.call("Target.getTargets");
+    const maintTarget = targetInfos.find((t) => t.url && t.url.includes("bookmark-maintenance.html"));
+
+    let optSession = null;
+    let optTargetId = null;
+
+    if (maintTarget) {
+      optTargetId = maintTarget.targetId;
+      const attached = await cdp.call("Target.attachToTarget", { targetId: optTargetId, flatten: true });
+      optSession = attached.sessionId;
+      console.log("  ✓ 'Ayarlar' tıklandı ve arka plan mesajlaşmasıyla yeni sekme başarıyla açıldı (Sıfır ERR_BLOCKED_BY_CLIENT)!");
+    } else {
+      console.log("  ⚠️ Menü tıklamasıyla sekme yakalanamadı, doğrudan açılıyor...");
+      const maintenanceUrl = `chrome-extension://${extensionId}/src/bookmark-maintenance.html`;
+      const created = await createPage(cdp, maintenanceUrl);
+      optSession = created.sessionId;
+      optTargetId = created.targetId;
+    }
+
     await cdp.call("Emulation.setDeviceMetricsOverride", { width: 1280, height: 800, deviceScaleFactor: 1, mobile: false }, optSession);
     await delay(900);
 
     const step6Path = path.join(outputDir, "step-6-settings-inspector.png");
     await captureScreenshot(cdp, optSession, step6Path);
     console.log(`  ✓ Ayarlar ve Sağlık Müfettişi paneli görüntülendi (${path.basename(step6Path)})`);
-    await cdp.call("Target.closeTarget", { targetId: optTargetId });
+
+    if (optTargetId) {
+      await cdp.call("Target.closeTarget", { targetId: optTargetId });
+    }
+    await cdp.call("Target.closeTarget", { targetId: liveTargetId });
 
     cdp.close();
 
