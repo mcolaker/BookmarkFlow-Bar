@@ -54,6 +54,7 @@ const elements = {
   searchForm: document.getElementById("searchForm"),
   searchInput: document.getElementById("searchInput"),
   searchIntentBadge: document.getElementById("searchIntentBadge"),
+  searchInlineSaveBtn: document.getElementById("searchInlineSaveBtn"),
   clockDisplay: document.getElementById("clockDisplay"),
   greetingDisplay: document.getElementById("greetingDisplay"),
   shortcutsWrap: document.getElementById("shortcutsWrap"),
@@ -116,6 +117,16 @@ async function init() {
   elements.searchForm.addEventListener("submit", handleSearchSubmit);
   elements.searchInput.addEventListener("input", handleSearchInput);
   elements.searchInput.addEventListener("keydown", handleSearchKeydown);
+  elements.searchInlineSaveBtn?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const targetUrl = elements.searchInlineSaveBtn.dataset.url;
+    if (!targetUrl) return;
+    const barNode = appState?.bookmarkBar || null;
+    hideSearchResults();
+    elements.searchInput.value = "";
+    await handleDirectSaveBookmark(targetUrl, barNode?.id || "");
+  });
   document.addEventListener("click", handleSearchOutsideClick);
   initQuickTips();
   elements.addBookmark.addEventListener("click", () => openAddBookmarkDialog());
@@ -641,6 +652,7 @@ function getSearchIndex() {
 
 function updateSearchIntentBadge(intentResult) {
   const badge = elements.searchIntentBadge;
+  const inlineSaveBtn = elements.searchInlineSaveBtn;
   if (!badge) return;
 
   const query = elements.searchInput.value.trim();
@@ -648,6 +660,10 @@ function updateSearchIntentBadge(intentResult) {
     badge.hidden = true;
     badge.textContent = "";
     badge.className = "nt-intent-badge";
+    if (inlineSaveBtn) {
+      inlineSaveBtn.hidden = true;
+      delete inlineSaveBtn.dataset.url;
+    }
     return;
   }
 
@@ -656,6 +672,16 @@ function updateSearchIntentBadge(intentResult) {
   badge.textContent = `${icon} ${localizedLabel}`;
   badge.className = `nt-intent-badge ${className || ""}`;
   badge.hidden = false;
+
+  if (inlineSaveBtn) {
+    if (intentResult.intent === "url" && intentResult.url) {
+      inlineSaveBtn.hidden = false;
+      inlineSaveBtn.dataset.url = intentResult.url;
+    } else {
+      inlineSaveBtn.hidden = true;
+      delete inlineSaveBtn.dataset.url;
+    }
+  }
 }
 
 function handleSearchInput() {
@@ -1113,7 +1139,7 @@ async function handleDirectSaveBookmark(url, parentId) {
         if (delRes?.ok) {
           appState = delRes;
           render();
-          showToastNotification(t("bookmarkDeletedToast") || "✓ Yer imi kaldırıldı", 1800);
+          showToastNotification(t("bookmarkDeletedToast") || "✓ Yer imi kaldırıldı", 1800, null, "is-undone");
         }
       }
     } : null;
@@ -1127,6 +1153,9 @@ let toastKeydownHandler = null;
 let toastHoverCleanups = null;
 
 function cleanupToastKeydown() {
+  if (elements.toastNotification) {
+    elements.toastNotification.classList.remove("is-undone");
+  }
   if (toastTimeoutId) {
     clearTimeout(toastTimeoutId);
     toastTimeoutId = null;
@@ -1141,11 +1170,16 @@ function cleanupToastKeydown() {
   }
 }
 
-function showToastNotification(message, durationMs = 1800, action = null) {
+function showToastNotification(message, durationMs = 1800, action = null, variant = "") {
   if (!elements.toastNotification) return;
 
   cleanupToastKeydown();
   elements.toastNotification.replaceChildren();
+  if (variant) {
+    elements.toastNotification.classList.add(variant);
+  } else {
+    elements.toastNotification.classList.remove("is-undone");
+  }
 
   const textSpan = document.createElement("span");
   textSpan.className = "nt-toast-text";
@@ -1261,6 +1295,10 @@ function hideSearchResults() {
     elements.searchIntentBadge.hidden = true;
     elements.searchIntentBadge.textContent = "";
     elements.searchIntentBadge.className = "nt-intent-badge";
+  }
+  if (elements.searchInlineSaveBtn) {
+    elements.searchInlineSaveBtn.hidden = true;
+    delete elements.searchInlineSaveBtn.dataset.url;
   }
 }
 

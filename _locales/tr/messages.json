@@ -419,5 +419,6 @@
   "invalidHostError": { "message": "Lütfen geçerli bir alan adı girin (örn. github.com)." },
   "disabledWebsitesAria": { "message": "Devre dışı bırakılan siteler listesi" },
   "undo": { "message": "Geri Al" },
-  "bookmarkDeletedToast": { "message": "✓ Yer imi kaldırıldı" }
+  "bookmarkDeletedToast": { "message": "✓ Yer imi kaldırıldı" },
+  "quickSaveBookmark": { "message": "Yer İmlerine Kaydet" }
 }

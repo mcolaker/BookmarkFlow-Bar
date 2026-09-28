@@ -888,3 +888,70 @@ test("site control, settings navigation, and popup layout integrity contract (BF
     "user-journey-live-qa.mjs must define clickElementByAttribute"
   );
 });
+
+test("search inline save button and green undone toast feedback contract (BF-UX-018)", () => {
+  const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  assert.ok(enLocales.quickSaveBookmark, "en messages must have quickSaveBookmark");
+  assert.ok(trLocales.quickSaveBookmark, "tr messages must have quickSaveBookmark");
+
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(
+    newtabHtml,
+    /id="searchInlineSaveBtn"/u,
+    "newtab.html must define #searchInlineSaveBtn"
+  );
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(
+    newtabCss,
+    /\.nt-inline-save-btn\b/u,
+    "newtab.css must style .nt-inline-save-btn"
+  );
+  assert.match(
+    newtabCss,
+    /\.nt-toast\.is-undone\b/u,
+    "newtab.css must style .nt-toast.is-undone"
+  );
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(
+    contentCss,
+    /\.bf-command-inline-save\b/u,
+    "content.css must style .bf-command-inline-save"
+  );
+  assert.match(
+    contentCss,
+    /\.bf-toast\.is-undone\b/u,
+    "content.css must style .bf-toast.is-undone"
+  );
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(
+    newtabJs,
+    /searchInlineSaveBtn:\s*document\.getElementById\("searchInlineSaveBtn"\)/u,
+    "newtab.js must resolve searchInlineSaveBtn element"
+  );
+  assert.match(
+    newtabJs,
+    /showToastNotification\([\s\S]*?["']is-undone["']\)/u,
+    "newtab.js must invoke showToastNotification with is-undone on bookmark undo"
+  );
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(
+    contentJs,
+    /class="bf-command-inline-save"/u,
+    "content.js template must include bf-command-inline-save button"
+  );
+  assert.match(
+    contentJs,
+    /action\s*===\s*["']inline-save-search["']/u,
+    "content.js must handle inline-save-search action"
+  );
+  assert.match(
+    contentJs,
+    /showContentToastNotification\([\s\S]*?["']is-undone["']\)/u,
+    "content.js must invoke showContentToastNotification with is-undone on undo"
+  );
+});

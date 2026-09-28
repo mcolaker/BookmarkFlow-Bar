@@ -918,6 +918,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         <div class="bf-command-panel" role="dialog" aria-modal="true" aria-label="${escapeAttribute(t("bookmarkSearch"))}" tabindex="-1">
           <div class="bf-command-head">
             <input class="bf-command-input" type="search" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="bf-command-list" aria-expanded="false" aria-label="${escapeAttribute(t("bookmarkSearch"))}" placeholder="${escapeAttribute(t("bookmarkSearchPlaceholder"))}">
+            <button type="button" class="bf-command-inline-save" data-bf-action="inline-save-search" hidden title="${escapeAttribute(t("quickSaveBookmark"))}" aria-label="${escapeAttribute(t("quickSaveBookmark"))}">⭐ ${escapeHtml(t("save"))}</button>
             <div class="bf-intent-badge" hidden aria-hidden="true"></div>
             <button class="bf-command-close" type="button" data-bf-action="close-search" title="${escapeAttribute(t("close"))}" aria-label="${escapeAttribute(t("close"))}">×</button>
           </div>
@@ -1791,6 +1792,16 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    if (action === "inline-save-search") {
+      const inlineBtn = actionButton || shadow?.querySelector(".bf-command-inline-save");
+      const targetUrl = inlineBtn?.dataset?.url;
+      if (!targetUrl) return;
+      closeCommandPalette();
+      const barNode = appState?.bookmarkBar || null;
+      handleDirectSaveBookmark(targetUrl, barNode?.id || "");
+      return;
+    }
+
     if (action === "add-bookmark") {
       closeCommandPalette();
       closeContextMenu();
@@ -1965,7 +1976,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
               mark.style.display = "";
             }
             renderFromState();
-            showContentToastNotification(t("hostRemovedSuccess") || "✓ Site etkinleştirildi", 1800);
+            showContentToastNotification(t("hostRemovedSuccess") || "✓ Site etkinleştirildi", 1800, null, "is-undone");
           }
         });
       }
@@ -2649,7 +2660,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
           if (delRes?.ok) {
             appState = delRes;
             renderFromState();
-            showContentToastNotification(t("bookmarkDeletedToast") || "✓ Yer imi kaldırıldı", 1800);
+            showContentToastNotification(t("bookmarkDeletedToast") || "✓ Yer imi kaldırıldı", 1800, null, "is-undone");
           }
         }
       } : null;
@@ -2662,6 +2673,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let contentToastHoverCleanups = null;
 
   function cleanupContentToastKeydown() {
+    const toast = shadow?.querySelector(".bf-toast");
+    if (toast) {
+      toast.classList.remove("is-undone");
+    }
     if (contentToastTimeoutId) {
       clearTimeout(contentToastTimeoutId);
       contentToastTimeoutId = null;
@@ -2676,12 +2691,18 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
   }
 
-  function showContentToastNotification(message, durationMs = 1800, action = null) {
+  function showContentToastNotification(message, durationMs = 1800, action = null, variant = "") {
     const toast = shadow?.querySelector(".bf-toast");
     if (!toast) return;
 
     cleanupContentToastKeydown();
     toast.replaceChildren();
+
+    if (variant) {
+      toast.classList.add(variant);
+    } else {
+      toast.classList.remove("is-undone");
+    }
 
     const textSpan = document.createElement("span");
     textSpan.className = "bf-toast-text";
@@ -3310,6 +3331,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
   function closeCommandPalette({ restoreFocus = true } = {}) {
     updateCommandIntentBadge(shadow?.querySelector(".bf-app"), null);
+    const inlineSaveBtn = shadow?.querySelector(".bf-command-inline-save");
+    if (inlineSaveBtn) {
+      inlineSaveBtn.hidden = true;
+      delete inlineSaveBtn.dataset.url;
+    }
     const command = shadow?.querySelector(".bf-command");
     const input = shadow?.querySelector(".bf-command-input");
     const returnFocus = commandDialogReturnFocus;
@@ -3328,12 +3354,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
   function updateCommandIntentBadge(app, intentResult) {
     const badge = app?.querySelector(".bf-intent-badge");
+    const inlineSaveBtn = app?.querySelector(".bf-command-inline-save");
     if (!badge) return;
 
     if (!intentResult || !intentResult.badge || !commandQuery) {
       badge.hidden = true;
       badge.textContent = "";
       badge.className = "bf-intent-badge";
+      if (inlineSaveBtn) {
+        inlineSaveBtn.hidden = true;
+        delete inlineSaveBtn.dataset.url;
+      }
       return;
     }
 
@@ -3342,6 +3373,16 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     badge.textContent = `${icon} ${localizedLabel}`;
     badge.className = `bf-intent-badge ${className || ""}`;
     badge.hidden = false;
+
+    if (inlineSaveBtn) {
+      if (intentResult.intent === "url" && intentResult.url) {
+        inlineSaveBtn.hidden = false;
+        inlineSaveBtn.dataset.url = intentResult.url;
+      } else {
+        inlineSaveBtn.hidden = true;
+        delete inlineSaveBtn.dataset.url;
+      }
+    }
   }
 
   function renderCommandResults(app) {

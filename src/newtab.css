@@ -1209,7 +1209,7 @@ body[data-bg="custom"] {
   }
 }
 
-.nt-search-box button {
+.nt-search-box button[type="submit"] {
   border: 0;
   padding: 0 22px;
   height: 100%;
@@ -1220,10 +1220,48 @@ body[data-bg="custom"] {
   cursor: pointer;
 }
 
-.nt-search-box button:hover,
-.nt-search-box button:focus-visible {
+.nt-search-box button[type="submit"]:hover,
+.nt-search-box button[type="submit"]:focus-visible {
   filter: brightness(1.1);
   outline: none;
+}
+
+.nt-inline-save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px !important;
+  padding: 0 12px !important;
+  margin-right: 8px;
+  background: rgba(242, 201, 76, 0.16) !important;
+  color: #b78103 !important;
+  border: 1px solid rgba(242, 201, 76, 0.5) !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+[data-nt-theme="dark"] .nt-inline-save-btn {
+  background: rgba(242, 201, 76, 0.22) !important;
+  color: #f2c94c !important;
+  border-color: rgba(242, 201, 76, 0.6) !important;
+}
+
+.nt-inline-save-btn:hover {
+  background: var(--nt-theme-accent, #f2c94c) !important;
+  color: #12151b !important;
+  transform: scale(1.04);
+}
+
+.nt-inline-save-btn:active {
+  transform: scale(0.96);
+}
+
+.nt-inline-save-btn[hidden] {
+  display: none !important;
 }
 
 .nt-empty {
@@ -1764,6 +1802,15 @@ body[data-bg="custom"] {
 
 .nt-toast:hover .nt-toast-progress {
   animation-play-state: paused;
+}
+
+.nt-toast.is-undone {
+  border-color: #27ae60;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 16px rgba(39, 174, 96, 0.35);
+}
+
+.nt-toast.is-undone .nt-toast-progress {
+  background: #27ae60;
 }
 
 @keyframes ntToastProgress {

@@ -1111,6 +1111,39 @@
   flex: 1 1 auto;
 }
 
+.bf-command-inline-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  user-select: none;
+  background: rgba(242, 201, 76, 0.18);
+  color: var(--bf-theme-accent, #f2c94c);
+  border: 1px solid rgba(242, 201, 76, 0.5);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+
+.bf-command-inline-save:hover {
+  background: var(--bf-theme-accent, #f2c94c);
+  color: #12151b;
+  transform: scale(1.04);
+}
+
+.bf-command-inline-save:active {
+  transform: scale(0.96);
+}
+
+.bf-command-inline-save[hidden] {
+  display: none !important;
+}
+
 .bf-intent-badge {
   display: inline-flex;
   align-items: center;
@@ -1516,6 +1549,15 @@
 
 .bf-toast:hover .bf-toast-progress {
   animation-play-state: paused;
+}
+
+.bf-toast.is-undone {
+  border-color: #27ae60;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 16px rgba(39, 174, 96, 0.35);
+}
+
+.bf-toast.is-undone .bf-toast-progress {
+  background: #27ae60;
 }
 
 @keyframes bfToastProgress {

@@ -126,8 +126,15 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - **Ayarlar Sayfasına "Devre Dışı Bırakılan Siteler" Yönetim Paneli**:
   - `bookmark-maintenance.html` sayfasına `#sites` sekmesi (`navSitesLink`) ve dinamik site yönetim paneli (`#disabledSitesList`, `#addDisabledHostBtn`) eklendi.
   - Kullanıcı daha önce gizlediği tüm siteleri listeleyebilir, tek tıkla etkinleştirebilir veya yeni istisnalar tanımlayabilir.
+- **Arama Kutusunda Doğrudan Inline Hızlı Kaydet Butonu (`[⭐ Kaydet]` - BF-UX-018)**:
+  - Hem Yeni Sekme (`src/newtab.html`, `#searchInlineSaveBtn`) hem de sayfa içi Spotlight (`src/content.js`, `.bf-command-inline-save`) arama kutularına bir bağlantı yazıldığında/yapıştırıldığında, arama kutusunun sağında niyet rozetinin yanında doğrudan tek tıkla yer imi oluşturan altın renkli `[⭐ Kaydet]` simge butonu belirir.
+  - Kullanıcı `Enter` tuşuna basmaya veya arama öneri listesine odaklanmaya gerek kalmadan, doğrudan arama kutusundan ayrılmadan tek tıkla yer imi kaydedebilir.
+  - Tıklandığında yer imi son kullanılan klasöre veya ana çubuğa eklenir, arama kutusu temizlenir ve anlık toast bildirimi tetiklenir.
+- **Başarılı Geri Alma Teyitlerinde Zümrüt Yeşili İpucu (`.is-undone` / `#27ae60`)**:
+  - `Ctrl+Z` veya `[Geri Al]` tıklandığında gösterilen "✓ Yer imi kaldırıldı" ve "✓ Site etkinleştirildi" teyit bildirimleri, standart altın vurgu yerine zümrüt yeşili kenarlık ve ışıltıyla (`.nt-toast.is-undone`, `.bf-toast.is-undone`, `#27ae60`) sunulur.
+  - Bu görsel ayrım, kullanıcının geri alma işleminin başarıyla tamamlandığını sezgisel olarak anında kavramasını sağlar.
 - **İki Dilli Yerelleştirme**:
-  - `_locales/en` ve `_locales/tr` sözlüklerine 14 yeni anahtar (`undo`, `bookmarkDeletedToast` dahil) eklenerek %100 parite korundu.
+  - `_locales/en` ve `_locales/tr` sözlüklerine 15 yeni anahtar (`quickSaveBookmark`, `undo`, `bookmarkDeletedToast` dahil) eklenerek %100 parite korundu.
 
 ---
 
