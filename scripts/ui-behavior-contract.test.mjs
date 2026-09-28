@@ -934,6 +934,16 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
     /\.nt-search-box\.is-saved-flash\b/u,
     "newtab.css must style .nt-search-box.is-saved-flash"
   );
+  assert.match(
+    newtabCss,
+    /\.nt-search-box\.is-restored\b/u,
+    "newtab.css must style .nt-search-box.is-restored"
+  );
+  assert.match(
+    newtabCss,
+    /@keyframes\s+ntSearchRestoredFlash\b/u,
+    "newtab.css must define @keyframes ntSearchRestoredFlash"
+  );
 
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   assert.match(
@@ -961,6 +971,16 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
     /\.bf-command-head\.is-saved-flash\b/u,
     "content.css must style .bf-command-head.is-saved-flash"
   );
+  assert.match(
+    contentCss,
+    /\.bf-command-head\.is-restored\b/u,
+    "content.css must style .bf-command-head.is-restored"
+  );
+  assert.match(
+    contentCss,
+    /@keyframes\s+bfCommandRestoredFlash\b/u,
+    "content.css must define @keyframes bfCommandRestoredFlash"
+  );
 
   const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
   assert.match(
@@ -980,6 +1000,11 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
   );
   assert.match(
     newtabJs,
+    /triggerSearchRestoredFlash\s*\(/u,
+    "newtab.js must define triggerSearchRestoredFlash"
+  );
+  assert.match(
+    newtabJs,
     /hideInlineSaveBtnSmoothly\s*\(/u,
     "newtab.js must define hideInlineSaveBtnSmoothly for smooth button fade out"
   );
@@ -990,8 +1015,18 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
   );
   assert.match(
     newtabJs,
+    /lastEscapeClearedSearchText/u,
+    "newtab.js must track lastEscapeClearedSearchText"
+  );
+  assert.match(
+    newtabJs,
     /elements\.searchInput\.value\s*=\s*lastDirectSavedUrl/u,
     "newtab.js must restore lastDirectSavedUrl to searchInput on undo"
+  );
+  assert.match(
+    newtabJs,
+    /elements\.searchInput\.value\s*=\s*lastEscapeClearedSearchText/u,
+    "newtab.js must restore lastEscapeClearedSearchText on Ctrl+Z"
   );
   assert.match(
     newtabJs,
@@ -1027,6 +1062,11 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
   );
   assert.match(
     contentJs,
+    /triggerCommandRestoredFlash\s*\(/u,
+    "content.js must define triggerCommandRestoredFlash"
+  );
+  assert.match(
+    contentJs,
     /hideCommandInlineSaveBtnSmoothly\s*\(/u,
     "content.js must define hideCommandInlineSaveBtnSmoothly for smooth button fade out"
   );
@@ -1037,8 +1077,18 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
   );
   assert.match(
     contentJs,
+    /lastEscapeClearedCommandText/u,
+    "content.js must track lastEscapeClearedCommandText"
+  );
+  assert.match(
+    contentJs,
     /commandQuery\s*=\s*lastCommandDirectSavedUrl/u,
     "content.js must restore lastCommandDirectSavedUrl on undo"
+  );
+  assert.match(
+    contentJs,
+    /input\.value\s*=\s*lastEscapeClearedCommandText/u,
+    "content.js must restore lastEscapeClearedCommandText on Ctrl+Z"
   );
   assert.match(
     contentJs,

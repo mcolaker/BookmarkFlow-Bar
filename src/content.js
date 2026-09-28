@@ -80,6 +80,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let pinnedFolderIds = [];
   let lastUsedFolderId = "";
   let lastCommandDirectSavedUrl = "";
+  let lastEscapeClearedCommandText = "";
   let commandInlineSaveLeaveTimeout = null;
   let firstRunTooltipSeen = true;
   let extensionContextInvalidated = false;
@@ -2674,6 +2675,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
                 input.focus();
                 input.select();
               }
+              triggerCommandRestoredFlash();
               lastCommandDirectSavedUrl = "";
             }
           }
@@ -3402,6 +3404,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }, 360);
   }
 
+  function triggerCommandRestoredFlash() {
+    const head = shadow?.querySelector(".bf-command-head");
+    if (!head) return;
+    head.classList.remove("is-restored");
+    void head.offsetWidth;
+    head.classList.add("is-restored");
+    window.setTimeout(() => {
+      head.classList.remove("is-restored");
+    }, 410);
+  }
+
   function hideCommandInlineSaveBtnSmoothly(inlineSaveBtn) {
     if (!inlineSaveBtn || inlineSaveBtn.hidden) return;
     if (inlineSaveBtn.classList.contains("is-leaving")) return;
@@ -3714,8 +3727,27 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       }
     }
 
+    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && (event.key === "z" || event.key === "Z")) {
+      const input = shadow?.querySelector(".bf-command-input");
+      if (input && !input.value && lastEscapeClearedCommandText) {
+        event.preventDefault();
+        event.stopPropagation();
+        input.value = lastEscapeClearedCommandText;
+        commandQuery = lastEscapeClearedCommandText;
+        renderCommandResults(shadow.querySelector(".bf-app"));
+        input.focus();
+        input.select();
+        triggerCommandRestoredFlash();
+        lastEscapeClearedCommandText = "";
+        return;
+      }
+    }
+
     if (event.key === "Escape") {
       event.preventDefault();
+      if (commandQuery) {
+        lastEscapeClearedCommandText = commandQuery;
+      }
       closeCommandPalette();
       return;
     }

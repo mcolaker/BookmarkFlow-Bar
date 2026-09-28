@@ -1122,6 +1122,20 @@
   }
 }
 
+.bf-command-head.is-restored {
+  animation: bfCommandRestoredFlash 0.4s ease-out;
+}
+
+@keyframes bfCommandRestoredFlash {
+  0% {
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.85), inset 0 0 12px rgba(245, 158, 11, 0.3);
+    border-color: #f59e0b;
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
 .bf-command-head .bf-command-input {
   flex: 1 1 auto;
 }

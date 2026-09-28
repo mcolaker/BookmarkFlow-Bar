@@ -678,7 +678,19 @@ function triggerSearchSaveFlash() {
   }, 360);
 }
 
+function triggerSearchRestoredFlash() {
+  const searchBox = document.querySelector(".nt-search-box");
+  if (!searchBox) return;
+  searchBox.classList.remove("is-restored");
+  void searchBox.offsetWidth;
+  searchBox.classList.add("is-restored");
+  window.setTimeout(() => {
+    searchBox.classList.remove("is-restored");
+  }, 410);
+}
+
 let lastDirectSavedUrl = "";
+let lastEscapeClearedSearchText = "";
 let inlineSaveLeaveTimeout = null;
 
 function hideInlineSaveBtnSmoothly(inlineSaveBtn) {
@@ -904,6 +916,30 @@ function handleSearchKeydown(event) {
     }
   }
 
+  if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && (event.key === "z" || event.key === "Z")) {
+    if (!elements.searchInput.value && lastEscapeClearedSearchText) {
+      event.preventDefault();
+      event.stopPropagation();
+      elements.searchInput.value = lastEscapeClearedSearchText;
+      elements.searchInput.focus();
+      elements.searchInput.select();
+      handleSearchInput();
+      triggerSearchRestoredFlash();
+      lastEscapeClearedSearchText = "";
+      return;
+    }
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    if (elements.searchInput.value.trim()) {
+      lastEscapeClearedSearchText = elements.searchInput.value;
+    }
+    hideSearchResults();
+    elements.searchInput.value = "";
+    return;
+  }
+
   if (!currentSearchResults.length || elements.searchResults.hidden) {
     return;
   }
@@ -917,13 +953,6 @@ function handleSearchKeydown(event) {
   if (event.key === "ArrowUp") {
     event.preventDefault();
     moveSearchSelection(-1);
-    return;
-  }
-
-  if (event.key === "Escape") {
-    event.preventDefault();
-    hideSearchResults();
-    elements.searchInput.value = "";
     return;
   }
 
@@ -1214,6 +1243,7 @@ async function handleDirectSaveBookmark(url, parentId) {
             elements.searchInput.focus();
             elements.searchInput.select();
             handleSearchInput();
+            triggerSearchRestoredFlash();
             lastDirectSavedUrl = "";
           }
         }

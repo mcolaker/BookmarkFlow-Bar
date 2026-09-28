@@ -1240,6 +1240,20 @@ body[data-bg="custom"] {
   }
 }
 
+.nt-search-box.is-restored {
+  animation: ntSearchRestoredFlash 0.4s ease-out;
+}
+
+@keyframes ntSearchRestoredFlash {
+  0% {
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.85), 0 0 18px rgba(245, 158, 11, 0.45);
+    border-color: #f59e0b;
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
 @keyframes ntInlineSaveEnter {
   0% {
     opacity: 0;
