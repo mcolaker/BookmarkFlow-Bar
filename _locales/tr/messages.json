@@ -430,5 +430,6 @@
         "example": "Projeler"
       }
     }
-  }
+  },
+  "undoWithShortcut": { "message": "Geri Al (Ctrl+Z)" }
 }

@@ -125,6 +125,8 @@ async function init() {
     const targetParentId = elements.searchInlineSaveBtn.dataset.parentId || appState?.bookmarkBar?.id || "";
     hideSearchResults();
     elements.searchInput.value = "";
+    triggerSearchSaveFlash();
+    elements.searchInput.focus();
     await handleDirectSaveBookmark(targetUrl, targetParentId);
   });
   document.addEventListener("click", handleSearchOutsideClick);
@@ -665,6 +667,17 @@ function getQuickSaveTargetInfo() {
   return { parentId: parentId || barNode?.id || "", folderName, titleText };
 }
 
+function triggerSearchSaveFlash() {
+  const searchBox = document.querySelector(".nt-search-box");
+  if (!searchBox) return;
+  searchBox.classList.remove("is-saved-flash");
+  void searchBox.offsetWidth;
+  searchBox.classList.add("is-saved-flash");
+  window.setTimeout(() => {
+    searchBox.classList.remove("is-saved-flash");
+  }, 360);
+}
+
 function updateSearchIntentBadge(intentResult) {
   const badge = elements.searchIntentBadge;
   const inlineSaveBtn = elements.searchInlineSaveBtn;
@@ -1161,7 +1174,7 @@ async function handleDirectSaveBookmark(url, parentId) {
     }
 
     const action = createdId ? {
-      label: t("undo") || "Geri Al",
+      label: t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)",
       onClick: async () => {
         const delRes = await sendMessage({
           type: "BF_DELETE_BOOKMARK",
@@ -1221,7 +1234,10 @@ function showToastNotification(message, durationMs = 1800, action = null, varian
     const actionBtn = document.createElement("button");
     actionBtn.type = "button";
     actionBtn.className = "nt-toast-action-btn";
-    actionBtn.textContent = action.label || t("undo") || "Geri Al";
+    const undoLabel = action.label || t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)";
+    actionBtn.textContent = undoLabel;
+    actionBtn.title = t("undoWithShortcut") || undoLabel;
+    actionBtn.setAttribute("aria-label", t("undoWithShortcut") || undoLabel);
     actionBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();

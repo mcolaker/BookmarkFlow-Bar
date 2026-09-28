@@ -1105,6 +1105,21 @@
   gap: 8px;
   padding: 10px;
   border-bottom: 1px solid var(--bf-theme-border-subtle);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.bf-command-head.is-saved-flash {
+  animation: bfCommandSaveFlash 0.35s ease-out;
+}
+
+@keyframes bfCommandSaveFlash {
+  0% {
+    box-shadow: 0 0 0 2px rgba(242, 201, 76, 0.85), inset 0 0 12px rgba(242, 201, 76, 0.25);
+    border-color: #f2c94c;
+  }
+  100% {
+    box-shadow: none;
+  }
 }
 
 .bf-command-head .bf-command-input {

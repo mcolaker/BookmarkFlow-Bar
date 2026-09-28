@@ -1226,6 +1226,20 @@ body[data-bg="custom"] {
   outline: none;
 }
 
+.nt-search-box.is-saved-flash {
+  animation: ntSearchSaveFlash 0.35s ease-out;
+}
+
+@keyframes ntSearchSaveFlash {
+  0% {
+    box-shadow: 0 0 0 2px rgba(242, 201, 76, 0.85), 0 0 16px rgba(242, 201, 76, 0.45);
+    border-color: #f2c94c;
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
 .nt-inline-save-btn {
   display: inline-flex;
   align-items: center;

@@ -898,6 +898,8 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
   assert.ok(trLocales.quickSaveToBar, "tr messages must have quickSaveToBar");
   assert.ok(enLocales.quickSaveToFolder, "en messages must have quickSaveToFolder");
   assert.ok(trLocales.quickSaveToFolder, "tr messages must have quickSaveToFolder");
+  assert.ok(enLocales.undoWithShortcut, "en messages must have undoWithShortcut");
+  assert.ok(trLocales.undoWithShortcut, "tr messages must have undoWithShortcut");
 
   const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
   assert.match(
@@ -917,6 +919,11 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
     /\.nt-toast\.is-undone\b/u,
     "newtab.css must style .nt-toast.is-undone"
   );
+  assert.match(
+    newtabCss,
+    /\.nt-search-box\.is-saved-flash\b/u,
+    "newtab.css must style .nt-search-box.is-saved-flash"
+  );
 
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   assert.match(
@@ -928,6 +935,11 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
     contentCss,
     /\.bf-toast\.is-undone\b/u,
     "content.css must style .bf-toast.is-undone"
+  );
+  assert.match(
+    contentCss,
+    /\.bf-command-head\.is-saved-flash\b/u,
+    "content.css must style .bf-command-head.is-saved-flash"
   );
 
   const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
@@ -943,6 +955,11 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
   );
   assert.match(
     newtabJs,
+    /triggerSearchSaveFlash\s*\(/u,
+    "newtab.js must define triggerSearchSaveFlash"
+  );
+  assert.match(
+    newtabJs,
     /\(event\.key\s*===\s*["']s["']\s*\|\|\s*event\.key\s*===\s*["']S["']\)[\s\S]*?searchInlineSaveBtn/u,
     "newtab.js must support Ctrl+S / Cmd+S shortcut to trigger inline save"
   );
@@ -950,6 +967,11 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
     newtabJs,
     /showToastNotification\([\s\S]*?["']is-undone["']\)/u,
     "newtab.js must invoke showToastNotification with is-undone on bookmark undo"
+  );
+  assert.match(
+    newtabJs,
+    /undoWithShortcut/u,
+    "newtab.js must use undoWithShortcut key in toast action"
   );
 
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
@@ -965,6 +987,11 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
   );
   assert.match(
     contentJs,
+    /triggerCommandSaveFlash\s*\(/u,
+    "content.js must define triggerCommandSaveFlash"
+  );
+  assert.match(
+    contentJs,
     /\(event\.key\s*===\s*["']s["']\s*\|\|\s*event\.key\s*===\s*["']S["']\)[\s\S]*?bf-command-inline-save/u,
     "content.js must support Ctrl+S / Cmd+S shortcut to trigger inline save"
   );
@@ -977,5 +1004,10 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
     contentJs,
     /showContentToastNotification\([\s\S]*?["']is-undone["']\)/u,
     "content.js must invoke showContentToastNotification with is-undone on undo"
+  );
+  assert.match(
+    contentJs,
+    /undoWithShortcut/u,
+    "content.js must use undoWithShortcut key in toast action"
   );
 });

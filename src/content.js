@@ -1796,6 +1796,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const inlineBtn = actionButton || shadow?.querySelector(".bf-command-inline-save");
       const targetUrl = inlineBtn?.dataset?.url;
       if (!targetUrl) return;
+      triggerCommandSaveFlash();
       closeCommandPalette();
       const targetParentId = inlineBtn?.dataset?.parentId || appState?.bookmarkBar?.id || "";
       handleDirectSaveBookmark(targetUrl, targetParentId);
@@ -1956,7 +1957,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         }, 3600);
 
         showContentToastNotification(t("siteDisabledToast"), 3500, {
-          label: t("undo") || "Geri Al",
+          label: t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)",
           onClick: () => {
             clearTimeout(disableTeardownTimer);
             const currentDisabled = appState?.settings?.disabledHosts || [];
@@ -2651,7 +2652,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       }
       const createdId = response?.createdId;
       const action = createdId ? {
-        label: t("undo") || "Geri Al",
+        label: t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)",
         onClick: async () => {
           const delRes = await sendMessage({
             type: MESSAGE_DELETE_BOOKMARK,
@@ -2713,7 +2714,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const actionBtn = document.createElement("button");
       actionBtn.type = "button";
       actionBtn.className = "bf-toast-action-btn";
-      actionBtn.textContent = action.label || t("undo") || "Geri Al";
+      const undoLabel = action.label || t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)";
+      actionBtn.textContent = undoLabel;
+      actionBtn.title = t("undoWithShortcut") || undoLabel;
+      actionBtn.setAttribute("aria-label", t("undoWithShortcut") || undoLabel);
       actionBtn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -3366,6 +3370,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       ? (t("quickSaveToFolder", folderName) || `'${folderName}' Klasörüne Kaydet (Ctrl+S)`)
       : (t("quickSaveToBar") || "Yer İmleri Çubuğuna Kaydet (Ctrl+S)");
     return { parentId: parentId || barNode?.id || "", folderName, titleText };
+  }
+
+  function triggerCommandSaveFlash() {
+    const head = shadow?.querySelector(".bf-command-head");
+    if (!head) return;
+    head.classList.remove("is-saved-flash");
+    void head.offsetWidth;
+    head.classList.add("is-saved-flash");
+    window.setTimeout(() => {
+      head.classList.remove("is-saved-flash");
+    }, 360);
   }
 
   function updateCommandIntentBadge(app, intentResult) {

@@ -126,16 +126,16 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - **Ayarlar Sayfasına "Devre Dışı Bırakılan Siteler" Yönetim Paneli**:
   - `bookmark-maintenance.html` sayfasına `#sites` sekmesi (`navSitesLink`) ve dinamik site yönetim paneli (`#disabledSitesList`, `#addDisabledHostBtn`) eklendi.
   - Kullanıcı daha önce gizlediği tüm siteleri listeleyebilir, tek tıkla etkinleştirebilir veya yeni istisnalar tanımlayabilir.
-- **Arama Kutusunda Doğrudan Inline Hızlı Kaydet Butonu, `Ctrl+S` Kısayolu ve Dinamik Tooltip (`[⭐ Kaydet]` - BF-UX-018)**:
+- **Arama Kutusunda Doğrudan Inline Hızlı Kaydet Butonu, `Ctrl+S` Kısayolu, Dinamik Tooltip ve Altın Parlama Animasyonu (`[⭐ Kaydet]` - BF-UX-018)**:
   - Hem Yeni Sekme (`src/newtab.html`, `#searchInlineSaveBtn`) hem de sayfa içi Spotlight (`src/content.js`, `.bf-command-inline-save`) arama kutularına bir bağlantı yazıldığında/yapıştırıldığında, arama kutusunun sağında niyet rozetinin yanında doğrudan tek tıkla yer imi oluşturan altın renkli `[⭐ Kaydet]` simge butonu belirir.
   - **`Ctrl+S` / `Cmd+S` Doğrudan Kaydetme Kısayolu**: Arama kutusu odaklıyken ve URL algılanmışken kullanıcı fareye dokunmadan doğrudan `Ctrl+S` basarak tarayıcının yerel farklı kaydetme penceresini engeller ve yer imini son klasöre anında kaydeder.
   - **Dinamik Hedef Klasör İpucu (Tooltip)**: Butonun üzerine gelindiğinde hedef klasör adına göre canlı bir ipucu sunulur (Örn: `"'Projeler' Klasörüne Kaydet (Ctrl+S)"` veya `"Yer İmleri Çubuğuna Kaydet (Ctrl+S)"`). Kullanıcı nereye kaydedileceğini önceden görerek sıfır hata ile işlem yapar.
-  - Tıklandığında veya kısayol basıldığında yer imi hedef klasöre eklenir, arama kutusu temizlenir ve anlık toast bildirimi tetiklenir.
-- **Başarılı Geri Alma Teyitlerinde Zümrüt Yeşili İpucu (`.is-undone` / `#27ae60`)**:
+  - **Altın Parlama Mikro Animasyonu (Save Pulse)**: `Ctrl+S` veya inline butona basılarak kayıt yapıldığında arama kutusunda 350ms süren zarif bir altın ışıltı (`.is-saved-flash`, `ntSearchSaveFlash`, `bfCommandSaveFlash`) tetiklenir; arama kutusu temizlenir ve odak arama çubuğunda korunur.
+- **Evrensel Toast Geri Alma Butonunda `(Ctrl+Z)` İpucu ve Zümrüt Yeşili Başarı Vurgusu (`.is-undone` / `#27ae60`)**:
+  - Toast geri alma butonunun metni ve title özniteliği klavye kullanıcısına kısayolu öğretecek şekilde `"Geri Al (Ctrl+Z)"` / `"Undo (Ctrl+Z)"` (`undoWithShortcut`) olarak sunulur.
   - `Ctrl+Z` veya `[Geri Al]` tıklandığında gösterilen "✓ Yer imi kaldırıldı" ve "✓ Site etkinleştirildi" teyit bildirimleri, standart altın vurgu yerine zümrüt yeşili kenarlık ve ışıltıyla (`.nt-toast.is-undone`, `.bf-toast.is-undone`, `#27ae60`) sunulur.
-  - Bu görsel ayrım, kullanıcının geri alma işleminin başarıyla tamamlandığını sezgisel olarak anında kavramasını sağlar.
 - **İki Dilli Yerelleştirme**:
-  - `_locales/en` ve `_locales/tr` sözlüklerine 17 yeni anahtar (`quickSaveToBar`, `quickSaveToFolder`, `quickSaveBookmark`, `undo`, `bookmarkDeletedToast` dahil) eklenerek %100 parite korundu.
+  - `_locales/en` ve `_locales/tr` sözlüklerine 18 yeni anahtar (`undoWithShortcut`, `quickSaveToBar`, `quickSaveToFolder`, `quickSaveBookmark`, `undo`, `bookmarkDeletedToast` dahil) eklenerek %100 parite korundu.
 
 ---
 
