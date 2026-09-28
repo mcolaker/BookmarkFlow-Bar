@@ -69,4 +69,5 @@ test("agentic motion & media QA scripts contract (BF-QA-002, BF-QA-003)", () => 
   const pkg = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8"));
   assert.ok(pkg.scripts?.["qa:motion"], "package.json must declare qa:motion script");
   assert.ok(pkg.scripts?.["qa:media"], "package.json must declare qa:media script");
+  assert.match(pkg.scripts?.["validate:all"], /validate-media-qa\.mjs --offline/u, "validate:all must run validate-media-qa.mjs in offline mode");
 });

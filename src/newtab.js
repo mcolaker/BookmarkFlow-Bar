@@ -1395,7 +1395,8 @@ async function handleAddBookmarkSubmit(event) {
     lastUsedFolderId = parentId;
     chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: parentId }).catch(() => {});
   }
-  renderAddBookmarkStatus(parentId ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
+  const isSubfolder = Boolean(parentId && parentId !== appState?.bookmarkBar?.id && parentId !== appState?.bookmarkBarId);
+  renderAddBookmarkStatus(isSubfolder ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
   window.setTimeout(() => {
     const returnFocus = closeAddBookmarkDialog({ restoreFocus: false });
     render();
