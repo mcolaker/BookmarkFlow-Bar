@@ -916,6 +916,16 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
   );
   assert.match(
     newtabCss,
+    /\.nt-inline-save-btn\.is-leaving\b/u,
+    "newtab.css must style .nt-inline-save-btn.is-leaving for smooth exit"
+  );
+  assert.match(
+    newtabCss,
+    /@keyframes\s+ntInlineSaveEnter\b/u,
+    "newtab.css must define @keyframes ntInlineSaveEnter"
+  );
+  assert.match(
+    newtabCss,
     /\.nt-toast\.is-undone\b/u,
     "newtab.css must style .nt-toast.is-undone"
   );
@@ -930,6 +940,16 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
     contentCss,
     /\.bf-command-inline-save\b/u,
     "content.css must style .bf-command-inline-save"
+  );
+  assert.match(
+    contentCss,
+    /\.bf-command-inline-save\.is-leaving\b/u,
+    "content.css must style .bf-command-inline-save.is-leaving for smooth exit"
+  );
+  assert.match(
+    contentCss,
+    /@keyframes\s+bfCommandInlineSaveEnter\b/u,
+    "content.css must define @keyframes bfCommandInlineSaveEnter"
   );
   assert.match(
     contentCss,
@@ -957,6 +977,21 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
     newtabJs,
     /triggerSearchSaveFlash\s*\(/u,
     "newtab.js must define triggerSearchSaveFlash"
+  );
+  assert.match(
+    newtabJs,
+    /hideInlineSaveBtnSmoothly\s*\(/u,
+    "newtab.js must define hideInlineSaveBtnSmoothly for smooth button fade out"
+  );
+  assert.match(
+    newtabJs,
+    /lastDirectSavedUrl/u,
+    "newtab.js must track lastDirectSavedUrl"
+  );
+  assert.match(
+    newtabJs,
+    /elements\.searchInput\.value\s*=\s*lastDirectSavedUrl/u,
+    "newtab.js must restore lastDirectSavedUrl to searchInput on undo"
   );
   assert.match(
     newtabJs,
@@ -989,6 +1024,21 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
     contentJs,
     /triggerCommandSaveFlash\s*\(/u,
     "content.js must define triggerCommandSaveFlash"
+  );
+  assert.match(
+    contentJs,
+    /hideCommandInlineSaveBtnSmoothly\s*\(/u,
+    "content.js must define hideCommandInlineSaveBtnSmoothly for smooth button fade out"
+  );
+  assert.match(
+    contentJs,
+    /lastCommandDirectSavedUrl/u,
+    "content.js must track lastCommandDirectSavedUrl"
+  );
+  assert.match(
+    contentJs,
+    /commandQuery\s*=\s*lastCommandDirectSavedUrl/u,
+    "content.js must restore lastCommandDirectSavedUrl on undo"
   );
   assert.match(
     contentJs,

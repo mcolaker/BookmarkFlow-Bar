@@ -1240,6 +1240,17 @@ body[data-bg="custom"] {
   }
 }
 
+@keyframes ntInlineSaveEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .nt-inline-save-btn {
   display: inline-flex;
   align-items: center;
@@ -1255,7 +1266,14 @@ body[data-bg="custom"] {
   font-weight: 700 !important;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.15s ease;
+  animation: ntInlineSaveEnter 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.12s ease, transform 0.12s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.nt-inline-save-btn.is-leaving {
+  opacity: 0 !important;
+  transform: scale(0.92) !important;
+  pointer-events: none !important;
 }
 
 [data-nt-theme="dark"] .nt-inline-save-btn {

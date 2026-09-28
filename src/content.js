@@ -79,6 +79,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let suppressNextClick = false;
   let pinnedFolderIds = [];
   let lastUsedFolderId = "";
+  let lastCommandDirectSavedUrl = "";
+  let commandInlineSaveLeaveTimeout = null;
   let firstRunTooltipSeen = true;
   let extensionContextInvalidated = false;
   let addDialogReturnFocus = null;
@@ -2610,6 +2612,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (!url || !isSafeBookmarkUrl(url)) {
       return;
     }
+    lastCommandDirectSavedUrl = url;
     const title = getHostname(url) || url;
     const response = await sendMessage({
       type: MESSAGE_CREATE_BOOKMARK,
@@ -2662,6 +2665,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
             appState = delRes;
             renderFromState();
             showContentToastNotification(t("bookmarkDeletedToast") || "✓ Yer imi kaldırıldı", 1800, null, "is-undone");
+            if (lastCommandDirectSavedUrl) {
+              commandQuery = lastCommandDirectSavedUrl;
+              openCommandPalette();
+              const input = shadow?.querySelector(".bf-command-input");
+              if (input) {
+                input.value = lastCommandDirectSavedUrl;
+                input.focus();
+                input.select();
+              }
+              lastCommandDirectSavedUrl = "";
+            }
           }
         }
       } : null;
@@ -3337,6 +3351,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     updateCommandIntentBadge(shadow?.querySelector(".bf-app"), null);
     const inlineSaveBtn = shadow?.querySelector(".bf-command-inline-save");
     if (inlineSaveBtn) {
+      if (commandInlineSaveLeaveTimeout) {
+        clearTimeout(commandInlineSaveLeaveTimeout);
+        commandInlineSaveLeaveTimeout = null;
+      }
+      inlineSaveBtn.classList.remove("is-leaving");
       inlineSaveBtn.hidden = true;
       delete inlineSaveBtn.dataset.url;
       delete inlineSaveBtn.dataset.parentId;
@@ -3383,6 +3402,35 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }, 360);
   }
 
+  function hideCommandInlineSaveBtnSmoothly(inlineSaveBtn) {
+    if (!inlineSaveBtn || inlineSaveBtn.hidden) return;
+    if (inlineSaveBtn.classList.contains("is-leaving")) return;
+    inlineSaveBtn.classList.add("is-leaving");
+    delete inlineSaveBtn.dataset.url;
+    delete inlineSaveBtn.dataset.parentId;
+    if (commandInlineSaveLeaveTimeout) {
+      clearTimeout(commandInlineSaveLeaveTimeout);
+    }
+    commandInlineSaveLeaveTimeout = window.setTimeout(() => {
+      inlineSaveBtn.hidden = true;
+      inlineSaveBtn.classList.remove("is-leaving");
+      commandInlineSaveLeaveTimeout = null;
+    }, 120);
+  }
+
+  function showCommandInlineSaveBtn(inlineSaveBtn, url, parentId, titleText) {
+    if (commandInlineSaveLeaveTimeout) {
+      clearTimeout(commandInlineSaveLeaveTimeout);
+      commandInlineSaveLeaveTimeout = null;
+    }
+    inlineSaveBtn.classList.remove("is-leaving");
+    inlineSaveBtn.hidden = false;
+    inlineSaveBtn.dataset.url = url;
+    inlineSaveBtn.dataset.parentId = parentId;
+    inlineSaveBtn.title = titleText;
+    inlineSaveBtn.setAttribute("aria-label", titleText);
+  }
+
   function updateCommandIntentBadge(app, intentResult) {
     const badge = app?.querySelector(".bf-intent-badge");
     const inlineSaveBtn = app?.querySelector(".bf-command-inline-save");
@@ -3393,9 +3441,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       badge.textContent = "";
       badge.className = "bf-intent-badge";
       if (inlineSaveBtn) {
-        inlineSaveBtn.hidden = true;
-        delete inlineSaveBtn.dataset.url;
-        delete inlineSaveBtn.dataset.parentId;
+        hideCommandInlineSaveBtnSmoothly(inlineSaveBtn);
       }
       return;
     }
@@ -3408,16 +3454,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     if (inlineSaveBtn) {
       if (intentResult.intent === "url" && intentResult.url) {
-        inlineSaveBtn.hidden = false;
-        inlineSaveBtn.dataset.url = intentResult.url;
         const { parentId, titleText } = getContentQuickSaveTargetInfo();
-        inlineSaveBtn.dataset.parentId = parentId;
-        inlineSaveBtn.title = titleText;
-        inlineSaveBtn.setAttribute("aria-label", titleText);
+        showCommandInlineSaveBtn(inlineSaveBtn, intentResult.url, parentId, titleText);
       } else {
-        inlineSaveBtn.hidden = true;
-        delete inlineSaveBtn.dataset.url;
-        delete inlineSaveBtn.dataset.parentId;
+        hideCommandInlineSaveBtnSmoothly(inlineSaveBtn);
       }
     }
   }

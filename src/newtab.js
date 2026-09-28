@@ -678,6 +678,38 @@ function triggerSearchSaveFlash() {
   }, 360);
 }
 
+let lastDirectSavedUrl = "";
+let inlineSaveLeaveTimeout = null;
+
+function hideInlineSaveBtnSmoothly(inlineSaveBtn) {
+  if (!inlineSaveBtn || inlineSaveBtn.hidden) return;
+  if (inlineSaveBtn.classList.contains("is-leaving")) return;
+  inlineSaveBtn.classList.add("is-leaving");
+  delete inlineSaveBtn.dataset.url;
+  delete inlineSaveBtn.dataset.parentId;
+  if (inlineSaveLeaveTimeout) {
+    clearTimeout(inlineSaveLeaveTimeout);
+  }
+  inlineSaveLeaveTimeout = window.setTimeout(() => {
+    inlineSaveBtn.hidden = true;
+    inlineSaveBtn.classList.remove("is-leaving");
+    inlineSaveLeaveTimeout = null;
+  }, 120);
+}
+
+function showInlineSaveBtn(inlineSaveBtn, url, parentId, titleText) {
+  if (inlineSaveLeaveTimeout) {
+    clearTimeout(inlineSaveLeaveTimeout);
+    inlineSaveLeaveTimeout = null;
+  }
+  inlineSaveBtn.classList.remove("is-leaving");
+  inlineSaveBtn.hidden = false;
+  inlineSaveBtn.dataset.url = url;
+  inlineSaveBtn.dataset.parentId = parentId;
+  inlineSaveBtn.title = titleText;
+  inlineSaveBtn.setAttribute("aria-label", titleText);
+}
+
 function updateSearchIntentBadge(intentResult) {
   const badge = elements.searchIntentBadge;
   const inlineSaveBtn = elements.searchInlineSaveBtn;
@@ -689,9 +721,7 @@ function updateSearchIntentBadge(intentResult) {
     badge.textContent = "";
     badge.className = "nt-intent-badge";
     if (inlineSaveBtn) {
-      inlineSaveBtn.hidden = true;
-      delete inlineSaveBtn.dataset.url;
-      delete inlineSaveBtn.dataset.parentId;
+      hideInlineSaveBtnSmoothly(inlineSaveBtn);
     }
     return;
   }
@@ -704,16 +734,10 @@ function updateSearchIntentBadge(intentResult) {
 
   if (inlineSaveBtn) {
     if (intentResult.intent === "url" && intentResult.url) {
-      inlineSaveBtn.hidden = false;
-      inlineSaveBtn.dataset.url = intentResult.url;
       const { parentId, titleText } = getQuickSaveTargetInfo();
-      inlineSaveBtn.dataset.parentId = parentId;
-      inlineSaveBtn.title = titleText;
-      inlineSaveBtn.setAttribute("aria-label", titleText);
+      showInlineSaveBtn(inlineSaveBtn, intentResult.url, parentId, titleText);
     } else {
-      inlineSaveBtn.hidden = true;
-      delete inlineSaveBtn.dataset.url;
-      delete inlineSaveBtn.dataset.parentId;
+      hideInlineSaveBtnSmoothly(inlineSaveBtn);
     }
   }
 }
@@ -1143,6 +1167,7 @@ async function handleDirectSaveBookmark(url, parentId) {
   if (!url || !isSafeBookmarkUrl(url)) {
     return;
   }
+  lastDirectSavedUrl = url;
   const title = getHostname(url) || url;
   const response = await sendMessage({
     type: "BF_CREATE_BOOKMARK",
@@ -1184,6 +1209,13 @@ async function handleDirectSaveBookmark(url, parentId) {
           appState = delRes;
           render();
           showToastNotification(t("bookmarkDeletedToast") || "✓ Yer imi kaldırıldı", 1800, null, "is-undone");
+          if (lastDirectSavedUrl) {
+            elements.searchInput.value = lastDirectSavedUrl;
+            elements.searchInput.focus();
+            elements.searchInput.select();
+            handleSearchInput();
+            lastDirectSavedUrl = "";
+          }
         }
       }
     } : null;
@@ -1344,8 +1376,7 @@ function hideSearchResults() {
     elements.searchIntentBadge.className = "nt-intent-badge";
   }
   if (elements.searchInlineSaveBtn) {
-    elements.searchInlineSaveBtn.hidden = true;
-    delete elements.searchInlineSaveBtn.dataset.url;
+    hideInlineSaveBtnSmoothly(elements.searchInlineSaveBtn);
   }
 }
 
