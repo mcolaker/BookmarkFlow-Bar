@@ -36,6 +36,7 @@ Geçerli herhangi bir P0 kuralı ihlal edilmişse hiçbir görev tamamlanmış s
 15. **Sürüm Öncesi Değişiklik Günlüğü (`UNRELEASED_CHANGES.md`)**: Yeni sürüm çıkana kadar yapılan tüm geliştirmeler unreleased olarak not alınır; sürüm istendiğinde notlar doğrudan buradan derlenir.
 16. **Profesyonel Görsel ve Sürüm Sunum Standardı**: Her sürümde profesyonel tanıtım görselleri (X 1200x675, LinkedIn 1200x627) hazır sunulur; `README.md` yeni sürüm yetenekleriyle eksiksiz güncellenir.
 17. **GitHub İşlem Yetkilendirmesi (BF-GOV-007)**: Dal oluşturma, push ve PR işlemleri onay beklenmeden yürütülür; sürüm etiketi, harici platform duyuruları ve force push açık kullanıcı onayı gerektirir.
+18. **Yerel Niyet ve Akıllı Yönlendirme Motoru (Zero-Latency Intent Engine)**: Arama ve Spotlight paletine girilen girdiler harici ağ isteği olmadan yerel kural motoruyla (`BookmarkIntentRoutingEngine`: URL, komut, etiket, klasör, sekme, arama) anında sınıflandırılır; kullanıcıya ne olacağını canlı gösteren akıllı rozet (`Smart Routing Badge`) sunulur. UI'da son kullanıcıya dönük AI/JEV teknik terimleri kullanılamaz (P0-13 ile tam uyumlu).
 
 ---
 

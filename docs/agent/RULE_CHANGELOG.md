@@ -2,6 +2,11 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-09-28] — Yerel Niyet ve Akıllı Yönlendirme Motoru Standardı (BF-UX-017 / Karar 17)
+- **P0-18 Kuralı Tanımlandı**: Arama çubuğu ve Spotlight paleti için harici sunucu bağımsız, sıfır gecikmeli kural bazlı niyet motoru (`BookmarkIntentRoutingEngine`) zorunlu kılındı.
+- **Canlı Akıllı Rozetler (Smart Routing Badges)**: Kullanıcı yazarken girdi türüne göre anlık rozet (`[🌐 Bağlantı Modu]`, `[⚡ Komut Modu]`, `[🏷️ Etiket Modu]`, `[📁 Klasör Modu]`, `[🗂️ Sekme Modu]`, `[🔍 Akıllı Arama]`) gösterilmesi kurala bağlandı.
+- **Son Kullanıcı Terminolojisi Hijyeni (P0-13)**: Motorun arka plan mantığı kullanıcıya asla "AI" veya "JEV" gibi teknik terimlerle yansıtılamaz; daima "Akıllı Arama" veya "Akıllı Yönlendirme" sunulur.
+
 ---
 
 ## [2026-09-28] — JaponiGo Yönetişim & Modüler Playbook Mimarisine Geçiş (BF-GOV-010)

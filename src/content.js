@@ -912,6 +912,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         <div class="bf-command-panel" role="dialog" aria-modal="true" aria-label="${escapeAttribute(t("bookmarkSearch"))}" tabindex="-1">
           <div class="bf-command-head">
             <input class="bf-command-input" type="search" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="bf-command-list" aria-expanded="false" aria-label="${escapeAttribute(t("bookmarkSearch"))}" placeholder="${escapeAttribute(t("bookmarkSearchPlaceholder"))}">
+            <div class="bf-intent-badge" hidden aria-hidden="true"></div>
             <button class="bf-command-close" type="button" data-bf-action="close-search" title="${escapeAttribute(t("close"))}" aria-label="${escapeAttribute(t("close"))}">×</button>
           </div>
           <div class="bf-command-list" id="bf-command-list" role="listbox" aria-label="${escapeAttribute(t("bookmarkSearch"))}"></div>
@@ -3163,6 +3164,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function closeCommandPalette({ restoreFocus = true } = {}) {
+    updateCommandIntentBadge(shadow?.querySelector(".bf-app"), null);
     const command = shadow?.querySelector(".bf-command");
     const input = shadow?.querySelector(".bf-command-input");
     const returnFocus = commandDialogReturnFocus;
@@ -3179,11 +3181,35 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     return returnFocus;
   }
 
+  function updateCommandIntentBadge(app, intentResult) {
+    const badge = app?.querySelector(".bf-intent-badge");
+    if (!badge) return;
+
+    if (!intentResult || !intentResult.badge || !commandQuery) {
+      badge.hidden = true;
+      badge.textContent = "";
+      badge.className = "bf-intent-badge";
+      return;
+    }
+
+    const { icon, key, label, className } = intentResult.badge;
+    const localizedLabel = (typeof t === "function" && t(key)) ? t(key) : label;
+    badge.textContent = `${icon} ${localizedLabel}`;
+    badge.className = `bf-intent-badge ${className || ""}`;
+    badge.hidden = false;
+  }
+
   function renderCommandResults(app) {
     const list = app?.querySelector(".bf-command-list");
     if (!list) {
       return;
     }
+
+    const allFolders = typeof getCachedFolderNodes === "function" ? getCachedFolderNodes() : [];
+    const intentResult = typeof BookmarkIntentRoutingEngine !== "undefined"
+      ? BookmarkIntentRoutingEngine.detectUserIntent(commandQuery, { folders: allFolders })
+      : null;
+    updateCommandIntentBadge(app, intentResult);
 
     list.replaceChildren();
 
@@ -3207,6 +3233,50 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         return matchesBookmarkSearch(entry, query);
       })
       .slice(0, query ? 40 : 14);
+
+    if (intentResult && intentResult.intent === "folder") {
+      let folderNode = null;
+      if (intentResult.folderId) {
+        folderNode = findNodeById(treeRoot, intentResult.folderId);
+      } else if (intentResult.folderQuery) {
+        const qLower = intentResult.folderQuery.toLowerCase();
+        const matched = allFolders.find(f => (f.title || "").toLowerCase().includes(qLower));
+        if (matched) {
+          folderNode = findNodeById(treeRoot, matched.id);
+        }
+      }
+      if (folderNode && Array.isArray(folderNode.children)) {
+        const folderBookmarks = folderNode.children
+          .filter(c => c.url)
+          .slice(0, 8)
+          .map(b => ({
+            id: b.id,
+            title: b.title,
+            url: b.url,
+            path: folderNode.title
+          }));
+        entries.unshift(...folderBookmarks);
+      }
+    }
+
+    if (intentResult && intentResult.intent === "open_tab" && intentResult.tabQuery) {
+      entries.unshift({
+        id: "bf-action-switch-tab",
+        title: `${t("intentTabMode") || "Tab Switch"}: ${intentResult.tabQuery}`,
+        path: t("openInBrowserDesc") || "Switch to matching open tab",
+        icon: "🗂️",
+        isQuickAction: true,
+        handler: () => {
+          if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+            chrome.runtime.sendMessage({
+              type: "BF_SWITCH_TO_TAB",
+              query: intentResult.tabQuery
+            });
+          }
+          closeCommandPalette();
+        }
+      });
+    }
 
     const directTarget = resolveDirectNavigationTarget(commandQuery);
     if (directTarget) {

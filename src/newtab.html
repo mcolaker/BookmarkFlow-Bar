@@ -55,6 +55,7 @@
         <label class="nt-search-label" for="searchInput" data-i18n="webSearch">Web Search</label>
         <div class="nt-search-box">
           <input id="searchInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search the web or type a URL" data-i18n-placeholder="newTabSearchPlaceholder" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="searchResults">
+          <div class="nt-intent-badge" id="searchIntentBadge" hidden aria-hidden="true"></div>
           <button type="submit" data-i18n="search">Search</button>
         </div>
         <div class="nt-search-results" id="searchResults" role="listbox" aria-label="Search suggestions" hidden></div>
@@ -139,6 +140,7 @@
 
     <script src="i18n.js"></script>
     <script src="settings.js"></script>
+    <script src="intent-router.js"></script>
     <script src="newtab.js"></script>
   </body>
 </html>

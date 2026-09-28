@@ -53,6 +53,7 @@ const elements = {
   main: document.querySelector(".nt-main"),
   searchForm: document.getElementById("searchForm"),
   searchInput: document.getElementById("searchInput"),
+  searchIntentBadge: document.getElementById("searchIntentBadge"),
   clockDisplay: document.getElementById("clockDisplay"),
   greetingDisplay: document.getElementById("greetingDisplay"),
   shortcutsWrap: document.getElementById("shortcutsWrap"),
@@ -638,6 +639,25 @@ function getSearchIndex() {
   return cachedSearchIndex;
 }
 
+function updateSearchIntentBadge(intentResult) {
+  const badge = elements.searchIntentBadge;
+  if (!badge) return;
+
+  const query = elements.searchInput.value.trim();
+  if (!query || !intentResult || !intentResult.badge) {
+    badge.hidden = true;
+    badge.textContent = "";
+    badge.className = "nt-intent-badge";
+    return;
+  }
+
+  const { icon, key, label, className } = intentResult.badge;
+  const localizedLabel = (typeof t === "function" && t(key)) ? t(key) : label;
+  badge.textContent = `${icon} ${localizedLabel}`;
+  badge.className = `nt-intent-badge ${className || ""}`;
+  badge.hidden = false;
+}
+
 function handleSearchInput() {
   const query = elements.searchInput.value.trim();
   elements.searchInput.setCustomValidity("");
@@ -646,6 +666,13 @@ function handleSearchInput() {
     hideSearchResults();
     return;
   }
+
+  const allFolders = collectAllFolders(appState?.bookmarkBar);
+  const intentResult = typeof BookmarkIntentRoutingEngine !== "undefined"
+    ? BookmarkIntentRoutingEngine.detectUserIntent(query, { folders: allFolders })
+    : null;
+
+  updateSearchIntentBadge(intentResult);
 
   const allBookmarks = getSearchIndex();
   const textLocale = getTextLocale();
@@ -668,6 +695,43 @@ function handleSearchInput() {
     url: b.url,
     path: b.path
   }));
+
+  if (intentResult && intentResult.intent === "folder") {
+    let folderNode = null;
+    if (intentResult.folderId) {
+      folderNode = findNodeById(getBookmarkTreeRoot(), intentResult.folderId);
+    } else if (intentResult.folderQuery) {
+      const qLower = intentResult.folderQuery.toLowerCase();
+      const matched = allFolders.find(f => (f.title || "").toLowerCase().includes(qLower));
+      if (matched) {
+        folderNode = findNodeById(getBookmarkTreeRoot(), matched.id);
+      }
+    }
+    if (folderNode && Array.isArray(folderNode.children)) {
+      const folderBookmarks = folderNode.children
+        .filter(c => c.url)
+        .slice(0, 8)
+        .map(b => ({
+          type: "bookmark",
+          id: b.id,
+          title: b.title,
+          url: b.url,
+          path: folderNode.title
+        }));
+      results.unshift(...folderBookmarks);
+    }
+  }
+
+  if (intentResult && intentResult.intent === "open_tab" && intentResult.tabQuery) {
+    results.unshift({
+      type: "action",
+      action: "switchToTab",
+      title: `${t("intentTabMode") || "Tab Switch"}: ${intentResult.tabQuery}`,
+      desc: t("openInBrowserDesc") || "Switch to matching open tab",
+      icon: "🗂️",
+      tabQuery: intentResult.tabQuery
+    });
+  }
 
   const directTarget = resolveDirectNavigationTarget(query);
   if (directTarget) {
@@ -947,6 +1011,21 @@ async function openSearchResult(item, event) {
       }
       return;
     }
+    if (item.action === "switchToTab") {
+      if (typeof chrome !== "undefined" && chrome.tabs && chrome.tabs.query) {
+        chrome.tabs.query({}, (tabs) => {
+          const q = (item.tabQuery || "").toLowerCase();
+          const found = tabs.find(tab => (tab.title || "").toLowerCase().includes(q) || (tab.url || "").toLowerCase().includes(q));
+          if (found && found.id) {
+            chrome.tabs.update(found.id, { active: true });
+            if (found.windowId && chrome.windows) chrome.windows.update(found.windowId, { focused: true });
+          }
+        });
+      }
+      hideSearchResults();
+      elements.searchInput.value = "";
+      return;
+    }
     if (item.action === "openHealthInspector") {
       chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html#health") });
       return;
@@ -1076,6 +1155,11 @@ function hideSearchResults() {
   elements.searchInput.removeAttribute("aria-activedescendant");
   currentSearchResults = [];
   searchActiveIndex = -1;
+  if (elements.searchIntentBadge) {
+    elements.searchIntentBadge.hidden = true;
+    elements.searchIntentBadge.textContent = "";
+    elements.searchIntentBadge.className = "nt-intent-badge";
+  }
 }
 
 function handleSearchOutsideClick(event) {

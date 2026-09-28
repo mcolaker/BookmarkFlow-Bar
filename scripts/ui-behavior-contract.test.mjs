@@ -624,3 +624,51 @@ test("instant toast feedback contract (BF-UX-016)", () => {
   assert.ok(en.bookmarkSavedToFolderToast?.message, "Missing en bookmarkSavedToFolderToast message");
   assert.ok(tr.bookmarkSavedToFolderToast?.message, "Missing tr bookmarkSavedToFolderToast message");
 });
+
+test("smart intent router and routing badges contract (BF-UX-017)", () => {
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  assert.ok(
+    manifest.content_scripts?.[0]?.js?.includes("src/intent-router.js"),
+    "manifest content_scripts must include src/intent-router.js"
+  );
+
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(newtabHtml, /id="searchIntentBadge"/u, "newtab.html must contain searchIntentBadge element");
+  assert.match(newtabHtml, /src="intent-router\.js"/u, "newtab.html must include intent-router.js");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-intent-badge\b/u, "newtab.css must style .nt-intent-badge");
+  assert.match(newtabCss, /\.nt-intent-badge\.is-url\b/u, "newtab.css must style .nt-intent-badge.is-url");
+  assert.match(newtabCss, /\.nt-intent-badge\.is-command\b/u, "newtab.css must style .nt-intent-badge.is-command");
+  assert.match(newtabCss, /\.nt-intent-badge\.is-tag\b/u, "newtab.css must style .nt-intent-badge.is-tag");
+  assert.match(newtabCss, /\.nt-intent-badge\.is-folder\b/u, "newtab.css must style .nt-intent-badge.is-folder");
+  assert.match(newtabCss, /\.nt-intent-badge\.is-tab\b/u, "newtab.css must style .nt-intent-badge.is-tab");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /searchIntentBadge:\s*document\.getElementById\("searchIntentBadge"\)/u, "newtab.js must reference searchIntentBadge");
+  assert.match(newtabJs, /function updateSearchIntentBadge\(/u, "newtab.js must define updateSearchIntentBadge");
+  assert.match(newtabJs, /BookmarkIntentRoutingEngine\.detectUserIntent\(/u, "newtab.js must call BookmarkIntentRoutingEngine.detectUserIntent");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /class="bf-intent-badge"/u, "content.js template must contain bf-intent-badge");
+  assert.match(contentJs, /function updateCommandIntentBadge\(/u, "content.js must define updateCommandIntentBadge");
+  assert.match(contentJs, /BookmarkIntentRoutingEngine\.detectUserIntent\(/u, "content.js must call BookmarkIntentRoutingEngine.detectUserIntent");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-intent-badge\b/u, "content.css must style .bf-intent-badge");
+
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  const requiredKeys = [
+    "intentLinkMode",
+    "intentCommandMode",
+    "intentTagMode",
+    "intentFolderMode",
+    "intentTabMode",
+    "intentSearchMode"
+  ];
+  for (const key of requiredKeys) {
+    assert.ok(en[key]?.message, `Missing en ${key} message`);
+    assert.ok(tr[key]?.message, `Missing tr ${key} message`);
+  }
+});

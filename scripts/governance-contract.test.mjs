@@ -41,6 +41,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(decisionIndex, /# DECISION_INDEX\.md/u, "DECISION_INDEX.md must declare header");
   assert.match(decisionIndex, /Manifest V3 & Sıfır Uzak Servis/u, "DECISION_INDEX.md must contain Decision 1");
   assert.match(decisionIndex, /Bütünsel İkincil İyileştirme Standardı/u, "DECISION_INDEX.md must contain Decision 16");
+  assert.match(decisionIndex, /Yerel Niyet ve Akıllı Yönlendirme Motoru/u, "DECISION_INDEX.md must contain Decision 17");
 
   const projectState = readFileSync(path.join(root, "docs/agent/PROJECT_STATE.md"), "utf8");
   assert.match(projectState, /# PROJECT_STATE\.md/u, "PROJECT_STATE.md must declare header");
@@ -48,4 +49,5 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
 
   const ruleChangelog = readFileSync(path.join(root, "docs/agent/RULE_CHANGELOG.md"), "utf8");
   assert.match(ruleChangelog, /BF-GOV-010/u, "RULE_CHANGELOG.md must document BF-GOV-010");
+  assert.match(ruleChangelog, /BF-UX-017/u, "RULE_CHANGELOG.md must document BF-UX-017");
 });

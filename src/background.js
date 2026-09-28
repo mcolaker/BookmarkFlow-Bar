@@ -210,6 +210,10 @@ function routeMessage(message, sender) {
     return updateCompanionHotkeys(message.hotkeys);
   }
 
+  if (message?.type === "BF_SWITCH_TO_TAB") {
+    return switchToMatchingTab(message.query);
+  }
+
   const protectedTask = message?.type === MESSAGE_GET_STATE
     ? () => getState()
     : message?.type === MESSAGE_MOVE_BOOKMARK
@@ -1410,3 +1414,20 @@ function escapeOmniboxXml(str) {
 
 initNativeCompanionBridge();
 initOmniboxIntegration();
+
+async function switchToMatchingTab(queryText) {
+  if (!queryText) return { ok: false };
+  const q = String(queryText).toLowerCase().trim();
+  try {
+    const tabs = await chrome.tabs.query({});
+    const found = tabs.find(t => (t.title || "").toLowerCase().includes(q) || (t.url || "").toLowerCase().includes(q));
+    if (found && found.id) {
+      await chrome.tabs.update(found.id, { active: true });
+      if (found.windowId) {
+        await chrome.windows.update(found.windowId, { focused: true });
+      }
+      return { ok: true, tabId: found.id };
+    }
+  } catch {}
+  return { ok: false };
+}

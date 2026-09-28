@@ -1112,8 +1112,9 @@ body[data-bg="custom"] {
 }
 
 .nt-search-box {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  position: relative;
+  display: flex;
+  align-items: center;
   width: min(760px, 100%);
   height: 50px;
   overflow: hidden;
@@ -1129,19 +1130,89 @@ body[data-bg="custom"] {
 }
 
 .nt-search-box input {
+  flex: 1 1 auto;
   min-width: 0;
   border: 0;
   outline: 0;
-  padding: 0 22px;
+  padding: 0 16px 0 22px;
   background: transparent;
   color: #202124;
   font: inherit;
   font-size: 16px;
 }
 
+.nt-intent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  margin-right: 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+  animation: ntBadgeFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nt-intent-badge[hidden] {
+  display: none !important;
+}
+
+.nt-intent-badge.is-url {
+  background: rgba(59, 130, 246, 0.14);
+  color: #1d4ed8;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.nt-intent-badge.is-command {
+  background: rgba(245, 158, 11, 0.14);
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.nt-intent-badge.is-tag {
+  background: rgba(139, 92, 246, 0.14);
+  color: #6d28d9;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.nt-intent-badge.is-folder {
+  background: rgba(16, 185, 129, 0.14);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.nt-intent-badge.is-tab {
+  background: rgba(6, 182, 212, 0.14);
+  color: #0e7490;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.nt-intent-badge.is-search {
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
+  border: 1px solid rgba(100, 116, 139, 0.25);
+}
+
+@keyframes ntBadgeFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .nt-search-box button {
   border: 0;
   padding: 0 22px;
+  height: 100%;
   background: var(--nt-theme-accent);
   color: var(--nt-theme-accent-contrast);
   font: inherit;
@@ -1653,4 +1724,40 @@ body[data-bg="custom"] {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+[data-nt-theme="dark"] .nt-intent-badge.is-url {
+  background: rgba(59, 130, 246, 0.22);
+  color: #93c5fd;
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+[data-nt-theme="dark"] .nt-intent-badge.is-command {
+  background: rgba(245, 158, 11, 0.22);
+  color: #fcd34d;
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+[data-nt-theme="dark"] .nt-intent-badge.is-tag {
+  background: rgba(139, 92, 246, 0.22);
+  color: #c4b5fd;
+  border-color: rgba(167, 139, 250, 0.4);
+}
+
+[data-nt-theme="dark"] .nt-intent-badge.is-folder {
+  background: rgba(16, 185, 129, 0.22);
+  color: #6ee7b7;
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+[data-nt-theme="dark"] .nt-intent-badge.is-tab {
+  background: rgba(6, 182, 212, 0.22);
+  color: #67e8f9;
+  border-color: rgba(34, 211, 238, 0.4);
+}
+
+[data-nt-theme="dark"] .nt-intent-badge.is-search {
+  background: rgba(148, 163, 184, 0.18);
+  color: #cbd5e1;
+  border-color: rgba(148, 163, 184, 0.35);
 }

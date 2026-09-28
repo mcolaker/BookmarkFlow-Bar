@@ -399,5 +399,11 @@
   "saveToBar": { "message": "Çubuğa Ekle" },
   "saveToFolder": { "message": "Klasöre Ekle" },
   "bookmarkSavedToBarToast": { "message": "✓ Yer İmleri Çubuğuna kaydedildi" },
-  "bookmarkSavedToFolderToast": { "message": "✓ $1 klasörüne kaydedildi", "placeholders": { "title": { "content": "$1" } } }
+  "bookmarkSavedToFolderToast": { "message": "✓ $1 klasörüne kaydedildi", "placeholders": { "title": { "content": "$1" } } },
+  "intentLinkMode": { "message": "Bağlantı Modu" },
+  "intentCommandMode": { "message": "Komut Modu" },
+  "intentTagMode": { "message": "Etiket Modu" },
+  "intentFolderMode": { "message": "Klasör Modu" },
+  "intentTabMode": { "message": "Sekme Modu" },
+  "intentSearchMode": { "message": "Akıllı Arama" }
 }

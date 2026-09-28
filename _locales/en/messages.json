@@ -399,5 +399,11 @@
   "saveToBar": { "message": "Add to Bar" },
   "saveToFolder": { "message": "Add to Folder" },
   "bookmarkSavedToBarToast": { "message": "✓ Saved to Bookmarks Bar" },
-  "bookmarkSavedToFolderToast": { "message": "✓ Saved to $1", "placeholders": { "title": { "content": "$1" } } }
+  "bookmarkSavedToFolderToast": { "message": "✓ Saved to $1", "placeholders": { "title": { "content": "$1" } } },
+  "intentLinkMode": { "message": "Link Mode" },
+  "intentCommandMode": { "message": "Command Mode" },
+  "intentTagMode": { "message": "Tag Mode" },
+  "intentFolderMode": { "message": "Folder Mode" },
+  "intentTabMode": { "message": "Tab Switch" },
+  "intentSearchMode": { "message": "Smart Search" }
 }

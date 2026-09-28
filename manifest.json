@@ -70,6 +70,7 @@
       "js": [
         "src/i18n.js",
         "src/settings.js",
+        "src/intent-router.js",
         "src/content.js"
       ],
       "run_at": "document_idle"

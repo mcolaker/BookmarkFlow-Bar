@@ -73,16 +73,35 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - **Yönetişim Otomasyonu**:
   - `scripts/validate-governance.mjs` ve `scripts/governance-contract.test.mjs` test kapıları eklendi.
 
+### ⚡ 8. Yerel Niyet ve Akıllı Yönlendirme Motoru ile Canlı Akıllı Rozetler (BF-UX-017)
+- **Sıfır Gecikmeli Niyet Motoru (`src/intent-router.js`)**:
+  - JaponiGo'nun yerel sıfır gecikmeli kural motoru BookmarkFlow Bar'a `BookmarkIntentRoutingEngine` olarak uyarlandı.
+  - Arama çubuğu (`src/newtab.js`) ve Spotlight paletine (`src/content.js`) girilen tüm girdiler, harici hiçbir uzak sunucuya bağlanmadan milisaniyeler içinde 6 niyet kategorisine (`url`, `command`, `tag`, `folder`, `open_tab`, `search`) sınıflandırılır.
+- **Canlı Akıllı Yönlendirme Rozetleri (Smart Routing Badges)**:
+  - Kullanıcı henüz `Enter`'a basmadan önce arama kutusunun sağında hafif ve modern bir hap rozet belirir (`.nt-intent-badge`, `.bf-intent-badge`):
+    - `[🌐 Bağlantı Modu]` (`.is-url`): URL tespit edildiğinde link yakalama kartı ve hızlı klasör çipleri hazır edilir.
+    - `[⚡ Komut Modu]` (`.is-command`): `#stash`, `health`, `#reading`, `backup`, `settings` yazıldığında BookmarkFlow fonksiyon eylem kartı çıkar.
+    - `[🏷️ Etiket Modu]` (`.is-tag`): `#dev`, `#tasarim` gibi etiket sorgularında yer imleri filtrelenir.
+    - `[📁 Klasör Modu]` (`.is-folder`): `folder:iş`, `klasör:proje` veya mevcut bir klasör adı yazıldığında o klasörün içi hiyerarşik listelenir.
+    - `[🗂️ Sekme Modu]` (`.is-tab`): `tab:github`, `sekme:youtube` ile açık sekmeler taranır ve tek tıkla sekmeye geçiş sağlanır.
+    - `[🔍 Akıllı Arama]` (`.is-search`): Genel akıllı arama modu.
+- **Son Kullanıcı Terminolojisi Hijyeni (P0-13)**:
+  - Arayüzde asla "AI", "JEV" gibi teknik ibareler gösterilmez; kullanıcıya daima "Akıllı Arama", "Akıllı Yönlendirme" ve "Bağlantı Modu" gibi doğal ürün dili sunulur.
+- **İki Dilli Yerelleştirme**:
+  - `_locales/en` ve `_locales/tr` sözlüklerine 6 yeni niyet anahtarı (`intentLinkMode`, `intentCommandMode`, `intentTagMode`, `intentFolderMode`, `intentTabMode`, `intentSearchMode`) tam pariteyle eklendi.
+
 ---
 
 ### 📋 Etkilenen Dosyalar ve Bileşenler
-- `manifest.json`: Omnibox `bf` anahtar kelimesi eklendi.
-- `src/newtab.html`, `src/newtab.css`, `src/newtab.js`: Arama yakalama, arama içi hızlı kayıt çipleri (`.nt-search-action-chips`), klasör dropdown'u, hızlı klasör çipleri (`#addFolderChips`), anlık bildirim rozeti (`.nt-toast`, `showToastNotification`), klavye kontrolleri, smart folder memory entegrasyonu.
-- `src/content.js`, `src/content.css`: Shadow DOM ekleme diyaloğuna klasör seçici, hızlı klasör çipleri (`.bf-folder-chips`), command palette URL eylem kartı ve hızlı kayıt çipleri (`.bf-command-action-chips`), anlık bildirim rozeti (`.bf-toast`, `showContentToastNotification`), smart folder memory entegrasyonu.
-- `src/background.js`: Omnibox `onInputChanged` ve `onInputEntered` dinleyicileri, smart folder memory entegrasyonu.
-- `_locales/en/messages.json`, `_locales/tr/messages.json`: 16 yeni yerelleştirme anahtarı (`quickFolders`, `saveToBar`, `saveToFolder`, `bookmarkSavedToBarToast`, `bookmarkSavedToFolderToast` dahil).
-- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014`, `BF-UX-015` ve `BF-UX-016` sözleşme testleri.
+- `manifest.json`: Omnibox `bf` anahtar kelimesi ve `content_scripts` içine `src/intent-router.js` eklendi.
+- `src/intent-router.js`: Evrensel yerel niyet sınıflandırma motoru (`BookmarkIntentRoutingEngine`).
+- `src/newtab.html`, `src/newtab.css`, `src/newtab.js`: Arama yakalama, arama içi hızlı kayıt çipleri (`.nt-search-action-chips`), klasör dropdown'u, hızlı klasör çipleri (`#addFolderChips`), anlık bildirim rozeti (`.nt-toast`, `showToastNotification`), akıllı niyet rozeti (`.nt-intent-badge`, `updateSearchIntentBadge`), klasör/sekme niyet entegrasyonu, klavye kontrolleri, smart folder memory entegrasyonu.
+- `src/content.js`, `src/content.css`: Shadow DOM ekleme diyaloğuna klasör seçici, hızlı klasör çipleri (`.bf-folder-chips`), command palette URL eylem kartı ve hızlı kayıt çipleri (`.bf-command-action-chips`), anlık bildirim rozeti (`.bf-toast`, `showContentToastNotification`), command palette akıllı niyet rozeti (`.bf-intent-badge`, `updateCommandIntentBadge`), smart folder memory entegrasyonu.
+- `src/background.js`: Omnibox `onInputChanged` ve `onInputEntered` dinleyicileri, `BF_SWITCH_TO_TAB` sekme değiştirme eylemi, smart folder memory entegrasyonu.
+- `_locales/en/messages.json`, `_locales/tr/messages.json`: 22 yeni yerelleştirme anahtarı (`quickFolders`, `saveToBar`, `saveToFolder`, `bookmarkSavedToBarToast`, `bookmarkSavedToFolderToast`, niyet modları dahil).
+- `scripts/intent-router.test.mjs`: `BookmarkIntentRoutingEngine` için 7 adet bağımsız birim testi.
+- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014`, `BF-UX-015`, `BF-UX-016` ve `BF-UX-017` sözleşme testleri.
 - `scripts/governance-contract.test.mjs`, `scripts/validate-governance.mjs`: Yönetişim ve Operating Kernel sözleşme testleri (`BF-GOV-010`).
-- `AGENTS.md`: Operating Kernel, P0 kuralları, Task Router ve Zorunlu Rapor Şablonu.
-- `docs/agent/`: `DECISION_INDEX.md`, `PROJECT_STATE.md`, `RULE_CHANGELOG.md`.
-- `docs/agent-playbooks/`: 6 modüler alan kılavuzu.
+- `AGENTS.md`: Operating Kernel, P0 kuralları (P0-18 eklendi), Task Router ve Zorunlu Rapor Şablonu.
+- `docs/agent/`: `DECISION_INDEX.md` (Karar 17 eklendi), `PROJECT_STATE.md`, `RULE_CHANGELOG.md`.
+- `docs/agent-playbooks/`: 6 modüler alan kılavuzu (Bölüm 5 Intent Routing Engine eklendi).

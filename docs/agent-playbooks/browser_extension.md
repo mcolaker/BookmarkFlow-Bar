@@ -40,3 +40,18 @@ Bu kılavuz, BookmarkFlow Bar tarayıcı eklentisi (Chrome, Firefox, Edge) mimar
 - Kaynak kodda doğrudan kullanıcıya görünen metin (hardcoded string) bırakılamaz.
 - `_locales/en/messages.json` ve `_locales/tr/messages.json` dosyaları birebir anahtar paritesine sahip olmalıdır.
 - Yeni eklenen veya değiştirilen tüm özelliklerde `node scripts/validate-project.mjs` ile yerelleştirme doğrulanır.
+
+---
+
+## 5. Yerel Niyet ve Akıllı Yönlendirme Motoru (`src/intent-router.js`)
+
+- **Mimari (`BookmarkIntentRoutingEngine`)**: Arama çubuğu (`src/newtab.js`) ve Spotlight arama paletine (`src/content.js`) girilen tüm girdiler, harici ağa çıkmadan milisaniyelik yerel kural motoruyla sınıflandırılır.
+- **Niyet Modları**:
+  1. `url` (`is-url`): URL tespiti yapıldığında doğrudan link yakalama kartı ve hızlı klasör kayıt çipleri sunulur.
+  2. `command` (`is-command`): `#stash`, `health`, `#reading`, `backup`, `settings` girdilerinde doğrudan BookmarkFlow eylem kartı çıkar.
+  3. `tag` (`is-tag`): `#dev`, `#tasarim` gibi etiket sorgularında yerel akıllı etiket havuzu filtrelenir.
+  4. `folder` (`is-folder`): `folder:ad`, `klasör:ad` veya mevcut bir klasör adıyla tam eşleşen sorgularda o klasörün içi hiyerarşik listelenir.
+  5. `open_tab` (`is-tab`): `tab:sorgu` veya `sekme:sorgu` ile açık sekmeler taranır ve tek tıkla sekmeye geçiş sağlanır.
+  6. `search` (`is-search`): Genel akıllı arama modu.
+- **Canlı Akıllı Rozetler (`.nt-intent-badge`, `.bf-intent-badge`)**: Kullanıcı henüz Enter'a basmadan önce hangi modun devrede olduğu görsel olarak gösterilir.
+- **Terminoloji Hijyeni (P0-13)**: Kullanıcıya asla "AI" veya "JEV" gibi teknik ibareler gösterilmez; arayüzde daima "Akıllı Arama" ve "Akıllı Yönlendirme" sunulur.
