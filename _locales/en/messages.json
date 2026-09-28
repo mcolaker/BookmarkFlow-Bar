@@ -418,5 +418,6 @@
   "hostRemovedSuccess": { "message": "Site re-enabled." },
   "invalidHostError": { "message": "Please enter a valid domain name (e.g. github.com)." },
   "disabledWebsitesAria": { "message": "Disabled websites list" },
-  "undo": { "message": "Undo" }
+  "undo": { "message": "Undo" },
+  "bookmarkDeletedToast": { "message": "✓ Bookmark removed" }
 }

@@ -110,6 +110,10 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
   - Kullanıcı BookmarkFlow çubuğuna sağ tıklayıp "Bu Sitede Devre Dışı Bırak" seçtiğinde çubuğun habersiz kaybolması engellendi.
   - 3.5 saniye boyunca ekranın sağ üstünde altın vurgulu, açıklayıcı bir toast bildirimi (`siteDisabledToast`) gösterilerek kullanıcının çubuğu dilediğinde eklenti simgesinden veya Ayarlar'dan tekrar açabileceği açıklandı.
   - Yanlışlıkla yapılan tıklamalar için bildirimin içerisine **"Geri Al" (`undo`)** butonu eklendi; tek tıkla site yeniden etkinleştirilir ve çubuk geri gelir.
+- **Evrensel Toast Geri Al Butonu ve `Ctrl+Z` Klavye Kısayolu Erişilebilirliği**:
+  - Hem sayfa içi çubukta (`src/content.js`, `src/content.css`) hem de Yeni Sekme sayfasında (`src/newtab.js`, `src/newtab.css`) toast bildirimleri etkileşimli butonları destekleyecek şekilde güncellendi (`pointer-events: auto`).
+  - Hızlı kayıt çiplerinden (Instant Folder Save Chips) yer imi kaydedildiğinde bildirim rozetinde **[Geri Al]** butonu sunulur; tıklandığında oluşturulan yer imi arka planda güvenle silinir (`BF_DELETE_BOOKMARK`) ve "✓ Yer imi kaldırıldı" teyidi verilir.
+  - Bildirim açık kaldığı süre boyunca eklenen geçici klavye dinleyicisi ile kullanıcı fareye dokunmadan `Ctrl+Z` (veya `Cmd+Z`) tuşlarına basarak da işlemi anında geri alabilir.
 - **Canlı E2E Menü Tıklaması ve Sekme Doğrulama Simülasyonu (`scripts/user-journey-live-qa.mjs`)**:
   - Adım 6 simülasyonu doğrudan URL açmak yerine web sayfasındaki BF butonuna gerçek sağ tık (contextmenu) simüle edip açılan menüdeki "Ayarlar" butonuna fiilen tıklar; `content.js` -> `background.js` mesajlaşmasını ve sekmenin açılmasını gerçek tarayıcıda doğrular.
 - **Popup Menüsünde Akıllı "Bu Site" Kartı (Contextual Top Card)**:
@@ -121,7 +125,7 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
   - `bookmark-maintenance.html` sayfasına `#sites` sekmesi (`navSitesLink`) ve dinamik site yönetim paneli (`#disabledSitesList`, `#addDisabledHostBtn`) eklendi.
   - Kullanıcı daha önce gizlediği tüm siteleri listeleyebilir, tek tıkla etkinleştirebilir veya yeni istisnalar tanımlayabilir.
 - **İki Dilli Yerelleştirme**:
-  - `_locales/en` ve `_locales/tr` sözlüklerine 13 yeni anahtar (`undo` dahil) eklenerek %100 parite korundu.
+  - `_locales/en` ve `_locales/tr` sözlüklerine 14 yeni anahtar (`undo`, `bookmarkDeletedToast` dahil) eklenerek %100 parite korundu.
 
 ---
 

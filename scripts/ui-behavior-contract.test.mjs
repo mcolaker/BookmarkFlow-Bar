@@ -606,12 +606,12 @@ test("instant toast feedback contract (BF-UX-016)", () => {
 
   const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
   assert.match(newtabJs, /function showToastNotification\(/u, "newtab.js must define showToastNotification");
-  assert.match(newtabJs, /showToastNotification\(toastMsg\)/u, "newtab.js must trigger toast on direct save");
+  assert.match(newtabJs, /showToastNotification\(toastMsg/u, "newtab.js must trigger toast on direct save");
 
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   assert.match(contentJs, /class="bf-toast"/u, "content.js template must contain bf-toast");
   assert.match(contentJs, /function showContentToastNotification\(/u, "content.js must define showContentToastNotification");
-  assert.match(contentJs, /showContentToastNotification\(toastMsg\)/u, "content.js must trigger toast on direct save");
+  assert.match(contentJs, /showContentToastNotification\(toastMsg/u, "content.js must trigger toast on direct save");
 
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   assert.match(contentCss, /\.bf-toast\b/u, "content.css must style .bf-toast");
@@ -775,7 +775,8 @@ test("site control, settings navigation, and popup layout integrity contract (BF
     "hostRemovedSuccess",
     "invalidHostError",
     "disabledWebsitesAria",
-    "undo"
+    "undo",
+    "bookmarkDeletedToast"
   ];
   for (const key of newKeys) {
     assert.ok(en[key]?.message, `Missing en message for key: ${key}`);
@@ -793,12 +794,46 @@ test("site control, settings navigation, and popup layout integrity contract (BF
     /removeDisabledHost\(currentDisabled,\s*currentHost\)/u,
     "content.js undo handler must call removeDisabledHost"
   );
+  assert.match(
+    contentJs,
+    /contentToastKeydownHandler/u,
+    "content.js must support Ctrl+Z keydown handler for toast undo"
+  );
+  assert.match(
+    contentJs,
+    /type:\s*MESSAGE_DELETE_BOOKMARK/u,
+    "content.js handleDirectSaveBookmark undo must dispatch MESSAGE_DELETE_BOOKMARK"
+  );
 
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   assert.match(
     contentCss,
     /\.bf-toast-action-btn\b/u,
     "content.css must style .bf-toast-action-btn"
+  );
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(
+    newtabJs,
+    /nt-toast-action-btn/u,
+    "newtab.js must create .nt-toast-action-btn for undo interaction"
+  );
+  assert.match(
+    newtabJs,
+    /toastKeydownHandler/u,
+    "newtab.js must support Ctrl+Z keydown handler for toast undo"
+  );
+  assert.match(
+    newtabJs,
+    /type:\s*["']BF_DELETE_BOOKMARK["']/u,
+    "newtab.js handleDirectSaveBookmark undo must dispatch BF_DELETE_BOOKMARK"
+  );
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(
+    newtabCss,
+    /\.nt-toast-action-btn\b/u,
+    "newtab.css must style .nt-toast-action-btn"
   );
 
   const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");

@@ -1690,7 +1690,7 @@ body[data-bg="custom"] {
   right: 28px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   padding: 10px 18px;
   background: rgba(15, 23, 42, 0.94);
   color: #f7f9fc;
@@ -1701,7 +1701,7 @@ body[data-bg="custom"] {
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 16px rgba(242, 201, 76, 0.22);
   backdrop-filter: blur(10px);
   z-index: 10000;
-  pointer-events: none;
+  pointer-events: auto;
   animation: ntToastSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
@@ -1713,6 +1713,41 @@ body[data-bg="custom"] {
 .nt-toast.is-leaving {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+.nt-toast-text {
+  display: inline-block;
+  line-height: 1.35;
+}
+
+.nt-toast-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #12151b;
+  background: var(--nt-theme-accent, #f2c94c);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.12s ease, filter 0.15s ease;
+}
+
+.nt-toast-action-btn:hover {
+  filter: brightness(1.12);
+  transform: scale(1.05);
+}
+
+.nt-toast-action-btn:active {
+  transform: scale(0.96);
+}
+
+.nt-toast-action-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 1px;
 }
 
 @keyframes ntToastSlideIn {

@@ -2638,11 +2638,34 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       } else {
         toastMsg = t("bookmarkSavedToBarToast") || "✓ Yer İmleri Çubuğuna kaydedildi";
       }
-      showContentToastNotification(toastMsg);
+      const createdId = response?.createdId;
+      const action = createdId ? {
+        label: t("undo") || "Geri Al",
+        onClick: async () => {
+          const delRes = await sendMessage({
+            type: MESSAGE_DELETE_BOOKMARK,
+            nodeId: createdId
+          });
+          if (delRes?.ok) {
+            appState = delRes;
+            renderFromState();
+            showContentToastNotification(t("bookmarkDeletedToast") || "✓ Yer imi kaldırıldı", 1800);
+          }
+        }
+      } : null;
+      showContentToastNotification(toastMsg, 3500, action);
     }
   }
 
   let contentToastTimeoutId = null;
+  let contentToastKeydownHandler = null;
+
+  function cleanupContentToastKeydown() {
+    if (contentToastKeydownHandler) {
+      window.removeEventListener("keydown", contentToastKeydownHandler, true);
+      contentToastKeydownHandler = null;
+    }
+  }
 
   function showContentToastNotification(message, durationMs = 1800, action = null) {
     const toast = shadow?.querySelector(".bf-toast");
@@ -2651,6 +2674,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       clearTimeout(contentToastTimeoutId);
       contentToastTimeoutId = null;
     }
+    cleanupContentToastKeydown();
     toast.replaceChildren();
 
     const textSpan = document.createElement("span");
@@ -2666,6 +2690,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       actionBtn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
+        cleanupContentToastKeydown();
         if (contentToastTimeoutId) {
           clearTimeout(contentToastTimeoutId);
           contentToastTimeoutId = null;
@@ -2674,12 +2699,28 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         action.onClick();
       });
       toast.appendChild(actionBtn);
+
+      contentToastKeydownHandler = (e) => {
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === "z" || e.key === "Z")) {
+          e.preventDefault();
+          e.stopPropagation();
+          cleanupContentToastKeydown();
+          if (contentToastTimeoutId) {
+            clearTimeout(contentToastTimeoutId);
+            contentToastTimeoutId = null;
+          }
+          toast.hidden = true;
+          action.onClick();
+        }
+      };
+      window.addEventListener("keydown", contentToastKeydownHandler, true);
     }
 
     toast.classList.remove("is-leaving");
     toast.hidden = false;
 
     contentToastTimeoutId = window.setTimeout(() => {
+      cleanupContentToastKeydown();
       toast.classList.add("is-leaving");
       window.setTimeout(() => {
         toast.hidden = true;

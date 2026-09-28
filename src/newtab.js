@@ -1083,6 +1083,7 @@ async function handleDirectSaveBookmark(url, parentId) {
   });
   if (response?.ok) {
     appState = response;
+    const createdId = response.createdId;
     if (parentId) {
       lastUsedFolderId = parentId;
       chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: parentId }).catch(() => {});
@@ -1101,23 +1102,90 @@ async function handleDirectSaveBookmark(url, parentId) {
     } else {
       toastMsg = t("bookmarkSavedToBarToast") || "✓ Yer İmleri Çubuğuna kaydedildi";
     }
-    showToastNotification(toastMsg);
+
+    const action = createdId ? {
+      label: t("undo") || "Geri Al",
+      onClick: async () => {
+        const delRes = await sendMessage({
+          type: "BF_DELETE_BOOKMARK",
+          nodeId: createdId
+        });
+        if (delRes?.ok) {
+          appState = delRes;
+          render();
+          showToastNotification(t("bookmarkDeletedToast") || "✓ Yer imi kaldırıldı", 1800);
+        }
+      }
+    } : null;
+
+    showToastNotification(toastMsg, 3500, action);
   }
 }
 
 let toastTimeoutId = null;
+let toastKeydownHandler = null;
 
-function showToastNotification(message, durationMs = 1800) {
+function cleanupToastKeydown() {
+  if (toastKeydownHandler) {
+    window.removeEventListener("keydown", toastKeydownHandler, true);
+    toastKeydownHandler = null;
+  }
+}
+
+function showToastNotification(message, durationMs = 1800, action = null) {
   if (!elements.toastNotification) return;
   if (toastTimeoutId) {
     clearTimeout(toastTimeoutId);
     toastTimeoutId = null;
   }
-  elements.toastNotification.textContent = message;
+  cleanupToastKeydown();
+
+  elements.toastNotification.replaceChildren();
+
+  const textSpan = document.createElement("span");
+  textSpan.className = "nt-toast-text";
+  textSpan.textContent = message;
+  elements.toastNotification.appendChild(textSpan);
+
+  if (action && typeof action.onClick === "function") {
+    const actionBtn = document.createElement("button");
+    actionBtn.type = "button";
+    actionBtn.className = "nt-toast-action-btn";
+    actionBtn.textContent = action.label || t("undo") || "Geri Al";
+    actionBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      cleanupToastKeydown();
+      if (toastTimeoutId) {
+        clearTimeout(toastTimeoutId);
+        toastTimeoutId = null;
+      }
+      elements.toastNotification.hidden = true;
+      action.onClick();
+    });
+    elements.toastNotification.appendChild(actionBtn);
+
+    toastKeydownHandler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === "z" || e.key === "Z")) {
+        e.preventDefault();
+        e.stopPropagation();
+        cleanupToastKeydown();
+        if (toastTimeoutId) {
+          clearTimeout(toastTimeoutId);
+          toastTimeoutId = null;
+        }
+        elements.toastNotification.hidden = true;
+        action.onClick();
+      }
+    };
+    window.addEventListener("keydown", toastKeydownHandler, true);
+  }
+
   elements.toastNotification.classList.remove("is-leaving");
   elements.toastNotification.hidden = false;
 
   toastTimeoutId = window.setTimeout(() => {
+    cleanupToastKeydown();
     elements.toastNotification.classList.add("is-leaving");
     window.setTimeout(() => {
       elements.toastNotification.hidden = true;
