@@ -1797,8 +1797,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const targetUrl = inlineBtn?.dataset?.url;
       if (!targetUrl) return;
       closeCommandPalette();
-      const barNode = appState?.bookmarkBar || null;
-      handleDirectSaveBookmark(targetUrl, barNode?.id || "");
+      const targetParentId = inlineBtn?.dataset?.parentId || appState?.bookmarkBar?.id || "";
+      handleDirectSaveBookmark(targetUrl, targetParentId);
       return;
     }
 
@@ -3335,6 +3335,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (inlineSaveBtn) {
       inlineSaveBtn.hidden = true;
       delete inlineSaveBtn.dataset.url;
+      delete inlineSaveBtn.dataset.parentId;
     }
     const command = shadow?.querySelector(".bf-command");
     const input = shadow?.querySelector(".bf-command-input");
@@ -3352,6 +3353,21 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     return returnFocus;
   }
 
+  function getContentQuickSaveTargetInfo() {
+    const barNode = appState?.bookmarkBar;
+    const parentId = lastUsedFolderId || barNode?.id || "";
+    let folderName = "";
+    if (parentId && parentId !== barNode?.id) {
+      const allFolders = typeof getCachedFolderNodes === "function" ? getCachedFolderNodes() : [];
+      const targetFolder = allFolders.find(f => f.id === parentId);
+      folderName = targetFolder?.title || "";
+    }
+    const titleText = folderName
+      ? (t("quickSaveToFolder", folderName) || `'${folderName}' Klasörüne Kaydet (Ctrl+S)`)
+      : (t("quickSaveToBar") || "Yer İmleri Çubuğuna Kaydet (Ctrl+S)");
+    return { parentId: parentId || barNode?.id || "", folderName, titleText };
+  }
+
   function updateCommandIntentBadge(app, intentResult) {
     const badge = app?.querySelector(".bf-intent-badge");
     const inlineSaveBtn = app?.querySelector(".bf-command-inline-save");
@@ -3364,6 +3380,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       if (inlineSaveBtn) {
         inlineSaveBtn.hidden = true;
         delete inlineSaveBtn.dataset.url;
+        delete inlineSaveBtn.dataset.parentId;
       }
       return;
     }
@@ -3378,9 +3395,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       if (intentResult.intent === "url" && intentResult.url) {
         inlineSaveBtn.hidden = false;
         inlineSaveBtn.dataset.url = intentResult.url;
+        const { parentId, titleText } = getContentQuickSaveTargetInfo();
+        inlineSaveBtn.dataset.parentId = parentId;
+        inlineSaveBtn.title = titleText;
+        inlineSaveBtn.setAttribute("aria-label", titleText);
       } else {
         inlineSaveBtn.hidden = true;
         delete inlineSaveBtn.dataset.url;
+        delete inlineSaveBtn.dataset.parentId;
       }
     }
   }
@@ -3627,6 +3649,16 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function handleCommandKeydown(event) {
+    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && (event.key === "s" || event.key === "S")) {
+      const inlineSaveBtn = shadow?.querySelector(".bf-command-inline-save");
+      if (inlineSaveBtn && !inlineSaveBtn.hidden && inlineSaveBtn.dataset.url) {
+        event.preventDefault();
+        event.stopPropagation();
+        inlineSaveBtn.click();
+        return;
+      }
+    }
+
     if (event.key === "Escape") {
       event.preventDefault();
       closeCommandPalette();

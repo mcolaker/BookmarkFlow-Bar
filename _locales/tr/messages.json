@@ -420,5 +420,15 @@
   "disabledWebsitesAria": { "message": "Devre dışı bırakılan siteler listesi" },
   "undo": { "message": "Geri Al" },
   "bookmarkDeletedToast": { "message": "✓ Yer imi kaldırıldı" },
-  "quickSaveBookmark": { "message": "Yer İmlerine Kaydet" }
+  "quickSaveBookmark": { "message": "Yer İmlerine Kaydet" },
+  "quickSaveToBar": { "message": "Yer İmleri Çubuğuna Kaydet (Ctrl+S)" },
+  "quickSaveToFolder": {
+    "message": "'$FOLDER$' Klasörüne Kaydet (Ctrl+S)",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projeler"
+      }
+    }
+  }
 }

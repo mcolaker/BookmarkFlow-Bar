@@ -894,6 +894,10 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
   const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
   assert.ok(enLocales.quickSaveBookmark, "en messages must have quickSaveBookmark");
   assert.ok(trLocales.quickSaveBookmark, "tr messages must have quickSaveBookmark");
+  assert.ok(enLocales.quickSaveToBar, "en messages must have quickSaveToBar");
+  assert.ok(trLocales.quickSaveToBar, "tr messages must have quickSaveToBar");
+  assert.ok(enLocales.quickSaveToFolder, "en messages must have quickSaveToFolder");
+  assert.ok(trLocales.quickSaveToFolder, "tr messages must have quickSaveToFolder");
 
   const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
   assert.match(
@@ -934,6 +938,16 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
   );
   assert.match(
     newtabJs,
+    /getQuickSaveTargetInfo\s*\(/u,
+    "newtab.js must define getQuickSaveTargetInfo for dynamic tooltip"
+  );
+  assert.match(
+    newtabJs,
+    /\(event\.key\s*===\s*["']s["']\s*\|\|\s*event\.key\s*===\s*["']S["']\)[\s\S]*?searchInlineSaveBtn/u,
+    "newtab.js must support Ctrl+S / Cmd+S shortcut to trigger inline save"
+  );
+  assert.match(
+    newtabJs,
     /showToastNotification\([\s\S]*?["']is-undone["']\)/u,
     "newtab.js must invoke showToastNotification with is-undone on bookmark undo"
   );
@@ -943,6 +957,16 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
     contentJs,
     /class="bf-command-inline-save"/u,
     "content.js template must include bf-command-inline-save button"
+  );
+  assert.match(
+    contentJs,
+    /getContentQuickSaveTargetInfo\s*\(/u,
+    "content.js must define getContentQuickSaveTargetInfo for dynamic tooltip"
+  );
+  assert.match(
+    contentJs,
+    /\(event\.key\s*===\s*["']s["']\s*\|\|\s*event\.key\s*===\s*["']S["']\)[\s\S]*?bf-command-inline-save/u,
+    "content.js must support Ctrl+S / Cmd+S shortcut to trigger inline save"
   );
   assert.match(
     contentJs,

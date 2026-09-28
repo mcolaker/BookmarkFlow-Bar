@@ -122,10 +122,10 @@ async function init() {
     e.stopPropagation();
     const targetUrl = elements.searchInlineSaveBtn.dataset.url;
     if (!targetUrl) return;
-    const barNode = appState?.bookmarkBar || null;
+    const targetParentId = elements.searchInlineSaveBtn.dataset.parentId || appState?.bookmarkBar?.id || "";
     hideSearchResults();
     elements.searchInput.value = "";
-    await handleDirectSaveBookmark(targetUrl, barNode?.id || "");
+    await handleDirectSaveBookmark(targetUrl, targetParentId);
   });
   document.addEventListener("click", handleSearchOutsideClick);
   initQuickTips();
@@ -650,6 +650,21 @@ function getSearchIndex() {
   return cachedSearchIndex;
 }
 
+function getQuickSaveTargetInfo() {
+  const barNode = appState?.bookmarkBar;
+  const parentId = lastUsedFolderId || barNode?.id || "";
+  let folderName = "";
+  if (parentId && parentId !== barNode?.id) {
+    const allFolders = collectAllFolders(barNode);
+    const targetFolder = allFolders.find(f => f.id === parentId);
+    folderName = targetFolder?.title || "";
+  }
+  const titleText = folderName
+    ? (t("quickSaveToFolder", folderName) || `'${folderName}' Klasörüne Kaydet (Ctrl+S)`)
+    : (t("quickSaveToBar") || "Yer İmleri Çubuğuna Kaydet (Ctrl+S)");
+  return { parentId: parentId || barNode?.id || "", folderName, titleText };
+}
+
 function updateSearchIntentBadge(intentResult) {
   const badge = elements.searchIntentBadge;
   const inlineSaveBtn = elements.searchInlineSaveBtn;
@@ -663,6 +678,7 @@ function updateSearchIntentBadge(intentResult) {
     if (inlineSaveBtn) {
       inlineSaveBtn.hidden = true;
       delete inlineSaveBtn.dataset.url;
+      delete inlineSaveBtn.dataset.parentId;
     }
     return;
   }
@@ -677,9 +693,14 @@ function updateSearchIntentBadge(intentResult) {
     if (intentResult.intent === "url" && intentResult.url) {
       inlineSaveBtn.hidden = false;
       inlineSaveBtn.dataset.url = intentResult.url;
+      const { parentId, titleText } = getQuickSaveTargetInfo();
+      inlineSaveBtn.dataset.parentId = parentId;
+      inlineSaveBtn.title = titleText;
+      inlineSaveBtn.setAttribute("aria-label", titleText);
     } else {
       inlineSaveBtn.hidden = true;
       delete inlineSaveBtn.dataset.url;
+      delete inlineSaveBtn.dataset.parentId;
     }
   }
 }
@@ -836,6 +857,16 @@ function handleSearchInput() {
 }
 
 function handleSearchKeydown(event) {
+  if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && (event.key === "s" || event.key === "S")) {
+    const inlineSaveBtn = elements.searchInlineSaveBtn;
+    if (inlineSaveBtn && !inlineSaveBtn.hidden && inlineSaveBtn.dataset.url) {
+      event.preventDefault();
+      event.stopPropagation();
+      inlineSaveBtn.click();
+      return;
+    }
+  }
+
   if (!currentSearchResults.length || elements.searchResults.hidden) {
     return;
   }

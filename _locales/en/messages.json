@@ -420,5 +420,15 @@
   "disabledWebsitesAria": { "message": "Disabled websites list" },
   "undo": { "message": "Undo" },
   "bookmarkDeletedToast": { "message": "✓ Bookmark removed" },
-  "quickSaveBookmark": { "message": "Save to Bookmarks" }
+  "quickSaveBookmark": { "message": "Save to Bookmarks" },
+  "quickSaveToBar": { "message": "Save to Bookmarks Bar (Ctrl+S)" },
+  "quickSaveToFolder": {
+    "message": "Save to '$FOLDER$' (Ctrl+S)",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projects"
+      }
+    }
+  }
 }
