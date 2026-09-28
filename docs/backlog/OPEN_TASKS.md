@@ -1,6 +1,6 @@
 # BookmarkFlow Bar Açık İşler
 
-Son güncelleme: 2026-09-27
+Son güncelleme: 2026-09-28
 
 Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kuralları için [AGENTS.md](../../AGENTS.md) otoritedir.
 
@@ -508,3 +508,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: 67/67 otomatik test başarılı (`npm test`); `scripts/ui-behavior-contract.test.mjs` içinde `instant toast feedback contract (BF-UX-016)` testi doğrulandı; `node scripts/validate-project.mjs`, `node scripts/verify-public-tree.mjs` ve `node scripts/validate-backlog.mjs` sıfır hatayla geçti; `git diff --check` temizdir.
 - Sonraki adım: Yok; arama öneri kartından yapılan sıfır adımlı yer imi kayıtlarında hafif ve modern toast geri bildirimi (Instant Toast Feedback) Yeni Sekme ve Spotlight arayüzlerinde başarıyla tamamlandı ve doğrulandı.
 - Son güncelleme: 2026-09-27.
+
+## BF-GOV-010 - JaponiGo Yönetişim ve Modüler Playbook Sistemini Entegre Et (Operating Kernel, Decision Index, Playbooks)
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-28 tarihinde JaponiGo projesinin Operating Kernel, Decision Index, Project State, Task Router ve modüler playbook mimarisinin BookmarkFlow Bar'a entegre edilmesini onayladı. `AGENTS.md` tok bir işletim çekirdeğine dönüştürüldü; `docs/agent/DECISION_INDEX.md` (16 kalıcı karar), `docs/agent/PROJECT_STATE.md` ve `docs/agent/RULE_CHANGELOG.md` oluşturuldu; `docs/agent-playbooks/` altında 6 modüler alan el kitabı (`browser_extension.md`, `windows_companion.md`, `ui_accessibility.md`, `security_privacy.md`, `release_distribution.md`, `rule_governance.md`) kuruldu; P0-11 Bütünsel İkincil İyileştirme Standardı (Proactive Holistic QA), P0-13 Yapay Zeka Terim Yasağı ve Zorunlu Nihai Rapor Şablonu (verbatim ham konsol çıktıları) kurala bağlandı; `scripts/validate-governance.mjs` ve `scripts/governance-contract.test.mjs` fail-closed doğrulama kapıları eklenerek `npm run validate:all` akışına entegre edildi.
+- Kabul kriteri: `AGENTS.md` Operating Kernel olarak yapılandırılır ve P0 kuralları ile Task Router tablosunu içerir; kalıcı mimari kararlar `docs/agent/DECISION_INDEX.md` içinde belgelenir; `docs/agent-playbooks/` altındaki 6 playbook eksiksiz oluşturulur; `scripts/validate-governance.mjs` ve `scripts/governance-contract.test.mjs` ile sözleşme testleri yazılır; `npm test` ve `npm run validate:all` yeşil geçer.
+- Doğrulama kapısı: 68/68 test başarılı (`npm test`); `scripts/governance-contract.test.mjs` yeşil geçti; `node scripts/validate-governance.mjs` sıfır hatayla doğrulandı; `node scripts/validate-project.mjs`, `node scripts/verify-public-tree.mjs` ve `node scripts/validate-backlog.mjs` temiz; `git diff --check` hatasızdır.
+- Sonraki adım: Yok; JaponiGo askeri düzeyde yönetişim ve modüler playbook mimarisi BookmarkFlow Bar projesine başarıyla uyarlandı ve doğrulandı.
+- Son güncelleme: 2026-09-28.

@@ -1,0 +1,42 @@
+# Release & Distribution Playbook — BookmarkFlow Bar
+
+Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı ve lansman sunum standartlarını tanımlar.
+
+---
+
+## 1. Sürüm Öncesi Hazırlık & Unreleased Uzlaştırması
+
+- **Değişiklik Günlüğü**: Yeni sürüm kararı alındığında `docs/UNRELEASED_CHANGES.md` dosyasındaki tüm maddeler `CHANGELOG.md` altındaki yeni sürüm başlığına (`## [X.Y.Z] — YYYY-MM-DD`) taşınır.
+- `docs/UNRELEASED_CHANGES.md` dosyası bir sonraki sürüm döngüsü için temizlenir.
+- **Manifest Versiyonu**: `manifest.json` içindeki `version` alanı yeni sürüm numarasıyla (`x.y.z`) güncellenir.
+
+---
+
+## 2. Deterministik Paketleme & Çapraz Tarayıcı Derlemesi
+
+- **Exact-Tag Paketleme**:
+  - `node scripts/package-release.mjs v<semver>` komutuyla sadece manifest sürümüyle birebir eşleşen değişmez Git etiketi üzerinden ZIP ve SHA-256 özeti üretilir.
+- **Çapraz Tarayıcı Paketleri**:
+  - `node scripts/package-cross-browser.mjs` çalıştırılarak Chrome ZIP'inin yanı sıra Firefox (`bookmarkflow-bar-X.Y.Z-firefox.zip`, Gecko id içeren dönüştürülmüş manifest) ve Edge paketleri üretilir.
+- **Paket Kapsamı**:
+  - ZIP paketi yalnız runtime dosyalarını, `LICENSE.md`, `NOTICE` ve `TRADEMARKS.md` dosyalarını içerir; bakım belgeleri (`docs/`, `.git/`, `scripts/`) pakete giremez.
+
+---
+
+## 3. Profesyonel Tanıtım Görselleri ve Lansman Paketi
+
+- **Görsel Standartları**:
+  - X (Twitter) Lansman Görseli: 1200x675 piksel.
+  - LinkedIn Lansman Görseli: 1200x627 piksel.
+  - Koyu lacivert/altın (`#0b0f19` / `#f2c94c`) renk dili, sentetik yer imi verileri, temiz tipografi.
+- **Lansman Metinleri**:
+  - Kullanıcıya kopyalanıp paylaşılabilecek X duyuru metni, LinkedIn bülteni ve iki dilli (Türkçe & İngilizce) Chrome Web Store sürüm notları hazır bir paket olarak sunulur.
+- **README Güncelleme Kuralı**:
+  - `README.md` dosyası yeni sürüm yetenekleri, indirme linkleri, sürüm rozetleri ve vitrin görselleriyle eksiksiz güncellenir; asla ertelenemez.
+
+---
+
+## 4. DCO ve GitHub Doğrulama Kapıları
+
+- Tüm commit'ler Developer Certificate of Origin 1.1 `Signed-off-by` satırı taşımalıdır.
+- Merge öncesi tüm doğrulama betikleri (`npm run validate:all`) yerel olarak yeşil olmalı ve GitHub Actions terminal `success` vermelidir.

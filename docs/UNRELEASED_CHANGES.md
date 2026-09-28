@@ -59,6 +59,20 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - **İki Dilli Yerelleştirme**:
   - `_locales/en` ve `_locales/tr` sözlüklerine `bookmarkSavedToBarToast` ve parametrik `bookmarkSavedToFolderToast` anahtarları eklendi.
 
+### 🏛️ 7. JaponiGo Yönetişim & Modüler Playbook Mimarisi (BF-GOV-010)
+- **Operating Kernel (`AGENTS.md`)**:
+  - Proje anayasası tok bir işletim çekirdeğine dönüştürüldü; bağlam tüketimi optimize edildi. P0 tavizsiz kuralları, Task Router ve zorunlu nihai rapor şablonu bağlandı.
+- **Kalıcı Mimari Bellek (`docs/agent/`)**:
+  - `DECISION_INDEX.md` (16 kalıcı mimari ve ürün kararı), `PROJECT_STATE.md` (canlı mimari durum) ve `RULE_CHANGELOG.md` oluşturuldu.
+- **Modüler Playbook'lar (`docs/agent-playbooks/`)**:
+  - Göreve göre yüklenen 6 bağımsız el kitabı (`browser_extension.md`, `windows_companion.md`, `ui_accessibility.md`, `security_privacy.md`, `release_distribution.md`, `rule_governance.md`) kuruldu.
+- **Bütünsel İkincil İyileştirme Standardı (Proactive Holistic QA - P0-11)**:
+  - Ziyaret edilen her arayüzde layout, kontrast, klavye odağı ve taşma kusurlarının anında yerinde onarılması kurala bağlandı.
+- **Zorunlu Birebir Ham Konsol Kanıtı (Verbatim Terminal Output)**:
+  - Nihai raporlarda özetleme yasaklanarak `npm test`, `validate:all` ve `git diff --check` çıktılarının ham kod bloklarında sunulması zorunlu kılındı.
+- **Yönetişim Otomasyonu**:
+  - `scripts/validate-governance.mjs` ve `scripts/governance-contract.test.mjs` test kapıları eklendi.
+
 ---
 
 ### 📋 Etkilenen Dosyalar ve Bileşenler
@@ -68,4 +82,7 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - `src/background.js`: Omnibox `onInputChanged` ve `onInputEntered` dinleyicileri, smart folder memory entegrasyonu.
 - `_locales/en/messages.json`, `_locales/tr/messages.json`: 16 yeni yerelleştirme anahtarı (`quickFolders`, `saveToBar`, `saveToFolder`, `bookmarkSavedToBarToast`, `bookmarkSavedToFolderToast` dahil).
 - `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014`, `BF-UX-015` ve `BF-UX-016` sözleşme testleri.
-- `AGENTS.md`: Sürüm Öncesi Değişiklik Günlüğü standardı.
+- `scripts/governance-contract.test.mjs`, `scripts/validate-governance.mjs`: Yönetişim ve Operating Kernel sözleşme testleri (`BF-GOV-010`).
+- `AGENTS.md`: Operating Kernel, P0 kuralları, Task Router ve Zorunlu Rapor Şablonu.
+- `docs/agent/`: `DECISION_INDEX.md`, `PROJECT_STATE.md`, `RULE_CHANGELOG.md`.
+- `docs/agent-playbooks/`: 6 modüler alan kılavuzu.
