@@ -3378,7 +3378,25 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     return returnFocus;
   }
 
-  function getContentQuickSaveTargetInfo() {
+  function normalizeUrlForMatch(rawUrl) {
+    if (!rawUrl || typeof rawUrl !== "string") return "";
+    try {
+      const parsed = new URL(rawUrl);
+      const path = parsed.pathname.replace(/\/+$/, "");
+      return (parsed.origin + path + (parsed.search || "")).toLowerCase();
+    } catch {
+      return rawUrl.trim().toLowerCase().replace(/\/+$/, "");
+    }
+  }
+
+  function findExistingBookmarkByUrl(url) {
+    const norm = normalizeUrlForMatch(url);
+    if (!norm) return null;
+    const entries = getAllBookmarkEntries();
+    return entries.find(b => b.url && normalizeUrlForMatch(b.url) === norm) || null;
+  }
+
+  function getContentQuickSaveTargetInfo(url = "") {
     const barNode = appState?.bookmarkBar;
     const parentId = lastUsedFolderId || barNode?.id || "";
     let folderName = "";
@@ -3387,9 +3405,18 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const targetFolder = allFolders.find(f => f.id === parentId);
       folderName = targetFolder?.title || "";
     }
-    const titleText = folderName
+    let titleText = folderName
       ? (t("quickSaveToFolder", folderName) || `'${folderName}' Klasörüne Kaydet (Ctrl+S)`)
       : (t("quickSaveToBar") || "Yer İmleri Çubuğuna Kaydet (Ctrl+S)");
+
+    if (url) {
+      const existing = findExistingBookmarkByUrl(url);
+      if (existing?.title) {
+        const existingNotice = t("existingBookmarkNotice", existing.title) || `Zaten yer imlerinde: ${existing.title}`;
+        titleText += ` • ${existingNotice}`;
+      }
+    }
+
     return { parentId: parentId || barNode?.id || "", folderName, titleText };
   }
 
@@ -3467,7 +3494,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     if (inlineSaveBtn) {
       if (intentResult.intent === "url" && intentResult.url) {
-        const { parentId, titleText } = getContentQuickSaveTargetInfo();
+        const { parentId, titleText } = getContentQuickSaveTargetInfo(intentResult.url);
         showCommandInlineSaveBtn(inlineSaveBtn, intentResult.url, parentId, titleText);
       } else {
         hideCommandInlineSaveBtnSmoothly(inlineSaveBtn);
@@ -3556,10 +3583,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     const directTarget = resolveDirectNavigationTarget(commandQuery);
     if (directTarget) {
+      const existingBookmark = findExistingBookmarkByUrl(directTarget);
+      const existingNotice = existingBookmark?.title
+        ? ` • ${t("existingBookmarkNotice", existingBookmark.title) || `Zaten yer imlerinde: ${existingBookmark.title}`}`
+        : "";
       entries.unshift({
         id: "bf-action-capture-url",
         title: `${t("addBookmarkToTarget")}: ${directTarget}`,
-        path: t("addBookmarkToTargetDesc"),
+        path: `${t("addBookmarkToTargetDesc")}${existingNotice}`,
         icon: "⭐",
         isQuickAction: true,
         directTarget,
@@ -3738,6 +3769,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         input.focus();
         input.select();
         triggerCommandRestoredFlash();
+        showContentToastNotification(t("queryRestoredToast") || "✓ Metin geri getirildi", 1500, null, "is-undone");
         lastEscapeClearedCommandText = "";
         return;
       }

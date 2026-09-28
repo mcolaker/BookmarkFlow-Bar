@@ -1111,3 +1111,57 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
     "content.js must use undoWithShortcut key in toast action"
   );
 });
+
+test("text restore toast and live existing bookmark title preview contract (BF-UX-018)", () => {
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  assert.ok(enMessages.queryRestoredToast, "EN must define queryRestoredToast");
+  assert.ok(trMessages.queryRestoredToast, "TR must define queryRestoredToast");
+  assert.ok(enMessages.existingBookmarkNotice, "EN must define existingBookmarkNotice");
+  assert.ok(trMessages.existingBookmarkNotice, "TR must define existingBookmarkNotice");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(
+    newtabJs,
+    /function\s+findExistingBookmarkByUrl\s*\(/u,
+    "newtab.js must define findExistingBookmarkByUrl"
+  );
+  assert.match(
+    newtabJs,
+    /function\s+normalizeUrlForMatch\s*\(/u,
+    "newtab.js must define normalizeUrlForMatch"
+  );
+  assert.match(
+    newtabJs,
+    /existingBookmarkNotice/u,
+    "newtab.js must use existingBookmarkNotice"
+  );
+  assert.match(
+    newtabJs,
+    /showToastNotification\([\s\S]*?queryRestoredToast[\s\S]*?["']is-undone["']\)/u,
+    "newtab.js must invoke showToastNotification with queryRestoredToast on Ctrl+Z restore"
+  );
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(
+    contentJs,
+    /function\s+findExistingBookmarkByUrl\s*\(/u,
+    "content.js must define findExistingBookmarkByUrl"
+  );
+  assert.match(
+    contentJs,
+    /function\s+normalizeUrlForMatch\s*\(/u,
+    "content.js must define normalizeUrlForMatch"
+  );
+  assert.match(
+    contentJs,
+    /existingBookmarkNotice/u,
+    "content.js must use existingBookmarkNotice"
+  );
+  assert.match(
+    contentJs,
+    /showContentToastNotification\([\s\S]*?queryRestoredToast[\s\S]*?["']is-undone["']\)/u,
+    "content.js must invoke showContentToastNotification with queryRestoredToast on Ctrl+Z restore"
+  );
+});

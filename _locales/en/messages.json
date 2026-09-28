@@ -431,5 +431,15 @@
       }
     }
   },
-  "undoWithShortcut": { "message": "Undo (Ctrl+Z)" }
+  "undoWithShortcut": { "message": "Undo (Ctrl+Z)" },
+  "queryRestoredToast": { "message": "✓ Text restored" },
+  "existingBookmarkNotice": {
+    "message": "Already in bookmarks: $TITLE$",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      }
+    }
+  }
 }

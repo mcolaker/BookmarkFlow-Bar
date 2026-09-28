@@ -431,5 +431,15 @@
       }
     }
   },
-  "undoWithShortcut": { "message": "Geri Al (Ctrl+Z)" }
+  "undoWithShortcut": { "message": "Geri Al (Ctrl+Z)" },
+  "queryRestoredToast": { "message": "✓ Metin geri getirildi" },
+  "existingBookmarkNotice": {
+    "message": "Zaten yer imlerinde: $TITLE$",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      }
+    }
+  }
 }

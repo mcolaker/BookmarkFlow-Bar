@@ -652,7 +652,25 @@ function getSearchIndex() {
   return cachedSearchIndex;
 }
 
-function getQuickSaveTargetInfo() {
+function normalizeUrlForMatch(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== "string") return "";
+  try {
+    const parsed = new URL(rawUrl);
+    const path = parsed.pathname.replace(/\/+$/, "");
+    return (parsed.origin + path + (parsed.search || "")).toLowerCase();
+  } catch {
+    return rawUrl.trim().toLowerCase().replace(/\/+$/, "");
+  }
+}
+
+function findExistingBookmarkByUrl(url) {
+  const norm = normalizeUrlForMatch(url);
+  if (!norm) return null;
+  const index = getSearchIndex();
+  return index.find(b => b.url && normalizeUrlForMatch(b.url) === norm) || null;
+}
+
+function getQuickSaveTargetInfo(url = "") {
   const barNode = appState?.bookmarkBar;
   const parentId = lastUsedFolderId || barNode?.id || "";
   let folderName = "";
@@ -661,9 +679,18 @@ function getQuickSaveTargetInfo() {
     const targetFolder = allFolders.find(f => f.id === parentId);
     folderName = targetFolder?.title || "";
   }
-  const titleText = folderName
+  let titleText = folderName
     ? (t("quickSaveToFolder", folderName) || `'${folderName}' Klasörüne Kaydet (Ctrl+S)`)
     : (t("quickSaveToBar") || "Yer İmleri Çubuğuna Kaydet (Ctrl+S)");
+
+  if (url) {
+    const existing = findExistingBookmarkByUrl(url);
+    if (existing?.title) {
+      const existingNotice = t("existingBookmarkNotice", existing.title) || `Zaten yer imlerinde: ${existing.title}`;
+      titleText += ` • ${existingNotice}`;
+    }
+  }
+
   return { parentId: parentId || barNode?.id || "", folderName, titleText };
 }
 
@@ -746,7 +773,7 @@ function updateSearchIntentBadge(intentResult) {
 
   if (inlineSaveBtn) {
     if (intentResult.intent === "url" && intentResult.url) {
-      const { parentId, titleText } = getQuickSaveTargetInfo();
+      const { parentId, titleText } = getQuickSaveTargetInfo(intentResult.url);
       showInlineSaveBtn(inlineSaveBtn, intentResult.url, parentId, titleText);
     } else {
       hideInlineSaveBtnSmoothly(inlineSaveBtn);
@@ -831,11 +858,15 @@ function handleSearchInput() {
 
   const directTarget = resolveDirectNavigationTarget(query);
   if (directTarget) {
+    const existingBookmark = findExistingBookmarkByUrl(directTarget);
+    const existingNotice = existingBookmark?.title
+      ? ` • ${t("existingBookmarkNotice", existingBookmark.title) || `Zaten yer imlerinde: ${existingBookmark.title}`}`
+      : "";
     results.unshift({
       type: "action",
       action: "captureUrlToBookmark",
       title: `${t("addBookmarkToTarget")}: ${directTarget}`,
-      desc: t("addBookmarkToTargetDesc"),
+      desc: `${t("addBookmarkToTargetDesc")}${existingNotice}`,
       icon: "⭐",
       targetUrl: directTarget
     });
@@ -925,6 +956,7 @@ function handleSearchKeydown(event) {
       elements.searchInput.select();
       handleSearchInput();
       triggerSearchRestoredFlash();
+      showToastNotification(t("queryRestoredToast") || "✓ Metin geri getirildi", 1500, null, "is-undone");
       lastEscapeClearedSearchText = "";
       return;
     }
