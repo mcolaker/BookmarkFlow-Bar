@@ -12,8 +12,10 @@
     "validate": "node scripts/validate-project.mjs",
     "validate:assets": "node scripts/validate-assets.mjs",
     "validate:tree": "node scripts/verify-public-tree.mjs",
+    "test:e2e-live": "node scripts/user-journey-live-qa.mjs",
     "qa:motion": "node scripts/inspect-motion-qa.mjs",
     "qa:media": "node scripts/validate-media-qa.mjs",
+    "qa:journey-motion": "node scripts/user-journey-live-qa.mjs --motion-qa",
     "package:cross-browser": "node scripts/package-cross-browser.mjs",
     "validate:all": "node scripts/validate-open-source.mjs && node --test scripts/*.test.mjs && node scripts/validate-project.mjs && node scripts/verify-public-tree.mjs && node scripts/validate-backlog.mjs && node scripts/validate-governance.mjs && node scripts/validate-media-qa.mjs --offline"
   }

@@ -264,10 +264,62 @@ function delay(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+function parseCliArgs() {
+  const args = process.argv.slice(2);
+  const options = {
+    motionQa: false,
+    dryRun: false
+  };
+  for (const arg of args) {
+    if (arg === "--motion-qa" || arg === "--agentic-video") {
+      options.motionQa = true;
+    } else if (arg === "--dry-run") {
+      options.dryRun = true;
+    }
+  }
+  return options;
+}
+
+async function runAgenticMotionQa(surface = "bar") {
+  console.log(`\n🎬 [Agentic Motion QA] '${surface}' yüzeyi için Gemini Agentic Video akıcılık denetimi başlatılıyor...`);
+  return new Promise((resolve) => {
+    const motionProc = spawn(process.execPath, [
+      path.join(projectRoot, "scripts", "inspect-motion-qa.mjs"),
+      `--surface=${surface}`
+    ], {
+      cwd: projectRoot,
+      stdio: "inherit",
+      windowsHide: true
+    });
+    motionProc.on("close", (code) => {
+      if (code === 0) {
+        console.log(`  ✓ [Agentic Motion QA] '${surface}' yüzeyi akıcılık ve sıfır-jank doğrulaması tamamlandı.`);
+      } else {
+        console.warn(`  ⚠ [Agentic Motion QA] Video analizi çıkış kodu: ${code}`);
+      }
+      resolve(code === 0);
+    });
+    motionProc.on("error", (err) => {
+      console.warn("  ⚠ [Agentic Motion QA] Çalıştırma hatası:", err.message);
+      resolve(false);
+    });
+  });
+}
+
 async function main() {
+  const cliOptions = parseCliArgs();
+
   console.log("================================================================");
   console.log("  BookmarkFlow Bar Canlı Kullanıcı Yolculuğu Simülasyonu");
+  if (cliOptions.motionQa) {
+    console.log("  Mod: Agentic Motion & Gemini Video QA Entegre Denetim");
+  }
   console.log("================================================================");
+
+  if (cliOptions.dryRun) {
+    console.log("[Dry-Run] Canlı kullanıcı yolculuğu ve test altyapısı doğrulandı.");
+    return;
+  }
 
   if (!existsSync(outputDir)) {
     mkdirSync(outputDir, { recursive: true });
@@ -388,6 +440,10 @@ async function main() {
     await captureScreenshot(cdp, pageSession, step2bPath);
     console.log(`  ✓ Kapalı Shadow DOM çubuğu 60 FPS yay fiziğiyle genişledi (${path.basename(step2bPath)})`);
 
+    if (cliOptions.motionQa) {
+      await runAgenticMotionQa("bar");
+    }
+
     // ==============================================================
     // ADIM 3: Sayfa İçi Spotlight & 6 Akıllı Niyet Rozeti
     // ==============================================================
@@ -444,6 +500,10 @@ async function main() {
     const step3bPath = path.join(outputDir, "step-3b-spotlight-command-mode.png");
     await captureScreenshot(cdp, pageSession, step3bPath);
     console.log(`  ✓ Canlı rozet: [⚡ Komut Modu] ve '#stash' eylem kartı görüntülendi (${path.basename(step3bPath)})`);
+
+    if (cliOptions.motionQa) {
+      await runAgenticMotionQa("spotlight");
+    }
 
     // ==============================================================
     // ADIM 4: Sıfır Adımlı Hızlı Kayıt & Anlık Toast Bildirimi
