@@ -1,0 +1,108 @@
+/**
+ * BookmarkFlow Bar Design Tokens (Modern Web Guidance Standard)
+ * Tek Kanonik Tasarım Değişkenleri Merkezi (Golden Obsidian Palette)
+ */
+
+:root,
+:host {
+  /* Marka & Vurgu Renkleri */
+  --bf-token-gold-primary: #f2c94c;
+  --bf-token-gold-contrast: #141820;
+  --bf-token-gold-glow: rgba(242, 201, 76, 0.42);
+  --bf-token-gold-subtle: rgba(242, 201, 76, 0.16);
+
+  /* Yüzey & Arka Plan (Obsidian Dark Standart) */
+  --bf-token-bg-base: #14171c;
+  --bf-token-bg-card: #161b24;
+  --bf-token-bg-dialog: #181d24;
+  --bf-token-bg-surface: #20252d;
+  --bf-token-bg-surface-hover: #29313c;
+  --bf-token-bg-palette: #11151e;
+  --bf-token-bg-palette-hover: #2b3547;
+
+  /* Çerçeve & Ayırıcılar */
+  --bf-token-border-default: #343b46;
+  --bf-token-border-subtle: #303743;
+  --bf-token-border-strong: #404856;
+  --bf-token-border-bar: #292f38;
+
+  /* Tipografi & Metin Renkleri */
+  --bf-token-text-primary: #eef1f6;
+  --bf-token-text-muted: #a2acbb;
+  --bf-token-font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Modern Glassmorphism & Bulanıklık */
+  --bf-token-blur-modal: blur(16px);
+  --bf-token-blur-bar: blur(12px);
+  --bf-token-blur-toast: blur(14px);
+
+  /* Kenar Yuvarlama (Border Radius) */
+  --bf-token-radius-xs: 4px;
+  --bf-token-radius-sm: 6px;
+  --bf-token-radius-md: 10px;
+  --bf-token-radius-lg: 14px;
+  --bf-token-radius-xl: 18px;
+  --bf-token-radius-full: 9999px;
+
+  /* Erişilebilirlik Odak Halkası (a11y Focus Ring) */
+  --bf-token-focus-outline: 2px solid #f2c94c;
+  --bf-token-focus-offset: 2px;
+  --bf-token-focus-shadow: 0 0 0 3px rgba(242, 201, 76, 0.35);
+
+  /* Animasyon & Geçiş Fiziği */
+  --bf-token-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --bf-token-ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --bf-token-duration-fast: 120ms;
+  --bf-token-duration-normal: 220ms;
+  --bf-token-duration-spring: 350ms;
+
+  /* Katman (Z-Index) Hiyerarşisi */
+  --bf-token-z-inpage-bar: 2147483646;
+  --bf-token-z-spotlight: 2147483647;
+}
+
+/* OLED Black Tema Varyantı */
+:root[data-theme="oled-black"],
+:host([data-theme="oled-black"]),
+.bf-app[data-theme="oled-black"] {
+  --bf-token-bg-base: #0a0a0a;
+  --bf-token-bg-card: #0f0f0f;
+  --bf-token-bg-dialog: #0f0f0f;
+  --bf-token-bg-surface: #141414;
+  --bf-token-bg-surface-hover: #222222;
+  --bf-token-border-default: #282828;
+  --bf-token-border-subtle: #242424;
+  --bf-token-gold-primary: #f8fafc;
+  --bf-token-gold-contrast: #000000;
+  --bf-token-gold-glow: rgba(248, 250, 252, 0.42);
+  --bf-token-gold-subtle: rgba(248, 250, 252, 0.14);
+  --bf-token-text-primary: #ffffff;
+  --bf-token-text-muted: #9ca3af;
+}
+
+/* Emerald Matrix Tema Varyantı */
+:root[data-theme="emerald-matrix"],
+:host([data-theme="emerald-matrix"]),
+.bf-app[data-theme="emerald-matrix"] {
+  --bf-token-bg-base: #0a170e;
+  --bf-token-bg-card: #0c1a11;
+  --bf-token-bg-dialog: #0d1f13;
+  --bf-token-bg-surface: #102417;
+  --bf-token-bg-surface-hover: #173421;
+  --bf-token-border-default: #1e4029;
+  --bf-token-border-subtle: #193822;
+  --bf-token-gold-primary: #4ade80;
+  --bf-token-gold-contrast: #052e16;
+  --bf-token-gold-glow: rgba(74, 222, 128, 0.42);
+  --bf-token-gold-subtle: rgba(74, 222, 128, 0.16);
+}
+
+/* Modern Web Guidance: Erişilebilir Hareket Azaltma */
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  :host {
+    --bf-token-duration-fast: 0ms;
+    --bf-token-duration-normal: 0ms;
+    --bf-token-duration-spring: 0ms;
+  }
+}

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -1314,4 +1314,31 @@ test("autonomous video trigger authority and lifecycle contract (BF-QA-004)", ()
   assert.match(journeyJs, /jankThreshold/u, "user-journey-live-qa.mjs must support jankThreshold option");
   assert.match(journeyJs, /Performance\.enable/u, "user-journey-live-qa.mjs must enable Performance domain");
   assert.match(journeyJs, /Animation\.enable/u, "user-journey-live-qa.mjs must enable Animation domain");
+});
+
+test("autonomous devtools shadow DOM isolation, a11y focus ring and design tokens contract (BF-GOV-011)", () => {
+  const designTokensPath = path.join(root, "src/design-tokens.css");
+  assert.ok(existsSync(designTokensPath), "src/design-tokens.css must exist");
+
+  const designTokens = readFileSync(designTokensPath, "utf8");
+  assert.match(designTokens, /--bf-token-gold-primary/u, "design-tokens.css must define gold primary token");
+  assert.match(designTokens, /--bf-token-bg-base/u, "design-tokens.css must define base background token");
+  assert.match(designTokens, /--bf-token-focus-outline/u, "design-tokens.css must define focus outline token");
+  assert.match(designTokens, /--bf-token-focus-shadow/u, "design-tokens.css must define focus shadow token");
+  assert.match(designTokens, /--bf-token-blur-modal/u, "design-tokens.css must define blur token");
+  assert.match(designTokens, /prefers-reduced-motion/u, "design-tokens.css must support reduced-motion");
+
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  const webResources = manifest.web_accessible_resources?.[0]?.resources || [];
+  assert.ok(webResources.includes("src/design-tokens.css"), "manifest.json must declare src/design-tokens.css as web_accessible_resource");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /BF_INSPECT_ISOLATION/u, "content.js must handle BF_INSPECT_ISOLATION message");
+  assert.match(contentJs, /shadowModeClosed/u, "content.js must verify shadowModeClosed in isolation check");
+  assert.match(contentJs, /hasFocusRing/u, "content.js must verify a11y focus ring in isolation check");
+
+  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
+  assert.match(journeyJs, /BF_INSPECT_ISOLATION/u, "user-journey-live-qa.mjs must trigger BF_INSPECT_ISOLATION");
+  assert.match(journeyJs, /aggressive-host-styles/u, "user-journey-live-qa.mjs must inject aggressive styles to test isolation");
+  assert.match(journeyJs, /Comic Sans MS/u, "user-journey-live-qa.mjs must test font isolation against Comic Sans");
 });

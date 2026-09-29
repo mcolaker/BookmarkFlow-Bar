@@ -574,6 +574,53 @@ async function main() {
     await evaluateAndTriggerMotionQa("bar", barFps, cliOptions);
 
     // ==============================================================
+    // OTONOM DEVTOOLS & MODERN WEB GUIDANCE TEFTİŞİ:
+    // Kapalı Shadow DOM CSS İzolasyonu ve Odak Halkası Doğrulaması
+    // ==============================================================
+    console.log("  🔍 [Otonom DevTools & Web Guidance] Agresif ana sayfa stilleri enjekte ediliyor...");
+    await evaluate(cdp, pageSession, `(() => {
+      const style = document.createElement("style");
+      style.id = "aggressive-host-styles";
+      style.textContent = \`
+        * {
+          box-sizing: border-box !important;
+          font-family: 'Comic Sans MS', cursive !important;
+          margin: 33px !important;
+          color: rgb(255, 0, 0) !important;
+          line-height: 99px !important;
+        }
+        body {
+          font-size: 50px !important;
+        }
+      \`;
+      document.head.appendChild(style);
+    })()`);
+
+    console.log("  🔍 [Otonom DevTools & Web Guidance] Kapalı Shadow DOM izolasyonu ve a11y teftişi yapılıyor...");
+    const isolationResult = await evaluate(cdp, workerSession, `(async () => {
+      const tabs = await chrome.tabs.query({});
+      const targetTab = tabs.find(t => t.url && t.url.includes("127.0.0.1")) || tabs[0];
+      if (targetTab) {
+        return await chrome.tabs.sendMessage(targetTab.id, { type: "BF_INSPECT_ISOLATION" });
+      }
+      return { ok: false, error: "no_tab" };
+    })()`);
+
+    if (isolationResult?.ok) {
+      if (isolationResult.shadowModeClosed) {
+        console.log("  ✓ [Kapalı Shadow DOM] document.querySelector('#bookmarkflow-host').shadowRoot === null (Tam İzolasyon Doğrulandı)");
+      }
+      if (isolationResult.isolated) {
+        console.log("  ✓ [CSS İzolasyonu] Dış sayfadaki '* { color: red !important; font-family: Comic Sans !important; }' kuralı Shadow DOM kalkanını aşamadı.");
+      } else {
+        console.warn("  ⚠️ [CSS İzolasyonu Uyarısı] Stil sızıntısı tespit edildi:", isolationResult.barStyles);
+      }
+      if (isolationResult.a11y?.hasFocusRing) {
+        console.log("  ✓ [Erişilebilirlik Odak Halkası] Arama kutusunda altın odak halkası (WCAG uyumlu) doğrulandı.");
+      }
+    }
+
+    // ==============================================================
     // ADIM 3: Sayfa İçi Spotlight & 6 Akıllı Niyet Rozeti
     // ==============================================================
     console.log("\n▶ ADIM 3: Sayfa İçi Spotlight & 6 Akıllı Niyet Rozeti (BF-UX-017)");

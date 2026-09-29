@@ -80,6 +80,7 @@
     {
       "resources": [
         "_favicon/*",
+        "src/design-tokens.css",
         "src/content.css",
         "src/newtab.css"
       ],

@@ -22,7 +22,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 93/93 PASS (%100 yeşil).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 94/94 PASS (%100 yeşil).
 - **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog sözleşmeleri temiz).
 - **Biçim ve Satır Sonu**: `git diff --check` -> Sıfır hata (CRLF/LF normalize, EOF boş satırsız).
 - **Gizli Veri Denetimi**: Sıfır API anahtarı, sıfır token, sıfır mutlak kullanıcı yolu.

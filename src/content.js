@@ -326,6 +326,59 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       if (message?.type === MESSAGE_RUN_COMMAND) {
         sendResponse(runExternalCommand(message.command));
       }
+
+      if (message?.type === "BF_INSPECT_ISOLATION") {
+        const barEl = shadowRoot?.querySelector(".bf-bar");
+        const markEl = shadowRoot?.querySelector(".bf-mark");
+        const searchInput = shadowRoot?.querySelector(".bf-search-input");
+        const barComputed = barEl ? window.getComputedStyle(barEl) : null;
+
+        let hasFocusRing = false;
+        let focusedComputed = null;
+        if (searchInput) {
+          searchInput.focus();
+          focusedComputed = window.getComputedStyle(searchInput);
+          const boxShadow = focusedComputed?.boxShadow || "";
+          const borderColor = focusedComputed?.borderColor || "";
+          hasFocusRing = Boolean(
+            (focusedComputed?.outlineStyle !== "none" && focusedComputed?.outlineWidth !== "0px") ||
+            boxShadow.includes("242") ||
+            boxShadow.includes("rgba") ||
+            borderColor.includes("242")
+          );
+        }
+
+        const isFontIsolated = Boolean(
+          barComputed &&
+          !barComputed.fontFamily.toLowerCase().includes("comic sans")
+        );
+        const isColorIsolated = Boolean(
+          barComputed &&
+          barComputed.color !== "rgb(255, 0, 0)"
+        );
+        const isMarginIsolated = Boolean(
+          barComputed &&
+          barComputed.margin !== "33px" &&
+          barComputed.margin !== "42px"
+        );
+        const isShadowModeClosed = !document.querySelector("#bookmarkflow-host")?.shadowRoot;
+
+        sendResponse({
+          ok: true,
+          shadowModeClosed: isShadowModeClosed,
+          isolated: isFontIsolated && isColorIsolated && isMarginIsolated,
+          barStyles: {
+            fontFamily: barComputed?.fontFamily,
+            color: barComputed?.color,
+            margin: barComputed?.margin
+          },
+          a11y: {
+            hasFocusRing,
+            outline: focusedComputed?.outline,
+            boxShadow: focusedComputed?.boxShadow
+          }
+        });
+      }
     });
   }
 

@@ -1,26 +1,28 @@
+@import "./design-tokens.css";
+
 :root {
   --nt-theme-bg: #202124;
-  --nt-theme-bar-bg: #14171c;
-  --nt-theme-bar-border: #292f38;
-  --nt-theme-card-bg: #161b24;
-  --nt-theme-dialog-bg: #181d24;
-  --nt-theme-surface: #20252d;
-  --nt-theme-surface-hover: #29313c;
-  --nt-theme-border: #343b46;
-  --nt-theme-border-subtle: #303743;
-  --nt-theme-accent: #f2c94c;
-  --nt-theme-accent-contrast: #141820;
-  --nt-theme-accent-glow: rgba(242, 201, 76, 0.42);
-  --nt-theme-accent-subtle: rgba(242, 201, 76, 0.16);
-  --nt-theme-text: #f1f3f4;
-  --nt-theme-text-muted: #a2acbb;
+  --nt-theme-bar-bg: var(--bf-token-bg-base, #14171c);
+  --nt-theme-bar-border: var(--bf-token-border-bar, #292f38);
+  --nt-theme-card-bg: var(--bf-token-bg-card, #161b24);
+  --nt-theme-dialog-bg: var(--bf-token-bg-dialog, #181d24);
+  --nt-theme-surface: var(--bf-token-bg-surface, #20252d);
+  --nt-theme-surface-hover: var(--bf-token-bg-surface-hover, #29313c);
+  --nt-theme-border: var(--bf-token-border-default, #343b46);
+  --nt-theme-border-subtle: var(--bf-token-border-subtle, #303743);
+  --nt-theme-accent: var(--bf-token-gold-primary, #f2c94c);
+  --nt-theme-accent-contrast: var(--bf-token-gold-contrast, #141820);
+  --nt-theme-accent-glow: var(--bf-token-gold-glow, rgba(242, 201, 76, 0.42));
+  --nt-theme-accent-subtle: var(--bf-token-gold-subtle, rgba(242, 201, 76, 0.16));
+  --nt-theme-text: var(--bf-token-text-primary, #f1f3f4);
+  --nt-theme-text-muted: var(--bf-token-text-muted, #a2acbb);
   --nt-theme-search-bg: #181d26;
   --nt-theme-search-border: #303744;
-  --nt-theme-palette-bg: #11151e;
+  --nt-theme-palette-bg: var(--bf-token-bg-palette, #11151e);
   --nt-theme-palette-border: #232b38;
-  --nt-theme-palette-hover: #2b3547;
+  --nt-theme-palette-hover: var(--bf-token-bg-palette-hover, #2b3547);
   color-scheme: dark;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--bf-token-font-family, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   background: var(--nt-theme-bg);
   color: var(--nt-theme-text);
 }
