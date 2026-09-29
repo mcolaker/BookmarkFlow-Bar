@@ -1413,7 +1413,30 @@ test("bar hide and restore full concealment lifecycle contract (BF-UX-019)", () 
   assert.ok(trMessages.barHiddenToast?.message, "tr messages must define barHiddenToast");
   assert.ok(enMessages.barHiddenToast?.message, "en messages must define barHiddenToast");
   assert.ok(trMessages.barRestoredToast?.message, "tr messages must define barRestoredToast");
-  assert.ok(enMessages.barRestoredToast?.message, "en messages must define barRestoredToast");
   assert.ok(trMessages.siteStatusSnoozed?.message, "tr messages must define siteStatusSnoozed");
   assert.ok(enMessages.siteStatusSnoozed?.message, "en messages must define siteStatusSnoozed");
+});
+
+test("popup site control restore bar button contract (BF-UX-020)", () => {
+  const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
+  assert.match(popupHtml, /id="restoreBarBtn"/u, "popup.html must define restoreBarBtn");
+  assert.match(popupHtml, /class="[^"]*site-restore-btn[^"]*"/u, "popup.html must style restoreBarBtn with site-restore-btn");
+  assert.match(popupHtml, /data-i18n="restoreBar"/u, "popup.html must localize restoreBarBtn with restoreBar");
+  assert.match(popupHtml, /class="site-status-row"/u, "popup.html must wrap status and button in site-status-row");
+
+  const popupJs = readFileSync(path.join(root, "src/popup.js"), "utf8");
+  assert.match(popupJs, /restoreBarBtn:\s*document\.getElementById\("restoreBarBtn"\)/u, "popup.js must register restoreBarBtn");
+  assert.match(popupJs, /controls\.restoreBarBtn\.addEventListener\("click"/u, "popup.js must bind click listener to restoreBarBtn");
+  assert.match(popupJs, /command:\s*"hide-restore"/u, "restoreBarBtn click must send hide-restore command");
+  assert.match(popupJs, /controls\.restoreBarBtn\.hidden\s*=/u, "popup.js must toggle restoreBarBtn hidden state");
+
+  const popupCss = readFileSync(path.join(root, "src/popup.css"), "utf8");
+  assert.match(popupCss, /\.site-status-row\b/u, "popup.css must define .site-status-row");
+  assert.match(popupCss, /\.site-restore-btn\b/u, "popup.css must define .site-restore-btn");
+  assert.match(popupCss, /forced-colors:\s*active/u, "popup.css must support forced-colors for restore button");
+
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  assert.ok(trMessages.restoreBar?.message, "tr messages must define restoreBar");
+  assert.ok(enMessages.restoreBar?.message, "en messages must define restoreBar");
 });

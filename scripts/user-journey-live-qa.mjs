@@ -597,14 +597,38 @@ async function main() {
     })()`);
     console.log("  📊 [Gizleme Sonrası Çubuk Durumu]:", JSON.stringify(statusAfterHide, null, 2));
 
-    // Tekrar açmak için toggle-bar gönder
-    console.log("  ⚡ 'Alt+Shift+H' ile çubuğu geri getirme tetikleniyor...");
-    await evaluate(cdp, workerSession, `(async () => {
+    // BF-UX-020: Popup Site Kontrol Kartında 'Çubuğu Göster' (restoreBarBtn) Buton Mantığı Teftişi
+    console.log("  👁️ [BF-UX-020 Teftişi] Popup site kontrol kartındaki 'Çubuğu Göster' butonu mantığı doğrulanıyor...");
+    const popupCanRestore = Boolean(
+      statusAfterHide?.ok &&
+      statusAfterHide?.snoozed &&
+      !statusAfterHide?.disabledByUser &&
+      !statusAfterHide?.autoHiddenSensitive
+    );
+    console.log(`  ✓ Popup restoreBarBtn görünürlük koşulu: ${popupCanRestore} (beklenen: true)`);
+    if (!popupCanRestore) {
+      throw new Error("BF-UX-020: Popup restoreBarBtn görünürlük koşulu sağlanamadı!");
+    }
+
+    // Popup 'Çubuğu Göster' butonuna tıklandığında hide-restore komutunun gönderilip çubuğu açması simülasyonu
+    console.log("  ⚡ Popup 'Çubuğu Göster' (#restoreBarBtn) butonu tetikleniyor (hide-restore)...");
+    const restoreResponse = await evaluate(cdp, workerSession, `(async () => {
       const tabs = await chrome.tabs.query({});
       const targetTab = tabs.find(t => t.url && t.url.includes("127.0.0.1")) || tabs[0];
-      await chrome.tabs.sendMessage(targetTab.id, { type: "BF_RUN_COMMAND", command: "hide-restore" });
+      return await chrome.tabs.sendMessage(targetTab.id, { type: "BF_RUN_COMMAND", command: "hide-restore" });
     })()`);
+    console.log("  📊 [Geri Getirme Yanıtı]:", JSON.stringify(restoreResponse, null, 2));
     await delay(800);
+
+    const statusAfterRestore = await evaluate(cdp, workerSession, `(async () => {
+      const tabs = await chrome.tabs.query({});
+      const targetTab = tabs.find(t => t.url && t.url.includes("127.0.0.1")) || tabs[0];
+      return await chrome.tabs.sendMessage(targetTab.id, { type: "BF_GET_PAGE_INFO" });
+    })()`);
+    console.log(`  ✓ Geri getirme sonrası çubuk durumu: snoozed=${statusAfterRestore?.snoozed}, visible=${statusAfterRestore?.renderedAppVisible}`);
+    if (statusAfterRestore?.snoozed) {
+      throw new Error("BF-UX-020: Çubuk 'Çubuğu Göster' tetiklemesi sonrası geri gelemedi!");
+    }
 
     // ==============================================================
     // OTONOM DEVTOOLS & MODERN WEB GUIDANCE TEFTİŞİ:

@@ -28,7 +28,13 @@
           </div>
           <button id="toggleSite" class="site-toggle-btn" type="button" data-i18n="hideOnThisSite">Hide on this site</button>
         </div>
-        <p id="siteStatus" class="status site-status-desc"></p>
+        <div class="site-status-row">
+          <p id="siteStatus" class="status site-status-desc"></p>
+          <button id="restoreBarBtn" class="site-restore-btn" type="button" hidden>
+            <span class="site-restore-icon" aria-hidden="true">👁️</span>
+            <span data-i18n="restoreBar">Show Bar</span>
+          </button>
+        </div>
       </section>
 
       <section id="popupConsentGate" class="consent-gate" hidden>

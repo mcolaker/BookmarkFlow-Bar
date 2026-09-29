@@ -22,7 +22,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 96/96 PASS (%100 yeşil).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 97/97 PASS (%100 yeşil).
 - **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog sözleşmeleri temiz).
 - **Biçim ve Satır Sonu**: `git diff --check` -> Sıfır hata (CRLF/LF normalize, EOF boş satırsız).
 - **Gizli Veri Denetimi**: Sıfır API anahtarı, sıfır token, sıfır mutlak kullanıcı yolu.
@@ -46,6 +46,7 @@ Kullanıcının talimatı doğrultusunda, yeni sürüm yayınlanana kadar PR aç
 11. **Otonom Geliştirici Araçları ve Teftiş İnisiyatifi (BF-GOV-011 / Karar 20)**: Yapay zeka asistanının Chrome DevTools (Shadow DOM kapalı izolasyon teftişi, CSS/layout hata ayıklama, konsol/ağ ve bellek sızıntısı analizi), Modern Web Guidance (web standartları, MV3 mimarisi, CSS optimizasyonu, a11y) ve Gemini API (multimodal/video akıcılık denetimi) araçlarını kullanıcının açık komut vermesini beklemeden kendi inisiyatifiyle tam otonom yönetebilmesi ve optimizasyonları proaktif olarak uygulayabilmesi.
 12. **Canlı Yüksek Kontrast (Forced Colors) Erişilebilirliği ve Tüm Yüzeylerde Tasarım Değişkenleri Yaygınlaştırması (BF-GOV-012, BF-GOV-013)**: Windows ve modern tarayıcıların yüksek kontrast (`@media (forced-colors: active)`) erişilebilirlik modunda `Canvas`, `CanvasText`, `Highlight`, `ButtonBorder` sistem renklerinin `src/design-tokens.css` içinde otomatik devreye girmesi; Spotlight ve Komut Paleti için modüler `src/spotlight.css`, Ayarlar & Bakım Merkezi için modüler `src/settings.css`, ve İlk Kurulum Sihirbazı (`src/onboarding.css`, `src/onboarding.html`) dahil tüm yüzeylerde (`content.css`, `newtab.css`, `popup.css`, `spotlight.css`, `settings.css`, `onboarding.css`) tek kaynaktan altın-obsidyen tasarım değişkeni senkronizasyonu.
 13. **Sayfa İçi Çubuğu Gizle (Alt + Shift + H) Tam Gizleme ve Geri Getirme Yaşam Döngüsü (BF-UX-019)**: Kullanıcı bağlam menüsünden veya `Alt+Shift+H` kısayolu ile çubuğu gizlediğinde ekranda artık hiçbir buton veya rozet kalmaması (`:host([hidden])`, `:host(.is-snoozed)`, sayfa kaydırma ofsetinin sıfırlanması), gizleme anında 2 saniyelik rehberlik eden altın çerçeveli toast (`✓ BookmarkFlow gizlendi (Geri getirmek için: Alt + Shift + H)`), `Alt+Shift+H`, `Alt+Shift+B` veya `Alt+Shift+K` kısayollarıyla anında restorasyon ve `✓ BookmarkFlow geri getirildi` teyidi; popup arayüzünde sekme gizlenme durumunun canlı tespiti.
+14. **Popup Menüsünde Tek Tıkla 'Çubuğu Göster' Butonu Entegrasyonu (BF-UX-020)**: Popup açıldığında aktif sekmede çubuk gizlenmişse (`activePage.snoozed === true`) doğrudan çalışan tek tıkla `[👁️ Çubuğu Göster]` (`#restoreBarBtn`, `.site-restore-btn`) eylem butonu, tıklandığında `BF_RUN_COMMAND` ("hide-restore") ile çubuğun anında geri gelmesi, durum metninin güncellenmesi ve butonun gizlenmesi; yüksek kontrast forced-colors desteği.
 
 ---
 

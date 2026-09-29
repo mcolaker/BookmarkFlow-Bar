@@ -38,6 +38,7 @@ const controls = {
   siteHost: document.getElementById("siteHost"),
   siteStatus: document.getElementById("siteStatus"),
   toggleSite: document.getElementById("toggleSite"),
+  restoreBarBtn: document.getElementById("restoreBarBtn"),
   autoTagging: document.getElementById("autoTagging"),
   newTabBackground: Array.from(document.querySelectorAll("[data-bg]")),
   customWallpaperInput: document.getElementById("customWallpaperInput"),
@@ -53,10 +54,12 @@ let activePage = {
   ok: false,
   canControlSite: false,
   host: "",
+  tabId: null,
   disabledByUser: false,
   sensitiveHost: false,
   hiddenOnSites: false,
   dockedBottom: false,
+  snoozed: false,
   autoHiddenSensitive: false
 };
 
@@ -301,6 +304,25 @@ async function init() {
     chrome.storage.local.set({ disabledHosts });
   });
 
+  if (controls.restoreBarBtn) {
+    controls.restoreBarBtn.addEventListener("click", async () => {
+      const tabId = activePage.tabId || (await getActiveTabId());
+      if (!tabId) {
+        return;
+      }
+
+      const response = await sendTabMessage(tabId, {
+        type: "BF_RUN_COMMAND",
+        command: "hide-restore"
+      });
+
+      if (response?.ok) {
+        activePage.snoozed = false;
+        renderSiteControl(currentSettings);
+      }
+    });
+  }
+
   controls.manageShortcuts.addEventListener("click", () => {
     chrome.tabs.create({ url: "chrome://extensions/shortcuts" });
   });
@@ -351,6 +373,26 @@ function sendMessage(message) {
   });
 }
 
+async function getActiveTabId() {
+  const [tab] = await chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  });
+  return tab?.id || null;
+}
+
+function sendTabMessage(tabId, message) {
+  return new Promise((resolve) => {
+    chrome.tabs.sendMessage(tabId, message, (response) => {
+      if (chrome.runtime.lastError) {
+        resolve(null);
+        return;
+      }
+      resolve(response);
+    });
+  });
+}
+
 async function getActivePageInfo() {
   const [tab] = await chrome.tabs.query({
     active: true,
@@ -364,11 +406,11 @@ async function getActivePageInfo() {
   return new Promise((resolve) => {
     chrome.tabs.sendMessage(tab.id, { type: "BF_GET_PAGE_INFO" }, (response) => {
       if (chrome.runtime.lastError || !response?.ok) {
-        resolve(activePage);
+        resolve({ ...activePage, tabId: tab.id });
         return;
       }
 
-      resolve(response);
+      resolve({ ...response, tabId: tab.id });
     });
   });
 }
@@ -484,5 +526,15 @@ function renderSiteControl(settings) {
     controls.siteStatus.textContent = t("siteStatusDockedBottom");
   } else {
     controls.siteStatus.textContent = t("siteStatusVisible");
+  }
+
+  if (controls.restoreBarBtn) {
+    const canRestore = Boolean(
+      settings.showOnSites &&
+      !disabledByUser &&
+      !autoHiddenSensitive &&
+      activePage.snoozed
+    );
+    controls.restoreBarBtn.hidden = !canRestore;
   }
 }
