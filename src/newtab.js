@@ -173,6 +173,9 @@ async function init() {
       elements.addUrlUnlockBtn.setAttribute("aria-label", t("unlockUrl") || "Unlock address to edit");
     }
   });
+  elements.addUrl.addEventListener("input", () => {
+    elements.addUrl.classList.remove("is-invalid-url");
+  });
   elements.addClose.addEventListener("click", closeAddBookmarkDialog);
   elements.addCancel.addEventListener("click", closeAddBookmarkDialog);
   elements.addFolder.addEventListener("click", () => createFolderFromPrompt(""));
@@ -1167,9 +1170,29 @@ function renderSearchResults() {
           moveFolderChip.addEventListener("click", async (e) => {
             e.preventDefault();
             e.stopPropagation();
+            closeFolderPickerMenu();
             await handleMoveBookmarkToFolder(existingBookmark.id, targetFolder.id, targetFolder.title);
           });
           chips.append(moveFolderChip);
+        }
+
+        if (allFolders.length > 1) {
+          const pickerChip = document.createElement("button");
+          pickerChip.type = "button";
+          pickerChip.className = "nt-search-action-chip is-folder-picker-chip";
+          pickerChip.textContent = "📁▾";
+          pickerChip.title = t("otherFolders") || "Diğer Klasörler…";
+          pickerChip.setAttribute("aria-haspopup", "true");
+          pickerChip.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (activeFolderPickerMenu) {
+              closeFolderPickerMenu();
+            } else {
+              showFolderPickerMenu(existingBookmark, pickerChip, card);
+            }
+          });
+          chips.append(pickerChip);
         }
 
         const editChip = document.createElement("button");
@@ -1180,6 +1203,7 @@ function renderSearchResults() {
         editChip.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
+          closeFolderPickerMenu();
           hideSearchResults();
           openAddBookmarkDialog(elements.searchInput, {
             url: item.targetUrl,
@@ -1444,6 +1468,88 @@ async function handleMoveBookmarkToFolder(bookmarkId, targetFolderId, targetFold
   showToastNotification(msg, 3500, action);
 }
 
+let activeFolderPickerMenu = null;
+
+function closeFolderPickerMenu() {
+  if (activeFolderPickerMenu) {
+    activeFolderPickerMenu.remove();
+    activeFolderPickerMenu = null;
+  }
+}
+
+function showFolderPickerMenu(existingBookmark, anchorBtn, card) {
+  closeFolderPickerMenu();
+  if (!existingBookmark || !anchorBtn || !card) return;
+
+  const barNode = appState?.bookmarkBar;
+  const allFolders = collectAllFolders(barNode);
+
+  const menu = document.createElement("div");
+  menu.className = "nt-folder-picker-menu";
+  menu.setAttribute("role", "menu");
+
+  const header = document.createElement("div");
+  header.className = "nt-folder-picker-header";
+  header.textContent = t("chooseFolderToMove") || "Taşınacak Klasörü Seçin";
+  menu.append(header);
+
+  const barItem = document.createElement("button");
+  barItem.type = "button";
+  barItem.className = "nt-folder-picker-item";
+  const isCurrentBar = existingBookmark.parentId === barNode?.id;
+  if (isCurrentBar) {
+    barItem.classList.add("is-current");
+    barItem.disabled = true;
+  }
+  barItem.innerHTML = `<span>⭐</span> <span>${t("bookmarksBar") || "Yer İmleri Çubuğu"}</span>`;
+  if (isCurrentBar) {
+    const tag = document.createElement("span");
+    tag.className = "nt-folder-picker-tag";
+    tag.textContent = t("currentFolderTag") || "(mevcut)";
+    barItem.append(tag);
+  } else {
+    barItem.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeFolderPickerMenu();
+      await handleMoveBookmarkToFolder(existingBookmark.id, barNode?.id || "", t("bookmarksBar") || "Yer İmleri Çubuğu");
+    });
+  }
+  menu.append(barItem);
+
+  allFolders.filter(f => !f.isBar).forEach((folder) => {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "nt-folder-picker-item";
+    const isCurrent = existingBookmark.parentId === folder.id;
+    if (isCurrent) {
+      item.classList.add("is-current");
+      item.disabled = true;
+    }
+    const folderTitle = folder.path || folder.title;
+    item.innerHTML = `<span>📁</span> <span>${folderTitle}</span>`;
+    if (isCurrent) {
+      const tag = document.createElement("span");
+      tag.className = "nt-folder-picker-tag";
+      tag.textContent = t("currentFolderTag") || "(mevcut)";
+      item.append(tag);
+    } else {
+      item.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeFolderPickerMenu();
+        await handleMoveBookmarkToFolder(existingBookmark.id, folder.id, folder.title);
+      });
+    }
+    menu.append(item);
+  });
+
+  card.style.position = "relative";
+  card.append(menu);
+  activeFolderPickerMenu = menu;
+}
+
+
 let toastTimeoutId = null;
 let toastKeydownHandler = null;
 let toastHoverCleanups = null;
@@ -1595,6 +1701,7 @@ async function triggerWebSearch(query, disposition = "CURRENT_TAB") {
 }
 
 function hideSearchResults() {
+  closeFolderPickerMenu();
   elements.searchResults.hidden = true;
   elements.searchResults.innerHTML = "";
   elements.searchInput.setAttribute("aria-expanded", "false");
@@ -1612,6 +1719,9 @@ function hideSearchResults() {
 }
 
 function handleSearchOutsideClick(event) {
+  if (activeFolderPickerMenu && !activeFolderPickerMenu.contains(event.target)) {
+    closeFolderPickerMenu();
+  }
   if (!elements.searchResults.hidden && !elements.searchForm.contains(event.target)) {
     hideSearchResults();
   }
@@ -1786,6 +1896,7 @@ function openAddBookmarkDialog(returnFocusElement = document.activeElement, cust
     elements.addSubmit.textContent = t("save") || "Kaydet";
     elements.addUrl.readOnly = true;
     elements.addUrl.classList.add("is-locked");
+    elements.addUrl.classList.remove("is-invalid-url");
     if (elements.addUrlUnlockBtn) {
       elements.addUrlUnlockBtn.hidden = false;
       elements.addUrlUnlockBtn.textContent = "🔒";
@@ -1797,7 +1908,7 @@ function openAddBookmarkDialog(returnFocusElement = document.activeElement, cust
     elements.addDialogTitle.textContent = t("addBookmark") || "Yer İmi Ekle";
     elements.addSubmit.textContent = t("add") || "Ekle";
     elements.addUrl.readOnly = false;
-    elements.addUrl.classList.remove("is-locked");
+    elements.addUrl.classList.remove("is-locked", "is-invalid-url");
     if (elements.addUrlUnlockBtn) {
       elements.addUrlUnlockBtn.hidden = true;
     }
@@ -1822,7 +1933,7 @@ function closeAddBookmarkDialog({ restoreFocus = true } = {}) {
   elements.addDialogTitle.textContent = t("addBookmark") || "Yer İmi Ekle";
   elements.addSubmit.textContent = t("add") || "Ekle";
   elements.addUrl.readOnly = false;
-  elements.addUrl.classList.remove("is-locked");
+  elements.addUrl.classList.remove("is-locked", "is-invalid-url");
   if (elements.addUrlUnlockBtn) {
     elements.addUrlUnlockBtn.hidden = true;
   }
@@ -1837,14 +1948,21 @@ function closeAddBookmarkDialog({ restoreFocus = true } = {}) {
 async function handleAddBookmarkSubmit(event) {
   event.preventDefault();
 
+  elements.addUrl.classList.remove("is-invalid-url");
   const title = elements.addTitle.value.trim();
-  const url = normalizeBookmarkInputUrl(elements.addUrl.value);
+  const rawUrl = elements.addUrl.value.trim();
+  const url = normalizeBookmarkInputUrl(rawUrl);
+  if (url && url !== rawUrl) {
+    elements.addUrl.value = url;
+  }
   const selectedParent = elements.addFolderSelect?.value;
   const parentId = (selectedParent !== undefined && selectedParent !== "") ? selectedParent : (elements.addDialog.dataset.parentId || "");
   const allowDuplicate = Boolean(elements.addDialog.dataset.duplicateUrl && areBookmarkUrlsEqual(elements.addDialog.dataset.duplicateUrl, url) && (elements.addDialog.dataset.duplicateParentId || "") === parentId);
   if (!url || !isSafeBookmarkUrl(url)) {
+    elements.addUrl.classList.add("is-invalid-url");
     renderAddBookmarkStatus(t("validUrlRequired"), true);
     elements.addUrl.focus();
+    elements.addUrl.select();
     return;
   }
 
@@ -2020,7 +2138,7 @@ function normalizeBookmarkInputUrl(value) {
     return trimmed;
   }
 
-  if (/^[^\s]+\.[^\s]{2,}(\/.*)?$/i.test(trimmed)) {
+  if (/^([^\s]+\.[^\s]{2,}|localhost(:\d+)?|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?)(\/.*)?$/i.test(trimmed)) {
     return `https://${trimmed}`;
   }
 

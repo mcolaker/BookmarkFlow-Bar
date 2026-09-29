@@ -1724,3 +1724,106 @@
     transform: translateY(0) scale(1);
   }
 }
+
+.bf-url-input-wrap input.is-invalid-url {
+  border-color: #eb5757 !important;
+  box-shadow: 0 0 0 3px rgba(235, 87, 87, 0.28) !important;
+  animation: bfUrlShake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes bfUrlShake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-3px); }
+  40%, 60% { transform: translateX(3px); }
+}
+
+.bf-command-action-chip.is-folder-picker-chip {
+  padding: 2px 7px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.bf-folder-picker-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 8px;
+  z-index: 120;
+  min-width: 220px;
+  max-width: 320px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: rgba(14, 18, 24, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(242, 201, 76, 0.35);
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 0 0 14px rgba(242, 201, 76, 0.12);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: bfFolderPickerFadeIn 0.15s ease-out;
+}
+
+@keyframes bfFolderPickerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bf-folder-picker-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: #f2c94c;
+  padding: 4px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 4px;
+}
+
+.bf-folder-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  border: none;
+  background: transparent;
+  color: #e2e8f0;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease;
+  width: 100%;
+}
+
+.bf-folder-picker-item:hover,
+.bf-folder-picker-item:focus-visible {
+  background: rgba(242, 201, 76, 0.16);
+  color: #f8fbff;
+  outline: none;
+}
+
+.bf-folder-picker-item.is-current {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.bf-folder-picker-item.is-current:hover {
+  background: transparent;
+  color: #e2e8f0;
+}
+
+.bf-folder-picker-tag {
+  margin-left: auto;
+  font-size: 10px;
+  color: #94a3b8;
+  font-style: italic;
+}

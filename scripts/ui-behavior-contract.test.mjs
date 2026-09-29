@@ -1250,3 +1250,39 @@ test("edit mode url unlock and live folder move chips contract (BF-UX-018)", () 
   assert.match(bgJs, /MESSAGE_MOVE_TO_FOLDER/u, "background.js must define MESSAGE_MOVE_TO_FOLDER");
   assert.match(bgJs, /function\s+moveBookmarkToFolder\s*\(/u, "background.js must define moveBookmarkToFolder");
 });
+
+test("url auto-complete https and folder picker dropdown chip contract (BF-UX-018)", () => {
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  assert.ok(enMessages.otherFolders, "EN must define otherFolders");
+  assert.ok(trMessages.otherFolders, "TR must define otherFolders");
+  assert.ok(enMessages.chooseFolderToMove, "EN must define chooseFolderToMove");
+  assert.ok(trMessages.chooseFolderToMove, "TR must define chooseFolderToMove");
+  assert.ok(enMessages.currentFolderTag, "EN must define currentFolderTag");
+  assert.ok(trMessages.currentFolderTag, "TR must define currentFolderTag");
+  assert.ok(enMessages.urlAutoCompletedHttps, "EN must define urlAutoCompletedHttps");
+  assert.ok(trMessages.urlAutoCompletedHttps, "TR must define urlAutoCompletedHttps");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-url-input-wrap\s+input\.is-invalid-url/u, "newtab.css must style input.is-invalid-url");
+  assert.match(newtabCss, /\.nt-search-action-chip\.is-folder-picker-chip/u, "newtab.css must style is-folder-picker-chip");
+  assert.match(newtabCss, /\.nt-folder-picker-menu/u, "newtab.css must style nt-folder-picker-menu");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-url-input-wrap\s+input\.is-invalid-url/u, "content.css must style input.is-invalid-url");
+  assert.match(contentCss, /\.bf-command-action-chip\.is-folder-picker-chip/u, "content.css must style is-folder-picker-chip");
+  assert.match(contentCss, /\.bf-folder-picker-menu/u, "content.css must style bf-folder-picker-menu");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /is-invalid-url/u, "newtab.js must handle is-invalid-url");
+  assert.match(newtabJs, /is-folder-picker-chip/u, "newtab.js must create is-folder-picker-chip");
+  assert.match(newtabJs, /showFolderPickerMenu/u, "newtab.js must define showFolderPickerMenu");
+  assert.match(newtabJs, /closeFolderPickerMenu/u, "newtab.js must define closeFolderPickerMenu");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /is-invalid-url/u, "content.js must handle is-invalid-url");
+  assert.match(contentJs, /is-folder-picker-chip/u, "content.js must create is-folder-picker-chip");
+  assert.match(contentJs, /showContentFolderPickerMenu/u, "content.js must define showContentFolderPickerMenu");
+  assert.match(contentJs, /closeContentFolderPickerMenu/u, "content.js must define closeContentFolderPickerMenu");
+});

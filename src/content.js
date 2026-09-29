@@ -1053,6 +1053,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     app.addEventListener("click", createSafeEventHandler((event) => {
       const targetElement = getEventTargetElement(event);
+      if (activeContentFolderPickerMenu && !activeContentFolderPickerMenu.contains(targetElement)) {
+        closeContentFolderPickerMenu();
+      }
       if (!targetElement) {
         return;
       }
@@ -1104,6 +1107,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }));
     commandInput?.addEventListener("keydown", createSafeEventHandler(handleCommandKeydown));
 
+    app.querySelector(".bf-add-url")?.addEventListener("input", createSafeEventHandler(() => {
+      app.querySelector(".bf-add-url")?.classList.remove("is-invalid-url");
+    }));
     app.querySelector(".bf-add-panel")?.addEventListener("submit", createSafeEventHandler(handleAddBookmarkSubmit));
   }
 
@@ -2447,6 +2453,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       if (submit) submit.textContent = t("save") || "Kaydet";
       urlInput.readOnly = true;
       urlInput.classList.add("is-locked");
+      urlInput.classList.remove("is-invalid-url");
       if (unlockBtn) {
         unlockBtn.hidden = false;
         unlockBtn.textContent = "🔒";
@@ -2458,7 +2465,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       if (titleEl) titleEl.textContent = t("addBookmark") || "Yer İmi Ekle";
       if (submit) submit.textContent = t("add") || "Ekle";
       urlInput.readOnly = false;
-      urlInput.classList.remove("is-locked");
+      urlInput.classList.remove("is-locked", "is-invalid-url");
       if (unlockBtn) unlockBtn.hidden = true;
     }
     titleInput.value = suggestion.title;
@@ -2488,7 +2495,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     addDialogReturnFocus = null;
     if (urlInput) {
       urlInput.readOnly = false;
-      urlInput.classList.remove("is-locked");
+      urlInput.classList.remove("is-locked", "is-invalid-url");
     }
     if (unlockBtn) {
       unlockBtn.hidden = true;
@@ -2629,14 +2636,21 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const submit = shadow?.querySelector(".bf-add-primary");
     const dialog = shadow?.querySelector(".bf-add");
     const title = titleInput?.value.trim() || "";
-    const url = normalizeBookmarkInputUrl(urlInput?.value || "");
+    urlInput?.classList.remove("is-invalid-url");
+    const rawUrl = urlInput?.value.trim() || "";
+    const url = normalizeBookmarkInputUrl(rawUrl);
+    if (url && url !== rawUrl && urlInput) {
+      urlInput.value = url;
+    }
     const select = dialog?.querySelector(".bf-add-select");
     const parentId = select?.value || dialog?.dataset.parentId || "";
     const allowDuplicate = Boolean(dialog?.dataset.duplicateUrl && areBookmarkUrlsEqual(dialog.dataset.duplicateUrl, url) && (dialog.dataset.duplicateParentId || "") === parentId);
 
     if (!url || !isSafeBookmarkUrl(url)) {
+      urlInput?.classList.add("is-invalid-url");
       renderAddBookmarkStatus(t("validUrlRequired"), true);
       urlInput?.focus();
+      urlInput?.select();
       return;
     }
 
@@ -2831,6 +2845,101 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     showContentToastNotification(msg, 3500, action);
   }
 
+  let activeContentFolderPickerMenu = null;
+
+  function closeContentFolderPickerMenu() {
+    if (activeContentFolderPickerMenu) {
+      activeContentFolderPickerMenu.remove();
+      activeContentFolderPickerMenu = null;
+    }
+  }
+
+  function showContentFolderPickerMenu(existingBookmark, anchorBtn, card) {
+    closeContentFolderPickerMenu();
+    if (!existingBookmark || !anchorBtn || !card) return;
+
+    const barNode = appState?.bookmarkBar;
+    const folders = [];
+    const walk = (node) => {
+      if (!node) return;
+      if (node.children && !node.url) {
+        const isRootBar = node.id === barNode?.id;
+        const tTitle = isRootBar ? (t("bookmarksBar") || "Yer İmleri Çubuğu") : (node.title || t("folder"));
+        if (node.id && node.id !== "0") {
+          folders.push({ id: node.id, title: tTitle, isBar: isRootBar });
+        }
+        for (const c of node.children) {
+          if (Array.isArray(c.children)) walk(c);
+        }
+      }
+    };
+    walk(barNode);
+
+    const menu = document.createElement("div");
+    menu.className = "bf-folder-picker-menu";
+    menu.setAttribute("role", "menu");
+
+    const header = document.createElement("div");
+    header.className = "bf-folder-picker-header";
+    header.textContent = t("chooseFolderToMove") || "Taşınacak Klasörü Seçin";
+    menu.append(header);
+
+    const barItem = document.createElement("button");
+    barItem.type = "button";
+    barItem.className = "bf-folder-picker-item";
+    const isCurrentBar = existingBookmark.parentId === barNode?.id;
+    if (isCurrentBar) {
+      barItem.classList.add("is-current");
+      barItem.disabled = true;
+    }
+    barItem.innerHTML = `<span>⭐</span> <span>${t("bookmarksBar") || "Yer İmleri Çubuğu"}</span>`;
+    if (isCurrentBar) {
+      const tag = document.createElement("span");
+      tag.className = "bf-folder-picker-tag";
+      tag.textContent = t("currentFolderTag") || "(mevcut)";
+      barItem.append(tag);
+    } else {
+      barItem.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeContentFolderPickerMenu();
+        await handleContentMoveBookmarkToFolder(existingBookmark.id, barNode?.id || "", t("bookmarksBar") || "Yer İmleri Çubuğu");
+      });
+    }
+    menu.append(barItem);
+
+    folders.filter(f => !f.isBar).forEach((folder) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "bf-folder-picker-item";
+      const isCurrent = existingBookmark.parentId === folder.id;
+      if (isCurrent) {
+        item.classList.add("is-current");
+        item.disabled = true;
+      }
+      item.innerHTML = `<span>📁</span> <span>${folder.title}</span>`;
+      if (isCurrent) {
+        const tag = document.createElement("span");
+        tag.className = "bf-folder-picker-tag";
+        tag.textContent = t("currentFolderTag") || "(mevcut)";
+        item.append(tag);
+      } else {
+        item.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeContentFolderPickerMenu();
+          await handleContentMoveBookmarkToFolder(existingBookmark.id, folder.id, folder.title);
+        });
+      }
+      menu.append(item);
+    });
+
+    card.style.position = "relative";
+    card.append(menu);
+    activeContentFolderPickerMenu = menu;
+  }
+
+
   let contentToastTimeoutId = null;
   let contentToastKeydownHandler = null;
   let contentToastHoverCleanups = null;
@@ -3014,7 +3123,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return trimmed;
     }
 
-    if (/^[^\s]+\.[^\s]{2,}(\/.*)?$/i.test(trimmed)) {
+    if (/^([^\s]+\.[^\s]{2,}|localhost(:\d+)?|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?)(\/.*)?$/i.test(trimmed)) {
       return `https://${trimmed}`;
     }
 
@@ -3506,6 +3615,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function closeCommandPalette({ restoreFocus = true } = {}) {
+    closeContentFolderPickerMenu();
     updateCommandIntentBadge(shadow?.querySelector(".bf-app"), null);
     const inlineSaveBtn = shadow?.querySelector(".bf-command-inline-save");
     if (inlineSaveBtn) {
@@ -4183,9 +4293,29 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
             moveFolderChip.addEventListener("click", async (e) => {
               e.preventDefault();
               e.stopPropagation();
+              closeContentFolderPickerMenu();
               await handleContentMoveBookmarkToFolder(existingBookmark.id, targetFolder.id, targetFolder.title);
             });
             chips.append(moveFolderChip);
+          }
+
+          if (folders.length > 1) {
+            const pickerChip = document.createElement("button");
+            pickerChip.type = "button";
+            pickerChip.className = "bf-command-action-chip is-folder-picker-chip";
+            pickerChip.textContent = "📁▾";
+            pickerChip.title = t("otherFolders") || "Diğer Klasörler…";
+            pickerChip.setAttribute("aria-haspopup", "true");
+            pickerChip.addEventListener("click", (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (activeContentFolderPickerMenu) {
+                closeContentFolderPickerMenu();
+              } else {
+                showContentFolderPickerMenu(existingBookmark, pickerChip, item);
+              }
+            });
+            chips.append(pickerChip);
           }
 
           const editChip = document.createElement("button");
@@ -4196,6 +4326,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
           editChip.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
+            closeContentFolderPickerMenu();
             closeCommandPalette();
             openAddBookmarkDialog(getActiveDialogElement(), {
               url: entry.directTarget,

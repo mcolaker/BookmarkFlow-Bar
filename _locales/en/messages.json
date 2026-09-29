@@ -488,5 +488,9 @@
         "example": "Projects"
       }
     }
-  }
+  },
+  "otherFolders": { "message": "Other Folders…" },
+  "chooseFolderToMove": { "message": "Choose Folder to Move" },
+  "currentFolderTag": { "message": "(current)" },
+  "urlAutoCompletedHttps": { "message": "Protocol auto-completed (https://)" }
 }
