@@ -142,7 +142,9 @@ for (const stylesheet of [
   "src/newtab.css",
   "src/popup.css",
   "src/onboarding.css",
-  "src/bookmark-maintenance.css"
+  "src/bookmark-maintenance.css",
+  "src/spotlight.css",
+  "src/settings.css"
 ]) {
   const source = readFileSync(join(root, stylesheet), "utf8");
   if (!/@media\s*\(prefers-reduced-motion:\s*reduce\)/u.test(source)) {

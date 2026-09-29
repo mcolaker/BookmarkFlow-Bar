@@ -1342,3 +1342,44 @@ test("autonomous devtools shadow DOM isolation, a11y focus ring and design token
   assert.match(journeyJs, /aggressive-host-styles/u, "user-journey-live-qa.mjs must inject aggressive styles to test isolation");
   assert.match(journeyJs, /Comic Sans MS/u, "user-journey-live-qa.mjs must test font isolation against Comic Sans");
 });
+
+test("high contrast forced-colors mode and global design tokens propagation contract across spotlight and settings (BF-GOV-012)", () => {
+  const designTokensPath = path.join(root, "src/design-tokens.css");
+  const designTokens = readFileSync(designTokensPath, "utf8");
+  assert.match(designTokens, /forced-colors:\s*active/u, "design-tokens.css must support forced-colors high contrast");
+  assert.match(designTokens, /Highlight/u, "design-tokens.css must use system Highlight in forced-colors mode");
+  assert.match(designTokens, /CanvasText/u, "design-tokens.css must use system CanvasText in forced-colors mode");
+
+  const spotlightPath = path.join(root, "src/spotlight.css");
+  assert.ok(existsSync(spotlightPath), "src/spotlight.css must exist");
+  const spotlightCss = readFileSync(spotlightPath, "utf8");
+  assert.match(spotlightCss, /@import\s+["']\.\/design-tokens\.css["']/u, "spotlight.css must import design-tokens.css");
+  assert.match(spotlightCss, /--bf-spotlight-/u, "spotlight.css must define spotlight component tokens");
+  assert.match(spotlightCss, /\.bf-command\b/u, "spotlight.css must style .bf-command");
+  assert.match(spotlightCss, /prefers-reduced-motion/u, "spotlight.css must support reduced-motion");
+  assert.match(spotlightCss, /forced-colors:\s*active/u, "spotlight.css must support forced-colors");
+
+  const settingsPath = path.join(root, "src/settings.css");
+  assert.ok(existsSync(settingsPath), "src/settings.css must exist");
+  const settingsCss = readFileSync(settingsPath, "utf8");
+  assert.match(settingsCss, /@import\s+["']\.\/design-tokens\.css["']/u, "settings.css must import design-tokens.css");
+  assert.match(settingsCss, /--settings-/u, "settings.css must define settings component tokens");
+  assert.match(settingsCss, /\.maintenance\b/u, "settings.css must style .maintenance");
+  assert.match(settingsCss, /prefers-reduced-motion/u, "settings.css must support reduced-motion");
+  assert.match(settingsCss, /forced-colors:\s*active/u, "settings.css must support forced-colors");
+
+  const maintenanceCss = readFileSync(path.join(root, "src/bookmark-maintenance.css"), "utf8");
+  assert.match(maintenanceCss, /@import\s+["']\.\/design-tokens\.css["']/u, "bookmark-maintenance.css must import design-tokens.css");
+  assert.match(maintenanceCss, /@import\s+["']\.\/settings\.css["']/u, "bookmark-maintenance.css must import settings.css");
+
+  const popupCss = readFileSync(path.join(root, "src/popup.css"), "utf8");
+  assert.match(popupCss, /@import\s+["']\.\/design-tokens\.css["']/u, "popup.css must import design-tokens.css");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /@import\s+["']\.\/spotlight\.css["']/u, "content.css must import spotlight.css");
+
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  const webResources = manifest.web_accessible_resources?.[0]?.resources || [];
+  assert.ok(webResources.includes("src/spotlight.css"), "manifest.json must declare src/spotlight.css in web_accessible_resources");
+  assert.ok(webResources.includes("src/settings.css"), "manifest.json must declare src/settings.css in web_accessible_resources");
+});

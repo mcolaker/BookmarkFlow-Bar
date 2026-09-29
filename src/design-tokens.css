@@ -106,3 +106,38 @@
     --bf-token-duration-spring: 0ms;
   }
 }
+
+/* Modern Web Guidance: Erişilebilir Yüksek Kontrast Modu (Forced Colors) */
+@media (forced-colors: active) {
+  :root,
+  :host {
+    /* Sistem Renkleri (CSS System Colors) */
+    --bf-token-gold-primary: Highlight;
+    --bf-token-gold-contrast: HighlightText;
+    --bf-token-gold-glow: transparent;
+    --bf-token-gold-subtle: transparent;
+
+    --bf-token-bg-base: Canvas;
+    --bf-token-bg-card: Canvas;
+    --bf-token-bg-dialog: Canvas;
+    --bf-token-bg-surface: Canvas;
+    --bf-token-bg-surface-hover: Highlight;
+    --bf-token-bg-palette: Canvas;
+    --bf-token-bg-palette-hover: Highlight;
+
+    --bf-token-border-default: ButtonBorder;
+    --bf-token-border-subtle: ButtonBorder;
+    --bf-token-border-strong: Highlight;
+    --bf-token-border-bar: ButtonBorder;
+
+    --bf-token-text-primary: CanvasText;
+    --bf-token-text-muted: GrayText;
+
+    --bf-token-focus-outline: 2px solid Highlight;
+    --bf-token-focus-shadow: none;
+
+    --bf-token-blur-modal: none;
+    --bf-token-blur-bar: none;
+    --bf-token-blur-toast: none;
+  }
+}

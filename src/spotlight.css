@@ -1,0 +1,300 @@
+/**
+ * BookmarkFlow Bar — Spotlight & Command Palette Stylesheet
+ * Merkezi Tasarım Değişkenleri Entegrasyonu (Modern Web Guidance)
+ */
+
+@import "./design-tokens.css";
+
+:root,
+:host {
+  /* Spotlight Özel Bileşen Değişkenleri */
+  --bf-spotlight-backdrop: rgba(0, 0, 0, 0.38);
+  --bf-spotlight-panel-bg: var(--bf-token-bg-dialog, #181d24);
+  --bf-spotlight-panel-border: var(--bf-token-border-subtle, #303743);
+  --bf-spotlight-header-border: var(--bf-token-border-subtle, #303743);
+  --bf-spotlight-item-hover: var(--bf-token-bg-palette-hover, #2b3547);
+  --bf-spotlight-item-active: var(--bf-token-bg-surface-hover, #29313c);
+  --bf-spotlight-accent: var(--bf-token-gold-primary, #f2c94c);
+  --bf-spotlight-contrast: var(--bf-token-gold-contrast, #141820);
+  --bf-spotlight-glow: var(--bf-token-gold-glow, rgba(242, 201, 76, 0.42));
+  --bf-spotlight-subtle: var(--bf-token-gold-subtle, rgba(242, 201, 76, 0.16));
+  --bf-spotlight-text-primary: var(--bf-token-text-primary, #eef1f6);
+  --bf-spotlight-text-muted: var(--bf-token-text-muted, #a2acbb);
+  --bf-spotlight-shadow: 0 24px 80px rgba(0, 0, 0, 0.52);
+  --bf-spotlight-blur: var(--bf-token-blur-modal, blur(16px));
+}
+
+/* OLED Black Tema Varyantı */
+:root[data-theme="oled-black"],
+:host([data-theme="oled-black"]),
+.bf-app[data-theme="oled-black"] {
+  --bf-spotlight-backdrop: rgba(0, 0, 0, 0.65);
+  --bf-spotlight-panel-bg: #0f0f0f;
+  --bf-spotlight-panel-border: #282828;
+  --bf-spotlight-header-border: #202020;
+  --bf-spotlight-item-hover: #1c1c1c;
+  --bf-spotlight-item-active: #262626;
+  --bf-spotlight-accent: #f8fafc;
+  --bf-spotlight-contrast: #000000;
+  --bf-spotlight-glow: rgba(248, 250, 252, 0.42);
+  --bf-spotlight-subtle: rgba(248, 250, 252, 0.14);
+}
+
+/* Emerald Matrix Tema Varyantı */
+:root[data-theme="emerald-matrix"],
+:host([data-theme="emerald-matrix"]),
+.bf-app[data-theme="emerald-matrix"] {
+  --bf-spotlight-backdrop: rgba(0, 10, 5, 0.45);
+  --bf-spotlight-panel-bg: #0d1f13;
+  --bf-spotlight-panel-border: #1e4029;
+  --bf-spotlight-header-border: #173822;
+  --bf-spotlight-item-hover: #173421;
+  --bf-spotlight-item-active: #1f452c;
+  --bf-spotlight-accent: #4ade80;
+  --bf-spotlight-contrast: #052e16;
+  --bf-spotlight-glow: rgba(74, 222, 128, 0.42);
+  --bf-spotlight-subtle: rgba(74, 222, 128, 0.16);
+}
+
+/* Spotlight Paleti Kapsayıcısı */
+.bf-command {
+  pointer-events: auto;
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: start center;
+  padding: 72px 18px 18px;
+  background: var(--bf-spotlight-backdrop);
+  backdrop-filter: var(--bf-spotlight-blur);
+  z-index: var(--bf-token-z-spotlight, 2147483647);
+  box-sizing: border-box;
+}
+
+.bf-command[hidden] {
+  display: none;
+}
+
+/* Spotlight Ana Paneli */
+.bf-command-panel {
+  width: min(760px, 100%);
+  max-height: min(620px, calc(100vh - 96px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--bf-spotlight-panel-border);
+  border-radius: var(--bf-token-radius-lg, 14px);
+  background: var(--bf-spotlight-panel-bg);
+  box-shadow: var(--bf-spotlight-shadow);
+  box-sizing: border-box;
+}
+
+/* Başlık ve Arama Başlığı */
+.bf-command-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-bottom: 1px solid var(--bf-spotlight-header-border);
+  transition: box-shadow var(--bf-token-duration-normal, 0.2s) var(--bf-token-ease-smooth, ease),
+              border-color var(--bf-token-duration-normal, 0.2s) var(--bf-token-ease-smooth, ease);
+}
+
+.bf-command-head.is-saved-flash {
+  animation: bfCommandSaveFlash 0.35s var(--bf-token-ease-spring, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.bf-command-head.is-restored {
+  animation: bfCommandRestoredFlash 0.35s var(--bf-token-ease-spring, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+@keyframes bfCommandSaveFlash {
+  0% {
+    box-shadow: 0 0 0 2px var(--bf-spotlight-accent), inset 0 0 12px var(--bf-spotlight-subtle);
+    border-color: var(--bf-spotlight-accent);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+@keyframes bfCommandRestoredFlash {
+  0% {
+    box-shadow: 0 0 0 2px rgba(65, 209, 125, 0.85), inset 0 0 12px rgba(65, 209, 125, 0.25);
+    border-color: #41d17d;
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+/* Spotlight Arama Girişi */
+.bf-command-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--bf-spotlight-text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 6px 8px;
+}
+
+.bf-command-input:focus-visible {
+  outline: var(--bf-token-focus-outline, 2px solid var(--bf-spotlight-accent));
+  outline-offset: var(--bf-token-focus-offset, 2px);
+  border-radius: var(--bf-token-radius-xs, 4px);
+}
+
+/* Akıllı Rozet (Smart Intent Badge) */
+.bf-intent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--bf-token-radius-full, 9999px);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  user-select: none;
+  white-space: nowrap;
+  transition: all var(--bf-token-duration-fast, 120ms) var(--bf-token-ease-smooth, ease);
+}
+
+/* Eylem Çipleri */
+.bf-command-action-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bf-command-action-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--bf-token-radius-md, 10px);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--bf-spotlight-panel-border);
+  background: var(--bf-spotlight-panel-bg);
+  color: var(--bf-spotlight-text-primary);
+  transition: all var(--bf-token-duration-fast, 120ms) var(--bf-token-ease-smooth, ease);
+}
+
+.bf-command-action-chip:hover {
+  background: var(--bf-spotlight-item-hover);
+  border-color: var(--bf-spotlight-accent);
+}
+
+.bf-command-action-chip:focus-visible {
+  outline: var(--bf-token-focus-outline, 2px solid var(--bf-spotlight-accent));
+  outline-offset: var(--bf-token-focus-offset, 2px);
+}
+
+/* Sonuç Listesi */
+.bf-command-list {
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bf-command-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--bf-token-radius-sm, 6px);
+  color: var(--bf-spotlight-text-primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--bf-token-duration-fast, 120ms) var(--bf-token-ease-smooth, ease);
+}
+
+.bf-command-item:hover,
+.bf-command-item.is-command-active {
+  background: var(--bf-spotlight-item-hover);
+}
+
+.bf-command-item:focus-visible {
+  outline: var(--bf-token-focus-outline, 2px solid var(--bf-spotlight-accent));
+  outline-offset: var(--bf-token-focus-offset, 2px);
+}
+
+/* Boş Durum */
+.bf-command-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--bf-spotlight-text-muted);
+  font-size: 13px;
+}
+
+/* Kapatma Butonu */
+.bf-command-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--bf-token-radius-sm, 6px);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--bf-spotlight-text-muted);
+  cursor: pointer;
+  transition: all var(--bf-token-duration-fast, 120ms) var(--bf-token-ease-smooth, ease);
+}
+
+.bf-command-close:hover {
+  background: var(--bf-spotlight-item-hover);
+  color: var(--bf-spotlight-text-primary);
+}
+
+.bf-command-close:focus-visible {
+  outline: var(--bf-token-focus-outline, 2px solid var(--bf-spotlight-accent));
+  outline-offset: var(--bf-token-focus-offset, 2px);
+}
+
+/* Modern Web Guidance: Erişilebilir Hareket Azaltma */
+@media (prefers-reduced-motion: reduce) {
+  .bf-command,
+  .bf-command-head,
+  .bf-command-item,
+  .bf-command-action-chip,
+  .bf-intent-badge {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}
+
+/* Modern Web Guidance: Erişilebilir Yüksek Kontrast Modu (Forced Colors) */
+@media (forced-colors: active) {
+  .bf-command {
+    background: Canvas;
+  }
+
+  .bf-command-panel {
+    border: 2px solid ButtonBorder;
+    background: Canvas;
+    box-shadow: none;
+  }
+
+  .bf-command-item:hover,
+  .bf-command-item.is-command-active {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .bf-command-action-chip {
+    border: 1px solid ButtonBorder;
+  }
+
+  .bf-command-action-chip:hover {
+    background: Highlight;
+    color: HighlightText;
+  }
+}

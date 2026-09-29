@@ -1,4 +1,5 @@
 @import "./design-tokens.css";
+@import "./spotlight.css";
 
 :host {
   --bf-theme-bar-bg: var(--bf-token-bg-base, #14171c);

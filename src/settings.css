@@ -1,0 +1,198 @@
+/**
+ * BookmarkFlow Bar — Settings & Maintenance Stylesheet
+ * Merkezi Tasarım Değişkenleri Entegrasyonu (Modern Web Guidance)
+ */
+
+@import "./design-tokens.css";
+
+:root {
+  /* Settings Özel Bileşen Değişkenleri */
+  --settings-bg-base: var(--bf-token-bg-base, #12151b);
+  --settings-bg-card: var(--bf-token-bg-card, #161b24);
+  --settings-bg-dialog: var(--bf-token-bg-dialog, #181d24);
+  --settings-bg-surface: var(--bf-token-bg-surface, #20252d);
+  --settings-bg-surface-hover: var(--bf-token-bg-surface-hover, #29313c);
+  --settings-border-default: var(--bf-token-border-default, #343b46);
+  --settings-border-subtle: var(--bf-token-border-subtle, #303743);
+  --settings-border-strong: var(--bf-token-border-strong, #404856);
+  --settings-accent: var(--bf-token-gold-primary, #f2c94c);
+  --settings-accent-contrast: var(--bf-token-gold-contrast, #141820);
+  --settings-accent-glow: var(--bf-token-gold-glow, rgba(242, 201, 76, 0.42));
+  --settings-accent-subtle: var(--bf-token-gold-subtle, rgba(242, 201, 76, 0.16));
+  --settings-text-primary: var(--bf-token-text-primary, #f7f9fc);
+  --settings-text-muted: var(--bf-token-text-muted, #a2acbb);
+  --settings-font: var(--bf-token-font-family, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+}
+
+/* OLED Black Tema Varyantı */
+:root[data-theme="oled-black"],
+body[data-theme="oled-black"] {
+  --settings-bg-base: #000000;
+  --settings-bg-card: #0a0a0a;
+  --settings-bg-dialog: #0f0f0f;
+  --settings-bg-surface: #141414;
+  --settings-bg-surface-hover: #222222;
+  --settings-border-default: #282828;
+  --settings-border-subtle: #242424;
+  --settings-border-strong: #333333;
+  --settings-accent: #f8fafc;
+  --settings-accent-contrast: #000000;
+  --settings-accent-glow: rgba(248, 250, 252, 0.42);
+  --settings-accent-subtle: rgba(248, 250, 252, 0.14);
+  --settings-text-primary: #ffffff;
+  --settings-text-muted: #9ca3af;
+}
+
+/* Emerald Matrix Tema Varyantı */
+:root[data-theme="emerald-matrix"],
+body[data-theme="emerald-matrix"] {
+  --settings-bg-base: #07120a;
+  --settings-bg-card: #0c1a11;
+  --settings-bg-dialog: #0d1f13;
+  --settings-bg-surface: #102417;
+  --settings-bg-surface-hover: #173421;
+  --settings-border-default: #1e4029;
+  --settings-border-subtle: #193822;
+  --settings-border-strong: #2a5839;
+  --settings-accent: #4ade80;
+  --settings-accent-contrast: #052e16;
+  --settings-accent-glow: rgba(74, 222, 128, 0.42);
+  --settings-accent-subtle: rgba(74, 222, 128, 0.16);
+  --settings-text-primary: #f0fdf4;
+  --settings-text-muted: #86efac;
+}
+
+/* Ayarlar & Bakım Kapsayıcısı */
+.maintenance {
+  width: min(920px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 48px 0 72px;
+  color: var(--settings-text-primary);
+  font-family: var(--settings-font);
+}
+
+/* Navigasyon Çipleri */
+.maintenance-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.nav-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--bf-token-radius-full, 9999px);
+  border: 1px solid var(--settings-border-subtle);
+  background: var(--settings-bg-surface);
+  color: var(--settings-text-primary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--bf-token-duration-fast, 120ms) var(--bf-token-ease-smooth, ease);
+}
+
+.nav-chip:hover {
+  background: var(--settings-bg-surface-hover);
+  border-color: var(--settings-accent);
+}
+
+.nav-chip.is-active {
+  background: var(--settings-accent-subtle);
+  border-color: var(--settings-accent);
+  color: var(--settings-accent);
+}
+
+.nav-chip:focus-visible {
+  outline: var(--bf-token-focus-outline, 2px solid var(--settings-accent));
+  outline-offset: var(--bf-token-focus-offset, 2px);
+}
+
+/* Sağlık & Filtre Çipleri */
+.health-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.health-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--bf-token-radius-md, 10px);
+  border: 1px solid var(--settings-border-subtle);
+  background: var(--settings-bg-surface);
+  color: var(--settings-text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--bf-token-duration-fast, 120ms) var(--bf-token-ease-smooth, ease);
+}
+
+.health-filter-btn:hover {
+  background: var(--settings-bg-surface-hover);
+  border-color: var(--settings-accent);
+}
+
+.health-filter-btn.is-active {
+  background: var(--settings-accent);
+  color: var(--settings-accent-contrast);
+  border-color: var(--settings-accent);
+}
+
+.health-filter-btn:focus-visible {
+  outline: var(--bf-token-focus-outline, 2px solid var(--settings-accent));
+  outline-offset: var(--bf-token-focus-offset, 2px);
+}
+
+/* Kartlar ve Yüzeyler */
+.health-section,
+.notice,
+.consent-gate {
+  border: 1px solid var(--settings-border-subtle);
+  border-radius: var(--bf-token-radius-lg, 14px);
+  background: var(--settings-bg-card);
+  transition: border-color var(--bf-token-duration-normal, 220ms) var(--bf-token-ease-smooth, ease);
+}
+
+/* Modern Web Guidance: Erişilebilir Hareket Azaltma */
+@media (prefers-reduced-motion: reduce) {
+  .nav-chip,
+  .health-filter-btn,
+  .health-section,
+  .notice {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}
+
+/* Modern Web Guidance: Erişilebilir Yüksek Kontrast Modu (Forced Colors) */
+@media (forced-colors: active) {
+  .maintenance {
+    color: CanvasText;
+  }
+
+  .nav-chip,
+  .health-filter-btn {
+    border: 1px solid ButtonBorder;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .nav-chip.is-active,
+  .health-filter-btn.is-active {
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+  }
+
+  .health-section,
+  .notice {
+    border: 2px solid ButtonBorder;
+    background: Canvas;
+  }
+}
