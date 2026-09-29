@@ -561,12 +561,15 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     ensureHost();
     if (isSnoozed) {
-      renderRestoreButton();
-      updatePageOffsetSoon();
+      clearPageOffset();
+      shadow.querySelector(".bf-app")?.remove();
+      host.classList.add("is-snoozed");
       restoreFocusTarget(modalReturnFocus);
       return;
     }
 
+    host.classList.remove("is-snoozed");
+    host.hidden = false;
     render();
     updatePageOffsetSoon();
     restoreFocusTarget(modalReturnFocus);
@@ -594,7 +597,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       closeContextMenu();
       if (isSnoozed) {
         isSnoozed = false;
-        isExpanded = false;
+        isExpanded = true;
       } else {
         isExpanded = !isExpanded;
       }
@@ -607,14 +610,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       let returnFocus = null;
       if (isSnoozed) {
         isSnoozed = false;
+        renderFromState();
+        showContentToastNotification(t("barRestoredToast") || "✓ BookmarkFlow geri getirildi");
       } else {
         isSnoozed = true;
         isExpanded = false;
         returnFocus = closeModalDialogsForRender();
         closeFolderMenu();
         closeContextMenu();
+        showContentToastNotification(t("barHiddenToast") || "✓ BookmarkFlow gizlendi (Geri getirmek için: Alt + Shift + H)");
+        renderFromState();
       }
-      renderFromState();
       restoreFocusTarget(returnFocus);
       return { ok: true };
     }
@@ -2007,7 +2013,6 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     if (action === "hide") {
       const returnFocus = closeModalDialogsForRender();
-      isSnoozed = true;
       isExpanded = false;
       closeFolderMenu();
       closeContextMenu();
@@ -2021,6 +2026,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       isSnoozed = true;
       isExpanded = false;
       closeFolderMenu();
+      showContentToastNotification(t("barHiddenToast") || "✓ BookmarkFlow gizlendi (Geri getirmek için: Alt + Shift + H)");
       renderFromState();
       return;
     }
@@ -2030,6 +2036,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       isSnoozed = false;
       isExpanded = false;
       renderFromState();
+      showContentToastNotification(t("barRestoredToast") || "✓ BookmarkFlow geri getirildi");
       return;
     }
 
@@ -4708,11 +4715,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       hiddenOnSites: settings.showOnSites === false,
       autoHiddenSensitive: Boolean(settings.autoHideSensitiveSites && isSensitiveHost(hostName)),
       dockedBottom: shouldUseBottomDock(),
+      snoozed: isSnoozed,
       expanded: isExpanded,
       renderedAppExpanded: Boolean(renderedApp?.classList.contains("is-expanded")),
-      renderedAppVisible,
-      renderedAppBounds,
-      launcherBounds,
+      renderedAppVisible: Boolean(renderedAppVisible && !isSnoozed),
+      renderedAppBounds: isSnoozed ? null : renderedAppBounds,
+      launcherBounds: isSnoozed ? null : launcherBounds,
       introTooltipText: shadow?.querySelector(".bf-intro-tooltip")?.textContent?.trim() || null,
       searchOpen: Boolean(command && !command.hidden),
       commandResults,

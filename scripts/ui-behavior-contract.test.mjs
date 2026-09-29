@@ -1391,3 +1391,29 @@ test("high contrast forced-colors mode and global design tokens propagation cont
   const onboardingHtml = readFileSync(path.join(root, "src/onboarding.html"), "utf8");
   assert.match(onboardingHtml, /href="design-tokens\.css"/u, "onboarding.html must link design-tokens.css");
 });
+
+test("bar hide and restore full concealment lifecycle contract (BF-UX-019)", () => {
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /:host\(\[hidden\]\)/u, "content.css must define :host([hidden]) display none");
+  assert.match(contentCss, /:host\(\.is-snoozed/u, "content.css must define :host(.is-snoozed) display none");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /host\.classList\.add\("is-snoozed"\)/u, "content.js must mark host as snoozed");
+  assert.match(contentJs, /host\.classList\.remove\("is-snoozed"\)/u, "content.js must unmark host when restored");
+  assert.match(contentJs, /barHiddenToast/u, "content.js must display barHiddenToast feedback");
+  assert.match(contentJs, /barRestoredToast/u, "content.js must display barRestoredToast feedback");
+  assert.match(contentJs, /snoozed:\s*isSnoozed/u, "getPageInfo must expose snoozed state");
+
+  const popupJs = readFileSync(path.join(root, "src/popup.js"), "utf8");
+  assert.match(popupJs, /activePage\.snoozed/u, "popup.js must detect active tab snoozed state");
+  assert.match(popupJs, /siteStatusSnoozed/u, "popup.js must use siteStatusSnoozed message");
+
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  assert.ok(trMessages.barHiddenToast?.message, "tr messages must define barHiddenToast");
+  assert.ok(enMessages.barHiddenToast?.message, "en messages must define barHiddenToast");
+  assert.ok(trMessages.barRestoredToast?.message, "tr messages must define barRestoredToast");
+  assert.ok(enMessages.barRestoredToast?.message, "en messages must define barRestoredToast");
+  assert.ok(trMessages.siteStatusSnoozed?.message, "tr messages must define siteStatusSnoozed");
+  assert.ok(enMessages.siteStatusSnoozed?.message, "en messages must define siteStatusSnoozed");
+});

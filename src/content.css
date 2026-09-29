@@ -34,6 +34,15 @@
   pointer-events: none;
 }
 
+:host([hidden]),
+:host(.is-snoozed:not(:has(.bf-toast:not([hidden])))) {
+  display: none !important;
+}
+
+:host(.is-snoozed) {
+  pointer-events: none !important;
+}
+
 :host([data-theme="oled-black"]),
 .bf-app[data-theme="oled-black"] {
   --bf-theme-bar-bg: #0a0a0a;

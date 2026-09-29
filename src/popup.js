@@ -478,6 +478,8 @@ function renderSiteControl(settings) {
     controls.siteStatus.textContent = t("siteStatusManuallyHidden");
   } else if (autoHiddenSensitive) {
     controls.siteStatus.textContent = t("siteStatusSensitiveHidden");
+  } else if (activePage.snoozed) {
+    controls.siteStatus.textContent = t("siteStatusSnoozed");
   } else if (activePage.dockedBottom) {
     controls.siteStatus.textContent = t("siteStatusDockedBottom");
   } else {

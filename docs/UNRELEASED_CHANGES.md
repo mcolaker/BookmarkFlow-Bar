@@ -200,6 +200,18 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - **Tüm UI Yüzeylerinde (%100) Merkezi Stil Senkronizasyonu**:
   - Sayfa İçi Çubuk (`content.css`), Yeni Sekme (`newtab.css`), Popup (`popup.css`), Spotlight (`spotlight.css`), Ayarlar (`settings.css` & `bookmark-maintenance.css`) ve İlk Kurulum Sihirbazı (`onboarding.css` & `onboarding.html`) tek bir merkezi tasarım kaynağından (`design-tokens.css`) beslenecek şekilde %100 senkronize edildi.
 
+### 🙈 14. Sayfa İçi Çubuğu Gizle (Alt + Shift + H) Tam Gizleme ve Geri Getirme Yaşam Döngüsü (BF-UX-019)
+- **Kusursuz Sayfa İzolasyonu ve Tam Gizlenme**:
+  - Sayfa içi çubuğun bağlam menüsünden "Çubuğu Gizle (Alt + Shift + H)" seçeneği tıklandığında veya doğrudan `Alt+Shift+H` kısayolu tetiklendiğinde ekranda artık hiçbir buton, rozet veya kalıntı bırakmadan çubuk sayfadan tamamen gizlenir (`:host([hidden])`, `:host(.is-snoozed:not(:has(.bf-toast:not([hidden])))) { display: none !important; }`).
+  - Sayfa tepe kaydırma boşluğu (`clearPageOffset()`) sıfırlanarak web sayfası tamamen doğal yapısına kavuşturulur.
+- **Canlı Rehberlik Eden Mikro Toast Geri Bildirimi**:
+  - Çubuk gizlenirken ekranın ortasında 2 saniyelik altın çerçeveli zarif bir mikro-toast belirerek kullanıcıya işlemin başarıyla tamamlandığını ve nasıl geri açabileceğini bildirir (`✓ BookmarkFlow gizlendi (Geri getirmek için: Alt + Shift + H)`). Toast söndüğünde host tamamen gizlenir.
+- **Tek Tuşla Kesintisiz Restorasyon**:
+  - `Alt+Shift+H` kısayolu ile çubuk anında geri getirilir ve `✓ BookmarkFlow geri getirildi` toast bildirimi gösterilir.
+  - Ayrıca kullanıcı `Alt+Shift+B` (Barı Aç/Kapat) veya `Alt+Shift+K` (Spotlight Paleti) kısayollarını tetiklediğinde çubuk gizli durumdan otomatik olarak çıkartılarak anında açılır.
+- **Popup Entegrasyonu ve Canlı Durum Tespiti**:
+  - Tarayıcı popup menüsü aktif sekmede çubuğun gizlendiğini (`activePage.snoozed`) otomatik algılayarak site durumunda `"Bu sekmede gizlendi (Alt+Shift+H)"` bilgisini gösterir.
+
 ---
 
 ### 📋 Etkilenen Dosyalar ve Bileşenler

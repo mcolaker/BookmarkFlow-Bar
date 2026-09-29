@@ -574,6 +574,39 @@ async function main() {
     await evaluateAndTriggerMotionQa("bar", barFps, cliOptions);
 
     // ==============================================================
+    // ADIM 2C: Hızlı Menüden 'Çubuğu Gizle' Tıklaması ve Durum Teftişi
+    // ==============================================================
+    console.log("\n▶ ADIM 2C: Hızlı Menüden 'Çubuğu Gizle' Tıklaması ve Canlı Teftiş");
+    console.log("  🖱️ Genişletilmiş çubukta BF butonuna sağ tıklanıyor (Hızlı Menü)...");
+    await rightClickElementByClass(cdp, pageSession, "bf-mark");
+    await delay(600);
+
+    console.log("  👉 'Çubuğu Gizle (Alt + Shift + H)' butonuna tıklanıyor...");
+    const clickedHide = await clickElementByAttribute(cdp, pageSession, "data-bf-action", "quick-hide-bar");
+    console.log(`  Tıklama yapıldı mı: ${clickedHide}`);
+    await delay(800);
+
+    const step2cPath = path.join(outputDir, "step-2c-bar-hidden.png");
+    await captureScreenshot(cdp, pageSession, step2cPath);
+    console.log(`  ✓ 'Çubuğu Gizle' sonrası ekran görüntüsü alındı (${path.basename(step2cPath)})`);
+
+    const statusAfterHide = await evaluate(cdp, workerSession, `(async () => {
+      const tabs = await chrome.tabs.query({});
+      const targetTab = tabs.find(t => t.url && t.url.includes("127.0.0.1")) || tabs[0];
+      return await chrome.tabs.sendMessage(targetTab.id, { type: "BF_GET_PAGE_INFO" });
+    })()`);
+    console.log("  📊 [Gizleme Sonrası Çubuk Durumu]:", JSON.stringify(statusAfterHide, null, 2));
+
+    // Tekrar açmak için toggle-bar gönder
+    console.log("  ⚡ 'Alt+Shift+H' ile çubuğu geri getirme tetikleniyor...");
+    await evaluate(cdp, workerSession, `(async () => {
+      const tabs = await chrome.tabs.query({});
+      const targetTab = tabs.find(t => t.url && t.url.includes("127.0.0.1")) || tabs[0];
+      await chrome.tabs.sendMessage(targetTab.id, { type: "BF_RUN_COMMAND", command: "hide-restore" });
+    })()`);
+    await delay(800);
+
+    // ==============================================================
     // OTONOM DEVTOOLS & MODERN WEB GUIDANCE TEFTİŞİ:
     // Kapalı Shadow DOM CSS İzolasyonu ve Odak Halkası Doğrulaması
     // ==============================================================
