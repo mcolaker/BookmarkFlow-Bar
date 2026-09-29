@@ -453,5 +453,40 @@
       }
     }
   },
-  "bookmarkUpdatedToast": { "message": "✓ Bookmark updated" }
+  "bookmarkUpdatedToast": { "message": "✓ Bookmark updated" },
+  "unlockUrl": { "message": "Unlock address to edit" },
+  "lockUrl": { "message": "Lock address" },
+  "moveToBar": { "message": "Move to Bar" },
+  "moveToFolder": {
+    "message": "Move to '$FOLDER$'",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projects"
+      }
+    }
+  },
+  "bookmarkMovedToFolderToast": {
+    "message": "✓ Moved to '$FOLDER$'",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projects"
+      }
+    }
+  },
+  "bookmarkMovedBackToast": { "message": "✓ Bookmark moved back to previous location" },
+  "existingBookmarkWithFolderNotice": {
+    "message": "Already in bookmarks: $TITLE$ ($FOLDER$)",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      },
+      "folder": {
+        "content": "$2",
+        "example": "Projects"
+      }
+    }
+  }
 }

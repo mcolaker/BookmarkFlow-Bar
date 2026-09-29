@@ -22,7 +22,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 67/67 PASS (%100 yeşil).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 91/91 PASS (%100 yeşil).
 - **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog sözleşmeleri temiz).
 - **Biçim ve Satır Sonu**: `git diff --check` -> Sıfır hata (CRLF/LF normalize, EOF boş satırsız).
 - **Gizli Veri Denetimi**: Sıfır API anahtarı, sıfır token, sıfır mutlak kullanıcı yolu.
@@ -40,6 +40,8 @@ Kullanıcının talimatı doğrultusunda, yeni sürüm yayınlanana kadar PR aç
 5. **Arama Öneri Kartında Sıfır Adımlı Hızlı Klasör Ekleme Butonları (BF-UX-015)**: Arama kartı içinde doğrudan yer imi çubuğuna ve hedef klasöre kayıt yapan mini inline butonlar.
 6. **Sıfır Adımlı Kayıt Sonrası Canlı Toast Geri Bildirimi (BF-UX-016)**: Hızlı çipten kayıt yapıldığında ekranın sağ üstünde 1.8 saniyelik altın çerçeveli (`#f2c94c`) hafif bildirim rozeti (`.nt-toast`, `.bf-toast`).
 7. **JaponiGo Yönetişim ve Modüler Playbook Mimarisi (BF-GOV-010)**: Operating Kernel, Decision Index, Project State ve modüler el kitapları (`docs/agent-playbooks/`).
+8. **Yerel Niyet ve Akıllı Yönlendirme Motoru ile Canlı Rozetler (BF-UX-017)**: `BookmarkIntentRoutingEngine` (6 kategori: link, komut, etiket, klasör, sekme, arama) ve canlı akıllı yönlendirme rozetleri.
+9. **Site Kontrolü, MV3 Ayarlar Güvenliği, Inline Kaydet/Düzenle ve Canlı Klasör Çipleri (BF-UX-018)**: Güvenli MV3 ayarlar açılışı (`BF_OPEN_SETTINGS`), arama kutusunda `[⭐ Kaydet]` / `[✏️ Düzenle]` butonu, `Ctrl+S` kısayolu, `Ctrl+Z` / `[Geri Al]` geri yükleme ve amber parıltı, Escape temizliğini geri alma (`queryRestoredToast`), düzenleme modunda URL kilidini açma butonu (`#addUrlUnlockBtn`), arama kartında mevcut klasör adı ve canlı klasör taşıma çipleri (`[⭐ Çubuğa Taşı]`, `[📁 Klasöre Taşı]`, `[✏️ Düzenle]`), `BF_MOVE_TO_FOLDER` mesajlaşması ve `previousParentId` ile eski klasöre geri alma desteği.
 
 ---
 

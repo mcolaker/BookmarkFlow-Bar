@@ -24,6 +24,7 @@ const MESSAGE_GET_CONSENT_STATUS = "BF_GET_CONSENT_STATUS";
 const MESSAGE_SET_DATA_CONSENT = "BF_SET_DATA_CONSENT";
 const MESSAGE_MOVE_BOOKMARK = "BF_MOVE_BOOKMARK";
 const MESSAGE_MOVE_TOP_LEVEL = "BF_MOVE_TOP_LEVEL";
+const MESSAGE_MOVE_TO_FOLDER = "BF_MOVE_TO_FOLDER";
 const MESSAGE_DELETE_BOOKMARK = "BF_DELETE_BOOKMARK";
 const MESSAGE_CREATE_BOOKMARK = "BF_CREATE_BOOKMARK";
 const MESSAGE_CREATE_FOLDER = "BF_CREATE_FOLDER";
@@ -227,6 +228,8 @@ function routeMessage(message, sender) {
       ? () => moveBookmarkWithinParent(message)
     : message?.type === MESSAGE_MOVE_TOP_LEVEL
       ? () => moveTopLevelBookmark(message)
+    : message?.type === MESSAGE_MOVE_TO_FOLDER
+      ? () => moveBookmarkToFolder(message)
     : message?.type === MESSAGE_DELETE_BOOKMARK
       ? () => deleteBookmark(message)
     : message?.type === MESSAGE_CREATE_BOOKMARK
@@ -809,6 +812,8 @@ async function createFolder(message) {
 async function renameBookmark(message) {
   const nodeId = String(message?.nodeId || "");
   const title = String(message?.title || "").trim();
+  const rawUrl = message?.url !== undefined && message?.url !== null ? String(message.url).trim() : null;
+  const parentId = message?.parentId ? String(message.parentId).trim() : null;
   const root = await getBookmarkTreeRoot();
   const target = findNodeWithParent(root, nodeId);
 
@@ -826,9 +831,64 @@ async function renameBookmark(message) {
     };
   }
 
-  await chrome.bookmarks.update(nodeId, { title });
+  const updateChanges = { title };
+  if (target.node.url && rawUrl !== null && rawUrl !== "") {
+    const normalizedUrl = normalizeBookmarkUrl(rawUrl);
+    if (!normalizedUrl || !isSafeBookmarkUrl(normalizedUrl)) {
+      return {
+        ok: false,
+        error: t("validUrlRequired")
+      };
+    }
+    updateChanges.url = normalizedUrl;
+  }
+
+  await chrome.bookmarks.update(nodeId, updateChanges);
+
+  if (parentId && target.parent?.id && target.parent.id !== parentId) {
+    const parentTarget = findNodeWithParent(root, parentId);
+    if (parentTarget && !parentTarget.node.url) {
+      await chrome.bookmarks.move(nodeId, { parentId });
+      await chrome.storage.local.set({ bfLastUsedFolderId: parentId }).catch(() => {});
+    }
+  }
+
   scheduleBroadcast();
   return getState();
+}
+
+async function moveBookmarkToFolder(message) {
+  const nodeId = String(message?.nodeId || message?.bookmarkId || "");
+  const parentId = String(message?.parentId || "");
+  const root = await getBookmarkTreeRoot();
+  const target = findNodeWithParent(root, nodeId);
+  const targetParent = findNodeWithParent(root, parentId);
+
+  if (!nodeId || !target) {
+    return {
+      ok: false,
+      error: t("bookmarkDeleteTargetMissing")
+    };
+  }
+
+  if (!parentId || !targetParent || targetParent.node.url) {
+    return {
+      ok: false,
+      error: t("bookmarkParentInvalid")
+    };
+  }
+
+  const previousParentId = target.parent?.id || "";
+  await chrome.bookmarks.move(nodeId, { parentId });
+  await chrome.storage.local.set({ bfLastUsedFolderId: parentId }).catch(() => {});
+  scheduleBroadcast();
+  return {
+    ...(await getState()),
+    ok: true,
+    nodeId,
+    previousParentId,
+    newParentId: parentId
+  };
 }
 
 async function setFolderColor(message) {

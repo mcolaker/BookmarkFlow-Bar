@@ -453,5 +453,40 @@
       }
     }
   },
-  "bookmarkUpdatedToast": { "message": "✓ Yer imi güncellendi" }
+  "bookmarkUpdatedToast": { "message": "✓ Yer imi güncellendi" },
+  "unlockUrl": { "message": "Düzenlemek için adres kilidini aç" },
+  "lockUrl": { "message": "Adresi kilitle" },
+  "moveToBar": { "message": "Çubuğa Taşı" },
+  "moveToFolder": {
+    "message": "'$FOLDER$' Klasörüne Taşı",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projeler"
+      }
+    }
+  },
+  "bookmarkMovedToFolderToast": {
+    "message": "✓ '$FOLDER$' klasörüne taşındı",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projeler"
+      }
+    }
+  },
+  "bookmarkMovedBackToast": { "message": "✓ Yer imi önceki konumuna geri taşındı" },
+  "existingBookmarkWithFolderNotice": {
+    "message": "Zaten yer imlerinde: $TITLE$ ($FOLDER$ içinde)",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      },
+      "folder": {
+        "content": "$2",
+        "example": "Projeler"
+      }
+    }
+  }
 }

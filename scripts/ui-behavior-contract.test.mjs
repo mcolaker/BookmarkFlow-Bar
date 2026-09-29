@@ -1197,3 +1197,56 @@ test("existing bookmark edit mode and smooth toast switching contract (BF-UX-018
   assert.match(contentJs, /dataset\.editNodeId/u, "content.js must handle editNodeId in add dialog");
   assert.match(contentJs, /quickEditExistingBookmark/u, "content.js must use quickEditExistingBookmark key");
 });
+
+test("edit mode url unlock and live folder move chips contract (BF-UX-018)", () => {
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  assert.ok(enMessages.unlockUrl, "EN must define unlockUrl");
+  assert.ok(trMessages.unlockUrl, "TR must define unlockUrl");
+  assert.ok(enMessages.lockUrl, "EN must define lockUrl");
+  assert.ok(trMessages.lockUrl, "TR must define lockUrl");
+  assert.ok(enMessages.moveToBar, "EN must define moveToBar");
+  assert.ok(trMessages.moveToBar, "TR must define moveToBar");
+  assert.ok(enMessages.moveToFolder, "EN must define moveToFolder");
+  assert.ok(trMessages.moveToFolder, "TR must define moveToFolder");
+  assert.ok(enMessages.bookmarkMovedToFolderToast, "EN must define bookmarkMovedToFolderToast");
+  assert.ok(trMessages.bookmarkMovedToFolderToast, "TR must define bookmarkMovedToFolderToast");
+  assert.ok(enMessages.bookmarkMovedBackToast, "EN must define bookmarkMovedBackToast");
+  assert.ok(trMessages.bookmarkMovedBackToast, "TR must define bookmarkMovedBackToast");
+  assert.ok(enMessages.existingBookmarkWithFolderNotice, "EN must define existingBookmarkWithFolderNotice");
+  assert.ok(trMessages.existingBookmarkWithFolderNotice, "TR must define existingBookmarkWithFolderNotice");
+
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(newtabHtml, /id="addUrlUnlockBtn"/u, "newtab.html must define addUrlUnlockBtn");
+  assert.match(newtabHtml, /class="nt-url-input-wrap"/u, "newtab.html must define nt-url-input-wrap");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-url-input-wrap/u, "newtab.css must style .nt-url-input-wrap");
+  assert.match(newtabCss, /\.nt-url-unlock-btn/u, "newtab.css must style .nt-url-unlock-btn");
+  assert.match(newtabCss, /\.nt-search-action-chip\.is-move-chip/u, "newtab.css must style .nt-search-action-chip.is-move-chip");
+
+  const contentHtml = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentHtml, /bf-url-unlock-btn/u, "content.js must template bf-url-unlock-btn");
+  assert.match(contentHtml, /bf-url-input-wrap/u, "content.js must template bf-url-input-wrap");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-url-input-wrap/u, "content.css must style .bf-url-input-wrap");
+  assert.match(contentCss, /\.bf-url-unlock-btn/u, "content.css must style .bf-url-unlock-btn");
+  assert.match(contentCss, /\.bf-command-action-chip\.is-move-chip/u, "content.css must style .bf-command-action-chip.is-move-chip");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /addUrlUnlockBtn/u, "newtab.js must wire addUrlUnlockBtn");
+  assert.match(newtabJs, /handleMoveBookmarkToFolder/u, "newtab.js must define handleMoveBookmarkToFolder");
+  assert.match(newtabJs, /is-move-chip/u, "newtab.js must create is-move-chip for folder move");
+  assert.match(newtabJs, /BF_MOVE_TO_FOLDER/u, "newtab.js must dispatch BF_MOVE_TO_FOLDER");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /handleContentMoveBookmarkToFolder/u, "content.js must define handleContentMoveBookmarkToFolder");
+  assert.match(contentJs, /is-move-chip/u, "content.js must create is-move-chip for folder move");
+  assert.match(contentJs, /MESSAGE_MOVE_TO_FOLDER/u, "content.js must define MESSAGE_MOVE_TO_FOLDER");
+
+  const bgJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(bgJs, /MESSAGE_MOVE_TO_FOLDER/u, "background.js must define MESSAGE_MOVE_TO_FOLDER");
+  assert.match(bgJs, /function\s+moveBookmarkToFolder\s*\(/u, "background.js must define moveBookmarkToFolder");
+});

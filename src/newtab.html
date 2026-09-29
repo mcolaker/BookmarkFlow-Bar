@@ -122,7 +122,10 @@
         </label>
         <label class="nt-add-field">
           <span data-i18n="address">Address</span>
-          <input id="addUrl" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
+          <div class="nt-url-input-wrap">
+            <input id="addUrl" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
+            <button class="nt-url-unlock-btn" id="addUrlUnlockBtn" type="button" hidden title="Unlock address to edit" aria-label="Unlock address to edit" data-i18n-title="unlockUrl" data-i18n-aria-label="unlockUrl">🔒</button>
+          </div>
         </label>
         <label class="nt-add-field">
           <span data-i18n="targetFolder">Target Folder</span>

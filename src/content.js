@@ -31,6 +31,7 @@
   const MESSAGE_GET_PAGE_INFO = "BF_GET_PAGE_INFO";
   const MESSAGE_MOVE_BOOKMARK = "BF_MOVE_BOOKMARK";
 const MESSAGE_MOVE_TOP_LEVEL = "BF_MOVE_TOP_LEVEL";
+const MESSAGE_MOVE_TO_FOLDER = "BF_MOVE_TO_FOLDER";
 const MESSAGE_DELETE_BOOKMARK = "BF_DELETE_BOOKMARK";
 const MESSAGE_CREATE_BOOKMARK = "BF_CREATE_BOOKMARK";
 const MESSAGE_CREATE_FOLDER = "BF_CREATE_FOLDER";
@@ -903,7 +904,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
           </label>
           <label class="bf-add-field">
             <span>${escapeHtml(t("address"))}</span>
-            <input class="bf-add-url" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
+            <div class="bf-url-input-wrap">
+              <input class="bf-add-url" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
+              <button class="bf-url-unlock-btn" type="button" hidden title="${escapeAttribute(t("unlockUrl"))}" aria-label="${escapeAttribute(t("unlockUrl"))}">🔒</button>
+            </div>
           </label>
           <label class="bf-add-field">
             <span>${escapeHtml(t("targetFolder"))}</span>
@@ -1834,6 +1838,29 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    if (action === "unlock-url") {
+      const urlInput = shadow?.querySelector(".bf-add-url");
+      const unlockBtn = shadow?.querySelector(".bf-url-unlock-btn");
+      if (urlInput && unlockBtn) {
+        if (urlInput.readOnly) {
+          urlInput.readOnly = false;
+          urlInput.classList.remove("is-locked");
+          unlockBtn.textContent = "🔓";
+          unlockBtn.title = t("lockUrl") || "Lock address";
+          unlockBtn.setAttribute("aria-label", t("lockUrl") || "Lock address");
+          urlInput.focus();
+          urlInput.select();
+        } else {
+          urlInput.readOnly = true;
+          urlInput.classList.add("is-locked");
+          unlockBtn.textContent = "🔒";
+          unlockBtn.title = t("unlockUrl") || "Unlock address to edit";
+          unlockBtn.setAttribute("aria-label", t("unlockUrl") || "Unlock address to edit");
+        }
+      }
+      return;
+    }
+
     if (action === "open-bookmark-tab") {
       openContextBookmarkInNewTab();
       return;
@@ -2413,14 +2440,26 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const parentId = suggestion.parentId || dialog.dataset.parentId || "";
     dialog.dataset.parentId = parentId;
     const titleEl = shadow?.querySelector("#bf-add-dialog-title");
+    const unlockBtn = shadow?.querySelector(".bf-url-unlock-btn");
     if (suggestion.editNodeId) {
       dialog.dataset.editNodeId = suggestion.editNodeId;
       if (titleEl) titleEl.textContent = t("editBookmark") || "Yer İmini Düzenle";
       if (submit) submit.textContent = t("save") || "Kaydet";
+      urlInput.readOnly = true;
+      urlInput.classList.add("is-locked");
+      if (unlockBtn) {
+        unlockBtn.hidden = false;
+        unlockBtn.textContent = "🔒";
+        unlockBtn.title = t("unlockUrl") || "Unlock address to edit";
+        unlockBtn.setAttribute("aria-label", t("unlockUrl") || "Unlock address to edit");
+      }
     } else {
       delete dialog.dataset.editNodeId;
       if (titleEl) titleEl.textContent = t("addBookmark") || "Yer İmi Ekle";
       if (submit) submit.textContent = t("add") || "Ekle";
+      urlInput.readOnly = false;
+      urlInput.classList.remove("is-locked");
+      if (unlockBtn) unlockBtn.hidden = true;
     }
     titleInput.value = suggestion.title;
     urlInput.value = suggestion.url;
@@ -2443,8 +2482,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const dialog = shadow?.querySelector(".bf-add");
     const submit = shadow?.querySelector(".bf-add-primary");
     const titleEl = shadow?.querySelector("#bf-add-dialog-title");
+    const urlInput = shadow?.querySelector(".bf-add-url");
+    const unlockBtn = shadow?.querySelector(".bf-url-unlock-btn");
     const returnFocus = addDialogReturnFocus;
     addDialogReturnFocus = null;
+    if (urlInput) {
+      urlInput.readOnly = false;
+      urlInput.classList.remove("is-locked");
+    }
+    if (unlockBtn) {
+      unlockBtn.hidden = true;
+    }
     if (dialog) {
       resetAddDuplicateState(dialog, submit);
       delete dialog.dataset.editNodeId;
@@ -2602,7 +2650,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const response = await sendMessage({
         type: MESSAGE_RENAME_BOOKMARK,
         nodeId: editNodeId,
-        title
+        title,
+        url,
+        parentId
       });
       if (submit) submit.disabled = false;
       if (!response?.ok) {
@@ -2739,6 +2789,46 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       } : null;
       showContentToastNotification(toastMsg, 3500, action);
     }
+  }
+
+  async function handleContentMoveBookmarkToFolder(bookmarkId, targetFolderId, targetFolderName) {
+    if (!bookmarkId || !targetFolderId) return;
+    const response = await sendMessage({
+      type: MESSAGE_MOVE_TO_FOLDER,
+      nodeId: bookmarkId,
+      parentId: targetFolderId
+    });
+    if (!response?.ok) {
+      showContentToastNotification(response?.error || t("genericOperationFailed"), 2000, null, "is-error");
+      return;
+    }
+    appState = response;
+    lastUsedFolderId = targetFolderId;
+    if (hasExtensionContext()) {
+      chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: targetFolderId }).catch(() => {});
+    }
+    closeCommandPalette();
+    renderFromState();
+
+    const previousParentId = response.previousParentId;
+    const action = previousParentId ? {
+      label: t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)",
+      onClick: async () => {
+        const revertResp = await sendMessage({
+          type: MESSAGE_MOVE_TO_FOLDER,
+          nodeId: bookmarkId,
+          parentId: previousParentId
+        });
+        if (revertResp?.ok) {
+          appState = revertResp;
+          renderFromState();
+          showContentToastNotification(t("bookmarkMovedBackToast") || "✓ Yer imi önceki konumuna geri taşındı", 2000, null, "is-undone");
+        }
+      }
+    } : null;
+
+    const msg = t("bookmarkMovedToFolderToast", targetFolderName) || `✓ '${targetFolderName}' klasörüne taşındı`;
+    showContentToastNotification(msg, 3500, action);
   }
 
   let contentToastTimeoutId = null;
@@ -3667,20 +3757,46 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const directTarget = resolveDirectNavigationTarget(commandQuery);
     if (directTarget) {
       const existingBookmark = findExistingBookmarkByUrl(directTarget);
-      const existingNotice = existingBookmark?.title
-        ? ` • ${t("existingBookmarkNotice", existingBookmark.title) || `Zaten yer imlerinde: ${existingBookmark.title}`}`
-        : "";
+      let existingNotice = "";
+      if (existingBookmark?.title) {
+        const barNode = appState?.bookmarkBar;
+        let folderTitle = "";
+        if (existingBookmark.parentId === barNode?.id) {
+          folderTitle = t("bookmarksBar") || "Yer İmleri Çubuğu";
+        } else if (existingBookmark.parentId) {
+          const folders = [];
+          const walk = (node) => {
+            if (!node) return;
+            if (Array.isArray(node.children)) {
+              if (node.id && node.id !== "0") {
+                folders.push({ id: node.id, title: node.title || "" });
+              }
+              for (const c of node.children) {
+                if (Array.isArray(c.children)) walk(c);
+              }
+            }
+          };
+          walk(barNode);
+          folderTitle = folders.find(f => f.id === existingBookmark.parentId)?.title || "";
+        }
+        existingNotice = folderTitle
+          ? ` • ${t("existingBookmarkWithFolderNotice", [existingBookmark.title, folderTitle]) || `Zaten yer imlerinde: ${existingBookmark.title} (${folderTitle} içinde)`}`
+          : ` • ${t("existingBookmarkNotice", existingBookmark.title) || `Zaten yer imlerinde: ${existingBookmark.title}`}`;
+      }
       entries.unshift({
         id: "bf-action-capture-url",
         title: `${t("addBookmarkToTarget")}: ${directTarget}`,
         path: `${t("addBookmarkToTargetDesc")}${existingNotice}`,
-        icon: "⭐",
+        icon: existingBookmark ? "✏️" : "⭐",
         isQuickAction: true,
         directTarget,
+        existingBookmark,
         handler: () => {
           openAddBookmarkDialog(getActiveDialogElement(), {
             url: directTarget,
-            title: getHostname(directTarget) || directTarget
+            title: existingBookmark?.title || getHostname(directTarget) || directTarget,
+            parentId: existingBookmark?.parentId,
+            editNodeId: existingBookmark?.id
           });
         }
       });
@@ -4023,18 +4139,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         chips.className = "bf-command-action-chips";
 
         const barNode = appState?.bookmarkBar;
-        const barChip = document.createElement("button");
-        barChip.type = "button";
-        barChip.className = "bf-command-action-chip";
-        barChip.textContent = `⭐ ${t("saveToBar") || "Add to Bar"}`;
-        barChip.title = t("saveToBar") || "Add to Bar";
-        barChip.addEventListener("click", async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          closeCommandPalette();
-          await handleDirectSaveBookmark(entry.directTarget, barNode?.id || "");
-        });
-        chips.append(barChip);
+        const existingBookmark = entry.existingBookmark || findExistingBookmarkByUrl(entry.directTarget);
 
         const folders = [];
         const walk = (node) => {
@@ -4052,20 +4157,83 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         };
         walk(barNode);
 
-        const targetFolder = folders.find(f => !f.isBar && (f.id === lastUsedFolderId || pinnedFolderIds.includes(f.id))) || folders.find(f => !f.isBar);
-        if (targetFolder) {
-          const folderChip = document.createElement("button");
-          folderChip.type = "button";
-          folderChip.className = "bf-command-action-chip";
-          folderChip.textContent = `📁 ${targetFolder.title}`;
-          folderChip.title = `${t("saveToFolder") || "Add to Folder"}: ${targetFolder.title}`;
-          folderChip.addEventListener("click", async (e) => {
+        if (existingBookmark) {
+          if (existingBookmark.parentId !== barNode?.id) {
+            const moveBarChip = document.createElement("button");
+            moveBarChip.type = "button";
+            moveBarChip.className = "bf-command-action-chip is-move-chip";
+            moveBarChip.textContent = `⭐ ${t("moveToBar") || "Move to Bar"}`;
+            moveBarChip.title = t("moveToBar") || "Move to Bar";
+            moveBarChip.addEventListener("click", async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              await handleContentMoveBookmarkToFolder(existingBookmark.id, barNode?.id || "", t("bookmarksBar") || "Bookmarks Bar");
+            });
+            chips.append(moveBarChip);
+          }
+
+          const targetFolder = folders.find(f => !f.isBar && f.id !== existingBookmark.parentId && (f.id === lastUsedFolderId || pinnedFolderIds.includes(f.id)))
+            || folders.find(f => !f.isBar && f.id !== existingBookmark.parentId);
+          if (targetFolder) {
+            const moveFolderChip = document.createElement("button");
+            moveFolderChip.type = "button";
+            moveFolderChip.className = "bf-command-action-chip is-move-chip";
+            moveFolderChip.textContent = `📁 ${targetFolder.title}`;
+            moveFolderChip.title = t("moveToFolder", targetFolder.title) || `'${targetFolder.title}' Klasörüne Taşı`;
+            moveFolderChip.addEventListener("click", async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              await handleContentMoveBookmarkToFolder(existingBookmark.id, targetFolder.id, targetFolder.title);
+            });
+            chips.append(moveFolderChip);
+          }
+
+          const editChip = document.createElement("button");
+          editChip.type = "button";
+          editChip.className = "bf-command-action-chip is-edit-chip";
+          editChip.textContent = `✏️ ${t("edit") || "Edit"}`;
+          editChip.title = t("editBookmark") || "Edit Bookmark";
+          editChip.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
             closeCommandPalette();
-            await handleDirectSaveBookmark(entry.directTarget, targetFolder.id);
+            openAddBookmarkDialog(getActiveDialogElement(), {
+              url: entry.directTarget,
+              title: existingBookmark.title || getHostname(entry.directTarget) || entry.directTarget,
+              parentId: existingBookmark.parentId,
+              editNodeId: existingBookmark.id
+            });
           });
-          chips.append(folderChip);
+          chips.append(editChip);
+        } else {
+          const barChip = document.createElement("button");
+          barChip.type = "button";
+          barChip.className = "bf-command-action-chip";
+          barChip.textContent = `⭐ ${t("saveToBar") || "Add to Bar"}`;
+          barChip.title = t("saveToBar") || "Add to Bar";
+          barChip.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeCommandPalette();
+            await handleDirectSaveBookmark(entry.directTarget, barNode?.id || "");
+          });
+          chips.append(barChip);
+
+          const targetFolder = folders.find(f => !f.isBar && (f.id === lastUsedFolderId || pinnedFolderIds.includes(f.id))) || folders.find(f => !f.isBar);
+          if (targetFolder) {
+            const folderChip = document.createElement("button");
+            folderChip.type = "button";
+            folderChip.className = "bf-command-action-chip";
+            folderChip.textContent = `📁 ${targetFolder.title}`;
+            folderChip.title = `${t("saveToFolder") || "Add to Folder"}: ${targetFolder.title}`;
+            folderChip.addEventListener("click", async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              closeCommandPalette();
+              await handleDirectSaveBookmark(entry.directTarget, targetFolder.id);
+            });
+            chips.append(folderChip);
+          }
         }
         copy.append(chips);
       }
