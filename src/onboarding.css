@@ -1,8 +1,22 @@
+@import "./design-tokens.css";
+
 :root {
+  --ob-theme-bg: var(--bf-token-bg-palette, #11151d);
+  --ob-theme-card-bg: var(--bf-token-bg-card, #161b24);
+  --ob-theme-surface: var(--bf-token-bg-surface, #20252d);
+  --ob-theme-surface-hover: var(--bf-token-bg-surface-hover, #29313c);
+  --ob-theme-border: var(--bf-token-border-default, #343b46);
+  --ob-theme-border-subtle: var(--bf-token-border-subtle, #303743);
+  --ob-theme-accent: var(--bf-token-gold-primary, #f2c94c);
+  --ob-theme-accent-contrast: var(--bf-token-gold-contrast, #141820);
+  --ob-theme-accent-glow: var(--bf-token-gold-glow, rgba(242, 201, 76, 0.42));
+  --ob-theme-accent-subtle: var(--bf-token-gold-subtle, rgba(242, 201, 76, 0.16));
+  --ob-theme-text: var(--bf-token-text-primary, #f7f9fc);
+  --ob-theme-text-muted: var(--bf-token-text-muted, rgba(247, 249, 252, 0.62));
   color-scheme: dark;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #11151d;
-  color: #f7f9fc;
+  font-family: var(--bf-token-font-family, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  background: var(--ob-theme-bg);
+  color: var(--ob-theme-text);
 }
 
 * {
@@ -12,7 +26,8 @@
 body {
   min-width: 320px;
   margin: 0;
-  background: #11151d;
+  background: var(--ob-theme-bg);
+  color: var(--ob-theme-text);
 }
 
 [hidden] {
@@ -633,4 +648,49 @@ kbd {
   border-color: rgba(242, 201, 76, 0.35);
   color: #f2c94c;
   font-weight: 600;
+}
+
+/* Modern Web Guidance: Erişilebilir Yüksek Kontrast Modu (Forced Colors) */
+@media (forced-colors: active) {
+  body {
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .hero,
+  .consent-card,
+  .summary-card,
+  .profile-card,
+  .step-card,
+  .interactive-sandbox {
+    border: 2px solid ButtonBorder;
+    background: Canvas;
+  }
+
+  .mark {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .profile-card.is-selected {
+    border-color: Highlight;
+    box-shadow: inset 0 0 0 2px Highlight;
+  }
+
+  .primary,
+  .secondary {
+    border: 1px solid ButtonBorder;
+  }
+
+  .primary:hover,
+  .secondary:hover {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .feedback-chip.active {
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+  }
 }

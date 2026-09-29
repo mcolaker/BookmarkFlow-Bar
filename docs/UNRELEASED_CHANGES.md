@@ -183,7 +183,7 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - **P0-20 Kuralı**:
   - `AGENTS.md` içerisine P0-20 kuralı eklenerek geliştirici araçlarının otonom yönetişimi tavizsiz kural olarak bağlandı; `docs/agent/DECISION_INDEX.md` Karar 20 ve `docs/agent-playbooks/` kılavuzlarına işlendi.
 
-### 🎨 12. Canlı Yüksek Kontrast (Forced Colors) Erişilebilirliği ve Spotlight & Ayarlar Tasarım Değişkenleri Yaygınlaştırması (BF-GOV-012)
+### 🎨 12. Canlı Yüksek Kontrast (Forced Colors) Erişilebilirliği ve Tüm Yüzeylerde Tasarım Değişkenleri Yaygınlaştırması (BF-GOV-012, BF-GOV-013)
 - **Windows ve Modern Tarayıcı Yüksek Kontrast Modu (`@media (forced-colors: active)`)**:
   - `src/design-tokens.css` içine eklenen sistem renkleri (`Canvas`, `CanvasText`, `Highlight`, `HighlightText`, `ButtonBorder`, `GrayText`) ile az gören, disleksi veya yüksek kontrast tercihi olan kullanıcılar için mükemmel erişilebilirlik ve görünürlük sağlandı.
   - Özel arka plan gradyanları ve parıltılar yüksek kontrast modunda otomatik olarak şeffaflaşır, işletim sisteminin belirlediği net kenarlıklar ve vurgu renkleri aktif hale gelir.
@@ -195,8 +195,10 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
   - Ayarlar & Bakım Merkezi (`src/bookmark-maintenance.html`) için modüler `src/settings.css` oluşturuldu.
   - `@import "./design-tokens.css";` ile tasarım değişkenlerine bağlandı; `--settings-*` değişkenleri, hareket azaltma ve yüksek kontrast kuralları eklendi.
   - `src/bookmark-maintenance.html` ve `src/bookmark-maintenance.css` içerisine entegre edildi; `manifest.json` `web_accessible_resources` içine dahil edildi.
-- **Tüm 5 UI Yüzeyinde (%100) Merkezi Stil Senkronizasyonu**:
-  - Sayfa İçi Çubuk (`content.css`), Yeni Sekme (`newtab.css`), Popup (`popup.css`), Spotlight (`spotlight.css`) ve Ayarlar (`settings.css` & `bookmark-maintenance.css`) tek bir merkezi tasarım kaynağından (`design-tokens.css`) beslenecek şekilde %100 senkronize edildi.
+- **İlk Kurulum ve Karşılama Sihirbazı Entegrasyonu (`src/onboarding.css`, `src/onboarding.html`)**:
+  - Onboarding sayfasına `@import "./design-tokens.css";` ve `<link rel="stylesheet" href="design-tokens.css">` entegrasyonu yapıldı; `--ob-theme-*` değişkenleri ve `@media (forced-colors: active)` sistem renkleri bağlandı.
+- **Tüm UI Yüzeylerinde (%100) Merkezi Stil Senkronizasyonu**:
+  - Sayfa İçi Çubuk (`content.css`), Yeni Sekme (`newtab.css`), Popup (`popup.css`), Spotlight (`spotlight.css`), Ayarlar (`settings.css` & `bookmark-maintenance.css`) ve İlk Kurulum Sihirbazı (`onboarding.css` & `onboarding.html`) tek bir merkezi tasarım kaynağından (`design-tokens.css`) beslenecek şekilde %100 senkronize edildi.
 
 ---
 
@@ -205,6 +207,7 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - `src/design-tokens.css`: Modern Web Guidance standartlarında merkezi altın-obsidyen tasarım token'ları, tema varyantları, blur, radius, odak halkaları, animasyon değişkenleri ve `@media (forced-colors: active)` sistem renkleri erişilebilirlik desteği.
 - `src/spotlight.css`: Spotlight ve Komut Paleti için bağımsız ve modüler stil şablonu, bileşen değişkenleri, reduced-motion ve forced-colors desteği.
 - `src/settings.css`: Ayarlar & Bakım Merkezi için bağımsız ve modüler stil şablonu, bileşen değişkenleri, reduced-motion ve forced-colors desteği.
+- `src/onboarding.css`, `src/onboarding.html`: İlk kurulum ve karşılama sihirbazında merkezi tasarım token'ları (`--ob-theme-*`) ve yüksek kontrast (`forced-colors: active`) desteği.
 - `src/intent-router.js`: Evrensel yerel niyet sınıflandırma motoru (`BookmarkIntentRoutingEngine`).
 - `src/newtab.html`, `src/newtab.css`, `src/newtab.js`: Arama yakalama, arama içi hızlı kayıt çipleri (`.nt-search-action-chips`), klasör dropdown'u, hızlı klasör çipleri (`#addFolderChips`), anlık bildirim rozeti (`.nt-toast`, `showToastNotification`, `.is-switching`), akıllı niyet rozeti (`.nt-intent-badge`, `updateSearchIntentBadge`), inline `[✏️ Düzenle]` modu (`.is-edit-mode`), diyalog `editNodeId` desteği, URL kilit açma butonu (`#addUrlUnlockBtn`), URL doğrulama ve otomatik protokol tamamlama (`.is-invalid-url`), arama kartı canlı klasör taşıma çipleri (`.is-move-chip`, `.is-folder-picker-chip`, `.is-edit-chip`), mini klasör seçici menüsü (`.nt-folder-picker-menu`, `showFolderPickerMenu`), `handleMoveBookmarkToFolder` ve `Ctrl+Z` geri alma, klasör/sekme niyet entegrasyonu, klavye kontrolleri, smart folder memory entegrasyonu, mevcut yer imi başlık önizlemesi (`findExistingBookmarkByUrl`), metin geri yükleme toast bildirimi, `design-tokens.css` entegrasyonu.
 - `src/content.js`, `src/content.css`: Shadow DOM ekleme diyaloğuna klasör seçici, hızlı klasör çipleri (`.bf-folder-chips`), URL kilit açma butonu (`.bf-url-unlock-btn`), URL doğrulama ve otomatik protokol tamamlama (`.is-invalid-url`), command palette URL eylem kartı ve hızlı kayıt çipleri (`.bf-command-action-chips`), arama kartı canlı klasör taşıma çipleri (`.is-move-chip`, `.is-folder-picker-chip`, `.is-edit-chip`), mini klasör seçici menüsü (`.bf-folder-picker-menu`, `showContentFolderPickerMenu`), `handleContentMoveBookmarkToFolder`, anlık bildirim rozeti (`.bf-toast`, `showContentToastNotification`, `.is-switching`), command palette akıllı niyet rozeti (`.bf-intent-badge`, `updateCommandIntentBadge`), inline `[✏️ Düzenle]` modu (`.is-edit-mode`), diyalog `editNodeId` desteği, smart folder memory entegrasyonu, MV3 ayarlar mesajlaşması (`BF_OPEN_SETTINGS`), site devre dışı bırakma toast bildirimi, mevcut yer imi başlık önizlemesi, metin geri yükleme toast bildirimi, `BF_INSPECT_ISOLATION` otonom teftiş köprüsü, `design-tokens.css` ve `spotlight.css` entegrasyonu.
@@ -213,7 +216,7 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - `src/bookmark-maintenance.html`, `src/bookmark-maintenance.css`, `src/bookmark-maintenance.js`: Devre dışı bırakılan siteler yönetimi (`#sites`, `#disabledSitesList`, `loadDisabledSites`), `settings.css` ve `design-tokens.css` entegrasyonu.
 - `_locales/en/messages.json`, `_locales/tr/messages.json`: 51 yeni yerelleştirme anahtarı tam pariteyle sağlandı.
 - `scripts/intent-router.test.mjs`: `BookmarkIntentRoutingEngine` için 7 adet bağımsız birim testi.
-- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014`, `BF-UX-015`, `BF-UX-016`, `BF-UX-017`, `BF-UX-018`, `BF-QA-004`, `BF-GOV-011` ve `BF-GOV-012` (Yüksek kontrast forced-colors, spotlight.css ve settings.css yaygınlaştırması) sözleşme testleri.
+- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014`, `BF-UX-015`, `BF-UX-016`, `BF-UX-017`, `BF-UX-018`, `BF-QA-004`, `BF-GOV-011`, `BF-GOV-012` ve `BF-GOV-013` (Tüm yüzeylerde yüksek kontrast ve tasarım token'ları yaygınlaştırması) sözleşme testleri.
 - `scripts/governance-contract.test.mjs`, `scripts/validate-governance.mjs`: Yönetişim ve Operating Kernel sözleşme testleri (`BF-GOV-010`, `BF-GOV-011`).
 - `AGENTS.md`: Operating Kernel, P0 kuralları (P0-18, P0-19 Otonom Video İnisiyatifi ve P0-20 Otonom Geliştirici Araçları ve Teftiş İnisiyatifi eklendi), Task Router ve Zorunlu Rapor Şablonu.
 - `docs/agent/`: `DECISION_INDEX.md` (Karar 18, 19 ve 20 eklendi), `PROJECT_STATE.md`, `RULE_CHANGELOG.md`.

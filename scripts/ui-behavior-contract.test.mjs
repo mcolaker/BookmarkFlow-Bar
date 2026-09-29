@@ -1382,4 +1382,12 @@ test("high contrast forced-colors mode and global design tokens propagation cont
   const webResources = manifest.web_accessible_resources?.[0]?.resources || [];
   assert.ok(webResources.includes("src/spotlight.css"), "manifest.json must declare src/spotlight.css in web_accessible_resources");
   assert.ok(webResources.includes("src/settings.css"), "manifest.json must declare src/settings.css in web_accessible_resources");
+
+  const onboardingCss = readFileSync(path.join(root, "src/onboarding.css"), "utf8");
+  assert.match(onboardingCss, /@import\s+["']\.\/design-tokens\.css["']/u, "onboarding.css must import design-tokens.css");
+  assert.match(onboardingCss, /--ob-theme-/u, "onboarding.css must define onboarding component tokens");
+  assert.match(onboardingCss, /forced-colors:\s*active/u, "onboarding.css must support forced-colors high contrast");
+
+  const onboardingHtml = readFileSync(path.join(root, "src/onboarding.html"), "utf8");
+  assert.match(onboardingHtml, /href="design-tokens\.css"/u, "onboarding.html must link design-tokens.css");
 });

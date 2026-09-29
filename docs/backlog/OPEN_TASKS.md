@@ -580,3 +580,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: 95/95 test başarılı (`npm test`); `scripts/ui-behavior-contract.test.mjs` içinde yüksek kontrast ve tasarım token'ları yaygınlaştırma sözleşmesi (`BF-GOV-012`) doğrulandı; `scripts/validate-project.mjs` tüm 7 CSS dosyasında reduced-motion sözleşmesini onayladı; `npm run validate:all` (açık kaynak, DCO, public tree, manifest, backlog, governance, media QA sözleşmeleri) sıfır hatayla geçti; `git diff --check` temizdir.
 - Sonraki adım: Yok; canlı yüksek kontrast erişilebilirliği ve tüm eklenti genelinde modüler tasarım token yaygınlaştırması tamamlandı ve doğrulandı.
 - Son güncelleme: 2026-09-29.
+
+## BF-GOV-013 - Onboarding Sayfasında Merkezi Tasarım Değişkenleri ve Yüksek Kontrast Entegrasyonu
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, ilk kurulum ve karşılama sihirbazı olan `src/onboarding.css` ve `src/onboarding.html` dosyalarına da `@import "./design-tokens.css";` eklenerek ilk çalıştırma deneyiminde tasarım token'ları ve yüksek kontrast (`@media (forced-colors: active)`) modunun devreye alınmasını talep etti. `src/onboarding.css` dosyasına `@import "./design-tokens.css";` eklendi, `:root` ve `body` değişkenleri `--ob-theme-*` olarak haritalandırıldı; `@media (forced-colors: active)` bloğu eklenerek `.hero`, `.mark`, kartlar, butonlar ve çipler sistem renklerine (`Canvas`, `CanvasText`, `Highlight`, `ButtonBorder`) bağlandı; `src/onboarding.html` `<head>` bölümüne `<link rel="stylesheet" href="design-tokens.css">` eklendi; `scripts/ui-behavior-contract.test.mjs` içerisine doğrulama sözleşmesi eklendi.
+- Kabul kriteri: `src/onboarding.css` `@import "./design-tokens.css";`, `--ob-theme-` token eşlemeleri ve `@media (forced-colors: active)` kuralını içerir; `src/onboarding.html` `design-tokens.css` bağlar; 95/95 test ve `npm run validate:all` sıfır hatayla geçer.
+- Doğrulama kapısı: 95/95 test başarılı (`npm test`); `scripts/ui-behavior-contract.test.mjs` içinde onboarding tasarım token'ları ve forced-colors sözleşmesi doğrulandı; `scripts/validate-project.mjs` tüm stil dosyalarında reduced-motion desteğini onayladı; `npm run validate:all` sıfır hatayla geçti; `git diff --check` temizdir.
+- Sonraki adım: Yok; onboarding karşılama arayüzü merkezi tasarım token'larına ve yüksek kontrast moduna tam entegre edildi.
+- Son güncelleme: 2026-09-29.
