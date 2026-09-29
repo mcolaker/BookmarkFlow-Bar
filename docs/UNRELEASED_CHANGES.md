@@ -172,6 +172,13 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
   - Dinamik yüzey geçişlerinde (Kayan Çubuk `Alt+Shift+B`, Spotlight `Alt+Shift+K`, New Tab Çalışma Alanı & Hızlı Klasör Çipleri) saniyede düşen kare sayısı eşiği (`droppedFrames > 2` veya `--jank-threshold=<N>`) aşıldığında veya `--motion-qa` bayrağı aktif olduğunda, Agentic Video motoru (`inspect-motion-qa.mjs`) otonom olarak devreye girer.
   - Canlı kullanıcı yolculuğu simülasyonunda görsel ve donanımsal akıcılık sıfır insan müdahalesiyle denetlenir.
 
+### 🛠️ 11. Otonom Geliştirici Araçları ve Teftiş İnisiyatifi (BF-GOV-011 / Karar 20)
+- **Model Otonom Araç Yönetişimi**:
+  - Yapay zeka asistanı; Chrome DevTools MCP (Shadow DOM izolasyonu, CSS/layout teftişi, a11y, LCP ve bellek sızıntısı analizi), Modern Web Guidance (web standartları, MV3 mimarisi, CSS optimizasyonu) ve Gemini API (multimodal/video akıcılık ve görsel kalite analizi) araçlarını kullanıcının açık komut veya talimat vermesini KESİNLİKLE BEKLEMEDEN kendi inisiyatifiyle tam otonom yönetir.
+  - Model, ihtiyaç duyduğu her hata ayıklama, optimizasyon veya doğrulama aşamasında ilgili aracı devreye sokar, derinlikli analizleri yürütür ve bulguları projeye proaktif olarak uygular.
+- **P0-20 Kuralı**:
+  - `AGENTS.md` içerisine P0-20 kuralı eklenerek geliştirici araçlarının otonom yönetişimi tavizsiz kural olarak bağlandı; `docs/agent/DECISION_INDEX.md` Karar 20 ve `docs/agent-playbooks/` kılavuzlarına işlendi.
+
 ---
 
 ### 📋 Etkilenen Dosyalar ve Bileşenler

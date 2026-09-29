@@ -37,6 +37,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(agents, /Bütünsel İkincil İyileştirme Standardı/u, "AGENTS.md must enforce Proactive Holistic QA");
   assert.match(agents, /DECISION_INDEX\.md/u, "AGENTS.md must reference DECISION_INDEX.md");
   assert.match(agents, /Otonom Video İnisiyatifi/u, "AGENTS.md must declare Autonomous Video Trigger Authority");
+  assert.match(agents, /Otonom Geliştirici Araçları ve Teftiş İnisiyatifi/u, "AGENTS.md must declare Autonomous DevTools, Web Guidance & Gemini API Authority");
 
   const decisionIndex = readFileSync(path.join(root, "docs/agent/DECISION_INDEX.md"), "utf8");
   assert.match(decisionIndex, /# DECISION_INDEX\.md/u, "DECISION_INDEX.md must declare header");
@@ -45,15 +46,18 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(decisionIndex, /Yerel Niyet ve Akıllı Yönlendirme Motoru/u, "DECISION_INDEX.md must contain Decision 17");
   assert.match(decisionIndex, /Agentic Motion & Medya Kalite Güvence Standardı/u, "DECISION_INDEX.md must contain Decision 18");
   assert.match(decisionIndex, /Yapay Zeka Otonom Video İnisiyatifi/u, "DECISION_INDEX.md must contain Decision 19");
+  assert.match(decisionIndex, /Otonom Geliştirici Araçları ve Teftiş İnisiyatifi/u, "DECISION_INDEX.md must contain Decision 20");
 
   const projectState = readFileSync(path.join(root, "docs/agent/PROJECT_STATE.md"), "utf8");
   assert.match(projectState, /# PROJECT_STATE\.md/u, "PROJECT_STATE.md must declare header");
   assert.match(projectState, /Google Chrome/u, "PROJECT_STATE.md must declare Chrome support");
+  assert.match(projectState, /BF-GOV-011/u, "PROJECT_STATE.md must document BF-GOV-011");
 
   const ruleChangelog = readFileSync(path.join(root, "docs/agent/RULE_CHANGELOG.md"), "utf8");
   assert.match(ruleChangelog, /BF-GOV-010/u, "RULE_CHANGELOG.md must document BF-GOV-010");
   assert.match(ruleChangelog, /BF-UX-017/u, "RULE_CHANGELOG.md must document BF-UX-017");
   assert.match(ruleChangelog, /BF-QA-004/u, "RULE_CHANGELOG.md must document BF-QA-004");
+  assert.match(ruleChangelog, /BF-GOV-011/u, "RULE_CHANGELOG.md must document BF-GOV-011");
 });
 
 test("agentic motion & media QA scripts contract (BF-QA-002, BF-QA-003, BF-QA-004)", () => {

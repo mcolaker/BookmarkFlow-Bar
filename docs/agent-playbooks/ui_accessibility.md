@@ -72,3 +72,6 @@ Bu kılavuz, BookmarkFlow Bar kullanıcı arayüzü, tasarım sistemi, erişileb
 
 - **Medya Varlık Kalite Kapısı (`npm run qa:media`)**:
   - Tanıtım videoları, sosyal medya kesitleri ve tur GIF'leri sıfır kişisel veri, tam kadraj (kırpılmamış alt kenarlar) ve görsel hijyen için fail-closed doğrulanır.
+
+- **Otonom Chrome DevTools ve Modern Web Guidance Teftişi (BF-GOV-011 / Karar 20)**:
+  - Erişilebilirlik (ARIA etiketleri, kontrast oranları WCAG AA 4.5:1, klavye döngüsü), Largest Contentful Paint (LCP) ve bellek sızıntısı testlerinde Chrome DevTools MCP ve Modern Web Guidance ilkeleri yapay zeka tarafından doğrudan otonom işletilir.

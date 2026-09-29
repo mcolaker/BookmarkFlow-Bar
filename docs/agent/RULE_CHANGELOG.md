@@ -2,6 +2,13 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-09-29] — Otonom Geliştirici Araçları ve Teftiş İnisiyatifi (BF-GOV-011 / Karar 20)
+- **P0-20 Kuralı Tanımlandı**: Yapay zeka asistanı; sayfa içi kapalı Shadow DOM izolasyon denetimi, CSS/layout hata ayıklama, konsol/ağ incelemeleri ve bellek sızıntısı tespiti için Chrome DevTools MCP; modern web ve MV3 mimarisi, CSS optimizasyonu ve erişilebilirlik için Modern Web Guidance; multimodal/video akıcılık ve görsel kalite analizi için Gemini API araçlarını kullanıcının açık komutunu beklemeden kendi inisiyatifiyle tam otonom yönetir.
+- **Kullanıcı Komut Bağımsızlığı**: Model, hata ayıklama, kodlama, optimizasyon ve doğrulama aşamalarında ihtiyaç duyduğu her an ilgili aracı otonom devreye sokar ve elde ettiği bulguları projeye proaktif olarak uygular.
+- **Sözleşme ve Playbook Entegrasyonu**: `docs/agent-playbooks/browser_extension.md` ve `docs/agent-playbooks/ui_accessibility.md` el kitaplarına otonom geliştirici araçları teftiş ilkeleri işlendi.
+
+---
+
 ## [2026-09-29] — Yapay Zeka Otonom Video İnisiyatifi & Dinamik Yüzey Ayrımı Standardı (BF-QA-004 / Karar 19)
 - **P0-19 Otonom Video İnisiyatifi Genişletildi**: Yapay zeka asistanı, dinamik hareket, animasyon akıcılığı, geçiş fiziği veya kaydırma jank şüphesi gördüğü her durumda kullanıcının açık komut vermesini KESİNLİKLE BEKLEMEZ; kendi inisiyatifiyle `scripts/inspect-motion-qa.mjs` (`npm run qa:motion` / `npm run qa:motion:auto`) çalıştırarak video denetimini icra eder.
 - **Statik ve Dinamik Yüzey Ayrımı (Static vs Dynamic Surface Authority)**: Metin, rozet, buton, kontrast ve padding için statik yerel sözleşme testleri (`npm test`) sıfır ek maliyetle işletilir; dinamik hareketli yüzeylerde Agentic Video devreye girer.

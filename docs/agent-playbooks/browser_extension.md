@@ -55,3 +55,13 @@ Bu kılavuz, BookmarkFlow Bar tarayıcı eklentisi (Chrome, Firefox, Edge) mimar
   6. `search` (`is-search`): Genel akıllı arama modu.
 - **Canlı Akıllı Rozetler (`.nt-intent-badge`, `.bf-intent-badge`)**: Kullanıcı henüz Enter'a basmadan önce hangi modun devrede olduğu görsel olarak gösterilir.
 - **Terminoloji Hijyeni (P0-13)**: Kullanıcıya asla "AI" veya "JEV" gibi teknik ibareler gösterilmez; arayüzde daima "Akıllı Arama" ve "Akıllı Yönlendirme" sunulur.
+
+---
+
+## 6. Otonom Geliştirici Araçları ve Teftiş İnisiyatifi (BF-GOV-011 / Karar 20)
+
+- **Chrome DevTools Otonom Hata Ayıklama**:
+  - Sayfa içi kapalı Shadow DOM (`mode: "closed"`) izolasyonunun delinmediğini, barındırıcı sayfanın global stillerinin çubuğu bozmadığını doğrulamak için Chrome DevTools DOM ve stil teftişi yapay zeka tarafından otonom işletilir.
+  - Service Worker yaşam döngüsü, hafıza sızıntısı tespiti ve sekme etkileşimlerinde DevTools konsol ve ağ dinleyicileri kullanılır.
+- **Modern Web Guidance Standartları**:
+  - CSS layout (flexbox, grid), mikro animasyonlar (`@keyframes`), erişilebilir odak tuzakları (`focus trap`), `backdrop-filter` performansı ve MV3 event-driven mimarisi Modern Web Guidance kılavuzlarına göre proaktif olarak denetlenir ve refaktör edilir.
