@@ -10,7 +10,7 @@
 
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import os from "node:os";
 import path from "node:path";
@@ -29,15 +29,68 @@ function getAgenticVideoScriptPath() {
   return path.join(home, ".gemini", "config", "skills", "agentic-video", "scripts", "analyze_video.py");
 }
 
+function getArtifactDirectory(explicitPath = "") {
+  if (explicitPath && existsSync(explicitPath)) {
+    return explicitPath;
+  }
+  if (process.env.ARTIFACT_DIR && existsSync(process.env.ARTIFACT_DIR)) {
+    return process.env.ARTIFACT_DIR;
+  }
+  if (process.env.GEMINI_CONVERSATION_ARTIFACTS && existsSync(process.env.GEMINI_CONVERSATION_ARTIFACTS)) {
+    return process.env.GEMINI_CONVERSATION_ARTIFACTS;
+  }
+  const home = process.env.USERPROFILE || process.env.HOME || "";
+  const brainDir = path.join(home, ".gemini", "antigravity", "brain");
+  if (existsSync(brainDir)) {
+    try {
+      const convs = readdirSync(brainDir, { withFileTypes: true })
+        .filter((d) => d.isDirectory() && !d.name.startsWith("."))
+        .map((d) => ({ name: d.name, ctime: statSync(path.join(brainDir, d.name)).mtimeMs }))
+        .sort((a, b) => b.ctime - a.ctime);
+      if (convs.length > 0) {
+        return path.join(brainDir, convs[0].name);
+      }
+    } catch {}
+  }
+  return "";
+}
+
+async function detectAutonomousSurfaces() {
+  try {
+    const { stdout } = await execFileAsync("git", ["status", "--porcelain"]);
+    const lines = stdout.split("\n").filter(Boolean);
+    const surfaces = new Set();
+    for (const rawLine of lines) {
+      const line = rawLine.trim().slice(3);
+      if (/src\/content\.(css|js)/i.test(line)) {
+        surfaces.add("bar");
+        surfaces.add("spotlight");
+      }
+      if (/src\/newtab\.(css|js|html)/i.test(line)) {
+        surfaces.add("newtab");
+      }
+      if (/src\/bookmark-maintenance\.(css|js|html)/i.test(line) || /src\/popup\.(css|js|html)/i.test(line)) {
+        surfaces.add("bar");
+      }
+    }
+    return Array.from(surfaces);
+  } catch {
+    return ["bar"];
+  }
+}
+
 function parseCliArgs() {
   const args = process.argv.slice(2);
   const options = {
-    surface: "bar", // bar | spotlight | newtab
+    surface: "bar", // bar | spotlight | newtab | all | auto
     duration: defaultVideoDuration,
     prompt: "",
     keepVideo: false,
     dryRun: false,
-    outputPath: ""
+    outputPath: "",
+    artifactDir: "",
+    artifactTrace: false,
+    autonomous: false
   };
 
   for (const arg of args) {
@@ -49,15 +102,22 @@ function parseCliArgs() {
       options.prompt = arg.split("=")[1].trim();
     } else if (arg.startsWith("--output=")) {
       options.outputPath = arg.split("=")[1].trim();
+    } else if (arg.startsWith("--artifact-dir=")) {
+      options.artifactDir = arg.split("=")[1].trim();
+    } else if (arg === "--artifact-trace") {
+      options.artifactTrace = true;
     } else if (arg === "--keep-video") {
       options.keepVideo = true;
     } else if (arg === "--dry-run") {
       options.dryRun = true;
+    } else if (arg === "--autonomous" || arg === "--auto") {
+      options.autonomous = true;
     }
   }
 
   return options;
 }
+
 
 async function loadPlaywright() {
   const candidates = [];
@@ -249,24 +309,35 @@ async function analyzeWithAgenticVideo(videoPath, customPrompt) {
   }
 }
 
-async function main() {
-  const options = parseCliArgs();
-
-  console.log("================================================================");
-  console.log("  BookmarkFlow Bar Agentic Motion & Video QA");
-  console.log(`  Hedef Yuzey: ${options.surface.toUpperCase()} | Sure: ~${options.duration}s`);
-  console.log("================================================================");
+async function inspectSingleSurface(surface, options, artifactDir) {
+  console.log("----------------------------------------------------------------");
+  console.log(`  [Hedef Yuzey: ${surface.toUpperCase()}] Video Kaydi ve Akicilik Denetimi (~${options.duration}s)`);
+  console.log("----------------------------------------------------------------");
 
   if (options.dryRun) {
-    console.log("[Dry-Run] Script ve Playwright baglantisi dogrulandi.");
-    return;
+    console.log(`[Dry-Run] ${surface} yuzeyi ve Playwright simülasyonu dogrulandi.`);
+    return true;
   }
 
   let videoPath = "";
+  let isArtifactSaved = false;
+  const timestamp = Date.now();
+
   try {
-    console.log("[1/3] Canli tarayicida video kaydi aliniyor...");
-    videoPath = await recordMotionVideo(options);
+    console.log("[1/3] Canli Chromium tarayicisinda video kaydi aliniyor...");
+    videoPath = await recordMotionVideo({ ...options, surface });
     console.log(`[OK] Video kaydedildi: ${videoPath}`);
+
+    // Istege bagli kalici izleme (--artifact-trace)
+    if (options.artifactTrace && artifactDir && existsSync(artifactDir)) {
+      const traceName = `live_motion_qa_${surface}_${timestamp}.webm`;
+      const tracePath = path.join(artifactDir, traceName);
+      await fs.copyFile(videoPath, tracePath);
+      const traceUri = "file:///" + tracePath.replace(/\\/g, "/");
+      console.log(`[ArtifactTrace] Kalici iz kaydedildi: [ARTIFACT: ${traceName.replace(".webm", "")}]`);
+      console.log(`URI: ${traceUri}`);
+      isArtifactSaved = true;
+    }
 
     console.log("[2/3] Gemini Agentic Video motoru ile analiz ediliyor...");
     const analysis = await analyzeWithAgenticVideo(videoPath, options.prompt);
@@ -278,22 +349,74 @@ async function main() {
 
       const hasIssue = /hata|kusur|jank|frame drop|gecikme|titreme|yirtilma|problem/i.test(analysis);
       if (hasIssue) {
-        console.warn("[DIKKAT] Animasyon akiciliginda kusur tespit edildi!");
+        console.warn(`[DIKKAT] ${surface} yuzeyi animasyon akiciliginda kusur tespit edildi!`);
+        if (!isArtifactSaved && artifactDir && existsSync(artifactDir)) {
+          const issueName = `live_motion_qa_${surface}_${timestamp}_issue.webm`;
+          const issuePath = path.join(artifactDir, issueName);
+          await fs.copyFile(videoPath, issuePath);
+          const issueUri = "file:///" + issuePath.replace(/\\/g, "/");
+          console.log(`\n================================================================`);
+          console.log(`[ARTIFACT: ${issueName.replace(".webm", "")}]`);
+          console.log(`URI: ${issueUri}`);
+          console.log(`[AgenticVideoQA] Kusur tespit edildigi icin video otomatik kalici arsive kaydedildi.`);
+          console.log(`================================================================\n`);
+          isArtifactSaved = true;
+        }
+        return false;
       } else {
-        console.log("[PASS] 60 FPS akicilik ve animasyon gecisleri kusursuz onaylandi.");
+        console.log(`[PASS] ${surface} yuzeyi 60 FPS akicilik ve animasyon gecisleri kusursuz onaylandi.`);
+        return true;
       }
     } else {
       console.log("[Bilgi] Video kaydedildi, harici analiz calistirilamadi (GEMINI_API_KEY veya uv baglantisi kontrol edilmeli).");
+      return true;
     }
   } finally {
-    if (!options.keepVideo && videoPath && existsSync(videoPath)) {
+    if (!options.keepVideo && !isArtifactSaved && videoPath && existsSync(videoPath)) {
       try {
         await fs.unlink(videoPath);
-        console.log("[Auto-Purge] Gecici video temizlendi.");
+        console.log("[Auto-Purge] Gecici video temizlendi (Disk sizintisi onlendi).");
       } catch {}
     } else if (videoPath && existsSync(videoPath)) {
-      console.log(`[KeepVideo] Video korundu: ${videoPath}`);
+      console.log(`[Video Korundu]: ${videoPath}`);
     }
+  }
+}
+
+async function main() {
+  const options = parseCliArgs();
+  const artifactDir = getArtifactDirectory(options.artifactDir);
+
+  console.log("================================================================");
+  console.log("  BookmarkFlow Bar Agentic Motion & Video QA");
+  console.log("  Yapay Zeka Otonom Inisiyatifi & Canli Akicilik Denetimi");
+  console.log("================================================================");
+
+  let surfaces = [];
+  if (options.autonomous || options.surface === "auto") {
+    console.log("[Otonom Karar Modu] Degisen arayuz dosyalari taraniyor...");
+    const detected = await detectAutonomousSurfaces();
+    if (detected.length === 0) {
+      console.log("[Otonom Karar] Dinamik hareket/animasyon dosyalarinda degisiklik saptanmadi.");
+      console.log("[Otonom Karar] Statik birim/sozlesme dogrulamalari yeterlidir (Zero-Waste).");
+      return;
+    }
+    surfaces = detected;
+    console.log(`[Otonom Karar] Dinamik denetim gerektiren yuzeyler: ${surfaces.join(", ")}`);
+  } else if (options.surface === "all") {
+    surfaces = ["bar", "spotlight", "newtab"];
+  } else {
+    surfaces = [options.surface];
+  }
+
+  let allPass = true;
+  for (const surface of surfaces) {
+    const passed = await inspectSingleSurface(surface, options, artifactDir);
+    if (!passed) allPass = false;
+  }
+
+  if (!allPass) {
+    process.exitCode = 1;
   }
 }
 

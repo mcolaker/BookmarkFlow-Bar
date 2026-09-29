@@ -46,10 +46,25 @@ Bu kılavuz, BookmarkFlow Bar kullanıcı arayüzü, tasarım sistemi, erişileb
 
 ---
 
-## 5. Agentic Motion & Medya Kalite Standardı (`scripts/inspect-motion-qa.mjs`, `scripts/validate-media-qa.mjs`)
+## 5. Agentic Motion, Medya Kalite Standardı ve Otonom Video İnisiyatifi (`scripts/inspect-motion-qa.mjs`, `scripts/validate-media-qa.mjs`)
 
-- **Canlı Akıcılık Denetimi (`npm run qa:motion`)**:
-  - Sayfa içi çubuk genişleme/daralma, Spotlight açılış yay fiziği ve New Tab geçişleri Playwright video kaydı (`recordVideo`) ve Gemini Flash Interactions API (`processing: "agentic"`) ile denetlenir.
-  - Saniyede 60 kare akıcılık, sayfa içeriği itilmesinde (`offsetPage`) reflow sıfır-yırtılma garantisi alınır.
+- **Yapay Zeka Otonom İnisiyatifi (Autonomous Video Authority)**:
+  - Yapay zeka asistanı dinamik yüzeylerde (çubuk açılış/kapanışı, yüzen simge yay fiziği, Spotlight paleti açılışı ve arama öneri kartları geçişi, New Tab modal ve diyalog efektleri) KULLANICIDAN AÇIK TALİMAT VEYA EMİR BEKLEMEZ.
+  - Yapay zeka modeli bu doğrulamayı gerekli gördüğü her senaryoda kendi inisiyatifiyle `scripts/inspect-motion-qa.mjs` (`npm run qa:motion` veya `npm run qa:motion:auto`) çalıştırarak video denetimini icra eder ve Gemini Agentic Video motorunun analizini rapora dahil eder.
+
+- **Kullanım ve Ayrım**:
+  - **Statik Yüzeyler (Birincil Otorite: DOM / Sözleşme Testleri)**: Metinler, rozetler, buton etiketleri, padding, tema renkleri, klavye odak halkaları ve layout taşmaları için milisaniyelik yerel sözleşme testleri (`npm test`) sıfır ek gecikmeyle ve sıfır token maliyetiyle yürütülür.
+  - **Dinamik / Hareketli Yüzeyler (Agentic Video Otoritesi)**: Aşağıdaki alanlarda yapılan değişiklik veya doğrulamalarda 3-5 saniyelik Chromium video kaydı alınır ve Gemini Agentic Video motoruna iletilerek analiz edilir:
+    1. **Sayfa İçi Çubuk (`Alt+Shift+B`)**: Genişleme/daralma yay animasyonları, yüzen simge (`.bf-mark`) mikro-etkileşimi, sayfa itilmesi (`offsetPage`) reflow sıfır-yırtılma garantisi.
+    2. **Spotlight Paleti (`Alt+Shift+K`)**: Merkezde açılış yay fiziği, arama öneri kartları ve hızlı çip geçiş akıcılığı, klasör açılır seçici menü geçişleri.
+    3. **Yeni Sekme (New Tab) ve Modallar**: Ekleme diyaloğu (`#addDialog`), URL sallanma (`shake`) animasyonu, arka plan geçişleri.
+    4. **Akıcılık & Jank Denetimi**: 60 FPS akıcılık, kaydırma takılmaları (frame drop) veya anlık görsel yırtılma (glitch) tespiti.
+
+- **Otomatik Kusur Saklama (Auto Artifact Preservation)**:
+  - Video analizinde kusur (jank, glitch, frame drop, layout defect) tespit edilirse video dosyası silinmez; otomatik olarak `live_motion_qa_<surface>_<timestamp>_issue.webm` adıyla aktif Antigravity artifact dizinine taşınır ve konsola `[ARTIFACT: ...]` URI'si basılır.
+
+- **Otomatik Yaşam Döngüsü (Auto-Purge Lifecycle)**:
+  - Video kaydı temiz geçtiğinde geçici video dosyaları otomatik olarak silinir (`Auto-Purge`); disk ve bellek dolması engellenir (`--keep-video` veya `--artifact-trace` ile manuel saklanabilir).
+
 - **Medya Varlık Kalite Kapısı (`npm run qa:media`)**:
   - Tanıtım videoları, sosyal medya kesitleri ve tur GIF'leri sıfır kişisel veri, tam kadraj (kırpılmamış alt kenarlar) ve görsel hijyen için fail-closed doğrulanır.

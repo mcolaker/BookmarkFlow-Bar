@@ -1286,3 +1286,24 @@ test("url auto-complete https and folder picker dropdown chip contract (BF-UX-01
   assert.match(contentJs, /showContentFolderPickerMenu/u, "content.js must define showContentFolderPickerMenu");
   assert.match(contentJs, /closeContentFolderPickerMenu/u, "content.js must define closeContentFolderPickerMenu");
 });
+
+test("autonomous video trigger authority and lifecycle contract (BF-QA-004)", () => {
+  const inspectMotion = readFileSync(path.join(root, "scripts/inspect-motion-qa.mjs"), "utf8");
+  assert.match(inspectMotion, /function getArtifactDirectory/u, "inspect-motion-qa.mjs must define getArtifactDirectory");
+  assert.match(inspectMotion, /function detectAutonomousSurfaces/u, "inspect-motion-qa.mjs must define detectAutonomousSurfaces");
+  assert.match(inspectMotion, /inspectSingleSurface/u, "inspect-motion-qa.mjs must define inspectSingleSurface");
+  assert.match(inspectMotion, /--autonomous/u, "inspect-motion-qa.mjs must support autonomous flag");
+  assert.match(inspectMotion, /_issue\.webm/u, "inspect-motion-qa.mjs must auto-preserve issue video with _issue suffix");
+  assert.match(inspectMotion, /\[ARTIFACT:\s+/u, "inspect-motion-qa.mjs must emit ARTIFACT token on issue or trace");
+  assert.match(inspectMotion, /Auto-Purge/u, "inspect-motion-qa.mjs must declare Auto-Purge lifecycle");
+
+  const agents = readFileSync(path.join(root, "AGENTS.md"), "utf8");
+  assert.match(agents, /Otonom Video İnisiyatifi/u, "AGENTS.md must declare Autonomous Video Trigger Authority");
+
+  const uiPlaybook = readFileSync(path.join(root, "docs/agent-playbooks/ui_accessibility.md"), "utf8");
+  assert.match(uiPlaybook, /Yapay Zeka Otonom İnisiyatifi/u, "ui_accessibility.md must detail autonomous video authority");
+  assert.match(uiPlaybook, /Statik Yüzeyler/u, "ui_accessibility.md must separate static surfaces");
+  assert.match(uiPlaybook, /Dinamik \/ Hareketli Yüzeyler/u, "ui_accessibility.md must separate dynamic surfaces");
+  assert.match(uiPlaybook, /Otomatik Kusur Saklama/u, "ui_accessibility.md must define auto artifact preservation");
+  assert.match(uiPlaybook, /Otomatik Yaşam Döngüsü/u, "ui_accessibility.md must define auto-purge lifecycle");
+});

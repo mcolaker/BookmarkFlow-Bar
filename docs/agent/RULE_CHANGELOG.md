@@ -2,6 +2,14 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-09-29] — Yapay Zeka Otonom Video İnisiyatifi & Dinamik Yüzey Ayrımı Standardı (BF-QA-004 / Karar 19)
+- **P0-19 Otonom Video İnisiyatifi Genişletildi**: Yapay zeka asistanı, dinamik hareket, animasyon akıcılığı, geçiş fiziği veya kaydırma jank şüphesi gördüğü her durumda kullanıcının açık komut vermesini KESİNLİKLE BEKLEMEZ; kendi inisiyatifiyle `scripts/inspect-motion-qa.mjs` (`npm run qa:motion` / `npm run qa:motion:auto`) çalıştırarak video denetimini icra eder.
+- **Statik ve Dinamik Yüzey Ayrımı (Static vs Dynamic Surface Authority)**: Metin, rozet, buton, kontrast ve padding için statik yerel sözleşme testleri (`npm test`) sıfır ek maliyetle işletilir; dinamik hareketli yüzeylerde Agentic Video devreye girer.
+- **Otomatik Kusur Saklama & Kalıcı İz (Auto Artifact Preservation)**: Analiz anında kusur/jank tespit edildiğinde video aktif artifact dizinine kopyalanır (`[ARTIFACT: ...]`); temiz kayıtlarda auto-purge uygulanır.
+- **Akıllı Otonom Yüzey Tespiti (`--autonomous`)**: Git çalışma ağacı analiz edilerek hangi dinamik yüzeyin değiştiği otonom tespit edilir; dinamik arayüz değişikliği yoksa gereksiz video kaydı önlenir (Zero-Waste).
+
+---
+
 ## [2026-09-28] — Agentic Motion & Medya Kalite Standardı (BF-QA-002, BF-QA-003 / Karar 18)
 - **P0-19 Kuralı Tanımlandı**: Sayfa içi çubuk, Spotlight ve New Tab animasyon akıcılığı Playwright ve Gemini Agentic Video (`processing: "agentic"`) motoruyla (`npm run qa:motion`) doğrulanır.
 - **Tanıtım Medyası Kalite Kapısı (`npm run qa:media`)**: Sürüm tanıtım videoları ve tur GIF'leri sıfır kişisel veri ve tam kadraj için otomatik analizden geçirilir.

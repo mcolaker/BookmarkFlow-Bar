@@ -156,6 +156,18 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
   - **İki Dilli Yerelleştirme**:
     - `_locales/en` ve `_locales/tr` sözlüklerine 35 yeni anahtar (`otherFolders`, `chooseFolderToMove`, `currentFolderTag`, `urlAutoCompletedHttps` dahil) eklenerek %100 parite korundu.
 
+### 🎥 10. Yapay Zeka Otonom Video İnisiyatifi ve Otomatik Dinamik Yüzey Denetimi (BF-QA-004 / Karar 19)
+- **Model Otonom İnisiyatifi (Autonomous Video Trigger Authority)**:
+  - Yapay zeka asistanı, dinamik hareket, animasyon akıcılığı, geçiş fiziği veya kaydırma jank şüphesi gördüğü her durumda kullanıcının açık komut vermesini KESİNLİKLE BEKLEMEDEN kendi inisiyatifiyle `scripts/inspect-motion-qa.mjs` (`npm run qa:motion` / `npm run qa:motion:auto`) çalıştırarak video denetimini icra eder.
+- **Statik ve Dinamik Yüzey Ayrımı**:
+  - Statik kontroller (DOM/erişilebilirlik/metin/renkler) hızlı sözleşme testleriyle (`npm test`) sıfır ek maliyetle yürütülür; hareketli yüzeyler (Sayfa içi çubuk, Spotlight paleti, New Tab efektleri) ise Agentic Video motoruyla otonom denetlenir.
+- **Otomatik Kusur Saklama & Kalıcı İz (Auto Artifact Preservation)**:
+  - Video analizinde kusur (jank, glitch, frame drop, layout defect) tespit edildiğinde video aktif artifact dizinine kopyalanır (`live_motion_qa_<surface>_<timestamp>_issue.webm`) ve konsola `[ARTIFACT: ...]` URI'si basılır.
+- **Otomatik Yaşam Döngüsü (Auto-Purge)**:
+  - Analiz temiz geçtiğinde geçici video dosyaları otomatik silinerek disk ve bellek şişmesi engellenir.
+- **Akıllı Otonom Yüzey Tespiti (`--autonomous`)**:
+  - Git çalışma ağacındaki değişiklikler (`git status --porcelain`) incelenerek hangi dinamik yüzeyin değiştiği (`bar`, `spotlight`, `newtab` veya `all`) otonom tespit edilir; dinamik arayüz değişikliği yoksa gereksiz video kaydı ve token tüketimi önlenir (Zero-Waste).
+
 ---
 
 ### 📋 Etkilenen Dosyalar ve Bileşenler
@@ -170,9 +182,9 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - `scripts/intent-router.test.mjs`: `BookmarkIntentRoutingEngine` için 7 adet bağımsız birim testi.
 - `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014`, `BF-UX-015`, `BF-UX-016`, `BF-UX-017` ve `BF-UX-018` sözleşme testleri.
 - `scripts/governance-contract.test.mjs`, `scripts/validate-governance.mjs`: Yönetişim ve Operating Kernel sözleşme testleri (`BF-GOV-010`).
-- `AGENTS.md`: Operating Kernel, P0 kuralları (P0-18 eklendi), Task Router ve Zorunlu Rapor Şablonu.
-- `docs/agent/`: `DECISION_INDEX.md` (Karar 17 eklendi), `PROJECT_STATE.md`, `RULE_CHANGELOG.md`.
-- `docs/agent-playbooks/`: 6 modüler alan kılavuzu (Bölüm 5 Intent Routing Engine eklendi, UI el kitabına Motion & Media QA eklendi).
-- `scripts/inspect-motion-qa.mjs`: Playwright ve Gemini Agentic Video canlı web akıcılık denetim aracı (`npm run qa:motion`).
+- `AGENTS.md`: Operating Kernel, P0 kuralları (P0-18 ve P0-19 Otonom Video İnisiyatifi eklendi), Task Router ve Zorunlu Rapor Şablonu.
+- `docs/agent/`: `DECISION_INDEX.md` (Karar 18 ve Karar 19 eklendi), `PROJECT_STATE.md`, `RULE_CHANGELOG.md`.
+- `docs/agent-playbooks/`: 6 modüler alan kılavuzu (Bölüm 5 Intent Routing Engine eklendi, UI el kitabına Otonom Motion & Media QA eklendi).
+- `scripts/inspect-motion-qa.mjs`: Playwright ve Gemini Agentic Video canlı web akıcılık denetim aracı, otonom yüzey algılama (`--autonomous`), otomatik kusur saklama ve auto-purge (`npm run qa:motion`, `npm run qa:motion:auto`).
 - `scripts/validate-media-qa.mjs`: Tanıtım videoları ve medya varlıkları kalite doğrulayıcısı (`npm run qa:media`).
-- `package.json`: `qa:motion` ve `qa:media` komutları eklendi.
+- `package.json`: `qa:motion`, `qa:motion:auto` ve `qa:media` komutları eklendi.
