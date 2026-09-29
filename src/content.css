@@ -34,13 +34,16 @@
   pointer-events: none;
 }
 
-:host([hidden]),
-:host(.is-snoozed:not(:has(.bf-toast:not([hidden])))) {
+:host([hidden]) {
   display: none !important;
 }
 
 :host(.is-snoozed) {
   pointer-events: none !important;
+}
+
+:host(.is-snoozed) .bf-edge-restore {
+  pointer-events: auto !important;
 }
 
 :host([data-theme="oled-black"]),
@@ -1838,4 +1841,51 @@
   font-size: 10px;
   color: #94a3b8;
   font-style: italic;
+}
+
+.bf-edge-restore {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 3px;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  opacity: 0;
+  z-index: 2147483646;
+  pointer-events: auto !important;
+  cursor: pointer;
+  transition: opacity 0.22s ease, width 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+}
+
+.bf-edge-restore:hover,
+.bf-edge-restore:focus-visible {
+  width: 5px;
+  opacity: 1;
+  background: linear-gradient(180deg, transparent, rgba(242, 201, 76, 0.4) 15%, rgba(242, 201, 76, 0.95) 50%, rgba(242, 201, 76, 0.4) 85%, transparent);
+  box-shadow: -2px 0 12px rgba(242, 201, 76, 0.55);
+  outline: none;
+}
+
+.bf-edge-restore:active {
+  width: 6px;
+  background: var(--bf-theme-accent, #f2c94c);
+  box-shadow: -3px 0 16px rgba(242, 201, 76, 0.85);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bf-edge-restore {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .bf-edge-restore:hover,
+  .bf-edge-restore:focus-visible {
+    background: Highlight;
+    box-shadow: none;
+    border-left: 2px solid Highlight;
+  }
 }

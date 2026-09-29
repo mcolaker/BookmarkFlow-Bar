@@ -564,10 +564,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       clearPageOffset();
       shadow.querySelector(".bf-app")?.remove();
       host.classList.add("is-snoozed");
+      renderEdgeRestoreStrip();
       restoreFocusTarget(modalReturnFocus);
       return;
     }
 
+    removeEdgeRestoreStrip();
     host.classList.remove("is-snoozed");
     host.hidden = false;
     render();
@@ -877,20 +879,27 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     return Math.min(max, Math.max(min, value));
   }
 
-  function renderRestoreButton() {
-    applyPanelPlacement();
-    shadow.querySelector(".bf-app")?.remove();
+  function renderEdgeRestoreStrip() {
+    if (!shadow || shadow.querySelector(".bf-edge-restore")) {
+      return;
+    }
 
-    const app = document.createElement("div");
-    app.className = "bf-app is-snoozed";
-    app.innerHTML = `
-      <button class="bf-restore" type="button" data-bf-action="restore" data-bf-drag-handle="true" title="${escapeAttribute(t("dragOrOpen"))}" aria-label="${escapeAttribute(t("dragOrOpen"))}">BF</button>
-      <div class="bf-context-menu" hidden></div>
-    `;
+    const strip = document.createElement("button");
+    strip.type = "button";
+    strip.className = "bf-edge-restore";
+    strip.setAttribute("aria-label", t("restoreBar") || "Show Bar");
+    strip.setAttribute("title", t("restoreBar") || "Show Bar (Alt + Shift + H)");
+    strip.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      runExternalCommand("hide-restore");
+    });
 
-    shadow.append(app);
-    applyPanelPlacement();
-    bindShadowEvents(app);
+    shadow.append(strip);
+  }
+
+  function removeEdgeRestoreStrip() {
+    shadow?.querySelector(".bf-edge-restore")?.remove();
   }
 
   function render() {
@@ -4716,6 +4725,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       autoHiddenSensitive: Boolean(settings.autoHideSensitiveSites && isSensitiveHost(hostName)),
       dockedBottom: shouldUseBottomDock(),
       snoozed: isSnoozed,
+      edgeRestoreActive: Boolean(isSnoozed && shadow?.querySelector(".bf-edge-restore")),
       expanded: isExpanded,
       renderedAppExpanded: Boolean(renderedApp?.classList.contains("is-expanded")),
       renderedAppVisible: Boolean(renderedAppVisible && !isSnoozed),
@@ -5005,6 +5015,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     closeContextMenu();
     closeCommandPalette({ restoreFocus: false });
     closeAddBookmarkDialog({ restoreFocus: false });
+    removeEdgeRestoreStrip();
     host?.remove();
     host = null;
     shadow = null;

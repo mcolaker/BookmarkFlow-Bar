@@ -597,6 +597,12 @@ async function main() {
     })()`);
     console.log("  📊 [Gizleme Sonrası Çubuk Durumu]:", JSON.stringify(statusAfterHide, null, 2));
 
+    // BF-UX-021: Minimalist Edge Peek Strip (.bf-edge-restore) Teftişi
+    console.log(`  ✓ [BF-UX-021 Teftişi] Minimalist Edge Peek Strip (.bf-edge-restore) aktif mi: ${statusAfterHide?.edgeRestoreActive}`);
+    if (!statusAfterHide?.edgeRestoreActive) {
+      throw new Error("BF-UX-021: Çubuk gizlendiğinde .bf-edge-restore aktifleşmedi!");
+    }
+
     // BF-UX-020: Popup Site Kontrol Kartında 'Çubuğu Göster' (restoreBarBtn) Buton Mantığı Teftişi
     console.log("  👁️ [BF-UX-020 Teftişi] Popup site kontrol kartındaki 'Çubuğu Göster' butonu mantığı doğrulanıyor...");
     const popupCanRestore = Boolean(

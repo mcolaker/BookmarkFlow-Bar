@@ -1440,3 +1440,18 @@ test("popup site control restore bar button contract (BF-UX-020)", () => {
   assert.ok(trMessages.restoreBar?.message, "tr messages must define restoreBar");
   assert.ok(enMessages.restoreBar?.message, "en messages must define restoreBar");
 });
+
+test("edge peek restore strip contract (BF-UX-021)", () => {
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-edge-restore\b/u, "content.css must define .bf-edge-restore");
+  assert.match(contentCss, /:host\(\.is-snoozed\)\s+\.bf-edge-restore/u, "content.css must enable pointer-events for .bf-edge-restore under snoozed host");
+  assert.match(contentCss, /\.bf-edge-restore:hover/u, "content.css must style .bf-edge-restore on hover");
+  assert.match(contentCss, /forced-colors:\s*active/u, "content.css must support forced-colors for .bf-edge-restore");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /function renderEdgeRestoreStrip/u, "content.js must define renderEdgeRestoreStrip");
+  assert.match(contentJs, /function removeEdgeRestoreStrip/u, "content.js must define removeEdgeRestoreStrip");
+  assert.match(contentJs, /strip\.className\s*=\s*"bf-edge-restore"/u, "content.js must set bf-edge-restore class");
+  assert.match(contentJs, /runExternalCommand\("hide-restore"\)/u, "content.js must trigger hide-restore on strip click");
+  assert.match(contentJs, /edgeRestoreActive:/u, "getPageInfo must expose edgeRestoreActive state");
+});
