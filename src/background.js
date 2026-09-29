@@ -50,6 +50,35 @@ const CONTENT_COMMANDS = new Set([
 ]);
 
 let settingsMigrationReady = null;
+const snoozedTabIds = new Set();
+
+function updateTabSnoozeIndicator(tabId, snoozed) {
+  if (!tabId || !chrome.action) return;
+  if (snoozed) {
+    snoozedTabIds.add(tabId);
+    if (chrome.action.setBadgeText) {
+      chrome.action.setBadgeText({ text: "off", tabId }).catch(() => {});
+    }
+    if (chrome.action.setBadgeBackgroundColor) {
+      chrome.action.setBadgeBackgroundColor({ color: "#2d3748", tabId }).catch(() => {});
+    }
+    if (chrome.action.setBadgeTextColor) {
+      chrome.action.setBadgeTextColor({ color: "#f2c94c", tabId }).catch(() => {});
+    }
+    if (chrome.action.setTitle) {
+      const snoozedTitle = t("actionTitleSnoozed") || "BookmarkFlow Bar is hidden on this tab (Click to open or press Alt+Shift+H)";
+      chrome.action.setTitle({ title: snoozedTitle, tabId }).catch(() => {});
+    }
+  } else {
+    snoozedTabIds.delete(tabId);
+    if (chrome.action.setBadgeText) {
+      chrome.action.setBadgeText({ text: "", tabId }).catch(() => {});
+    }
+    if (chrome.action.setTitle) {
+      chrome.action.setTitle({ title: "", tabId }).catch(() => {});
+    }
+  }
+}
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   const consent = await getDataConsentStatus();
@@ -116,6 +145,30 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 ].forEach((eventName) => {
   chrome.bookmarks[eventName]?.addListener(scheduleBroadcast);
 });
+
+if (typeof chrome.tabs?.onActivated?.addListener === "function") {
+  chrome.tabs.onActivated.addListener((activeInfo) => {
+    if (activeInfo?.tabId) {
+      const isSnoozed = snoozedTabIds.has(activeInfo.tabId);
+      updateTabSnoozeIndicator(activeInfo.tabId, isSnoozed);
+    }
+  });
+}
+
+if (typeof chrome.tabs?.onRemoved?.addListener === "function") {
+  chrome.tabs.onRemoved.addListener((tabId) => {
+    snoozedTabIds.delete(tabId);
+  });
+}
+
+if (typeof chrome.tabs?.onUpdated?.addListener === "function") {
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if (changeInfo.status === "loading" && changeInfo.url) {
+      snoozedTabIds.delete(tabId);
+      updateTabSnoozeIndicator(tabId, false);
+    }
+  });
+}
 
 let broadcastTimer = 0;
 
@@ -225,16 +278,8 @@ function routeMessage(message, sender) {
 
   if (message?.type === MESSAGE_SET_TAB_SNOOZED || message?.type === "BF_SET_TAB_SNOOZED") {
     const tabId = message.tabId || sender?.tab?.id;
-    if (tabId && chrome.action?.setBadgeText) {
-      if (message.snoozed) {
-        chrome.action.setBadgeText({ text: "off", tabId }).catch(() => {});
-        chrome.action.setBadgeBackgroundColor({ color: "#2d3748", tabId }).catch(() => {});
-        if (chrome.action?.setBadgeTextColor) {
-          chrome.action.setBadgeTextColor({ color: "#f2c94c", tabId }).catch(() => {});
-        }
-      } else {
-        chrome.action.setBadgeText({ text: "", tabId }).catch(() => {});
-      }
+    if (tabId) {
+      updateTabSnoozeIndicator(tabId, Boolean(message.snoozed));
     }
     return Promise.resolve({ ok: true });
   }

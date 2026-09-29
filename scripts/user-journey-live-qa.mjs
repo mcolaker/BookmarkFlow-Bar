@@ -614,6 +614,17 @@ async function main() {
       throw new Error(`BF-UX-022: Çubuk gizlendiğinde badge metni "off" olmadı, alınan: "${badgeTextAfterHide}"`);
     }
 
+    // BF-UX-023: Snooze Tooltip (chrome.action.getTitle) Teftişi
+    const badgeTitleAfterHide = await evaluate(cdp, workerSession, `(async () => {
+      const tabs = await chrome.tabs.query({});
+      const targetTab = tabs.find(t => t.url && t.url.includes("127.0.0.1")) || tabs[0];
+      return await chrome.action.getTitle({ tabId: targetTab.id });
+    })()`);
+    console.log(`  ✓ [BF-UX-023 Teftişi] Çubuk gizlendiğinde sekme tooltip başlığı: "${badgeTitleAfterHide}"`);
+    if (!badgeTitleAfterHide || !badgeTitleAfterHide.includes("Alt+Shift+H")) {
+      throw new Error(`BF-UX-023: Çubuk gizlendiğinde sekme tooltip başlığı beklenen metni içermiyor: "${badgeTitleAfterHide}"`);
+    }
+
     // BF-UX-020: Popup Site Kontrol Kartında 'Çubuğu Göster' (restoreBarBtn) Buton Mantığı Teftişi
     console.log("  👁️ [BF-UX-020 Teftişi] Popup site kontrol kartındaki 'Çubuğu Göster' butonu mantığı doğrulanıyor...");
     const popupCanRestore = Boolean(
@@ -656,6 +667,13 @@ async function main() {
     if (badgeTextAfterRestore !== "") {
       throw new Error(`BF-UX-022: Çubuk geri getirildiğinde badge metni temizlenmedi, alınan: "${badgeTextAfterRestore}"`);
     }
+
+    const badgeTitleAfterRestore = await evaluate(cdp, workerSession, `(async () => {
+      const tabs = await chrome.tabs.query({});
+      const targetTab = tabs.find(t => t.url && t.url.includes("127.0.0.1")) || tabs[0];
+      return await chrome.action.getTitle({ tabId: targetTab.id });
+    })()`);
+    console.log(`  ✓ [BF-UX-023 Teftişi] Çubuk geri getirildiğinde sekme tooltip başlığı: "${badgeTitleAfterRestore}"`);
 
     // ==============================================================
     // OTONOM DEVTOOLS & MODERN WEB GUIDANCE TEFTİŞİ:

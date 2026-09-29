@@ -496,5 +496,6 @@
   "otherFolders": { "message": "Other Folders…" },
   "chooseFolderToMove": { "message": "Choose Folder to Move" },
   "currentFolderTag": { "message": "(current)" },
-  "urlAutoCompletedHttps": { "message": "Protocol auto-completed (https://)" }
+  "urlAutoCompletedHttps": { "message": "Protocol auto-completed (https://)" },
+  "actionTitleSnoozed": { "message": "BookmarkFlow Bar is hidden on this tab (Click to open or press Alt+Shift+H)" }
 }

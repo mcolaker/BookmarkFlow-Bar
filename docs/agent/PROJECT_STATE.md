@@ -22,7 +22,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 99/99 PASS (%100 yeşil).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 100/100 PASS (%100 yeşil).
 - **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog sözleşmeleri temiz).
 - **Biçim ve Satır Sonu**: `git diff --check` -> Sıfır hata (CRLF/LF normalize, EOF boş satırsız).
 - **Gizli Veri Denetimi**: Sıfır API anahtarı, sıfır token, sıfır mutlak kullanıcı yolu.
@@ -49,6 +49,7 @@ Kullanıcının talimatı doğrultusunda, yeni sürüm yayınlanana kadar PR aç
 14. **Popup Menüsünde Tek Tıkla 'Çubuğu Göster' Butonu Entegrasyonu (BF-UX-020)**: Popup açıldığında aktif sekmede çubuk gizlenmişse (`activePage.snoozed === true`) doğrudan çalışan tek tıkla `[👁️ Çubuğu Göster]` (`#restoreBarBtn`, `.site-restore-btn`) eylem butonu, tıklandığında `BF_RUN_COMMAND` ("hide-restore") ile çubuğun anında geri gelmesi, durum metninin güncellenmesi ve butonun gizlenmesi; yüksek kontrast forced-colors desteği.
 15. **Ekran Kenarı Minimalist Geri Getirme Tutamacı (Edge Peek Strip - BF-UX-021)**: Çubuk gizlendiğinde ekranın en sağ sınırında normalde %100 şeffaf, yalnızca fare ekranın sıfır piksel kenarına dayandığında çok hafif altın ışıltısıyla beliren 3 piksellik mikro bir dokunma çizgisi (`.bf-edge-restore`), tıklandığında çubuğun anında geri gelmesi, `getPageInfo` `edgeRestoreActive` teftişi ve yüksek kontrast desteği.
 16. **Sayfa İçi Çubuk Gizlendiğinde Popup İkonuna Geçici Mikro Rozet (Snooze Badge Indicator - BF-UX-022)**: Çubuk gizlendiğinde aktif sekmeye özel olarak tarayıcı araç çubuğundaki eklenti simgesi üzerine hafif bir gri/altın mikro rozet (`chrome.action.setBadgeText({ text: "off", tabId })`, `setBadgeBackgroundColor({ color: "#2d3748" })`, `setBadgeTextColor({ color: "#f2c94c" })`) yerleştirilmesi, çubuk geri açıldığında (`text: ""`) rozetin temizlenmesi; sekmeler arası tam izolasyon ve canlı kullanıcı yolculuğu teftişi.
+17. **Gizlenme Durumunda Eklenti Simgesine Dinamik Tooltip ve Sekmeler Arası Senkronizasyon (BF-UX-023)**: Çubuk gizlendiğinde tarayıcı araç çubuğundaki eklenti simgesinin üzerine gelindiğinde beliren tooltip metninin sekmeye özel olarak (`chrome.action.setTitle({ title: "BookmarkFlow Bar bu sekmede gizlendi (Açmak için tıklayın veya Alt+Shift+H)", tabId })`) güncellenmesi, çubuk geri açıldığında varsayılana dönmesi; `chrome.tabs.onActivated`, `onRemoved` ve `onUpdated` dinleyicileriyle sekmeler arası geçişte rozet ve tooltip senkronizasyonunun %100 korunması.
 
 ---
 

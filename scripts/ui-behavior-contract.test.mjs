@@ -1476,3 +1476,24 @@ test("snooze badge indicator contract (BF-UX-022)", () => {
   assert.match(journeyJs, /chrome\.action\.getBadgeText/u, "user-journey-live-qa.mjs must inspect badge text via getBadgeText");
   assert.match(journeyJs, /BF-UX-022/u, "user-journey-live-qa.mjs must reference BF-UX-022");
 });
+
+test("snooze action tooltip and tabs synchronization contract (BF-UX-023)", () => {
+  const bgJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(bgJs, /const\s+snoozedTabIds\s*=\s*new\s+Set\(\)/u, "background.js must maintain snoozedTabIds Set");
+  assert.match(bgJs, /chrome\.action\.setTitle\(\{\s*title:\s*snoozedTitle/u, "background.js must set snoozed title via chrome.action.setTitle");
+  assert.match(bgJs, /chrome\.action\.setTitle\(\{\s*title:\s*""/u, "background.js must reset title on restore via chrome.action.setTitle");
+  assert.match(bgJs, /chrome\.tabs\?\.onActivated\?\.addListener/u, "background.js must register chrome.tabs.onActivated listener for tab synchronization");
+  assert.match(bgJs, /chrome\.tabs\?\.onRemoved\?\.addListener/u, "background.js must register chrome.tabs.onRemoved listener to cleanup closed tabs");
+  assert.match(bgJs, /chrome\.tabs\?\.onUpdated\?\.addListener/u, "background.js must register chrome.tabs.onUpdated listener for tab reloads");
+
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  assert.ok(enMessages.actionTitleSnoozed?.message, "en messages must define actionTitleSnoozed");
+  assert.ok(trMessages.actionTitleSnoozed?.message, "tr messages must define actionTitleSnoozed");
+  assert.match(enMessages.actionTitleSnoozed.message, /Alt\+Shift\+H/u, "en actionTitleSnoozed must mention Alt+Shift+H");
+  assert.match(trMessages.actionTitleSnoozed.message, /Alt\+Shift\+H/u, "tr actionTitleSnoozed must mention Alt+Shift+H");
+
+  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
+  assert.match(journeyJs, /chrome\.action\.getTitle/u, "user-journey-live-qa.mjs must inspect tooltip title via getTitle");
+  assert.match(journeyJs, /BF-UX-023/u, "user-journey-live-qa.mjs must reference BF-UX-023");
+});
