@@ -6,20 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-09-29
+
 ### Added
 
 - Add Search Bar Link Capture & Quick Folder Selector (BF-UX-013): Typing a URL into the New Tab search box captures the link into an add dialog instead of navigating away immediately, with quick action cards ("⭐ Add to Bookmarks" and "🌐 Open in New Tab").
 - Add Hierarchical Folder Selector Dropdown (`#addFolderSelect`, `.bf-add-select`): Added folder dropdown selector to both New Tab and in-page Shadow DOM add bookmark dialogs to pick any parent folder before saving.
 - Add Smart Folder Memory (`bfLastUsedFolderId`): Automatically persist the last selected bookmark folder locally and preselect it on subsequent add operations across New Tab, In-Page Dialog, and Omnibox.
+- Add Windows Desktop Companion with Global Hotkey (`Win+Shift+B`), System Tray status icon, and customizable hotkey settings (BF-WIN-001, BF-WIN-002).
 - Add Quick Folder Chips (BF-UX-014): One-click compact folder pills ([⭐ Bar] [📁 Folder 1] [📁 Folder 2]) in add bookmark dialogs for instant folder assignment with two-way dropdown synchronization.
 - Add Instant Folder Save Chips to Search Results (BF-UX-015): Inline mini action buttons in the link capture card to save directly to Bookmarks Bar or top folder with zero intermediate dialog steps.
 - Add Instant Toast Feedback for Direct Saves (BF-UX-016): Golden accent subtle toast notification (`.nt-toast`, `.bf-toast`) shown in New Tab and In-Page Spotlight after saving a bookmark directly to confirm target folder with zero UI friction.
 - Add In-Page Command Palette URL Action (`Alt+Shift+K`): Typing or pasting a web link into the Spotlight command palette surfaces a direct "Add to folder" quick card.
 - Add Chrome Omnibox Keyword Integration (`bf <url>`): Type `bf` in the Chrome address bar to quickly save any link to the bookmarks bar or subfolders without switching tabs.
-- Add Windows Desktop Companion with Global Hotkey (`Win+Shift+B`), System Tray status icon, and customizable hotkey settings.
-- Add JaponiGo Governance & Modular Playbook Architecture (BF-GOV-010): Upgraded `AGENTS.md` to Operating Kernel, established `DECISION_INDEX.md` (16 durable decisions), `PROJECT_STATE.md`, 6 modular domain playbooks (`docs/agent-playbooks/`), Proactive Holistic QA (P0-11), zero-end-user AI invariant (P0-13), mandatory verbatim terminal evidence, and `validate-governance.mjs`.
+- Add JaponiGo Governance & Modular Playbook Architecture (BF-GOV-010): Upgraded `AGENTS.md` to Operating Kernel, established `DECISION_INDEX.md` (durable decisions), `PROJECT_STATE.md`, 6 modular domain playbooks (`docs/agent-playbooks/`), Proactive Holistic QA (P0-11), zero-end-user AI invariant (P0-13), mandatory verbatim terminal evidence, and `validate-governance.mjs`.
 - Add Zero-Latency Intent Engine & Live Smart Routing Badges (BF-UX-017): Instant local rule engine (`BookmarkIntentRoutingEngine` in `src/intent-router.js`) classifying search inputs across 6 modes (URL, command, tag, folder, tab switch, smart search) with live color-coded pill badges (`.nt-intent-badge`, `.bf-intent-badge`), folder deep navigation, and zero-end-user AI terminology.
 - Add Web-based Live Motion QA & Automated Media Quality Gate (BF-QA-002, BF-QA-003): Playwright browser screen recording (`recordVideo`) coupled with Gemini Agentic Video (`processing: "agentic"`) for sub-second jank and frame drop detection (`npm run qa:motion`), alongside automated promotional asset privacy and framing validation (`npm run qa:media`).
+- Add Site Control, MV3 Settings Security, Inline Save/Edit, URL Validation & Live Folder Move Chips (BF-UX-018): MV3 settings tab opening via Service Worker (`BF_OPEN_SETTINGS`), inline `[⭐ Save]` button with `Ctrl+S` shortcut, dynamic folder tooltip, save pulse animation, escape clear undo shortcut (`queryRestoredToast`), edit mode with URL unlock (`#addUrlUnlockBtn`), auto-protocol completion (`https://`), live folder move chips (`[⭐ Move to Bar]`, `[📁 Move to Folder]`), mini folder picker dropdown chip (`[📁▾]`), universal toast undo with `Ctrl+Z`, visual progress bar, hover-pause, and popup layout integrity fix.
+- Add Autonomous Video Trigger Authority & Motion QA Lifecycle (BF-QA-004): P0-19 operating rule granting AI assistant authority to autonomously inspect dynamic transitions (`inspect-motion-qa.mjs`), hardware frame counter (FPS Dropped-Frame Inspector) during live user journey, defect auto-artifact preservation, and auto-purge for clean runs.
+- Add Autonomous DevTools, Web Guidance & Gemini API Authority (BF-GOV-011): P0-20 rule authorizing autonomous inspection of closed Shadow DOM isolation, a11y focus rings, CSS and memory leaks.
+- Add Modern Web Guidance Centralized Design Tokens (`src/design-tokens.css`): Centralized gold-obsidian color tokens, OLED Black and Emerald Matrix palettes, blur, border radii, focus rings, and spring physics variables across all stylesheets.
+- Add Forced-Colors High Contrast Accessibility (BF-GOV-012, BF-GOV-013): `@media (forced-colors: active)` support using system colors (`Canvas`, `CanvasText`, `Highlight`, `ButtonBorder`) across in-page bar, New Tab, Popup, Spotlight (`src/spotlight.css`), Settings (`src/settings.css`), and Onboarding (`src/onboarding.css`).
+- Add Full In-Page Bar Concealment & Restore Lifecycle (`Alt+Shift+H`, BF-UX-019): Complete concealment of in-page bar with zero lingering pixels, 2s toast guidance, and instant restoration via `Alt+Shift+H`, `Alt+Shift+B`, or `Alt+Shift+K`.
+- Add Single-Click Show Bar Button to Popup Site Control Card (BF-UX-020): Single-click gold-accented `[👁️ Show Bar]` action button in extension popup when the bar is hidden on active tab.
+- Add Minimalist Edge Peek Restore Strip (BF-UX-021): Subtle 3px touch area at extreme right screen edge when bar is hidden, glowing on hover and restoring bar on click.
+- Add Snooze Badge Indicator on Extension Icon (BF-UX-022): Temporary subtle "off" badge (`chrome.action.setBadgeText`) placed on extension toolbar icon while bar is hidden on that tab, auto-cleared on restore.
+- Add Dynamic Snooze Action Tooltip & Multi-Tab Synchronization (BF-UX-023): Tab-specific tooltip (`chrome.action.setTitle`) explaining snooze status with shortcut hint, paired with `chrome.tabs.onActivated` listener ensuring seamless multi-tab synchronization.
 
 
 

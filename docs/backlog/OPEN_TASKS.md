@@ -1,6 +1,6 @@
 # BookmarkFlow Bar Açık İşler
 
-Son güncelleme: 2026-09-28
+Son güncelleme: 2026-09-29
 
 Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kuralları için [AGENTS.md](../../AGENTS.md) otoritedir.
 
@@ -633,4 +633,13 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Kabul kriteri: `_locales/en` ve `_locales/tr` `actionTitleSnoozed` anahtarını tanımlar; `src/background.js` `snoozedTabIds`, `updateTabSnoozeIndicator`, `chrome.action.setTitle` ve `chrome.tabs.onActivated` dinleyicilerini içerir; sekmeler arası geçişte rozet/tooltip senkronize kalır; `scripts/user-journey-live-qa.mjs` ve `scripts/ui-behavior-contract.test.mjs` sözleşmeleri yeşil geçer; 100/100 test ve `npm run validate:all` sıfır hatayla tamamlanır.
 - Doğrulama kapısı: 100/100 test başarılı (`npm test`); `scripts/ui-behavior-contract.test.mjs` içinde `BF-UX-023` sözleşme testi doğrulandı; `scripts/user-journey-live-qa.mjs --dry-run` başarılı; `node scripts/validate-backlog.mjs` sıfır hatayla geçti; `npm run validate:all` sıfır hatayla geçti; `git diff --check` temizdir.
 - Sonraki adım: Yok; gizlenme durumunda dinamik tooltip ve sekmeler arası senkronizasyon başarıyla tamamlandı ve doğrulandı.
+- Son güncelleme: 2026-09-29.
+
+## BF-REL-012 - v0.3.0 Sürümünü Hazırla, Çapraz Tarayıcı Paketlerini Üret, GitHub Release ve Chrome Web Store Dağıtımını Gerçekleştir
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-09-29 tarihinde 18 temel yeni özelliği ve mimari gelişmeyi kapsayan devasa dönüm noktası sürümünün (v0.3.0) hem GitHub üzerinde hem de Chrome Web Store üzerinde yayımlanmasını talep etti. `manifest.json`, `package.json`, `CHANGELOG.md` ve `README.md` sürüm referansları 0.3.0 olarak eşitlendi. `docs/UNRELEASED_CHANGES.md` içerisindeki tüm unreleased maddeler `CHANGELOG.md` altına taşınarak unreleased günlüğü yeni döngüye sıfırlandı. `node scripts/package-release.mjs v0.3.0` ve `node scripts/package-cross-browser.mjs` ile Chromium, Firefox ve Edge paketleri ile SHA-256 sağlama toplamları üretildi. `feature/link-capture-and-quick-folder-add-bf-ux-013` dalındaki tüm commit'ler (36 commit) `main` dalına fast-forward merge edildi ve push edildi; annotated `v0.3.0` etiketi oluşturularak GitHub'a push edildi. Chrome Web Store mağaza güncelleme notları, reviewer notes ve iki dilli metinler hazırlandı; 1200x675 X ve 1200x627 LinkedIn lansman kartları üretildi.
+- Kabul kriteri: `manifest.json`, `package.json` ve `CHANGELOG.md` 0.3.0 sürümünü taşır; `README.md` zorunlu kural uyarınca v0.3.0 rozetleri, indirme bağlantıları ve yeni özellik açıklamaları ile güncellenir; `main` dalına merge edilip push edilir; annotated `v0.3.0` etiketi oluşturulup push edilir; Chromium, Firefox ve Edge dağıtım paketleri ile SHA-256 sağlama toplamları üretilir; X ve LinkedIn için lansman görselleri ve duyuru kiti hazırlanır; Chrome Web Store için hazır paketler ve mağaza metinleri teslim edilir; tüm testler ve doğrulama kapıları sıfır hatayla geçer.
+- Doğrulama kapısı: 100/100 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` (açık kaynak, DCO, public tree, manifest, backlog, governance ve medya QA sözleşmeleri) sıfır hatayla geçti; `git diff --check` temizdir; exact-tag ZIP ve SHA-256 paketleri üretildi; `main` ve `v0.3.0` etiketi uzak repoya iletildi.
+- Sonraki adım: Yok; v0.3.0 dönüm noktası sürümü GitHub'da yayımlandı, çapraz tarayıcı paketleri doğrulandı ve Chrome Web Store mağaza dağıtım kiti hazırlandı.
 - Son güncelleme: 2026-09-29.

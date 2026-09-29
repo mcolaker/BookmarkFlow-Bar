@@ -16,6 +16,12 @@ Normal web sayfalarına özelleştirilebilir, çok satırlı bir yer imi çubuğ
 
 ÖNE ÇIKAN ÖZELLİKLER
 
+• Arama çubuğundan doğrudan bağlantı yakalama ve tek tıkla klasör çipleri (aramadan ayrılmadan kayıt)
+• Canlı akıllı rozetlere sahip sıfır gecikmeli yerel niyet yönlendirme motoru (URL, komut, etiket, klasör, sekme)
+• Sayfa içi çubuğu tam gizleme (Alt+Shift+H), ekran kenarı minimalist geri getirme tutamacı ve araç çubuğu rozetleri
+• Görsel ilerleme çubuklu evrensel geri alma (Ctrl+Z) ve anlık bildirim rozetleri
+• Merkezi obsidyen tasarım token'ları ve Windows yüksek kontrast (forced-colors) erişilebilirliği
+• İsteğe bağlı Windows Masaüstü Companion ve küresel sistem kısayolları (Win+Shift+B)
 • Tek tıkla veya klavye komutuyla tüm açık sekmeleri klasöre kaydetme (#stash)
 • Yer imleri, ayarlar, etiketler ve okuma listesi için çevrimdışı JSON yedekleme ve geri yükleme
 • Sıfır-bulut akıllı otomatik etiketleme (#tag) ve Spotlight etiket filtreleme

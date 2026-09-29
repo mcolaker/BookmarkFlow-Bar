@@ -1,8 +1,8 @@
 # PROJECT_STATE.md — BookmarkFlow Bar Canlı Proje Durumu
 
-Son güncelleme: 2026-09-28
-Aktif Sürüm: `0.2.1` (Sıradaki: `0.3.0` Taslağı)
-Aktif Dal: `feature/link-capture-and-quick-folder-add-bf-ux-013`
+Son güncelleme: 2026-09-29
+Aktif Sürüm: `0.3.0`
+Aktif Dal: `main` (Sürüm: `v0.3.0`)
 
 ---
 
