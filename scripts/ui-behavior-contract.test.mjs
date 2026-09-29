@@ -1306,4 +1306,12 @@ test("autonomous video trigger authority and lifecycle contract (BF-QA-004)", ()
   assert.match(uiPlaybook, /Dinamik \/ Hareketli Yüzeyler/u, "ui_accessibility.md must separate dynamic surfaces");
   assert.match(uiPlaybook, /Otomatik Kusur Saklama/u, "ui_accessibility.md must define auto artifact preservation");
   assert.match(uiPlaybook, /Otomatik Yaşam Döngüsü/u, "ui_accessibility.md must define auto-purge lifecycle");
+
+  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
+  assert.match(journeyJs, /startFpsTracker/u, "user-journey-live-qa.mjs must define startFpsTracker");
+  assert.match(journeyJs, /stopFpsTracker/u, "user-journey-live-qa.mjs must define stopFpsTracker");
+  assert.match(journeyJs, /evaluateAndTriggerMotionQa/u, "user-journey-live-qa.mjs must define evaluateAndTriggerMotionQa");
+  assert.match(journeyJs, /jankThreshold/u, "user-journey-live-qa.mjs must support jankThreshold option");
+  assert.match(journeyJs, /Performance\.enable/u, "user-journey-live-qa.mjs must enable Performance domain");
+  assert.match(journeyJs, /Animation\.enable/u, "user-journey-live-qa.mjs must enable Animation domain");
 });

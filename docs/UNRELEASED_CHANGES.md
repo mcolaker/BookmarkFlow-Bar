@@ -167,6 +167,10 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
   - Analiz temiz geçtiğinde geçici video dosyaları otomatik silinerek disk ve bellek şişmesi engellenir.
 - **Akıllı Otonom Yüzey Tespiti (`--autonomous`)**:
   - Git çalışma ağacındaki değişiklikler (`git status --porcelain`) incelenerek hangi dinamik yüzeyin değiştiği (`bar`, `spotlight`, `newtab` veya `all`) otonom tespit edilir; dinamik arayüz değişikliği yoksa gereksiz video kaydı ve token tüketimi önlenir (Zero-Waste).
+- **Donanımsal Çerçeve Sayacı (FPS Dropped-Frame Inspector) ve Canlı Yolculuk Otonom Tetikleme**:
+  - `scripts/user-journey-live-qa.mjs` simülasyonuna Chromium CDP `Performance.enable` ve `Animation.enable` ile `requestAnimationFrame` + `performance.now()` mikro-monitörü entegre edildi.
+  - Dinamik yüzey geçişlerinde (Kayan Çubuk `Alt+Shift+B`, Spotlight `Alt+Shift+K`, New Tab Çalışma Alanı & Hızlı Klasör Çipleri) saniyede düşen kare sayısı eşiği (`droppedFrames > 2` veya `--jank-threshold=<N>`) aşıldığında veya `--motion-qa` bayrağı aktif olduğunda, Agentic Video motoru (`inspect-motion-qa.mjs`) otonom olarak devreye girer.
+  - Canlı kullanıcı yolculuğu simülasyonunda görsel ve donanımsal akıcılık sıfır insan müdahalesiyle denetlenir.
 
 ---
 
@@ -180,11 +184,12 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 - `src/bookmark-maintenance.html`, `src/bookmark-maintenance.css`, `src/bookmark-maintenance.js`: Devre dışı bırakılan siteler yönetimi (`#sites`, `#disabledSitesList`, `loadDisabledSites`).
 - `_locales/en/messages.json`, `_locales/tr/messages.json`: 51 yeni yerelleştirme anahtarı tam pariteyle sağlandı.
 - `scripts/intent-router.test.mjs`: `BookmarkIntentRoutingEngine` için 7 adet bağımsız birim testi.
-- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014`, `BF-UX-015`, `BF-UX-016`, `BF-UX-017` ve `BF-UX-018` sözleşme testleri.
+- `scripts/ui-behavior-contract.test.mjs`: `BF-UX-013`, `BF-UX-014`, `BF-UX-015`, `BF-UX-016`, `BF-UX-017`, `BF-UX-018` ve `BF-QA-004` (FPS Dropped-Frame Inspector & Live Journey Motion QA) sözleşme testleri.
 - `scripts/governance-contract.test.mjs`, `scripts/validate-governance.mjs`: Yönetişim ve Operating Kernel sözleşme testleri (`BF-GOV-010`).
 - `AGENTS.md`: Operating Kernel, P0 kuralları (P0-18 ve P0-19 Otonom Video İnisiyatifi eklendi), Task Router ve Zorunlu Rapor Şablonu.
 - `docs/agent/`: `DECISION_INDEX.md` (Karar 18 ve Karar 19 eklendi), `PROJECT_STATE.md`, `RULE_CHANGELOG.md`.
-- `docs/agent-playbooks/`: 6 modüler alan kılavuzu (Bölüm 5 Intent Routing Engine eklendi, UI el kitabına Otonom Motion & Media QA eklendi).
+- `docs/agent-playbooks/`: 6 modüler alan kılavuzu (Bölüm 5 Intent Routing Engine eklendi, UI el kitabına Otonom Motion & Media QA ve FPS Dropped-Frame Inspector eklendi).
+- `scripts/user-journey-live-qa.mjs`: Canlı yolculuk simülasyonuna Chromium CDP `Performance.enable`, `Animation.enable`, `startFpsTracker`, `stopFpsTracker`, `evaluateAndTriggerMotionQa` ve `--jank-threshold` donanımsal jank denetimi eklendi.
 - `scripts/inspect-motion-qa.mjs`: Playwright ve Gemini Agentic Video canlı web akıcılık denetim aracı, otonom yüzey algılama (`--autonomous`), otomatik kusur saklama ve auto-purge (`npm run qa:motion`, `npm run qa:motion:auto`).
 - `scripts/validate-media-qa.mjs`: Tanıtım videoları ve medya varlıkları kalite doğrulayıcısı (`npm run qa:media`).
 - `package.json`: `qa:motion`, `qa:motion:auto` ve `qa:media` komutları eklendi.

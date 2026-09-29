@@ -22,7 +22,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 92/92 PASS (%100 yeşil).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 93/93 PASS (%100 yeşil).
 - **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog sözleşmeleri temiz).
 - **Biçim ve Satır Sonu**: `git diff --check` -> Sıfır hata (CRLF/LF normalize, EOF boş satırsız).
 - **Gizli Veri Denetimi**: Sıfır API anahtarı, sıfır token, sıfır mutlak kullanıcı yolu.
@@ -42,7 +42,7 @@ Kullanıcının talimatı doğrultusunda, yeni sürüm yayınlanana kadar PR aç
 7. **JaponiGo Yönetişim ve Modüler Playbook Mimarisi (BF-GOV-010)**: Operating Kernel, Decision Index, Project State ve modüler el kitapları (`docs/agent-playbooks/`).
 8. **Yerel Niyet ve Akıllı Yönlendirme Motoru ile Canlı Rozetler (BF-UX-017)**: `BookmarkIntentRoutingEngine` (6 kategori: link, komut, etiket, klasör, sekme, arama) ve canlı akıllı yönlendirme rozetleri.
 9. **Site Kontrolü, MV3 Ayarlar Güvenliği, Inline Kaydet/Düzenle, URL Doğrulama ve Canlı Klasör Çipleri (BF-UX-018)**: Güvenli MV3 ayarlar açılışı (`BF_OPEN_SETTINGS`), arama kutusunda `[⭐ Kaydet]` / `[✏️ Düzenle]` butonu, `Ctrl+S` kısayolu, `Ctrl+Z` / `[Geri Al]` geri yükleme ve amber parıltı, Escape temizliğini geri alma (`queryRestoredToast`), düzenleme modunda URL kilidini açma butonu (`#addUrlUnlockBtn`), otomatik protokol tamamlama (`https://`) ve URL hata çerçevesi (`.is-invalid-url`), arama kartında mevcut klasör adı ve canlı klasör taşıma çipleri (`[⭐ Çubuğa Taşı]`, `[📁 Klasöre Taşı]`, `[✏️ Düzenle]`), mini klasör seçici çipi (`[📁▾]`, `.is-folder-picker-chip`) ve açılır menüsü (`.nt-folder-picker-menu`, `.bf-folder-picker-menu`), `BF_MOVE_TO_FOLDER` mesajlaşması ve `previousParentId` ile eski klasöre geri alma desteği.
-10. **Yapay Zeka Otonom Video İnisiyatifi ve Otomatik Dinamik Yüzey Denetimi (BF-QA-004)**: Yapay zeka asistanının kullanıcıdan komut beklemeden dinamik yüzeylerde (çubuk açılışı, Spotlight paleti, New Tab efektleri, 60 FPS akıcılık ve jank denetimi) otonom olarak `scripts/inspect-motion-qa.mjs` (`npm run qa:motion` / `npm run qa:motion:auto`) çalıştırabilmesi; statik ve dinamik yüzeylerin ayrılması, otomatik kusur saklama (`live_motion_qa_<surface>_<timestamp>_issue.webm`) ve auto-purge yaşam döngüsü.
+10. **Yapay Zeka Otonom Video İnisiyatifi, Otomatik Dinamik Yüzey Denetimi ve Canlı Yolculuk Donanımsal Çerçeve Sayacı (BF-QA-004)**: Yapay zeka asistanının kullanıcıdan komut beklemeden dinamik yüzeylerde (çubuk açılışı, Spotlight paleti, New Tab efektleri, 60 FPS akıcılık ve jank denetimi) otonom olarak `scripts/inspect-motion-qa.mjs` (`npm run qa:motion` / `npm run qa:motion:auto`) çalıştırabilmesi; canlı kullanıcı yolculuğu (`scripts/user-journey-live-qa.mjs`) simülasyonunda Chromium CDP `Performance.enable` ve `Animation.enable` ile `requestAnimationFrame` + `performance.now()` mikro-monitörü ve `droppedFrames > 2` eşiğinde otonom Agentic Video QA tetikleme kancası; statik ve dinamik yüzeylerin ayrılması, otomatik kusur saklama (`live_motion_qa_<surface>_<timestamp>_issue.webm`) ve auto-purge yaşam döngüsü.
 
 
 ---

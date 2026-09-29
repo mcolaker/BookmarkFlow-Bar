@@ -66,5 +66,9 @@ Bu kılavuz, BookmarkFlow Bar kullanıcı arayüzü, tasarım sistemi, erişileb
 - **Otomatik Yaşam Döngüsü (Auto-Purge Lifecycle)**:
   - Video kaydı temiz geçtiğinde geçici video dosyaları otomatik olarak silinir (`Auto-Purge`); disk ve bellek dolması engellenir (`--keep-video` veya `--artifact-trace` ile manuel saklanabilir).
 
+- **Donanımsal Çerçeve Sayacı & Canlı Yolculuk Otonom Tetikleme (FPS Dropped-Frame Inspector)**:
+  - Canlı kullanıcı yolculuğu simülasyonunda (`scripts/user-journey-live-qa.mjs`) Chromium CDP `Performance.enable` ve `Animation.enable` ile `requestAnimationFrame` zamanlaması dinlenir.
+  - Dinamik yüzey geçişlerinde (Çubuk, Spotlight, New Tab) düşen kare sayısı eşiği aşıldığında (`droppedFrames > 2`) Agentic Video QA otonom olarak devreye girer ve milisaniyelik takılma analizi yürütür.
+
 - **Medya Varlık Kalite Kapısı (`npm run qa:media`)**:
   - Tanıtım videoları, sosyal medya kesitleri ve tur GIF'leri sıfır kişisel veri, tam kadraj (kırpılmamış alt kenarlar) ve görsel hijyen için fail-closed doğrulanır.

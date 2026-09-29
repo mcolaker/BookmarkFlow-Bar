@@ -158,6 +158,8 @@ async function createPage(cdp, url) {
   await cdp.call("Page.enable", {}, sessionId);
   await cdp.call("DOM.enable", {}, sessionId);
   await cdp.call("Runtime.enable", {}, sessionId);
+  await cdp.call("Performance.enable", {}, sessionId).catch(() => {});
+  await cdp.call("Animation.enable", {}, sessionId).catch(() => {});
   await waitFor(cdp, sessionId, `document.readyState === 'complete'`);
   return { sessionId, targetId };
 }
@@ -321,17 +323,62 @@ function delay(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+async function startFpsTracker(cdp, sessionId) {
+  try {
+    await evaluate(cdp, sessionId, `(() => {
+      window.__bfFpsStats = {
+        frames: 0,
+        droppedFrames: 0,
+        lastTime: performance.now(),
+        maxJankMs: 0
+      };
+      function onFrame(now) {
+        const delta = now - window.__bfFpsStats.lastTime;
+        window.__bfFpsStats.lastTime = now;
+        window.__bfFpsStats.frames++;
+        if (delta > 34) {
+          const dropped = Math.floor(delta / 16.6) - 1;
+          window.__bfFpsStats.droppedFrames += Math.max(1, dropped);
+          if (delta > window.__bfFpsStats.maxJankMs) {
+            window.__bfFpsStats.maxJankMs = Math.round(delta);
+          }
+        }
+        window.__bfFpsRaf = requestAnimationFrame(onFrame);
+      }
+      window.__bfFpsRaf = requestAnimationFrame(onFrame);
+    })()`);
+  } catch {}
+}
+
+async function stopFpsTracker(cdp, sessionId) {
+  try {
+    const stats = await evaluate(cdp, sessionId, `(() => {
+      if (window.__bfFpsRaf) cancelAnimationFrame(window.__bfFpsRaf);
+      const res = window.__bfFpsStats || { frames: 60, droppedFrames: 0, maxJankMs: 0 };
+      delete window.__bfFpsStats;
+      delete window.__bfFpsRaf;
+      return res;
+    })()`);
+    return stats;
+  } catch {
+    return { frames: 60, droppedFrames: 0, maxJankMs: 0 };
+  }
+}
+
 function parseCliArgs() {
   const args = process.argv.slice(2);
   const options = {
     motionQa: false,
-    dryRun: false
+    dryRun: false,
+    jankThreshold: 2
   };
   for (const arg of args) {
     if (arg === "--motion-qa" || arg === "--agentic-video") {
       options.motionQa = true;
     } else if (arg === "--dry-run") {
       options.dryRun = true;
+    } else if (arg.startsWith("--jank-threshold=")) {
+      options.jankThreshold = parseInt(arg.split("=")[1], 10) || 2;
     }
   }
   return options;
@@ -339,11 +386,17 @@ function parseCliArgs() {
 
 async function runAgenticMotionQa(surface = "bar") {
   console.log(`\n🎬 [Agentic Motion QA] '${surface}' yüzeyi için Gemini Agentic Video akıcılık denetimi başlatılıyor...`);
+  const args = [
+    path.join(projectRoot, "scripts", "inspect-motion-qa.mjs"),
+    `--surface=${surface}`,
+    `--duration=3`
+  ];
+  if (artifactDir) {
+    args.push(`--artifact-dir=${artifactDir}`);
+  }
+
   return new Promise((resolve) => {
-    const motionProc = spawn(process.execPath, [
-      path.join(projectRoot, "scripts", "inspect-motion-qa.mjs"),
-      `--surface=${surface}`
-    ], {
+    const motionProc = spawn(process.execPath, args, {
       cwd: projectRoot,
       stdio: "inherit",
       windowsHide: true
@@ -362,6 +415,25 @@ async function runAgenticMotionQa(surface = "bar") {
     });
   });
 }
+
+async function evaluateAndTriggerMotionQa(surface, fpsStats, cliOptions) {
+  const threshold = cliOptions.jankThreshold || 2;
+  const isJankDetected = fpsStats.droppedFrames > threshold;
+
+  console.log(`  📊 [FPS & Jank Denetimi: ${surface.toUpperCase()}]`);
+  console.log(`     Toplam Kare: ${fpsStats.frames} | Düşen Kare: ${fpsStats.droppedFrames} | Max Takılma: ${fpsStats.maxJankMs}ms | Eşik: ${threshold}`);
+
+  if (cliOptions.motionQa || isJankDetected) {
+    if (isJankDetected) {
+      console.warn(`  ⚠️ [Otonom Tetikleme] Düşen kare sayısı eşiği aştı (${fpsStats.droppedFrames} > ${threshold})! Agentic Video QA otonom devreye giriyor...`);
+    }
+    return await runAgenticMotionQa(surface);
+  } else {
+    console.log(`  ✓ 60 FPS akıcılık donanımsal olarak onaylandı (Düşen kare: ${fpsStats.droppedFrames} <= ${threshold}).`);
+    return true;
+  }
+}
+
 
 async function main() {
   const cliOptions = parseCliArgs();
@@ -484,6 +556,7 @@ async function main() {
 
     // Worker üzerinden web sayfasına 'toggle-bar' komutu gönder (Alt+Shift+B tetiklemesi)
     console.log("  ⚡ 'Alt+Shift+B' kısayolu gönderiliyor (Kayan Çubuğu Açma)...");
+    await startFpsTracker(cdp, pageSession);
     await evaluate(cdp, workerSession, `(async () => {
       const tabs = await chrome.tabs.query({});
       const targetTab = tabs.find(t => t.url && t.url.includes("127.0.0.1")) || tabs[0];
@@ -497,15 +570,15 @@ async function main() {
     await captureScreenshot(cdp, pageSession, step2bPath);
     console.log(`  ✓ Kapalı Shadow DOM çubuğu 60 FPS yay fiziğiyle genişledi (${path.basename(step2bPath)})`);
 
-    if (cliOptions.motionQa) {
-      await runAgenticMotionQa("bar");
-    }
+    const barFps = await stopFpsTracker(cdp, pageSession);
+    await evaluateAndTriggerMotionQa("bar", barFps, cliOptions);
 
     // ==============================================================
     // ADIM 3: Sayfa İçi Spotlight & 6 Akıllı Niyet Rozeti
     // ==============================================================
     console.log("\n▶ ADIM 3: Sayfa İçi Spotlight & 6 Akıllı Niyet Rozeti (BF-UX-017)");
     console.log("  ⚡ 'Alt+Shift+K' kısayolu gönderiliyor (Spotlight Paletini Açma)...");
+    await startFpsTracker(cdp, pageSession);
     await evaluate(cdp, workerSession, `(async () => {
       const tabs = await chrome.tabs.query({});
       const targetTab = tabs.find(t => t.url && t.url.includes("127.0.0.1")) || tabs[0];
@@ -558,9 +631,8 @@ async function main() {
     await captureScreenshot(cdp, pageSession, step3bPath);
     console.log(`  ✓ Canlı rozet: [⚡ Komut Modu] ve '#stash' eylem kartı görüntülendi (${path.basename(step3bPath)})`);
 
-    if (cliOptions.motionQa) {
-      await runAgenticMotionQa("spotlight");
-    }
+    const spotlightFps = await stopFpsTracker(cdp, pageSession);
+    await evaluateAndTriggerMotionQa("spotlight", spotlightFps, cliOptions);
 
     // ==============================================================
     // ADIM 4: Sıfır Adımlı Hızlı Kayıt & Anlık Toast Bildirimi
@@ -604,6 +676,7 @@ async function main() {
     const newtabUrl = `chrome-extension://${extensionId}/src/newtab.html`;
     const { sessionId: ntSession, targetId: ntTargetId } = await createPage(cdp, newtabUrl);
     await cdp.call("Emulation.setDeviceMetricsOverride", { width: 1280, height: 800, deviceScaleFactor: 1, mobile: false }, ntSession);
+    await startFpsTracker(cdp, ntSession);
     await delay(1200);
 
     // Arama kutusuna link gir ve ekleme diyaloğunu tetikle
@@ -620,6 +693,10 @@ async function main() {
     const step5Path = path.join(outputDir, "step-5-newtab-chips.png");
     await captureScreenshot(cdp, ntSession, step5Path);
     console.log(`  ✓ Yeni Sekme arama rozeti, klasör seçici ve hızlı çipler görüntülendi (${path.basename(step5Path)})`);
+
+    const ntFps = await stopFpsTracker(cdp, ntSession);
+    await evaluateAndTriggerMotionQa("newtab", ntFps, cliOptions);
+
     await cdp.call("Target.closeTarget", { targetId: ntTargetId });
 
     // ==============================================================
