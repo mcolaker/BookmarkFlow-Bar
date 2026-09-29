@@ -1455,3 +1455,24 @@ test("edge peek restore strip contract (BF-UX-021)", () => {
   assert.match(contentJs, /runExternalCommand\("hide-restore"\)/u, "content.js must trigger hide-restore on strip click");
   assert.match(contentJs, /edgeRestoreActive:/u, "getPageInfo must expose edgeRestoreActive state");
 });
+
+test("snooze badge indicator contract (BF-UX-022)", () => {
+  const bgJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(bgJs, /MESSAGE_SET_TAB_SNOOZED/u, "background.js must define MESSAGE_SET_TAB_SNOOZED constant");
+  assert.match(bgJs, /chrome\.action\.setBadgeText\(\{\s*text:\s*"off"/u, "background.js must set badge text to off on snooze");
+  assert.match(bgJs, /chrome\.action\.setBadgeText\(\{\s*text:\s*""/u, "background.js must clear badge text on restore");
+  assert.match(bgJs, /setBadgeBackgroundColor/u, "background.js must set badge background color");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /function notifyTabSnoozeState/u, "content.js must define notifyTabSnoozeState");
+  assert.match(contentJs, /BF_SET_TAB_SNOOZED/u, "content.js must send BF_SET_TAB_SNOOZED message");
+  assert.match(contentJs, /notifyTabSnoozeState\(true\)/u, "content.js must notify snooze on hide");
+  assert.match(contentJs, /notifyTabSnoozeState\(false\)/u, "content.js must notify unsnooze on restore");
+
+  const popupJs = readFileSync(path.join(root, "src/popup.js"), "utf8");
+  assert.match(popupJs, /BF_SET_TAB_SNOOZED/u, "popup.js must send BF_SET_TAB_SNOOZED on restore click");
+
+  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
+  assert.match(journeyJs, /chrome\.action\.getBadgeText/u, "user-journey-live-qa.mjs must inspect badge text via getBadgeText");
+  assert.match(journeyJs, /BF-UX-022/u, "user-journey-live-qa.mjs must reference BF-UX-022");
+});

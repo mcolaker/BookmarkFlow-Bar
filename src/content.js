@@ -565,6 +565,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       shadow.querySelector(".bf-app")?.remove();
       host.classList.add("is-snoozed");
       renderEdgeRestoreStrip();
+      notifyTabSnoozeState(true);
       restoreFocusTarget(modalReturnFocus);
       return;
     }
@@ -572,6 +573,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     removeEdgeRestoreStrip();
     host.classList.remove("is-snoozed");
     host.hidden = false;
+    notifyTabSnoozeState(false);
     render();
     updatePageOffsetSoon();
     restoreFocusTarget(modalReturnFocus);
@@ -900,6 +902,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
   function removeEdgeRestoreStrip() {
     shadow?.querySelector(".bf-edge-restore")?.remove();
+  }
+
+  function notifyTabSnoozeState(snoozed) {
+    try {
+      chrome.runtime?.sendMessage?.({
+        type: "BF_SET_TAB_SNOOZED",
+        snoozed: Boolean(snoozed)
+      }, () => {
+        if (chrome.runtime?.lastError) {}
+      });
+    } catch {}
   }
 
   function render() {
@@ -5016,6 +5029,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     closeCommandPalette({ restoreFocus: false });
     closeAddBookmarkDialog({ restoreFocus: false });
     removeEdgeRestoreStrip();
+    notifyTabSnoozeState(false);
     host?.remove();
     host = null;
     shadow = null;

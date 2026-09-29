@@ -603,6 +603,17 @@ async function main() {
       throw new Error("BF-UX-021: Çubuk gizlendiğinde .bf-edge-restore aktifleşmedi!");
     }
 
+    // BF-UX-022: Snooze Badge Indicator Teftişi (chrome.action.getBadgeText)
+    const badgeTextAfterHide = await evaluate(cdp, workerSession, `(async () => {
+      const tabs = await chrome.tabs.query({});
+      const targetTab = tabs.find(t => t.url && t.url.includes("127.0.0.1")) || tabs[0];
+      return await chrome.action.getBadgeText({ tabId: targetTab.id });
+    })()`);
+    console.log(`  ✓ [BF-UX-022 Teftişi] Çubuk gizlendiğinde sekme rozet metni: "${badgeTextAfterHide}" (beklenen: "off")`);
+    if (badgeTextAfterHide !== "off") {
+      throw new Error(`BF-UX-022: Çubuk gizlendiğinde badge metni "off" olmadı, alınan: "${badgeTextAfterHide}"`);
+    }
+
     // BF-UX-020: Popup Site Kontrol Kartında 'Çubuğu Göster' (restoreBarBtn) Buton Mantığı Teftişi
     console.log("  👁️ [BF-UX-020 Teftişi] Popup site kontrol kartındaki 'Çubuğu Göster' butonu mantığı doğrulanıyor...");
     const popupCanRestore = Boolean(
@@ -634,6 +645,16 @@ async function main() {
     console.log(`  ✓ Geri getirme sonrası çubuk durumu: snoozed=${statusAfterRestore?.snoozed}, visible=${statusAfterRestore?.renderedAppVisible}`);
     if (statusAfterRestore?.snoozed) {
       throw new Error("BF-UX-020: Çubuk 'Çubuğu Göster' tetiklemesi sonrası geri gelemedi!");
+    }
+
+    const badgeTextAfterRestore = await evaluate(cdp, workerSession, `(async () => {
+      const tabs = await chrome.tabs.query({});
+      const targetTab = tabs.find(t => t.url && t.url.includes("127.0.0.1")) || tabs[0];
+      return await chrome.action.getBadgeText({ tabId: targetTab.id });
+    })()`);
+    console.log(`  ✓ [BF-UX-022 Teftişi] Çubuk geri getirildiğinde sekme rozet metni: "${badgeTextAfterRestore}" (beklenen: "")`);
+    if (badgeTextAfterRestore !== "") {
+      throw new Error(`BF-UX-022: Çubuk geri getirildiğinde badge metni temizlenmedi, alınan: "${badgeTextAfterRestore}"`);
     }
 
     // ==============================================================

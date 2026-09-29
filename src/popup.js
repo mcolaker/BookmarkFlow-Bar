@@ -319,6 +319,7 @@ async function init() {
       if (response?.ok) {
         activePage.snoozed = false;
         renderSiteControl(currentSettings);
+        sendMessage({ type: "BF_SET_TAB_SNOOZED", snoozed: false, tabId }).catch(() => {});
       }
     });
   }

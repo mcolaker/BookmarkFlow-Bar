@@ -22,7 +22,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 98/98 PASS (%100 yeşil).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 99/99 PASS (%100 yeşil).
 - **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog sözleşmeleri temiz).
 - **Biçim ve Satır Sonu**: `git diff --check` -> Sıfır hata (CRLF/LF normalize, EOF boş satırsız).
 - **Gizli Veri Denetimi**: Sıfır API anahtarı, sıfır token, sıfır mutlak kullanıcı yolu.
@@ -48,6 +48,7 @@ Kullanıcının talimatı doğrultusunda, yeni sürüm yayınlanana kadar PR aç
 13. **Sayfa İçi Çubuğu Gizle (Alt + Shift + H) Tam Gizleme ve Geri Getirme Yaşam Döngüsü (BF-UX-019)**: Kullanıcı bağlam menüsünden veya `Alt+Shift+H` kısayolu ile çubuğu gizlediğinde ekranda artık hiçbir buton veya rozet kalmaması (`:host([hidden])`, `:host(.is-snoozed)`, sayfa kaydırma ofsetinin sıfırlanması), gizleme anında 2 saniyelik rehberlik eden altın çerçeveli toast (`✓ BookmarkFlow gizlendi (Geri getirmek için: Alt + Shift + H)`), `Alt+Shift+H`, `Alt+Shift+B` veya `Alt+Shift+K` kısayollarıyla anında restorasyon ve `✓ BookmarkFlow geri getirildi` teyidi; popup arayüzünde sekme gizlenme durumunun canlı tespiti.
 14. **Popup Menüsünde Tek Tıkla 'Çubuğu Göster' Butonu Entegrasyonu (BF-UX-020)**: Popup açıldığında aktif sekmede çubuk gizlenmişse (`activePage.snoozed === true`) doğrudan çalışan tek tıkla `[👁️ Çubuğu Göster]` (`#restoreBarBtn`, `.site-restore-btn`) eylem butonu, tıklandığında `BF_RUN_COMMAND` ("hide-restore") ile çubuğun anında geri gelmesi, durum metninin güncellenmesi ve butonun gizlenmesi; yüksek kontrast forced-colors desteği.
 15. **Ekran Kenarı Minimalist Geri Getirme Tutamacı (Edge Peek Strip - BF-UX-021)**: Çubuk gizlendiğinde ekranın en sağ sınırında normalde %100 şeffaf, yalnızca fare ekranın sıfır piksel kenarına dayandığında çok hafif altın ışıltısıyla beliren 3 piksellik mikro bir dokunma çizgisi (`.bf-edge-restore`), tıklandığında çubuğun anında geri gelmesi, `getPageInfo` `edgeRestoreActive` teftişi ve yüksek kontrast desteği.
+16. **Sayfa İçi Çubuk Gizlendiğinde Popup İkonuna Geçici Mikro Rozet (Snooze Badge Indicator - BF-UX-022)**: Çubuk gizlendiğinde aktif sekmeye özel olarak tarayıcı araç çubuğundaki eklenti simgesi üzerine hafif bir gri/altın mikro rozet (`chrome.action.setBadgeText({ text: "off", tabId })`, `setBadgeBackgroundColor({ color: "#2d3748" })`, `setBadgeTextColor({ color: "#f2c94c" })`) yerleştirilmesi, çubuk geri açıldığında (`text: ""`) rozetin temizlenmesi; sekmeler arası tam izolasyon ve canlı kullanıcı yolculuğu teftişi.
 
 ---
 

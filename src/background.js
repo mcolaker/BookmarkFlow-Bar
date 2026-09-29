@@ -38,6 +38,7 @@ const MESSAGE_ADD_READING_LIST = "BF_ADD_READING_LIST";
 const MESSAGE_REMOVE_READING_LIST = "BF_REMOVE_READING_LIST";
 const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 const MESSAGE_OPEN_SETTINGS = "BF_OPEN_SETTINGS";
+const MESSAGE_SET_TAB_SNOOZED = "BF_SET_TAB_SNOOZED";
 const FOLDER_RAIL_DEFAULT_MIGRATION_KEY = "bfFolderRailDefaultLeftV1";
 const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
 const DISABLED_HOSTS_MIGRATION_KEY = "bfDisabledHostsLocalV1";
@@ -220,6 +221,22 @@ function routeMessage(message, sender) {
     const hash = typeof message?.hash === "string" && message.hash ? `#${message.hash.replace(/^#/, "")}` : "";
     const pageUrl = chrome.runtime.getURL(`src/bookmark-maintenance.html${hash}`);
     return chrome.tabs.create({ url: pageUrl }).then(() => ({ ok: true })).catch((err) => ({ ok: false, error: err?.message || String(err) }));
+  }
+
+  if (message?.type === MESSAGE_SET_TAB_SNOOZED || message?.type === "BF_SET_TAB_SNOOZED") {
+    const tabId = message.tabId || sender?.tab?.id;
+    if (tabId && chrome.action?.setBadgeText) {
+      if (message.snoozed) {
+        chrome.action.setBadgeText({ text: "off", tabId }).catch(() => {});
+        chrome.action.setBadgeBackgroundColor({ color: "#2d3748", tabId }).catch(() => {});
+        if (chrome.action?.setBadgeTextColor) {
+          chrome.action.setBadgeTextColor({ color: "#f2c94c", tabId }).catch(() => {});
+        }
+      } else {
+        chrome.action.setBadgeText({ text: "", tabId }).catch(() => {});
+      }
+    }
+    return Promise.resolve({ ok: true });
   }
 
   const protectedTask = message?.type === MESSAGE_GET_STATE
