@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 
 ## [Unreleased]
 
+## [0.3.1] — 2026-09-30
+
+### Added
+
+- Add Turquoise Glow Theme and Centralized Design Tokens Integration (BF-UX-024): Introduced Turquoise Glow (`turquoise-glow`), the 5th official theme featuring high-contrast vivid turquoise accents (`#22d3ee`), deep oceanic surfaces (`#061318`, `#0a1a20`), and icy turquoise text (`#ecfeff`). Fully integrated across in-page floating bar (`src/content.css`), Spotlight & Command Palette (`src/spotlight.css`), New Tab (`src/newtab.css`), Popup (`src/popup.css`), and Maintenance Center (`src/settings.css`), paired with 5-segment theme switcher in popup and complete EN/TR locale parity (`themeTurquoise`).
+- Add Turquoise Abyss New Tab Background & Radiant Folder Accents (BF-UX-025): Added Turquoise Abyss (`turquoise-abyss`) as the 5th ambient wallpaper option (`radial-gradient(circle at 50% 25%, #0e303d 0%, #061318 65%, #02070a 100%)`) with 5-way switcher in popup settings, paired with oceanic folder container backgrounds (`--bf-folder-bg: #09202a`) and glowing turquoise folder icons (`.bf-folder-icon`, `.nt-folder-icon`) in turquoise theme.
+- Add Turquoise Glow Edge Peek Strip & Search Action Accents (BF-UX-026): Minimalist hidden bar edge restore handle (`.bf-edge-restore`) illuminates with vivid turquoise gradient and subtle drop shadow in turquoise mode, while action chips (`.bf-command-action-chip`, `.nt-search-action-chip`, `.nt-inline-save-btn`) feature crisp turquoise border and glow on focus and hover.
+- Add Turquoise Toast Progress Bar & Search Focus Ring Refinements (BF-UX-027): Subtle progress indicator line (`.bf-toast-progress`, `.nt-toast-progress`) animates with vivid turquoise gradient (`#22d3ee` to `#06b6d4`), while search boxes across all surfaces gain a high-visibility turquoise focus ring (`box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.45)`) for enhanced keyboard accessibility.
+- Add Turquoise Shortcuts Grid Glow & Health Inspector Metrics (BF-UX-028): Top shortcut cards on New Tab (`.nt-shortcut-card`, `.nt-shortcut-icon-box`, `.nt-shortcut-initial`) display subtle turquoise hover border and icon box glow, and the Bookmark Maintenance Center synchronizes active theme to illuminate health check metrics, counters, and filter chips with radiant turquoise accents.
+- Add Turquoise Clock & Greeting Text Gradient and Folder Merge Action Glow (BF-UX-029): The New Tab dynamic clock (`#clockDisplay`) and greeting message (`#greetingDisplay`) feature modern icy-turquoise text clip gradients (`linear-gradient(135deg, #ffffff 30%, #22d3ee 100%)`) and drop shadows, while the Maintenance Center duplicate folder merge button (`#merge.primary`) receives vivid turquoise neon gradient, button press physics, and turquoise `:focus-visible` styling across all form controls.
+
 ## [0.3.0] — 2026-09-29
 
 ### Added
