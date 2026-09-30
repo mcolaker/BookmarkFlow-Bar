@@ -2,6 +2,13 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-09-30] — Otonom Sosyal Medya Paylaşım Yetkilendirmesi (BF-GOV-014 / Karar 21)
+- **Harici Platform Yetki Devri**: Kullanıcının 2026-09-30 tarihli açık talimatı ("hem x hem linkedinden bundan sonra paylaşımları senin yapmanı istiyorum") uyarınca, her sürüm çıkışında ve topluluk duyurusu aşamasında X (Twitter) ve LinkedIn platformlarında lansman metinleri ve 2x Retina görsel varlıklarının AI asistan tarafından doğrudan yayınlanması kalıcı olarak yetkilendirildi.
+- **Kullanıcı Onayı Otomasyonu**: Rutin sürüm döngülerinde sosyal medya gönderimi için ek onay adımı beklenmeksizin hazırlanmış `COMMUNITY_LAUNCH_KIT` varlıkları canlı oturumlar üzerinden otonom paylaşılır.
+- **Karar İndeksi Entegrasyonu**: `docs/agent/DECISION_INDEX.md` içerisine Karar 21 olarak işlendi.
+
+---
+
 ## [2026-09-29] — Otonom Geliştirici Araçları ve Teftiş İnisiyatifi (BF-GOV-011 / Karar 20)
 - **P0-20 Kuralı Tanımlandı**: Yapay zeka asistanı; sayfa içi kapalı Shadow DOM izolasyon denetimi, CSS/layout hata ayıklama, konsol/ağ incelemeleri ve bellek sızıntısı tespiti için Chrome DevTools MCP; modern web ve MV3 mimarisi, CSS optimizasyonu ve erişilebilirlik için Modern Web Guidance; multimodal/video akıcılık ve görsel kalite analizi için Gemini API araçlarını kullanıcının açık komutunu beklemeden kendi inisiyatifiyle tam otonom yönetir.
 - **Kullanıcı Komut Bağımsızlığı**: Model, hata ayıklama, kodlama, optimizasyon ve doğrulama aşamalarında ihtiyaç duyduğu her an ilgili aracı otonom devreye sokar ve elde ettiği bulguları projeye proaktif olarak uygular.
