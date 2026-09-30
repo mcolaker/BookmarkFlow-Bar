@@ -1508,3 +1508,23 @@ test("snooze action tooltip and tabs synchronization contract (BF-UX-023)", () =
   assert.match(journeyJs, /chrome\.action\.getTitle/u, "user-journey-live-qa.mjs must inspect tooltip title via getTitle");
   assert.match(journeyJs, /BF-UX-023/u, "user-journey-live-qa.mjs must reference BF-UX-023");
 });
+
+test("turquoise glow edge peek and search action accents contract (BF-UX-026)", () => {
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  const spotlightCss = readFileSync(path.join(root, "src/spotlight.css"), "utf8");
+  const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+
+  // Edge peek turquoise glow
+  assert.match(contentCss, /:host\(\[data-theme="turquoise-glow"\]\)\s+\.bf-edge-restore:hover/u, "content.css must define turquoise glow hover for .bf-edge-restore");
+  assert.match(contentCss, /:host\(\[data-theme="turquoise-glow"\]\)\s+\.bf-edge-restore:active/u, "content.css must define turquoise glow active for .bf-edge-restore");
+
+  // Content command action chips
+  assert.match(contentCss, /:host\(\[data-theme="turquoise-glow"\]\)\s+\.bf-command-action-chip:hover/u, "content.css must style action chips for turquoise-glow");
+
+  // Spotlight command action chips
+  assert.match(spotlightCss, /\[data-theme="turquoise-glow"\]\s+\.bf-command-action-chip:hover/u, "spotlight.css must style action chips for turquoise-glow");
+
+  // New tab search action chips and inline save button
+  assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-search-action-chip:hover/u, "newtab.css must style action chips for turquoise-glow");
+  assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-inline-save-btn:hover/u, "newtab.css must style inline save button for turquoise-glow");
+});
