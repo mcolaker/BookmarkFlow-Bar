@@ -1,51 +1,96 @@
-# BookmarkFlow Bar Proje Talimatları
+# AGENTS.md — BookmarkFlow Bar Operating Kernel
 
-Bu dosya projenin geliştirme standartları, mimari kuralları ve ana çalışma sözleşmesidir. Ürün davranışı için gerçek kaynak kodu ve `README.md`, güvenlik için `SECURITY.md`, kalıcı iş durumu için `docs/backlog/OPEN_TASKS.md` otoritedir.
+Bu dosya BookmarkFlow Bar projesinin her zaman yürürlükte olan ana işletim çekirdeği ve kural otoritesidir. Detaylı teknik kılavuzlar `docs/agent-playbooks/` altında yaşar ve Task Router aracılığıyla yalnızca mevcut işin ihtiyacına göre yüklenir.
 
-## Zorunlu başlangıç
+---
 
-- Her anlamlı işten önce bu dosyanın tamamını, `docs/backlog/OPEN_TASKS.md` dosyasını ve güncel Git durumunu oku.
-- İşi mevcut bir backlog kimliğiyle eşleştir. Kalıcı ve yeni bir işse aynı turda benzersiz `BF-<ALAN>-NNN` kimliğiyle kayıt aç; aynı kök neden için ikinci kayıt oluşturma.
-- Kullanıcıya ait mevcut değişiklikleri koru. İlgisiz dosyaları düzeltme, yeniden biçimlendirme, stage etme veya commit kapsamına alma.
-- Önce kök nedeni ve yeniden üretim kanıtını belirle; yalnız belirtiye göre kod değiştirme.
+## 0. Otorite ve Kalıcı Bellek
 
-## Backlog sürekliliği
+- Kök `AGENTS.md` birincil depo kural otoritesidir.
+- Proje deposu kalıcı bellektir; proje için kritik kararlar için asla geçici sohbet belleğine güvenilmez.
+- Kalıcı mimari ve ürün kararları `docs/agent/DECISION_INDEX.md` dosyasında kayıt altına alınır.
+- Güncel mimari durum ve aktif sınırlar `docs/agent/PROJECT_STATE.md` dosyasında tutulur.
+- Görev ve durum takibi `docs/backlog/OPEN_TASKS.md` kanonik defterindedir.
+- Yeni sürüme kadar biriken yenilikler `docs/UNRELEASED_CHANGES.md` dosyasında not alınır.
 
-- Tek kanonik durum kaydı `docs/backlog/OPEN_TASKS.md` dosyasıdır. Sohbet planı, geçici terminal çıktısı veya model belleği bu dosyanın yerine geçmez.
-- Durumlar yalnız `OPEN`, `IN_PROGRESS`, `BLOCKED` ve `DONE` olabilir. İşe başlanınca `IN_PROGRESS`; cihaz, kullanıcı kararı, dış hesap/yetki veya harici kanıt gerekiyorsa açık gerekçeyle `BLOCKED` kullanılır.
-- Her görev stabil kimlik, öncelik/durum, kök neden ve kanıt, kabul kriteri, doğrulama kapısı, sonraki adım ve son güncelleme tarihi taşır.
-- Yeni kanıt eskisini silmeden eklenir. Konu değişmesi, kısmi kod, tek bir testin geçmesi veya planın yeniden yazılması açık işi düşürmez.
-- Bir görev yalnız kabul kriteri ve doğrulama kapısı somut kanıtla geçtiğinde `DONE` olur. Tamamlanan görev silinmez; regresyon tarihli kanıtla görünür biçimde yeniden açılır veya eski kimliğe bağlı yeni görev oluşturulur.
-- Her anlamlı işin sonunda aktif plan ile bütün açık kayıtları uzlaştır ve `node scripts/validate-backlog.mjs` ile `node --test scripts/backlog-contract.test.mjs` çalıştır.
+---
 
-## Uygulama ve doğrulama
+## 1. P0 — Tavizsiz Kurallar (Non-Negotiable Invariants)
 
-- Manifest V3, yerel-öncelikli gizlilik, güvenli URL protokolleri, kapalı Shadow DOM, erişilebilirlik etiketleri ve klavye davranışını koru.
-- Runtime bağımlılığı veya uzak servis ekleme; zorunluysa önce gizlilik, izin, güvenlik ve geri alma etkisini kanıtla.
-- Kaynak değişikliğinde önce `node scripts/validate-project.mjs`, ardından `node scripts/verify-public-tree.mjs` çalıştır. Güvenlik veya tarayıcı davranışı etkileniyorsa `node scripts/security-regression.mjs` ve gerçek Chrome doğrulaması da zorunludur.
-- Görünür UI değişikliği klavye, açık/koyu arka plan, ilgili viewport ve Chrome extension reload kanıtı olmadan tamamlanmış sayılmaz.
-- Stage ve commit kapsamı yalnız bu işe ait dosyalardan oluşur; tarayıcı profili, yerel extension verisi, kişisel bookmark/geçmiş, output, paket veya secret eklenmez.
-- Geliştiriciler ve otomasyon araçları projenin kök dizinine geçici dosya, test medyası (mp4/png), yedek dizin veya tarayıcı profili bırakamaz; geçici çıktılar `.gemini/.../scratch/` veya `.gitignore` kapsamındaki yollarda tutulur ve işlem sonunda temizlenir.
+Geçerli herhangi bir P0 kuralı ihlal edilmişse hiçbir görev tamamlanmış sayılamaz:
 
-## GitHub işlem yetkilendirmesi
+1. **Manifest V3 & Yerel-Öncelikli Gizlilik (Zero-Cloud Invariant)**: Eklenti tüm işlevlerini yerel olarak yürütür. Hiçbir yer imi, arama sorgusu, etiket veya gezinme verisi harici sunucuya veya uzak API'ye gönderilemez. Uzak runtime bağımlılığı eklenemez.
+2. **Kapalı Shadow DOM & Sayfa İzolasyonu**: Sayfa içi kayan çubuk (`src/content.js`) barındırıcı sayfanın global DOM ve CSS ağacından `attachShadow({ mode: "closed" })` ile tam izole edilir; ana sayfanın stilleri çubuğu bozamaz.
+3. **Sıfır Gizli Veri & Sıfır Mutlak Yol**: Kaynak koda, testlere, belgelere veya commit'lere API anahtarı, token, şifre veya mutlak yerel kullanıcı yolları yazılamaz. `node scripts/verify-public-tree.mjs` sıfır hatayla geçmelidir.
+4. **Kullanıcı Verisini Asla Düşürme**: Mevcut yer imleri, klasör renkleri, etiketler, okuma listesi veya kullanıcı ayarları hiçbir güncelleme, geçiş veya hata durumunda sıfırlanamaz, silinemez veya ezilemez.
+5. **Kök Nedene Öncelik (Root-Cause First)**: Hata veya beklenmeyen davranışlarda tahmin yürüterek kod değiştirilemez. Önce ilk gerçek hata, loglar ve yeniden üretim adımları incelenir; kök neden somutlaştırılmadan yama yapılamaz.
+6. **Çalışma Ağacına Saygı**: Kullanıcıya ait mevcut değişiklikler korunur. Görev kapsamı dışındaki ilgisiz dosyalar düzeltilemez, biçimlendirilemez veya commit kapsamına alınamaz.
+7. **Sabit UI Metni Yasağı & Tam TR/EN Dil Paritesi**: Arayüzde hardcoded metin kullanılamaz; `_locales/en` ve `_locales/tr` arasında %100 anahtar paritesi korunur.
+8. **Kanıtsız Doğrulama İddiası Yasağı**: Fiilen çalıştırılmayan hiçbir test veya kontrol "geçti" olarak raporlanamaz; çalıştırılmayan maddeler kalan risk olarak açıkça belirtilir.
+9. **Türkçe Yanıt Kuralı (Turkish Response Invariant)**: Kullanıcı aksini talep etmedikçe kullanıcıya verilen tüm yanıtlar istisnasız Türkçe olmak zorundadır. Kod sembolleri, değişken adları ve commit mesajları İngilizce kalır.
+10. **Sonraki Adım ve Proaktif Öneriler (CRITICAL & HIGH)**: Her nihai yanıt, önem derecesi belirtilmiş tek bir somut sonraki adım (`Sonraki adım — [High|Medium|Low]: ...`) ve sayı sınırı olmaksızın tespit edilen tüm CRITICAL/HIGH proaktif önerileri (olası yan etkileri parantez içinde belirterek) içerir.
+11. **Bütünsel İkincil İyileştirme Standardı (Proactive Holistic QA)**: Ziyaret edilen veya test edilen her arayüz yüzeyinde sadece birincil göreve bakılmaz; ekrandaki layout taşmaları, font/kontrast kusurları, padding dengesizlikleri, klavye odak halkaları ve kod hijyeni sorunları aynı turda proaktif olarak yerinde onarılır.
+12. **Uçtan Uca Sıfır Hata & Sıfır Teknik Borç (Zero Technical Debt)**: Kod değişikliği yapılan her turda ilgili doğrulama ve linter araçları çalıştırılır; sözdizimi, erişilebilirlik ve tip hataları yerinde sıfırlanır.
+13. **Son Kullanıcı Yapay Zeka / AI Terim Yasağı (Zero End-User AI Invariant)**: Eklenti arayüzünde (UI metinleri, rozetler, tooltip'ler, diyaloglar, mağaza açıklamaları vb.) son kullanıcıya ASLA "yapay zeka", "AI", "LLM" gibi teknik terimler gösterilemez. Kullanıcıya daima "Akıllı Arama", "Akıllı Sıralama", "Otomatik Öneri" gibi doğal ve ürün odaklı ifadeler sunulur.
+14. **Açık Kaynak & DCO 1.1 Bütünlüğü**: Proje Apache License 2.0 koşullarıyla korunur. Her katkı commit'i geçerli bir `Signed-off-by` satırı taşımalıdır (`git commit -s`).
+15. **Sürüm Öncesi Değişiklik Günlüğü (`UNRELEASED_CHANGES.md`)**: Yeni sürüm çıkana kadar yapılan tüm geliştirmeler unreleased olarak not alınır; sürüm istendiğinde notlar doğrudan buradan derlenir.
+16. **Profesyonel Görsel ve Sürüm Sunum Standardı**: Her sürümde profesyonel tanıtım görselleri (X 1200x675, LinkedIn 1200x627) hazır sunulur; `README.md` yeni sürüm yetenekleriyle eksiksiz güncellenir.
+17. **GitHub İşlem Yetkilendirmesi (BF-GOV-007)**: Dal oluşturma, push ve PR işlemleri onay beklenmeden yürütülür; sürüm etiketi, harici platform duyuruları ve force push açık kullanıcı onayı gerektirir.
+18. **Yerel Niyet ve Akıllı Yönlendirme Motoru (Zero-Latency Intent Engine)**: Arama ve Spotlight paletine girilen girdiler harici ağ isteği olmadan yerel kural motoruyla (`BookmarkIntentRoutingEngine`: URL, komut, etiket, klasör, sekme, arama) anında sınıflandırılır; kullanıcıya ne olacağını canlı gösteren akıllı rozet (`Smart Routing Badge`) sunulur. UI'da son kullanıcıya dönük AI/JEV teknik terimleri kullanılamaz (P0-13 ile tam uyumlu).
+19. **Agentic Motion, Medya Kalite Standardı ve Otonom Video İnisiyatifi (Autonomous Video Trigger Authority & Zero-Jank QA)**: Sayfa içi çubuk (`Alt+Shift+B`), Spotlight (`Alt+Shift+K`) ve New Tab geçişlerinde animasyon akıcılığı Playwright ve Gemini Agentic Video motoruyla (`npm run qa:motion`) denetlenir; tanıtım videoları ve GIF'ler (`npm run qa:media`) sıfır kişisel veri ve tam kadraj için fail-closed doğrulanır. **Otonom Video İnisiyatifi (Autonomous Video Authority):** Yapay zeka asistanı, dinamik hareket, animasyon akıcılığı, geçiş fiziği veya kaydırma jank şüphesi gördüğü her durumda kullanıcının açık komut vermesini (örneğin 'videoyu incele' demesini) KESİNLİKLE BEKLEMEZ. Yapay zeka modeli bu doğrulamayı gerekli gördüğü her an kendi inisiyatifiyle `scripts/inspect-motion-qa.mjs` çalıştırarak video denetimini icra eder. Kusur tespit edildiğinde video otomatik kalıcı arşive alınır (`[ARTIFACT: ...]`), temiz videolarda auto-purge işletilir.
+20. **Otonom Geliştirici Araçları ve Teftiş İnisiyatifi (Autonomous DevTools, Web Guidance & Gemini API Authority)**: Yapay zeka asistanı; sayfa içi kapalı Shadow DOM izolasyon denetimi, CSS/layout hata ayıklama, konsol ve ağ incelemeleri, bellek sızıntısı tespiti ve performans/LCP profillemede (**Chrome DevTools MCP**); modern web ve tarayıcı API standartları, CSS optimizasyonu, erişilebilirlik (a11y) ve MV3 mimarisinde (**Modern Web Guidance**); ve multimodal/video akıcılık ve medya kalite analizlerinde (**Gemini API**) kullanıcının açık komut veya talimat vermesini KESİNLİKLE BEKLEMEZ. Yapay zeka modeli, projenin ihtiyaç duyduğu her hata ayıklama, kodlama, optimizasyon ve doğrulama anında bu araçları kendi inisiyatifiyle tam otonom devreye sokar, analizleri yürütür ve bulguları projeye proaktif olarak uygular.
 
-- Hak sahibi 2026-08-09 tarihinde rutin GitHub iş akışı ve Chrome Web Store dashboard işlemleri için tur başına açık onay beklenmemesine karar verdi; karar `docs/backlog/OPEN_TASKS.md` içinde `BF-GOV-007` kimliğiyle kalıcı kayıt altındadır.
-- Onay gerektirmeyen rutin işlemler: dal oluşturma ve push, PR açma/güncelleme, doğrulama kapıları yeşil olan PR'ları merge etme, Chrome Web Store dashboard güncelleme ve inceleme gönderimleri, iş kapsamındaki DCO imzalı commit'ler.
-- Açık kullanıcı onayı gerektiren işlemler: sürüm etiketi ve GitHub Release yayını, LinkedIn/X gibi harici platform yayınları, `main` dalına doğrudan veya force push, uzak dal veya repo silme, lisans/marka politikası değişiklikleri.
-- Merge öncesi zorunlu kapılar: ilgili doğrulama betikleri yerel olarak geçmeli ve GitHub Actions terminal `success` vermelidir; tüm commit'ler DCO `Signed-off-by` satırı taşımalıdır.
+---
 
-## Açık kaynak ve yayın bütünlüğü
+## 2. Task Router — Yalnızca İhtiyaç Duyulanı Yükle
 
-- Proje kodu `LICENSE.md` içindeki Apache License 2.0 koşullarıyla yayımlanır. `NOTICE` yalnız gerekli telif ve atıf bildirimlerini, `TRADEMARKS.md` ise kod lisansından ayrı marka kullanım sınırlarını tanımlar; Apache lisans haklarını marka metniyle daraltma.
-- Katkılar yalnız Apache-2.0 altında, ek veya farklı koşul olmadan alınır. Her katkı commit'i `DCO` metnindeki Developer Certificate of Origin 1.1 beyanına uygun geçerli bir `Signed-off-by` satırı taşımalıdır.
-- Yeni veya değiştirilen görsel/binary varlıkların kaynağını, üretim yöntemini, hak durumunu ve doğrulama özetini `docs/ASSET_PROVENANCE.md` içinde kaydet. Kişisel bookmark, gerçek profil verisi veya belgesiz üçüncü taraf marka/içeriği yayın varlıklarında kullanma.
-- Yönetişim kararları `GOVERNANCE.md`, yön ve kapsam `ROADMAP.md`, kullanıcı/katkıcı destek rotaları `SUPPORT.md`, güvenlik bildirimleri `SECURITY.md` üzerinden yürütülür; bu belgeler arasındaki bağlantı ve sorumluluk sınırlarını birlikte güncelle.
-- Sürüm yayınında manifest sürümü, `v<manifest-sürümü>` etiketi, kaynak commit'i, arşiv adı ve SHA-256 özeti birebir eşleşmelidir. Chrome ZIP'i `LICENSE.md`, `NOTICE` ve `TRADEMARKS.md` dosyalarını içerir; bakım belgeleri ve yerel üretim çıktıları pakete girmez.
+İşe başlamadan önce görevin türünü sınıflandırın ve yalnızca ilgili kılavuzu inceleyin:
 
-## Profesyonel görsel ve sürüm sunum standardı
+| Görev Türü | Yüklenecek Kılavuz (Playbook) |
+|---|---|
+| `BUGFIX` | İlgili kaynak kod + en yakın ilgili alan playbook'u |
+| `BROWSER_EXTENSION` | `docs/agent-playbooks/browser_extension.md` |
+| `WINDOWS_COMPANION` | `docs/agent-playbooks/windows_companion.md` |
+| `UI_ACCESSIBILITY` | `docs/agent-playbooks/ui_accessibility.md` |
+| `SECURITY_PRIVACY` | `docs/agent-playbooks/security_privacy.md` |
+| `RELEASE_DISTRIBUTION` | `docs/agent-playbooks/release_distribution.md` |
+| `RULE_GOVERNANCE` | `docs/agent-playbooks/rule_governance.md` |
 
-- Her yeni sürümde (release) veya görünür UI değişikliğinde; kullanıcının tur başına açık hatırlatması beklenmeksizin profesyonel tanıtım görselleri, sosyal medya duyuru metinleri (X ve LinkedIn için karakter, etiket ve link standartlarına uygun), iki dilli Chrome Web Store güncelleme notları ve eksiksiz sürüm belgeleri proaktif olarak hazırlanmalıdır.
-- Tanıtım görselleri projenin koyu lacivert/altın (`#0b0f19` / `#f2c94c`) tasarım sistemiyle, temiz tipografiyle ve sentetik yer imi verileriyle deterministik araçlar üzerinden üretilmelidir.
-- Geliştiriciler ve iş akışı araçları, arayüz veya sürüm teslimlerinde yalnız kod değişikliğiyle yetinemez; kullanıcıya her sürüm döngüsünde doğrudan kopyalanıp paylaşılabilecek lansman metinlerini ve görsel varlıkları hazır bir paket olarak sunmakla yükümlüdür.
-- **Zorunlu README Güncelleme Kuralı**: Eklenti için her yeni sürüm (release) çıkarıldığında; `README.md` dosyası kullanıcının tur başına açık hatırlatması beklenmeksizin otomatik ve eksiksiz olarak güncellenmelidir. Bu güncelleme yeni sürümün getirdiği tüm temel yetenekleri (Spotlight klavye navigasyonu, yeni arayüzler, renk temaları, çapraz tarayıcı desteği vb.), güncel sürüm ve tarayıcı rozetlerini, doğrudan paket indirme linklerini ve doğrulanmış sürüm tanıtım görsellerini içermelidir; README güncellemesi asla sonraki turlara ertelenemez veya atlanamaz.
-- **Doğrudan Görsel Sunum Standardı**: Yeni sürüm için üretilen lansman görselleri (X için 1200x675, LinkedIn için 1200x627, tema ve vitrin görselleri) yalnızca dosya sistemine yazılmakla bırakılamaz; kullanıcıya yanıt içerisinde hem doğrudan önizlenebilir biçimde sunulmalı hem de sosyal medya paylaşımlarında doğrudan kullanılabilmesi için disk yolları net olarak teslim edilmelidir.
+---
+
+## 3. Zorunlu Nihai Rapor Şablonu (Mandatory Verbatim Evidence)
+
+Nihai raporda özetleme yapmak, kanıtları gizlemek veya "tüm kontroller temiz geçti" deyip geçmek KESİNLİKLE YASAKTIR. Her nihai yanıtta aşağıdaki bölümler eksiksiz sunulur:
+
+### Bölüm 1: Canlı Doğrulama ve Konsol Kanıtları (Zorunlu Birebir Ham Çıktılar)
+Aşağıdaki kontroller terminalde fiilen çalıştırılır ve konsolun ürettiği çıktı markdown kod bloğu (` ``` `) içinde ham olarak sunulur:
+1. **Birim ve Sözleşme Test Çıktısı (`npm test`):**
+   - 67/67 testin geçtiğini gösteren terminal çıktısı eksiksiz yer almalıdır.
+2. **Toplu Proje ve Açık Kaynak Doğrulaması (`npm run validate:all`):**
+   - Açık kaynak, DCO, public tree, manifest, governance ve backlog doğrulama çıktısı ham olarak yer almalıdır.
+3. **Satır Sonu ve Boşluk Denetimi (`git diff --check`):**
+   - Sıfır hata çıktısı ham olarak sunulmalıdır.
+
+### Bölüm 2: İncelenen Canlı Yüzeyler ve İkincil İyileştirmeler (P0-11)
+- Ziyaret edilen/incelenen yüzeylerde (Yeni Sekme, Spotlight, Sayfa İçi Çubuk, Ayarlar vb.) tespit edilen layout, kontrast, padding, klavye odağı ve CSS kusurları ile kodda uygulanan doğrudan onarımlar açıklanır.
+
+### Bölüm 3: Yapılan Değişiklikler ve Dosyalar
+- Değiştirilen dosyalar tıklanabilir `file:///` formatında listelenir ve teknik işler özetlenir.
+
+### Bölüm 4: Proaktif Öneriler (CRITICAL & HIGH)
+- Sayı sınırlaması olmaksızın tüm CRITICAL ve HIGH önem derecesindeki öneriler (olası yan etkileriyle).
+
+### Bölüm 5: Çalıştırılmayan Kontroller ve Kalan Riskler
+
+### Bölüm 6: Zorunlu Son Satır
+- `Sonraki adım — [High|Medium|Low]: <somut tek bir eylem>`.
+
+---
+
+## 4. Kural ve Bellek Yönetişimi
+
+- Proje kurallarında veya mimaride kalıcı değişiklik yapıldığında:
+  1. `docs/agent-playbooks/rule_governance.md` prosedürü işletilir.
+  2. Alınan kalıcı karar `docs/agent/DECISION_INDEX.md` dosyasına eklenir.
+  3. Değişiklik `docs/agent/RULE_CHANGELOG.md` dosyasına kaydedilir.
+  4. `node scripts/validate-governance.mjs` ile kural sözleşmesi doğrulanır.

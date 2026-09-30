@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -506,4 +506,994 @@ test("launcher quick context menu and adaptive discovery contract (BF-UX-012)", 
   const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
   assert.match(popupHtml, /id="pageControlsBadge"/u, "popup.html must contain pageControlsBadge element");
   assert.match(popupHtml, /data-i18n="pageControlsTip"/u, "popup.html must reference pageControlsTip translation");
+});
+
+test("link capture and quick folder selector contract (BF-UX-013)", () => {
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  assert.equal(manifest.omnibox?.keyword, "bf", "manifest must configure omnibox keyword 'bf'");
+
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(newtabHtml, /id="addFolderSelect"/u, "newtab.html must contain addFolderSelect dropdown");
+  assert.match(newtabHtml, /data-i18n="targetFolder"/u, "newtab.html must reference targetFolder localization");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /function populateFolderSelect\(/u, "newtab.js must implement populateFolderSelect");
+  assert.match(newtabJs, /captureUrlToBookmark/u, "newtab.js must support captureUrlToBookmark action");
+  assert.match(newtabJs, /openDirectUrl/u, "newtab.js must support openDirectUrl action");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /class="bf-add-select"/u, "content.js template must contain bf-add-select");
+  assert.match(contentJs, /function populateContentFolderSelect\(/u, "content.js must implement populateContentFolderSelect");
+  assert.match(contentJs, /bf-action-capture-url/u, "content.js command palette must support bf-action-capture-url");
+
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(backgroundJs, /chrome\.omnibox\.onInputChanged\.addListener/u, "background.js must handle omnibox input changed");
+  assert.match(backgroundJs, /chrome\.omnibox\.onInputEntered\.addListener/u, "background.js must handle omnibox input entered");
+  assert.match(backgroundJs, /bfLastUsedFolderId/u, "background.js omnibox must support last used folder ID");
+
+  assert.match(newtabJs, /bfLastUsedFolderId/u, "newtab.js must support last used folder memory");
+  assert.match(contentJs, /bfLastUsedFolderId/u, "content.js must support last used folder memory");
+
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  const requiredKeys = ["addBookmarkToTarget", "addBookmarkToTargetDesc", "openInBrowser", "openInBrowserDesc", "targetFolder", "selectFolder", "omniboxDefaultSuggestion", "omniboxAddToBar", "omniboxAddToFolder", "bookmarkAddedNotification", "bookmarksBar"];
+  for (const k of requiredKeys) {
+    assert.ok(en[k]?.message, `Missing en message key: ${k}`);
+    assert.ok(tr[k]?.message, `Missing tr message key: ${k}`);
+  }
+});
+
+test("quick folder chips contract (BF-UX-014)", () => {
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(newtabHtml, /id="addFolderChips"/u, "newtab.html must contain addFolderChips container");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-folder-chips/u, "newtab.css must style .nt-folder-chips");
+  assert.match(newtabCss, /\.nt-folder-chip/u, "newtab.css must style .nt-folder-chip");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /function renderFolderChips\(/u, "newtab.js must define renderFolderChips");
+  assert.match(newtabJs, /function updateFolderChipsActive\(/u, "newtab.js must define updateFolderChipsActive");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /class="bf-folder-chips"/u, "content.js template must contain bf-folder-chips");
+  assert.match(contentJs, /function renderContentFolderChips\(/u, "content.js must define renderContentFolderChips");
+  assert.match(contentJs, /function updateContentFolderChipsActive\(/u, "content.js must define updateContentFolderChipsActive");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-folder-chips/u, "content.css must style .bf-folder-chips");
+  assert.match(contentCss, /\.bf-folder-chip/u, "content.css must style .bf-folder-chip");
+
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  assert.ok(en.quickFolders?.message, "Missing en quickFolders message");
+  assert.ok(tr.quickFolders?.message, "Missing tr quickFolders message");
+});
+
+test("search live card instant folder chips contract (BF-UX-015)", () => {
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-search-action-chips/u, "newtab.css must style .nt-search-action-chips");
+  assert.match(newtabCss, /\.nt-search-action-chip/u, "newtab.css must style .nt-search-action-chip");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /nt-search-action-chips/u, "newtab.js must render nt-search-action-chips in capture card");
+  assert.match(newtabJs, /async function handleDirectSaveBookmark\(/u, "newtab.js must define handleDirectSaveBookmark");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-command-action-chips/u, "content.css must style .bf-command-action-chips");
+  assert.match(contentCss, /\.bf-command-action-chip/u, "content.css must style .bf-command-action-chip");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /bf-command-action-chips/u, "content.js must render bf-command-action-chips in capture card");
+  assert.match(contentJs, /async function handleDirectSaveBookmark\(/u, "content.js must define handleDirectSaveBookmark");
+
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  assert.ok(en.saveToBar?.message, "Missing en saveToBar message");
+  assert.ok(tr.saveToBar?.message, "Missing tr saveToBar message");
+  assert.ok(en.saveToFolder?.message, "Missing en saveToFolder message");
+  assert.ok(tr.saveToFolder?.message, "Missing tr saveToFolder message");
+});
+
+test("instant toast feedback contract (BF-UX-016)", () => {
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(newtabHtml, /id="toastNotification"/u, "newtab.html must contain toastNotification element");
+  assert.match(newtabHtml, /class="nt-toast"/u, "newtab.html must contain nt-toast class");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-toast\b/u, "newtab.css must style .nt-toast");
+  assert.match(newtabCss, /\.nt-toast\.is-leaving\b/u, "newtab.css must style .nt-toast.is-leaving");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /function showToastNotification\(/u, "newtab.js must define showToastNotification");
+  assert.match(newtabJs, /showToastNotification\(toastMsg/u, "newtab.js must trigger toast on direct save");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /class="bf-toast"/u, "content.js template must contain bf-toast");
+  assert.match(contentJs, /function showContentToastNotification\(/u, "content.js must define showContentToastNotification");
+  assert.match(contentJs, /showContentToastNotification\(toastMsg/u, "content.js must trigger toast on direct save");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-toast\b/u, "content.css must style .bf-toast");
+  assert.match(contentCss, /\.bf-toast\.is-leaving\b/u, "content.css must style .bf-toast.is-leaving");
+
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  assert.ok(en.bookmarkSavedToBarToast?.message, "Missing en bookmarkSavedToBarToast message");
+  assert.ok(tr.bookmarkSavedToBarToast?.message, "Missing tr bookmarkSavedToBarToast message");
+  assert.ok(en.bookmarkSavedToFolderToast?.message, "Missing en bookmarkSavedToFolderToast message");
+  assert.ok(tr.bookmarkSavedToFolderToast?.message, "Missing tr bookmarkSavedToFolderToast message");
+});
+
+test("smart intent router and routing badges contract (BF-UX-017)", () => {
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  assert.ok(
+    manifest.content_scripts?.[0]?.js?.includes("src/intent-router.js"),
+    "manifest content_scripts must include src/intent-router.js"
+  );
+
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(newtabHtml, /id="searchIntentBadge"/u, "newtab.html must contain searchIntentBadge element");
+  assert.match(newtabHtml, /src="intent-router\.js"/u, "newtab.html must include intent-router.js");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-intent-badge\b/u, "newtab.css must style .nt-intent-badge");
+  assert.match(newtabCss, /\.nt-intent-badge\.is-url\b/u, "newtab.css must style .nt-intent-badge.is-url");
+  assert.match(newtabCss, /\.nt-intent-badge\.is-command\b/u, "newtab.css must style .nt-intent-badge.is-command");
+  assert.match(newtabCss, /\.nt-intent-badge\.is-tag\b/u, "newtab.css must style .nt-intent-badge.is-tag");
+  assert.match(newtabCss, /\.nt-intent-badge\.is-folder\b/u, "newtab.css must style .nt-intent-badge.is-folder");
+  assert.match(newtabCss, /\.nt-intent-badge\.is-tab\b/u, "newtab.css must style .nt-intent-badge.is-tab");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /searchIntentBadge:\s*document\.getElementById\("searchIntentBadge"\)/u, "newtab.js must reference searchIntentBadge");
+  assert.match(newtabJs, /function updateSearchIntentBadge\(/u, "newtab.js must define updateSearchIntentBadge");
+  assert.match(newtabJs, /BookmarkIntentRoutingEngine\.detectUserIntent\(/u, "newtab.js must call BookmarkIntentRoutingEngine.detectUserIntent");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /class="bf-intent-badge"/u, "content.js template must contain bf-intent-badge");
+  assert.match(contentJs, /function updateCommandIntentBadge\(/u, "content.js must define updateCommandIntentBadge");
+  assert.match(contentJs, /BookmarkIntentRoutingEngine\.detectUserIntent\(/u, "content.js must call BookmarkIntentRoutingEngine.detectUserIntent");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-intent-badge\b/u, "content.css must style .bf-intent-badge");
+
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  const requiredKeys = [
+    "intentLinkMode",
+    "intentCommandMode",
+    "intentTagMode",
+    "intentFolderMode",
+    "intentTabMode",
+    "intentSearchMode"
+  ];
+  for (const key of requiredKeys) {
+    assert.ok(en[key]?.message, `Missing en ${key} message`);
+    assert.ok(tr[key]?.message, `Missing tr ${key} message`);
+  }
+});
+
+test("site control, settings navigation, and popup layout integrity contract (BF-UX-018)", () => {
+  const root = path.resolve(".");
+
+  // 1. content.js & background.js MV3 settings navigation contract
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.ok(
+    !contentJs.includes('window.open(chrome.runtime.getURL("src/bookmark-maintenance.html")'),
+    "content.js must not call window.open on bookmark-maintenance.html (triggers MV3 ERR_BLOCKED_BY_CLIENT)"
+  );
+  assert.match(
+    contentJs,
+    /type:\s*["']BF_OPEN_SETTINGS["']/u,
+    "content.js must dispatch BF_OPEN_SETTINGS message to background service worker"
+  );
+  assert.match(
+    contentJs,
+    /showContentToastNotification\(t\(["']siteDisabledToast["']\)/u,
+    "content.js must display siteDisabledToast when site is disabled"
+  );
+
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(
+    backgroundJs,
+    /const MESSAGE_OPEN_SETTINGS = ["']BF_OPEN_SETTINGS["']/u,
+    "background.js must define MESSAGE_OPEN_SETTINGS constant"
+  );
+  assert.match(
+    backgroundJs,
+    /message\?\.type === MESSAGE_OPEN_SETTINGS/u,
+    "background.js must route MESSAGE_OPEN_SETTINGS to chrome.tabs.create"
+  );
+
+  // 2. popup.html & popup.css layout integrity contract
+  const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
+  assert.match(
+    popupHtml,
+    /<section id="siteControl" class="site-control" hidden>/u,
+    "popup.html must contain siteControl section"
+  );
+  const siteControlIndex = popupHtml.indexOf('id="siteControl"');
+  const consentGateIndex = popupHtml.indexOf('id="popupConsentGate"');
+  assert.ok(
+    siteControlIndex < consentGateIndex,
+    "siteControl must appear at the top of popup before general settings"
+  );
+  assert.match(
+    popupHtml,
+    /<div class="backup-row">[\s\S]*?<\/div>\s*<p id="backupStatus"/u,
+    "popup.html .backup-row must be properly closed and not swallow subsequent elements"
+  );
+
+  // 3. bookmark-maintenance.html & bookmark-maintenance.js disabled sites management
+  const maintHtml = readFileSync(path.join(root, "src/bookmark-maintenance.html"), "utf8");
+  assert.match(
+    maintHtml,
+    /id="navSitesLink"/u,
+    "bookmark-maintenance.html must include navSitesLink"
+  );
+  assert.match(
+    maintHtml,
+    /id="disabledSitesList"/u,
+    "bookmark-maintenance.html must include disabledSitesList"
+  );
+  assert.match(
+    maintHtml,
+    /id="addDisabledHostBtn"/u,
+    "bookmark-maintenance.html must include addDisabledHostBtn"
+  );
+
+  const maintJs = readFileSync(path.join(root, "src/bookmark-maintenance.js"), "utf8");
+  assert.match(
+    maintJs,
+    /function loadDisabledSites\(/u,
+    "bookmark-maintenance.js must define loadDisabledSites"
+  );
+  assert.match(
+    maintJs,
+    /function removeSiteFromDisabled\(/u,
+    "bookmark-maintenance.js must define removeSiteFromDisabled"
+  );
+  assert.match(
+    maintJs,
+    /function handleAddDisabledHost\(/u,
+    "bookmark-maintenance.js must define handleAddDisabledHost"
+  );
+
+  // 4. i18n locale parity
+  const en = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const tr = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  const newKeys = [
+    "siteDisabledToast",
+    "navSites",
+    "disabledSitesHeading",
+    "disabledSitesDescription",
+    "addDisabledHost",
+    "addSitePlaceholder",
+    "disabledSitesEmpty",
+    "removeDisabledHost",
+    "hostAddedSuccess",
+    "hostRemovedSuccess",
+    "invalidHostError",
+    "disabledWebsitesAria",
+    "undo",
+    "bookmarkDeletedToast"
+  ];
+  for (const key of newKeys) {
+    assert.ok(en[key]?.message, `Missing en message for key: ${key}`);
+    assert.ok(tr[key]?.message, `Missing tr message for key: ${key}`);
+  }
+
+  // 5. Toast undo and live journey menu interaction contract
+  assert.match(
+    contentJs,
+    /bf-toast-action-btn/u,
+    "content.js must create .bf-toast-action-btn for undo interaction"
+  );
+  assert.match(
+    contentJs,
+    /removeDisabledHost\(currentDisabled,\s*currentHost\)/u,
+    "content.js undo handler must call removeDisabledHost"
+  );
+  assert.match(
+    contentJs,
+    /contentToastKeydownHandler/u,
+    "content.js must support Ctrl+Z keydown handler for toast undo"
+  );
+  assert.match(
+    contentJs,
+    /type:\s*MESSAGE_DELETE_BOOKMARK/u,
+    "content.js handleDirectSaveBookmark undo must dispatch MESSAGE_DELETE_BOOKMARK"
+  );
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(
+    contentCss,
+    /\.bf-toast-action-btn\b/u,
+    "content.css must style .bf-toast-action-btn"
+  );
+  assert.match(
+    contentCss,
+    /\.bf-toast-progress\b/u,
+    "content.css must style .bf-toast-progress"
+  );
+  assert.match(
+    contentCss,
+    /\.bf-toast:hover \.bf-toast-progress\b/u,
+    "content.css must pause progress animation on hover"
+  );
+  assert.match(
+    contentJs,
+    /bf-toast-progress/u,
+    "content.js must append .bf-toast-progress element"
+  );
+  assert.match(
+    contentJs,
+    /toast\.addEventListener\("mouseenter"/u,
+    "content.js must support pause on hover (mouseenter)"
+  );
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(
+    newtabJs,
+    /nt-toast-action-btn/u,
+    "newtab.js must create .nt-toast-action-btn for undo interaction"
+  );
+  assert.match(
+    newtabJs,
+    /toastKeydownHandler/u,
+    "newtab.js must support Ctrl+Z keydown handler for toast undo"
+  );
+  assert.match(
+    newtabJs,
+    /type:\s*["']BF_DELETE_BOOKMARK["']/u,
+    "newtab.js handleDirectSaveBookmark undo must dispatch BF_DELETE_BOOKMARK"
+  );
+  assert.match(
+    newtabJs,
+    /nt-toast-progress/u,
+    "newtab.js must append .nt-toast-progress element"
+  );
+  assert.match(
+    newtabJs,
+    /elements\.toastNotification\.addEventListener\("mouseenter"/u,
+    "newtab.js must support pause on hover (mouseenter)"
+  );
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(
+    newtabCss,
+    /\.nt-toast-action-btn\b/u,
+    "newtab.css must style .nt-toast-action-btn"
+  );
+  assert.match(
+    newtabCss,
+    /\.nt-toast-progress\b/u,
+    "newtab.css must style .nt-toast-progress"
+  );
+  assert.match(
+    newtabCss,
+    /\.nt-toast:hover \.nt-toast-progress\b/u,
+    "newtab.css must pause progress animation on hover"
+  );
+
+  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
+  assert.match(
+    journeyJs,
+    /rightClickElementByClass/u,
+    "user-journey-live-qa.mjs must define rightClickElementByClass"
+  );
+  assert.match(
+    journeyJs,
+    /clickElementByAttribute/u,
+    "user-journey-live-qa.mjs must define clickElementByAttribute"
+  );
+});
+
+test("search inline save button and green undone toast feedback contract (BF-UX-018)", () => {
+  const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  assert.ok(enLocales.quickSaveBookmark, "en messages must have quickSaveBookmark");
+  assert.ok(trLocales.quickSaveBookmark, "tr messages must have quickSaveBookmark");
+  assert.ok(enLocales.quickSaveToBar, "en messages must have quickSaveToBar");
+  assert.ok(trLocales.quickSaveToBar, "tr messages must have quickSaveToBar");
+  assert.ok(enLocales.quickSaveToFolder, "en messages must have quickSaveToFolder");
+  assert.ok(trLocales.quickSaveToFolder, "tr messages must have quickSaveToFolder");
+  assert.ok(enLocales.undoWithShortcut, "en messages must have undoWithShortcut");
+  assert.ok(trLocales.undoWithShortcut, "tr messages must have undoWithShortcut");
+
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(
+    newtabHtml,
+    /id="searchInlineSaveBtn"/u,
+    "newtab.html must define #searchInlineSaveBtn"
+  );
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(
+    newtabCss,
+    /\.nt-inline-save-btn\b/u,
+    "newtab.css must style .nt-inline-save-btn"
+  );
+  assert.match(
+    newtabCss,
+    /\.nt-inline-save-btn\.is-leaving\b/u,
+    "newtab.css must style .nt-inline-save-btn.is-leaving for smooth exit"
+  );
+  assert.match(
+    newtabCss,
+    /@keyframes\s+ntInlineSaveEnter\b/u,
+    "newtab.css must define @keyframes ntInlineSaveEnter"
+  );
+  assert.match(
+    newtabCss,
+    /\.nt-toast\.is-undone\b/u,
+    "newtab.css must style .nt-toast.is-undone"
+  );
+  assert.match(
+    newtabCss,
+    /\.nt-search-box\.is-saved-flash\b/u,
+    "newtab.css must style .nt-search-box.is-saved-flash"
+  );
+  assert.match(
+    newtabCss,
+    /\.nt-search-box\.is-restored\b/u,
+    "newtab.css must style .nt-search-box.is-restored"
+  );
+  assert.match(
+    newtabCss,
+    /@keyframes\s+ntSearchRestoredFlash\b/u,
+    "newtab.css must define @keyframes ntSearchRestoredFlash"
+  );
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(
+    contentCss,
+    /\.bf-command-inline-save\b/u,
+    "content.css must style .bf-command-inline-save"
+  );
+  assert.match(
+    contentCss,
+    /\.bf-command-inline-save\.is-leaving\b/u,
+    "content.css must style .bf-command-inline-save.is-leaving for smooth exit"
+  );
+  assert.match(
+    contentCss,
+    /@keyframes\s+bfCommandInlineSaveEnter\b/u,
+    "content.css must define @keyframes bfCommandInlineSaveEnter"
+  );
+  assert.match(
+    contentCss,
+    /\.bf-toast\.is-undone\b/u,
+    "content.css must style .bf-toast.is-undone"
+  );
+  assert.match(
+    contentCss,
+    /\.bf-command-head\.is-saved-flash\b/u,
+    "content.css must style .bf-command-head.is-saved-flash"
+  );
+  assert.match(
+    contentCss,
+    /\.bf-command-head\.is-restored\b/u,
+    "content.css must style .bf-command-head.is-restored"
+  );
+  assert.match(
+    contentCss,
+    /@keyframes\s+bfCommandRestoredFlash\b/u,
+    "content.css must define @keyframes bfCommandRestoredFlash"
+  );
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(
+    newtabJs,
+    /searchInlineSaveBtn:\s*document\.getElementById\("searchInlineSaveBtn"\)/u,
+    "newtab.js must resolve searchInlineSaveBtn element"
+  );
+  assert.match(
+    newtabJs,
+    /getQuickSaveTargetInfo\s*\(/u,
+    "newtab.js must define getQuickSaveTargetInfo for dynamic tooltip"
+  );
+  assert.match(
+    newtabJs,
+    /triggerSearchSaveFlash\s*\(/u,
+    "newtab.js must define triggerSearchSaveFlash"
+  );
+  assert.match(
+    newtabJs,
+    /triggerSearchRestoredFlash\s*\(/u,
+    "newtab.js must define triggerSearchRestoredFlash"
+  );
+  assert.match(
+    newtabJs,
+    /hideInlineSaveBtnSmoothly\s*\(/u,
+    "newtab.js must define hideInlineSaveBtnSmoothly for smooth button fade out"
+  );
+  assert.match(
+    newtabJs,
+    /lastDirectSavedUrl/u,
+    "newtab.js must track lastDirectSavedUrl"
+  );
+  assert.match(
+    newtabJs,
+    /lastEscapeClearedSearchText/u,
+    "newtab.js must track lastEscapeClearedSearchText"
+  );
+  assert.match(
+    newtabJs,
+    /elements\.searchInput\.value\s*=\s*lastDirectSavedUrl/u,
+    "newtab.js must restore lastDirectSavedUrl to searchInput on undo"
+  );
+  assert.match(
+    newtabJs,
+    /elements\.searchInput\.value\s*=\s*lastEscapeClearedSearchText/u,
+    "newtab.js must restore lastEscapeClearedSearchText on Ctrl+Z"
+  );
+  assert.match(
+    newtabJs,
+    /\(event\.key\s*===\s*["']s["']\s*\|\|\s*event\.key\s*===\s*["']S["']\)[\s\S]*?searchInlineSaveBtn/u,
+    "newtab.js must support Ctrl+S / Cmd+S shortcut to trigger inline save"
+  );
+  assert.match(
+    newtabJs,
+    /showToastNotification\([\s\S]*?["']is-undone["']\)/u,
+    "newtab.js must invoke showToastNotification with is-undone on bookmark undo"
+  );
+  assert.match(
+    newtabJs,
+    /undoWithShortcut/u,
+    "newtab.js must use undoWithShortcut key in toast action"
+  );
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(
+    contentJs,
+    /class="bf-command-inline-save"/u,
+    "content.js template must include bf-command-inline-save button"
+  );
+  assert.match(
+    contentJs,
+    /getContentQuickSaveTargetInfo\s*\(/u,
+    "content.js must define getContentQuickSaveTargetInfo for dynamic tooltip"
+  );
+  assert.match(
+    contentJs,
+    /triggerCommandSaveFlash\s*\(/u,
+    "content.js must define triggerCommandSaveFlash"
+  );
+  assert.match(
+    contentJs,
+    /triggerCommandRestoredFlash\s*\(/u,
+    "content.js must define triggerCommandRestoredFlash"
+  );
+  assert.match(
+    contentJs,
+    /hideCommandInlineSaveBtnSmoothly\s*\(/u,
+    "content.js must define hideCommandInlineSaveBtnSmoothly for smooth button fade out"
+  );
+  assert.match(
+    contentJs,
+    /lastCommandDirectSavedUrl/u,
+    "content.js must track lastCommandDirectSavedUrl"
+  );
+  assert.match(
+    contentJs,
+    /lastEscapeClearedCommandText/u,
+    "content.js must track lastEscapeClearedCommandText"
+  );
+  assert.match(
+    contentJs,
+    /commandQuery\s*=\s*lastCommandDirectSavedUrl/u,
+    "content.js must restore lastCommandDirectSavedUrl on undo"
+  );
+  assert.match(
+    contentJs,
+    /input\.value\s*=\s*lastEscapeClearedCommandText/u,
+    "content.js must restore lastEscapeClearedCommandText on Ctrl+Z"
+  );
+  assert.match(
+    contentJs,
+    /\(event\.key\s*===\s*["']s["']\s*\|\|\s*event\.key\s*===\s*["']S["']\)[\s\S]*?bf-command-inline-save/u,
+    "content.js must support Ctrl+S / Cmd+S shortcut to trigger inline save"
+  );
+  assert.match(
+    contentJs,
+    /action\s*===\s*["']inline-save-search["']/u,
+    "content.js must handle inline-save-search action"
+  );
+  assert.match(
+    contentJs,
+    /showContentToastNotification\([\s\S]*?["']is-undone["']\)/u,
+    "content.js must invoke showContentToastNotification with is-undone on undo"
+  );
+  assert.match(
+    contentJs,
+    /undoWithShortcut/u,
+    "content.js must use undoWithShortcut key in toast action"
+  );
+});
+
+test("text restore toast and live existing bookmark title preview contract (BF-UX-018)", () => {
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  assert.ok(enMessages.queryRestoredToast, "EN must define queryRestoredToast");
+  assert.ok(trMessages.queryRestoredToast, "TR must define queryRestoredToast");
+  assert.ok(enMessages.existingBookmarkNotice, "EN must define existingBookmarkNotice");
+  assert.ok(trMessages.existingBookmarkNotice, "TR must define existingBookmarkNotice");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(
+    newtabJs,
+    /function\s+findExistingBookmarkByUrl\s*\(/u,
+    "newtab.js must define findExistingBookmarkByUrl"
+  );
+  assert.match(
+    newtabJs,
+    /function\s+normalizeUrlForMatch\s*\(/u,
+    "newtab.js must define normalizeUrlForMatch"
+  );
+  assert.match(
+    newtabJs,
+    /existingBookmarkNotice/u,
+    "newtab.js must use existingBookmarkNotice"
+  );
+  assert.match(
+    newtabJs,
+    /showToastNotification\([\s\S]*?queryRestoredToast[\s\S]*?["']is-undone["']\)/u,
+    "newtab.js must invoke showToastNotification with queryRestoredToast on Ctrl+Z restore"
+  );
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(
+    contentJs,
+    /function\s+findExistingBookmarkByUrl\s*\(/u,
+    "content.js must define findExistingBookmarkByUrl"
+  );
+  assert.match(
+    contentJs,
+    /function\s+normalizeUrlForMatch\s*\(/u,
+    "content.js must define normalizeUrlForMatch"
+  );
+  assert.match(
+    contentJs,
+    /existingBookmarkNotice/u,
+    "content.js must use existingBookmarkNotice"
+  );
+  assert.match(
+    contentJs,
+    /showContentToastNotification\([\s\S]*?queryRestoredToast[\s\S]*?["']is-undone["']\)/u,
+    "content.js must invoke showContentToastNotification with queryRestoredToast on Ctrl+Z restore"
+  );
+});
+
+test("existing bookmark edit mode and smooth toast switching contract (BF-UX-018)", () => {
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  assert.ok(enMessages.editBookmark, "EN must define editBookmark");
+  assert.ok(trMessages.editBookmark, "TR must define editBookmark");
+  assert.ok(enMessages.quickEditExistingBookmark, "EN must define quickEditExistingBookmark");
+  assert.ok(trMessages.quickEditExistingBookmark, "TR must define quickEditExistingBookmark");
+  assert.ok(enMessages.bookmarkUpdatedToast, "EN must define bookmarkUpdatedToast");
+  assert.ok(trMessages.bookmarkUpdatedToast, "TR must define bookmarkUpdatedToast");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-inline-save-btn\.is-edit-mode/u, "newtab.css must style .nt-inline-save-btn.is-edit-mode");
+  assert.match(newtabCss, /\.nt-toast\.is-switching/u, "newtab.css must style .nt-toast.is-switching");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-command-inline-save\.is-edit-mode/u, "content.css must style .bf-command-inline-save.is-edit-mode");
+  assert.match(contentCss, /\.bf-toast\.is-switching/u, "content.css must style .bf-toast.is-switching");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /is-edit-mode/u, "newtab.js must use is-edit-mode");
+  assert.match(newtabJs, /is-switching/u, "newtab.js must trigger is-switching on toast switch");
+  assert.match(newtabJs, /dataset\.editNodeId/u, "newtab.js must handle editNodeId in add dialog");
+  assert.match(newtabJs, /quickEditExistingBookmark/u, "newtab.js must use quickEditExistingBookmark key");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /is-edit-mode/u, "content.js must use is-edit-mode");
+  assert.match(contentJs, /is-switching/u, "content.js must trigger is-switching on toast switch");
+  assert.match(contentJs, /dataset\.editNodeId/u, "content.js must handle editNodeId in add dialog");
+  assert.match(contentJs, /quickEditExistingBookmark/u, "content.js must use quickEditExistingBookmark key");
+});
+
+test("edit mode url unlock and live folder move chips contract (BF-UX-018)", () => {
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  assert.ok(enMessages.unlockUrl, "EN must define unlockUrl");
+  assert.ok(trMessages.unlockUrl, "TR must define unlockUrl");
+  assert.ok(enMessages.lockUrl, "EN must define lockUrl");
+  assert.ok(trMessages.lockUrl, "TR must define lockUrl");
+  assert.ok(enMessages.moveToBar, "EN must define moveToBar");
+  assert.ok(trMessages.moveToBar, "TR must define moveToBar");
+  assert.ok(enMessages.moveToFolder, "EN must define moveToFolder");
+  assert.ok(trMessages.moveToFolder, "TR must define moveToFolder");
+  assert.ok(enMessages.bookmarkMovedToFolderToast, "EN must define bookmarkMovedToFolderToast");
+  assert.ok(trMessages.bookmarkMovedToFolderToast, "TR must define bookmarkMovedToFolderToast");
+  assert.ok(enMessages.bookmarkMovedBackToast, "EN must define bookmarkMovedBackToast");
+  assert.ok(trMessages.bookmarkMovedBackToast, "TR must define bookmarkMovedBackToast");
+  assert.ok(enMessages.existingBookmarkWithFolderNotice, "EN must define existingBookmarkWithFolderNotice");
+  assert.ok(trMessages.existingBookmarkWithFolderNotice, "TR must define existingBookmarkWithFolderNotice");
+
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  assert.match(newtabHtml, /id="addUrlUnlockBtn"/u, "newtab.html must define addUrlUnlockBtn");
+  assert.match(newtabHtml, /class="nt-url-input-wrap"/u, "newtab.html must define nt-url-input-wrap");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-url-input-wrap/u, "newtab.css must style .nt-url-input-wrap");
+  assert.match(newtabCss, /\.nt-url-unlock-btn/u, "newtab.css must style .nt-url-unlock-btn");
+  assert.match(newtabCss, /\.nt-search-action-chip\.is-move-chip/u, "newtab.css must style .nt-search-action-chip.is-move-chip");
+
+  const contentHtml = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentHtml, /bf-url-unlock-btn/u, "content.js must template bf-url-unlock-btn");
+  assert.match(contentHtml, /bf-url-input-wrap/u, "content.js must template bf-url-input-wrap");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-url-input-wrap/u, "content.css must style .bf-url-input-wrap");
+  assert.match(contentCss, /\.bf-url-unlock-btn/u, "content.css must style .bf-url-unlock-btn");
+  assert.match(contentCss, /\.bf-command-action-chip\.is-move-chip/u, "content.css must style .bf-command-action-chip.is-move-chip");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /addUrlUnlockBtn/u, "newtab.js must wire addUrlUnlockBtn");
+  assert.match(newtabJs, /handleMoveBookmarkToFolder/u, "newtab.js must define handleMoveBookmarkToFolder");
+  assert.match(newtabJs, /is-move-chip/u, "newtab.js must create is-move-chip for folder move");
+  assert.match(newtabJs, /BF_MOVE_TO_FOLDER/u, "newtab.js must dispatch BF_MOVE_TO_FOLDER");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /handleContentMoveBookmarkToFolder/u, "content.js must define handleContentMoveBookmarkToFolder");
+  assert.match(contentJs, /is-move-chip/u, "content.js must create is-move-chip for folder move");
+  assert.match(contentJs, /MESSAGE_MOVE_TO_FOLDER/u, "content.js must define MESSAGE_MOVE_TO_FOLDER");
+
+  const bgJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(bgJs, /MESSAGE_MOVE_TO_FOLDER/u, "background.js must define MESSAGE_MOVE_TO_FOLDER");
+  assert.match(bgJs, /function\s+moveBookmarkToFolder\s*\(/u, "background.js must define moveBookmarkToFolder");
+});
+
+test("url auto-complete https and folder picker dropdown chip contract (BF-UX-018)", () => {
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  assert.ok(enMessages.otherFolders, "EN must define otherFolders");
+  assert.ok(trMessages.otherFolders, "TR must define otherFolders");
+  assert.ok(enMessages.chooseFolderToMove, "EN must define chooseFolderToMove");
+  assert.ok(trMessages.chooseFolderToMove, "TR must define chooseFolderToMove");
+  assert.ok(enMessages.currentFolderTag, "EN must define currentFolderTag");
+  assert.ok(trMessages.currentFolderTag, "TR must define currentFolderTag");
+  assert.ok(enMessages.urlAutoCompletedHttps, "EN must define urlAutoCompletedHttps");
+  assert.ok(trMessages.urlAutoCompletedHttps, "TR must define urlAutoCompletedHttps");
+
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  assert.match(newtabCss, /\.nt-url-input-wrap\s+input\.is-invalid-url/u, "newtab.css must style input.is-invalid-url");
+  assert.match(newtabCss, /\.nt-search-action-chip\.is-folder-picker-chip/u, "newtab.css must style is-folder-picker-chip");
+  assert.match(newtabCss, /\.nt-folder-picker-menu/u, "newtab.css must style nt-folder-picker-menu");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-url-input-wrap\s+input\.is-invalid-url/u, "content.css must style input.is-invalid-url");
+  assert.match(contentCss, /\.bf-command-action-chip\.is-folder-picker-chip/u, "content.css must style is-folder-picker-chip");
+  assert.match(contentCss, /\.bf-folder-picker-menu/u, "content.css must style bf-folder-picker-menu");
+
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  assert.match(newtabJs, /is-invalid-url/u, "newtab.js must handle is-invalid-url");
+  assert.match(newtabJs, /is-folder-picker-chip/u, "newtab.js must create is-folder-picker-chip");
+  assert.match(newtabJs, /showFolderPickerMenu/u, "newtab.js must define showFolderPickerMenu");
+  assert.match(newtabJs, /closeFolderPickerMenu/u, "newtab.js must define closeFolderPickerMenu");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /is-invalid-url/u, "content.js must handle is-invalid-url");
+  assert.match(contentJs, /is-folder-picker-chip/u, "content.js must create is-folder-picker-chip");
+  assert.match(contentJs, /showContentFolderPickerMenu/u, "content.js must define showContentFolderPickerMenu");
+  assert.match(contentJs, /closeContentFolderPickerMenu/u, "content.js must define closeContentFolderPickerMenu");
+});
+
+test("autonomous video trigger authority and lifecycle contract (BF-QA-004)", () => {
+  const inspectMotion = readFileSync(path.join(root, "scripts/inspect-motion-qa.mjs"), "utf8");
+  assert.match(inspectMotion, /function getArtifactDirectory/u, "inspect-motion-qa.mjs must define getArtifactDirectory");
+  assert.match(inspectMotion, /function detectAutonomousSurfaces/u, "inspect-motion-qa.mjs must define detectAutonomousSurfaces");
+  assert.match(inspectMotion, /inspectSingleSurface/u, "inspect-motion-qa.mjs must define inspectSingleSurface");
+  assert.match(inspectMotion, /--autonomous/u, "inspect-motion-qa.mjs must support autonomous flag");
+  assert.match(inspectMotion, /_issue\.webm/u, "inspect-motion-qa.mjs must auto-preserve issue video with _issue suffix");
+  assert.match(inspectMotion, /\[ARTIFACT:\s+/u, "inspect-motion-qa.mjs must emit ARTIFACT token on issue or trace");
+  assert.match(inspectMotion, /Auto-Purge/u, "inspect-motion-qa.mjs must declare Auto-Purge lifecycle");
+
+  const agents = readFileSync(path.join(root, "AGENTS.md"), "utf8");
+  assert.match(agents, /Otonom Video İnisiyatifi/u, "AGENTS.md must declare Autonomous Video Trigger Authority");
+
+  const uiPlaybook = readFileSync(path.join(root, "docs/agent-playbooks/ui_accessibility.md"), "utf8");
+  assert.match(uiPlaybook, /Yapay Zeka Otonom İnisiyatifi/u, "ui_accessibility.md must detail autonomous video authority");
+  assert.match(uiPlaybook, /Statik Yüzeyler/u, "ui_accessibility.md must separate static surfaces");
+  assert.match(uiPlaybook, /Dinamik \/ Hareketli Yüzeyler/u, "ui_accessibility.md must separate dynamic surfaces");
+  assert.match(uiPlaybook, /Otomatik Kusur Saklama/u, "ui_accessibility.md must define auto artifact preservation");
+  assert.match(uiPlaybook, /Otomatik Yaşam Döngüsü/u, "ui_accessibility.md must define auto-purge lifecycle");
+
+  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
+  assert.match(journeyJs, /startFpsTracker/u, "user-journey-live-qa.mjs must define startFpsTracker");
+  assert.match(journeyJs, /stopFpsTracker/u, "user-journey-live-qa.mjs must define stopFpsTracker");
+  assert.match(journeyJs, /evaluateAndTriggerMotionQa/u, "user-journey-live-qa.mjs must define evaluateAndTriggerMotionQa");
+  assert.match(journeyJs, /jankThreshold/u, "user-journey-live-qa.mjs must support jankThreshold option");
+  assert.match(journeyJs, /Performance\.enable/u, "user-journey-live-qa.mjs must enable Performance domain");
+  assert.match(journeyJs, /Animation\.enable/u, "user-journey-live-qa.mjs must enable Animation domain");
+});
+
+test("autonomous devtools shadow DOM isolation, a11y focus ring and design tokens contract (BF-GOV-011)", () => {
+  const designTokensPath = path.join(root, "src/design-tokens.css");
+  assert.ok(existsSync(designTokensPath), "src/design-tokens.css must exist");
+
+  const designTokens = readFileSync(designTokensPath, "utf8");
+  assert.match(designTokens, /--bf-token-gold-primary/u, "design-tokens.css must define gold primary token");
+  assert.match(designTokens, /--bf-token-bg-base/u, "design-tokens.css must define base background token");
+  assert.match(designTokens, /--bf-token-focus-outline/u, "design-tokens.css must define focus outline token");
+  assert.match(designTokens, /--bf-token-focus-shadow/u, "design-tokens.css must define focus shadow token");
+  assert.match(designTokens, /--bf-token-blur-modal/u, "design-tokens.css must define blur token");
+  assert.match(designTokens, /prefers-reduced-motion/u, "design-tokens.css must support reduced-motion");
+
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  const webResources = manifest.web_accessible_resources?.[0]?.resources || [];
+  assert.ok(webResources.includes("src/design-tokens.css"), "manifest.json must declare src/design-tokens.css as web_accessible_resource");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /BF_INSPECT_ISOLATION/u, "content.js must handle BF_INSPECT_ISOLATION message");
+  assert.match(contentJs, /shadowModeClosed/u, "content.js must verify shadowModeClosed in isolation check");
+  assert.match(contentJs, /hasFocusRing/u, "content.js must verify a11y focus ring in isolation check");
+
+  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
+  assert.match(journeyJs, /BF_INSPECT_ISOLATION/u, "user-journey-live-qa.mjs must trigger BF_INSPECT_ISOLATION");
+  assert.match(journeyJs, /aggressive-host-styles/u, "user-journey-live-qa.mjs must inject aggressive styles to test isolation");
+  assert.match(journeyJs, /Comic Sans MS/u, "user-journey-live-qa.mjs must test font isolation against Comic Sans");
+});
+
+test("high contrast forced-colors mode and global design tokens propagation contract across spotlight and settings (BF-GOV-012)", () => {
+  const designTokensPath = path.join(root, "src/design-tokens.css");
+  const designTokens = readFileSync(designTokensPath, "utf8");
+  assert.match(designTokens, /forced-colors:\s*active/u, "design-tokens.css must support forced-colors high contrast");
+  assert.match(designTokens, /Highlight/u, "design-tokens.css must use system Highlight in forced-colors mode");
+  assert.match(designTokens, /CanvasText/u, "design-tokens.css must use system CanvasText in forced-colors mode");
+
+  const spotlightPath = path.join(root, "src/spotlight.css");
+  assert.ok(existsSync(spotlightPath), "src/spotlight.css must exist");
+  const spotlightCss = readFileSync(spotlightPath, "utf8");
+  assert.match(spotlightCss, /@import\s+["']\.\/design-tokens\.css["']/u, "spotlight.css must import design-tokens.css");
+  assert.match(spotlightCss, /--bf-spotlight-/u, "spotlight.css must define spotlight component tokens");
+  assert.match(spotlightCss, /\.bf-command\b/u, "spotlight.css must style .bf-command");
+  assert.match(spotlightCss, /prefers-reduced-motion/u, "spotlight.css must support reduced-motion");
+  assert.match(spotlightCss, /forced-colors:\s*active/u, "spotlight.css must support forced-colors");
+
+  const settingsPath = path.join(root, "src/settings.css");
+  assert.ok(existsSync(settingsPath), "src/settings.css must exist");
+  const settingsCss = readFileSync(settingsPath, "utf8");
+  assert.match(settingsCss, /@import\s+["']\.\/design-tokens\.css["']/u, "settings.css must import design-tokens.css");
+  assert.match(settingsCss, /--settings-/u, "settings.css must define settings component tokens");
+  assert.match(settingsCss, /\.maintenance\b/u, "settings.css must style .maintenance");
+  assert.match(settingsCss, /prefers-reduced-motion/u, "settings.css must support reduced-motion");
+  assert.match(settingsCss, /forced-colors:\s*active/u, "settings.css must support forced-colors");
+
+  const maintenanceCss = readFileSync(path.join(root, "src/bookmark-maintenance.css"), "utf8");
+  assert.match(maintenanceCss, /@import\s+["']\.\/design-tokens\.css["']/u, "bookmark-maintenance.css must import design-tokens.css");
+  assert.match(maintenanceCss, /@import\s+["']\.\/settings\.css["']/u, "bookmark-maintenance.css must import settings.css");
+
+  const popupCss = readFileSync(path.join(root, "src/popup.css"), "utf8");
+  assert.match(popupCss, /@import\s+["']\.\/design-tokens\.css["']/u, "popup.css must import design-tokens.css");
+
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /@import\s+["']\.\/spotlight\.css["']/u, "content.css must import spotlight.css");
+
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  const webResources = manifest.web_accessible_resources?.[0]?.resources || [];
+  assert.ok(webResources.includes("src/spotlight.css"), "manifest.json must declare src/spotlight.css in web_accessible_resources");
+  assert.ok(webResources.includes("src/settings.css"), "manifest.json must declare src/settings.css in web_accessible_resources");
+
+  const onboardingCss = readFileSync(path.join(root, "src/onboarding.css"), "utf8");
+  assert.match(onboardingCss, /@import\s+["']\.\/design-tokens\.css["']/u, "onboarding.css must import design-tokens.css");
+  assert.match(onboardingCss, /--ob-theme-/u, "onboarding.css must define onboarding component tokens");
+  assert.match(onboardingCss, /forced-colors:\s*active/u, "onboarding.css must support forced-colors high contrast");
+
+  const onboardingHtml = readFileSync(path.join(root, "src/onboarding.html"), "utf8");
+  assert.match(onboardingHtml, /href="design-tokens\.css"/u, "onboarding.html must link design-tokens.css");
+});
+
+test("bar hide and restore full concealment lifecycle contract (BF-UX-019)", () => {
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /:host\(\[hidden\]\)/u, "content.css must define :host([hidden]) display none");
+  assert.match(contentCss, /:host\(\.is-snoozed/u, "content.css must define :host(.is-snoozed) display none");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /host\.classList\.add\("is-snoozed"\)/u, "content.js must mark host as snoozed");
+  assert.match(contentJs, /host\.classList\.remove\("is-snoozed"\)/u, "content.js must unmark host when restored");
+  assert.match(contentJs, /barHiddenToast/u, "content.js must display barHiddenToast feedback");
+  assert.match(contentJs, /barRestoredToast/u, "content.js must display barRestoredToast feedback");
+  assert.match(contentJs, /snoozed:\s*isSnoozed/u, "getPageInfo must expose snoozed state");
+
+  const popupJs = readFileSync(path.join(root, "src/popup.js"), "utf8");
+  assert.match(popupJs, /activePage\.snoozed/u, "popup.js must detect active tab snoozed state");
+  assert.match(popupJs, /siteStatusSnoozed/u, "popup.js must use siteStatusSnoozed message");
+
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  assert.ok(trMessages.barHiddenToast?.message, "tr messages must define barHiddenToast");
+  assert.ok(enMessages.barHiddenToast?.message, "en messages must define barHiddenToast");
+  assert.ok(trMessages.barRestoredToast?.message, "tr messages must define barRestoredToast");
+  assert.ok(trMessages.siteStatusSnoozed?.message, "tr messages must define siteStatusSnoozed");
+  assert.ok(enMessages.siteStatusSnoozed?.message, "en messages must define siteStatusSnoozed");
+});
+
+test("popup site control restore bar button contract (BF-UX-020)", () => {
+  const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
+  assert.match(popupHtml, /id="restoreBarBtn"/u, "popup.html must define restoreBarBtn");
+  assert.match(popupHtml, /class="[^"]*site-restore-btn[^"]*"/u, "popup.html must style restoreBarBtn with site-restore-btn");
+  assert.match(popupHtml, /data-i18n="restoreBar"/u, "popup.html must localize restoreBarBtn with restoreBar");
+  assert.match(popupHtml, /class="site-status-row"/u, "popup.html must wrap status and button in site-status-row");
+
+  const popupJs = readFileSync(path.join(root, "src/popup.js"), "utf8");
+  assert.match(popupJs, /restoreBarBtn:\s*document\.getElementById\("restoreBarBtn"\)/u, "popup.js must register restoreBarBtn");
+  assert.match(popupJs, /controls\.restoreBarBtn\.addEventListener\("click"/u, "popup.js must bind click listener to restoreBarBtn");
+  assert.match(popupJs, /command:\s*"hide-restore"/u, "restoreBarBtn click must send hide-restore command");
+  assert.match(popupJs, /controls\.restoreBarBtn\.hidden\s*=/u, "popup.js must toggle restoreBarBtn hidden state");
+
+  const popupCss = readFileSync(path.join(root, "src/popup.css"), "utf8");
+  assert.match(popupCss, /\.site-status-row\b/u, "popup.css must define .site-status-row");
+  assert.match(popupCss, /\.site-restore-btn\b/u, "popup.css must define .site-restore-btn");
+  assert.match(popupCss, /forced-colors:\s*active/u, "popup.css must support forced-colors for restore button");
+
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  assert.ok(trMessages.restoreBar?.message, "tr messages must define restoreBar");
+  assert.ok(enMessages.restoreBar?.message, "en messages must define restoreBar");
+});
+
+test("edge peek restore strip contract (BF-UX-021)", () => {
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  assert.match(contentCss, /\.bf-edge-restore\b/u, "content.css must define .bf-edge-restore");
+  assert.match(contentCss, /:host\(\.is-snoozed\)\s+\.bf-edge-restore/u, "content.css must enable pointer-events for .bf-edge-restore under snoozed host");
+  assert.match(contentCss, /\.bf-edge-restore:hover/u, "content.css must style .bf-edge-restore on hover");
+  assert.match(contentCss, /forced-colors:\s*active/u, "content.css must support forced-colors for .bf-edge-restore");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /function renderEdgeRestoreStrip/u, "content.js must define renderEdgeRestoreStrip");
+  assert.match(contentJs, /function removeEdgeRestoreStrip/u, "content.js must define removeEdgeRestoreStrip");
+  assert.match(contentJs, /strip\.className\s*=\s*"bf-edge-restore"/u, "content.js must set bf-edge-restore class");
+  assert.match(contentJs, /runExternalCommand\("hide-restore"\)/u, "content.js must trigger hide-restore on strip click");
+  assert.match(contentJs, /edgeRestoreActive:/u, "getPageInfo must expose edgeRestoreActive state");
+});
+
+test("snooze badge indicator contract (BF-UX-022)", () => {
+  const bgJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(bgJs, /MESSAGE_SET_TAB_SNOOZED/u, "background.js must define MESSAGE_SET_TAB_SNOOZED constant");
+  assert.match(bgJs, /chrome\.action\.setBadgeText\(\{\s*text:\s*"off"/u, "background.js must set badge text to off on snooze");
+  assert.match(bgJs, /chrome\.action\.setBadgeText\(\{\s*text:\s*""/u, "background.js must clear badge text on restore");
+  assert.match(bgJs, /setBadgeBackgroundColor/u, "background.js must set badge background color");
+
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  assert.match(contentJs, /function notifyTabSnoozeState/u, "content.js must define notifyTabSnoozeState");
+  assert.match(contentJs, /BF_SET_TAB_SNOOZED/u, "content.js must send BF_SET_TAB_SNOOZED message");
+  assert.match(contentJs, /notifyTabSnoozeState\(true\)/u, "content.js must notify snooze on hide");
+  assert.match(contentJs, /notifyTabSnoozeState\(false\)/u, "content.js must notify unsnooze on restore");
+
+  const popupJs = readFileSync(path.join(root, "src/popup.js"), "utf8");
+  assert.match(popupJs, /BF_SET_TAB_SNOOZED/u, "popup.js must send BF_SET_TAB_SNOOZED on restore click");
+
+  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
+  assert.match(journeyJs, /chrome\.action\.getBadgeText/u, "user-journey-live-qa.mjs must inspect badge text via getBadgeText");
+  assert.match(journeyJs, /BF-UX-022/u, "user-journey-live-qa.mjs must reference BF-UX-022");
+});
+
+test("snooze action tooltip and tabs synchronization contract (BF-UX-023)", () => {
+  const bgJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  assert.match(bgJs, /const\s+snoozedTabIds\s*=\s*new\s+Set\(\)/u, "background.js must maintain snoozedTabIds Set");
+  assert.match(bgJs, /chrome\.action\.setTitle\(\{\s*title:\s*snoozedTitle/u, "background.js must set snoozed title via chrome.action.setTitle");
+  assert.match(bgJs, /chrome\.action\.setTitle\(\{\s*title:\s*""/u, "background.js must reset title on restore via chrome.action.setTitle");
+  assert.match(bgJs, /chrome\.tabs\?\.onActivated\?\.addListener/u, "background.js must register chrome.tabs.onActivated listener for tab synchronization");
+  assert.match(bgJs, /chrome\.tabs\?\.onRemoved\?\.addListener/u, "background.js must register chrome.tabs.onRemoved listener to cleanup closed tabs");
+  assert.match(bgJs, /chrome\.tabs\?\.onUpdated\?\.addListener/u, "background.js must register chrome.tabs.onUpdated listener for tab reloads");
+
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+  assert.ok(enMessages.actionTitleSnoozed?.message, "en messages must define actionTitleSnoozed");
+  assert.ok(trMessages.actionTitleSnoozed?.message, "tr messages must define actionTitleSnoozed");
+  assert.match(enMessages.actionTitleSnoozed.message, /Alt\+Shift\+H/u, "en actionTitleSnoozed must mention Alt+Shift+H");
+  assert.match(trMessages.actionTitleSnoozed.message, /Alt\+Shift\+H/u, "tr actionTitleSnoozed must mention Alt+Shift+H");
+
+  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
+  assert.match(journeyJs, /chrome\.action\.getTitle/u, "user-journey-live-qa.mjs must inspect tooltip title via getTitle");
+  assert.match(journeyJs, /BF-UX-023/u, "user-journey-live-qa.mjs must reference BF-UX-023");
 });

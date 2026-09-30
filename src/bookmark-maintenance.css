@@ -1,8 +1,23 @@
+@import "./design-tokens.css";
+@import "./settings.css";
+
 :root {
+  --bm-theme-bg: var(--bf-token-bg-base, #12151b);
+  --bm-theme-card-bg: var(--bf-token-bg-card, #161b24);
+  --bm-theme-surface: var(--bf-token-bg-surface, #20252d);
+  --bm-theme-surface-hover: var(--bf-token-bg-surface-hover, #29313c);
+  --bm-theme-border: var(--bf-token-border-default, #343b46);
+  --bm-theme-border-subtle: var(--bf-token-border-subtle, #303743);
+  --bm-theme-accent: var(--bf-token-gold-primary, #f2c94c);
+  --bm-theme-accent-contrast: var(--bf-token-gold-contrast, #141820);
+  --bm-theme-accent-glow: var(--bf-token-gold-glow, rgba(242, 201, 76, 0.42));
+  --bm-theme-accent-subtle: var(--bf-token-gold-subtle, rgba(242, 201, 76, 0.16));
+  --bm-theme-text: var(--bf-token-text-primary, #f7f9fc);
+  --bm-theme-text-muted: var(--bf-token-text-muted, #a2acbb);
   color-scheme: dark;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #12151b;
-  color: #f7f9fc;
+  font-family: var(--bf-token-font-family, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  background: var(--bm-theme-bg);
+  color: var(--bm-theme-text);
 }
 
 * {
@@ -816,4 +831,81 @@ select {
 .desktop-actions {
   display: flex;
   gap: 12px;
+}
+
+.sites-section {
+  margin-top: 36px;
+  padding: 24px;
+  border-radius: 16px;
+  background: rgba(22, 27, 36, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.sites-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.sites-add-box {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sites-add-box input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(14, 18, 25, 0.8);
+  color: #f7f9fc;
+  font-size: 13px;
+  min-width: 180px;
+}
+
+.sites-add-box input:focus {
+  outline: none;
+  border-color: #f2c94c;
+}
+
+.disabled-sites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.disabled-sites-empty {
+  color: rgba(247, 249, 252, 0.55);
+  font-size: 13px;
+  font-style: italic;
+  padding: 12px 0;
+}
+
+.disabled-site-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(14, 18, 25, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.disabled-site-host {
+  font-size: 14px;
+  font-weight: 500;
+  color: #f7f9fc;
+}
+
+.disabled-site-remove-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  min-height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
 }

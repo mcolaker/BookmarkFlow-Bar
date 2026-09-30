@@ -88,6 +88,7 @@
   "enterAddressToAdd": { "message": "Enter the address you want to add." },
   "pageAddressUnavailable": { "message": "This page cannot be added automatically; enter an address manually." },
   "adding": { "message": "Adding…" },
+  "saving": { "message": "Saving…" },
   "addAnyway": { "message": "Add anyway" },
   "duplicateBookmarkPrompt": { "message": "This address already exists in the selected folder. Select Add again to create a duplicate." },
   "validUrlRequired": { "message": "Enter a valid http, https, or mailto address." },
@@ -372,6 +373,10 @@
   "quickMenuRestoreBar": { "message": "Restore Bar (Alt + Shift + H)" },
   "quickMenuDisableSite": { "message": "Disable on this site" },
   "quickMenuSettings": { "message": "Settings" },
+  "barHiddenToast": { "message": "✓ BookmarkFlow hidden (To restore: Alt + Shift + H)" },
+  "barRestoredToast": { "message": "✓ BookmarkFlow restored" },
+  "siteStatusSnoozed": { "message": "Hidden in this tab (Alt+Shift+H)" },
+  "restoreBar": { "message": "Show Bar" },
   "pageControlsTip": { "message": "Tip: Right-click the BF button on any page to open quick actions or toggle with Alt+Shift+B." },
   "navDesktop": { "message": "💻 Desktop & Hotkeys" },
   "desktopIntegrationHeading": { "message": "Windows Desktop Companion & Global Hotkeys" },
@@ -383,5 +388,114 @@
   "hotkeyStashTabsLabel": { "message": "Stash Tabs Shortcut:" },
   "saveDesktopHotkeys": { "message": "Save & Apply to Desktop" },
   "resetDesktopHotkeys": { "message": "Reset to Defaults" },
-  "desktopHotkeysSaved": { "message": "Global desktop hotkeys updated successfully!" }
+  "desktopHotkeysSaved": { "message": "Global desktop hotkeys updated successfully!" },
+  "addBookmarkToTarget": { "message": "Add to Bookmarks" },
+  "addBookmarkToTargetDesc": { "message": "Press Enter to choose a folder and save" },
+  "openInBrowser": { "message": "Open Web Page" },
+  "openInBrowserDesc": { "message": "Navigate directly to this address" },
+  "targetFolder": { "message": "Target Folder" },
+  "selectFolder": { "message": "Select Folder" },
+  "omniboxDefaultSuggestion": { "message": "BookmarkFlow Bar: Press Enter to save link to bookmarks" },
+  "omniboxAddToBar": { "message": "Add to Bookmarks Bar" },
+  "omniboxAddToFolder": { "message": "Add to folder" },
+  "bookmarkAddedNotification": { "message": "Bookmark saved successfully!" },
+  "bookmarksBar": { "message": "Bookmarks Bar" },
+  "quickFolders": { "message": "Quick Folders" },
+  "saveToBar": { "message": "Add to Bar" },
+  "saveToFolder": { "message": "Add to Folder" },
+  "bookmarkSavedToBarToast": { "message": "✓ Saved to Bookmarks Bar" },
+  "bookmarkSavedToFolderToast": { "message": "✓ Saved to $1", "placeholders": { "title": { "content": "$1" } } },
+  "intentLinkMode": { "message": "Link Mode" },
+  "intentCommandMode": { "message": "Command Mode" },
+  "intentTagMode": { "message": "Tag Mode" },
+  "intentFolderMode": { "message": "Folder Mode" },
+  "intentTabMode": { "message": "Tab Switch" },
+  "intentSearchMode": { "message": "Smart Search" },
+  "siteDisabledToast": { "message": "BookmarkFlow disabled on this site. Re-enable anytime from the popup or Settings." },
+  "navSites": { "message": "🌐 Disabled Sites" },
+  "disabledSitesHeading": { "message": "Disabled Websites & Site Exceptions" },
+  "disabledSitesDescription": { "message": "Websites where BookmarkFlow is hidden. Remove a domain anytime to restore BookmarkFlow on that site." },
+  "addDisabledHost": { "message": "Add Site" },
+  "addSitePlaceholder": { "message": "example.com" },
+  "disabledSitesEmpty": { "message": "No websites are disabled. BookmarkFlow is active on all supported sites." },
+  "removeDisabledHost": { "message": "Enable on Site" },
+  "hostAddedSuccess": { "message": "Site added to disabled list." },
+  "hostRemovedSuccess": { "message": "Site re-enabled." },
+  "invalidHostError": { "message": "Please enter a valid domain name (e.g. github.com)." },
+  "disabledWebsitesAria": { "message": "Disabled websites list" },
+  "undo": { "message": "Undo" },
+  "bookmarkDeletedToast": { "message": "✓ Bookmark removed" },
+  "quickSaveBookmark": { "message": "Save to Bookmarks" },
+  "quickSaveToBar": { "message": "Save to Bookmarks Bar (Ctrl+S)" },
+  "quickSaveToFolder": {
+    "message": "Save to '$FOLDER$' (Ctrl+S)",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projects"
+      }
+    }
+  },
+  "undoWithShortcut": { "message": "Undo (Ctrl+Z)" },
+  "queryRestoredToast": { "message": "✓ Text restored" },
+  "existingBookmarkNotice": {
+    "message": "Already in bookmarks: $TITLE$",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      }
+    }
+  },
+  "editBookmark": { "message": "Edit Bookmark" },
+  "quickEditExistingBookmark": {
+    "message": "Edit Bookmark '$TITLE$' (Ctrl+S)",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      }
+    }
+  },
+  "bookmarkUpdatedToast": { "message": "✓ Bookmark updated" },
+  "unlockUrl": { "message": "Unlock address to edit" },
+  "lockUrl": { "message": "Lock address" },
+  "moveToBar": { "message": "Move to Bar" },
+  "moveToFolder": {
+    "message": "Move to '$FOLDER$'",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projects"
+      }
+    }
+  },
+  "bookmarkMovedToFolderToast": {
+    "message": "✓ Moved to '$FOLDER$'",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projects"
+      }
+    }
+  },
+  "bookmarkMovedBackToast": { "message": "✓ Bookmark moved back to previous location" },
+  "existingBookmarkWithFolderNotice": {
+    "message": "Already in bookmarks: $TITLE$ ($FOLDER$)",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      },
+      "folder": {
+        "content": "$2",
+        "example": "Projects"
+      }
+    }
+  },
+  "otherFolders": { "message": "Other Folders…" },
+  "chooseFolderToMove": { "message": "Choose Folder to Move" },
+  "currentFolderTag": { "message": "(current)" },
+  "urlAutoCompletedHttps": { "message": "Protocol auto-completed (https://)" },
+  "actionTitleSnoozed": { "message": "BookmarkFlow Bar is hidden on this tab (Click to open or press Alt+Shift+H)" }
 }

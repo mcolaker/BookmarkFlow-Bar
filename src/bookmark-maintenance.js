@@ -1,5 +1,9 @@
-const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
-const { DATA_CONSENT_STORAGE_KEY, DATA_CONSENT_VERSION } = BookmarkFlowConfig;
+const {
+  DATA_CONSENT_STORAGE_KEY,
+  DATA_CONSENT_VERSION,
+  addDisabledHost,
+  removeDisabledHost
+} = BookmarkFlowConfig;
 const { getLanguage, t } = BookmarkFlowI18n;
 
 const elements = {
@@ -39,7 +43,12 @@ const elements = {
   hotkeyStashInput: document.getElementById("hotkeyStashInput"),
   saveDesktopHotkeys: document.getElementById("saveDesktopHotkeys"),
   resetDesktopHotkeys: document.getElementById("resetDesktopHotkeys"),
-  desktopHotkeysStatus: document.getElementById("desktopHotkeysStatus")
+  desktopHotkeysStatus: document.getElementById("desktopHotkeysStatus"),
+  navSitesLink: document.getElementById("navSitesLink"),
+  addDisabledHostInput: document.getElementById("addDisabledHostInput"),
+  addDisabledHostBtn: document.getElementById("addDisabledHostBtn"),
+  sitesStatus: document.getElementById("sitesStatus"),
+  disabledSitesList: document.getElementById("disabledSitesList")
 };
 
 let duplicateGroups = [];
@@ -53,8 +62,13 @@ let currentFilter = "all";
 
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === "local" && DATA_CONSENT_STORAGE_KEY in changes) {
-    window.location.reload();
+  if (areaName === "local") {
+    if (DATA_CONSENT_STORAGE_KEY in changes) {
+      window.location.reload();
+    }
+    if ("disabledHosts" in changes) {
+      loadDisabledSites().catch(() => {});
+    }
   }
 });
 init().catch(handleFatalError);
@@ -121,13 +135,24 @@ async function init() {
     }
   });
 
+  elements.addDisabledHostBtn?.addEventListener("click", () => {
+    handleAddDisabledHost().catch(() => {});
+  });
+  elements.addDisabledHostInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddDisabledHost().catch(() => {});
+    }
+  });
+
   handleHashNavigation();
   window.addEventListener("hashchange", handleHashNavigation);
 
   await Promise.all([
     loadDuplicateGroups(),
     loadFolderPicker(),
-    initDesktopHotkeys()
+    initDesktopHotkeys(),
+    loadDisabledSites()
   ]);
 }
 
@@ -990,7 +1015,92 @@ function handleHashNavigation() {
     if (desktopSec) {
       desktopSec.scrollIntoView({ behavior: "smooth" });
     }
+  } else if (hash === "#sites") {
+    const sitesSec = document.getElementById("sites");
+    if (sitesSec) {
+      sitesSec.scrollIntoView({ behavior: "smooth" });
+      elements.addDisabledHostInput?.focus();
+    }
   }
+}
+
+async function loadDisabledSites() {
+  if (!elements.disabledSitesList) return;
+  const data = await chrome.storage.local.get("disabledHosts");
+  const hosts = Array.isArray(data.disabledHosts) ? data.disabledHosts : [];
+
+  elements.disabledSitesList.innerHTML = "";
+  if (hosts.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "disabled-sites-empty";
+    empty.textContent = t("disabledSitesEmpty");
+    elements.disabledSitesList.appendChild(empty);
+    return;
+  }
+
+  hosts.forEach((host) => {
+    const row = document.createElement("div");
+    row.className = "disabled-site-item";
+
+    const hostSpan = document.createElement("span");
+    hostSpan.className = "disabled-site-host";
+    hostSpan.textContent = host;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "secondary disabled-site-remove-btn";
+    removeBtn.type = "button";
+    removeBtn.textContent = t("removeDisabledHost");
+    removeBtn.setAttribute("aria-label", `${t("removeDisabledHost")}: ${host}`);
+    removeBtn.addEventListener("click", async () => {
+      await removeSiteFromDisabled(host);
+    });
+
+    row.appendChild(hostSpan);
+    row.appendChild(removeBtn);
+    elements.disabledSitesList.appendChild(row);
+  });
+}
+
+async function removeSiteFromDisabled(hostToRemove) {
+  const data = await chrome.storage.local.get("disabledHosts");
+  const existing = Array.isArray(data.disabledHosts) ? data.disabledHosts : [];
+  const updated = removeDisabledHost
+    ? removeDisabledHost(existing, hostToRemove)
+    : existing.filter((h) => h.toLowerCase() !== hostToRemove.toLowerCase());
+  await chrome.storage.local.set({ disabledHosts: updated });
+  if (elements.sitesStatus) {
+    elements.sitesStatus.textContent = t("hostRemovedSuccess");
+    setTimeout(() => {
+      if (elements.sitesStatus) elements.sitesStatus.textContent = "";
+    }, 2500);
+  }
+  await loadDisabledSites();
+}
+
+async function handleAddDisabledHost() {
+  const input = elements.addDisabledHostInput;
+  if (!input) return;
+  const raw = input.value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  if (!raw || !/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(raw)) {
+    if (elements.sitesStatus) {
+      elements.sitesStatus.textContent = t("invalidHostError");
+    }
+    return;
+  }
+  const data = await chrome.storage.local.get("disabledHosts");
+  const existing = Array.isArray(data.disabledHosts) ? data.disabledHosts : [];
+  const updated = addDisabledHost
+    ? addDisabledHost(existing, raw)
+    : Array.from(new Set([...existing, raw]));
+  await chrome.storage.local.set({ disabledHosts: updated });
+  input.value = "";
+  if (elements.sitesStatus) {
+    elements.sitesStatus.textContent = t("hostAddedSuccess");
+    setTimeout(() => {
+      if (elements.sitesStatus) elements.sitesStatus.textContent = "";
+    }, 2500);
+  }
+  await loadDisabledSites();
 }
 
 function renderHealthStatus(message, kind = "") {

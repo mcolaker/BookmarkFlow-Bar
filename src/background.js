@@ -24,6 +24,7 @@ const MESSAGE_GET_CONSENT_STATUS = "BF_GET_CONSENT_STATUS";
 const MESSAGE_SET_DATA_CONSENT = "BF_SET_DATA_CONSENT";
 const MESSAGE_MOVE_BOOKMARK = "BF_MOVE_BOOKMARK";
 const MESSAGE_MOVE_TOP_LEVEL = "BF_MOVE_TOP_LEVEL";
+const MESSAGE_MOVE_TO_FOLDER = "BF_MOVE_TO_FOLDER";
 const MESSAGE_DELETE_BOOKMARK = "BF_DELETE_BOOKMARK";
 const MESSAGE_CREATE_BOOKMARK = "BF_CREATE_BOOKMARK";
 const MESSAGE_CREATE_FOLDER = "BF_CREATE_FOLDER";
@@ -36,6 +37,8 @@ const MESSAGE_GET_READING_LIST = "BF_GET_READING_LIST";
 const MESSAGE_ADD_READING_LIST = "BF_ADD_READING_LIST";
 const MESSAGE_REMOVE_READING_LIST = "BF_REMOVE_READING_LIST";
 const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
+const MESSAGE_OPEN_SETTINGS = "BF_OPEN_SETTINGS";
+const MESSAGE_SET_TAB_SNOOZED = "BF_SET_TAB_SNOOZED";
 const FOLDER_RAIL_DEFAULT_MIGRATION_KEY = "bfFolderRailDefaultLeftV1";
 const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
 const DISABLED_HOSTS_MIGRATION_KEY = "bfDisabledHostsLocalV1";
@@ -47,6 +50,35 @@ const CONTENT_COMMANDS = new Set([
 ]);
 
 let settingsMigrationReady = null;
+const snoozedTabIds = new Set();
+
+function updateTabSnoozeIndicator(tabId, snoozed) {
+  if (!tabId || !chrome.action) return;
+  if (snoozed) {
+    snoozedTabIds.add(tabId);
+    if (chrome.action.setBadgeText) {
+      chrome.action.setBadgeText({ text: "off", tabId }).catch(() => {});
+    }
+    if (chrome.action.setBadgeBackgroundColor) {
+      chrome.action.setBadgeBackgroundColor({ color: "#2d3748", tabId }).catch(() => {});
+    }
+    if (chrome.action.setBadgeTextColor) {
+      chrome.action.setBadgeTextColor({ color: "#f2c94c", tabId }).catch(() => {});
+    }
+    if (chrome.action.setTitle) {
+      const snoozedTitle = t("actionTitleSnoozed") || "BookmarkFlow Bar is hidden on this tab (Click to open or press Alt+Shift+H)";
+      chrome.action.setTitle({ title: snoozedTitle, tabId }).catch(() => {});
+    }
+  } else {
+    snoozedTabIds.delete(tabId);
+    if (chrome.action.setBadgeText) {
+      chrome.action.setBadgeText({ text: "", tabId }).catch(() => {});
+    }
+    if (chrome.action.setTitle) {
+      chrome.action.setTitle({ title: "", tabId }).catch(() => {});
+    }
+  }
+}
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   const consent = await getDataConsentStatus();
@@ -113,6 +145,30 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 ].forEach((eventName) => {
   chrome.bookmarks[eventName]?.addListener(scheduleBroadcast);
 });
+
+if (typeof chrome.tabs?.onActivated?.addListener === "function") {
+  chrome.tabs.onActivated.addListener((activeInfo) => {
+    if (activeInfo?.tabId) {
+      const isSnoozed = snoozedTabIds.has(activeInfo.tabId);
+      updateTabSnoozeIndicator(activeInfo.tabId, isSnoozed);
+    }
+  });
+}
+
+if (typeof chrome.tabs?.onRemoved?.addListener === "function") {
+  chrome.tabs.onRemoved.addListener((tabId) => {
+    snoozedTabIds.delete(tabId);
+  });
+}
+
+if (typeof chrome.tabs?.onUpdated?.addListener === "function") {
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if (changeInfo.status === "loading" && changeInfo.url) {
+      snoozedTabIds.delete(tabId);
+      updateTabSnoozeIndicator(tabId, false);
+    }
+  });
+}
 
 let broadcastTimer = 0;
 
@@ -210,12 +266,32 @@ function routeMessage(message, sender) {
     return updateCompanionHotkeys(message.hotkeys);
   }
 
+  if (message?.type === "BF_SWITCH_TO_TAB") {
+    return switchToMatchingTab(message.query);
+  }
+
+  if (message?.type === MESSAGE_OPEN_SETTINGS || message?.type === "OPEN_SETTINGS_REQUESTED") {
+    const hash = typeof message?.hash === "string" && message.hash ? `#${message.hash.replace(/^#/, "")}` : "";
+    const pageUrl = chrome.runtime.getURL(`src/bookmark-maintenance.html${hash}`);
+    return chrome.tabs.create({ url: pageUrl }).then(() => ({ ok: true })).catch((err) => ({ ok: false, error: err?.message || String(err) }));
+  }
+
+  if (message?.type === MESSAGE_SET_TAB_SNOOZED || message?.type === "BF_SET_TAB_SNOOZED") {
+    const tabId = message.tabId || sender?.tab?.id;
+    if (tabId) {
+      updateTabSnoozeIndicator(tabId, Boolean(message.snoozed));
+    }
+    return Promise.resolve({ ok: true });
+  }
+
   const protectedTask = message?.type === MESSAGE_GET_STATE
     ? () => getState()
     : message?.type === MESSAGE_MOVE_BOOKMARK
       ? () => moveBookmarkWithinParent(message)
     : message?.type === MESSAGE_MOVE_TOP_LEVEL
       ? () => moveTopLevelBookmark(message)
+    : message?.type === MESSAGE_MOVE_TO_FOLDER
+      ? () => moveBookmarkToFolder(message)
     : message?.type === MESSAGE_DELETE_BOOKMARK
       ? () => deleteBookmark(message)
     : message?.type === MESSAGE_CREATE_BOOKMARK
@@ -798,6 +874,8 @@ async function createFolder(message) {
 async function renameBookmark(message) {
   const nodeId = String(message?.nodeId || "");
   const title = String(message?.title || "").trim();
+  const rawUrl = message?.url !== undefined && message?.url !== null ? String(message.url).trim() : null;
+  const parentId = message?.parentId ? String(message.parentId).trim() : null;
   const root = await getBookmarkTreeRoot();
   const target = findNodeWithParent(root, nodeId);
 
@@ -815,9 +893,64 @@ async function renameBookmark(message) {
     };
   }
 
-  await chrome.bookmarks.update(nodeId, { title });
+  const updateChanges = { title };
+  if (target.node.url && rawUrl !== null && rawUrl !== "") {
+    const normalizedUrl = normalizeBookmarkUrl(rawUrl);
+    if (!normalizedUrl || !isSafeBookmarkUrl(normalizedUrl)) {
+      return {
+        ok: false,
+        error: t("validUrlRequired")
+      };
+    }
+    updateChanges.url = normalizedUrl;
+  }
+
+  await chrome.bookmarks.update(nodeId, updateChanges);
+
+  if (parentId && target.parent?.id && target.parent.id !== parentId) {
+    const parentTarget = findNodeWithParent(root, parentId);
+    if (parentTarget && !parentTarget.node.url) {
+      await chrome.bookmarks.move(nodeId, { parentId });
+      await chrome.storage.local.set({ bfLastUsedFolderId: parentId }).catch(() => {});
+    }
+  }
+
   scheduleBroadcast();
   return getState();
+}
+
+async function moveBookmarkToFolder(message) {
+  const nodeId = String(message?.nodeId || message?.bookmarkId || "");
+  const parentId = String(message?.parentId || "");
+  const root = await getBookmarkTreeRoot();
+  const target = findNodeWithParent(root, nodeId);
+  const targetParent = findNodeWithParent(root, parentId);
+
+  if (!nodeId || !target) {
+    return {
+      ok: false,
+      error: t("bookmarkDeleteTargetMissing")
+    };
+  }
+
+  if (!parentId || !targetParent || targetParent.node.url) {
+    return {
+      ok: false,
+      error: t("bookmarkParentInvalid")
+    };
+  }
+
+  const previousParentId = target.parent?.id || "";
+  await chrome.bookmarks.move(nodeId, { parentId });
+  await chrome.storage.local.set({ bfLastUsedFolderId: parentId }).catch(() => {});
+  scheduleBroadcast();
+  return {
+    ...(await getState()),
+    ok: true,
+    nodeId,
+    previousParentId,
+    newParentId: parentId
+  };
 }
 
 async function setFolderColor(message) {
@@ -1286,4 +1419,144 @@ function handleNativeCompanionCommand(command) {
   }
 }
 
+function initOmniboxIntegration() {
+  if (typeof chrome.omnibox === "undefined") {
+    return;
+  }
+
+  try {
+    chrome.omnibox.setDefaultSuggestion({
+      description: t("omniboxDefaultSuggestion") || "BookmarkFlow Bar: Press Enter to save link to bookmarks"
+    });
+  } catch {}
+
+  chrome.omnibox.onInputChanged.addListener(async (rawText, suggest) => {
+    const text = String(rawText || "").trim();
+    if (!text) {
+      return;
+    }
+
+    const directTarget = normalizeBookmarkUrl(text) || (/^[a-z][a-z0-9+.-]*:\/\//i.test(text) ? text : (`https://${text}`));
+    if (!directTarget || !isSafeBookmarkUrl(directTarget)) {
+      return;
+    }
+
+    try {
+      const root = await getBookmarkTreeRoot();
+      const bookmarkBar = selectBookmarkBarNode(root);
+      const folders = [];
+      const walk = (node, path = "") => {
+        if (!node) return;
+        if (Array.isArray(node.children)) {
+          const isRootBar = node.id === bookmarkBar?.id;
+          const title = node.title || (isRootBar ? (t("bookmarksBar") || "Bookmarks Bar") : "");
+          const currentPath = path ? (title ? `${path} / ${title}` : path) : title;
+          if (node.id && node.id !== "0") {
+            folders.push({
+              id: node.id,
+              title: title || (t("bookmarksBar") || "Bookmarks Bar"),
+              path: currentPath,
+              isBar: isRootBar
+            });
+          }
+          for (const child of node.children) {
+            if (Array.isArray(child.children)) {
+              walk(child, currentPath);
+            }
+          }
+        }
+      };
+      walk(bookmarkBar);
+
+      const suggestions = [];
+      suggestions.push({
+        content: JSON.stringify({ url: directTarget, parentId: bookmarkBar?.id || "" }),
+        description: `⭐ ${escapeOmniboxXml(t("omniboxAddToBar") || "Add to Bookmarks Bar")}: <url>${escapeOmniboxXml(directTarget)}</url>`
+      });
+
+      folders.filter(f => !f.isBar).slice(0, 5).forEach((f) => {
+        suggestions.push({
+          content: JSON.stringify({ url: directTarget, parentId: f.id }),
+          description: `📁 <match>${escapeOmniboxXml(f.path || f.title)}</match> ${escapeOmniboxXml(t("omniboxAddToFolder") || "Add to folder")}: <url>${escapeOmniboxXml(directTarget)}</url>`
+        });
+      });
+
+      suggest(suggestions);
+    } catch {
+      // Fail-safe
+    }
+  });
+
+  chrome.omnibox.onInputEntered.addListener(async (content) => {
+    try {
+      let targetUrl = "";
+      let targetParentId = "";
+
+      if (content.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(content);
+          targetUrl = parsed.url;
+          targetParentId = parsed.parentId;
+        } catch {}
+      }
+
+      if (!targetUrl) {
+        const text = String(content || "").trim();
+        targetUrl = normalizeBookmarkUrl(text) || (/^[a-z][a-z0-9+.-]*:\/\//i.test(text) ? text : (`https://${text}`));
+      }
+
+      if (!targetUrl || !isSafeBookmarkUrl(targetUrl)) {
+        return;
+      }
+
+      await runWithDataConsent(async () => {
+        if (!targetParentId) {
+          try {
+            const stored = await chrome.storage.local.get("bfLastUsedFolderId");
+            if (stored.bfLastUsedFolderId) {
+              targetParentId = stored.bfLastUsedFolderId;
+            }
+          } catch {}
+        }
+        await createBookmark({
+          url: targetUrl,
+          title: getHostname(targetUrl) || targetUrl,
+          parentId: targetParentId,
+          allowDuplicate: true
+        });
+        if (targetParentId) {
+          chrome.storage.local.set({ bfLastUsedFolderId: targetParentId }).catch(() => {});
+        }
+      });
+    } catch {}
+  });
+}
+
+function escapeOmniboxXml(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 initNativeCompanionBridge();
+initOmniboxIntegration();
+
+async function switchToMatchingTab(queryText) {
+  if (!queryText) return { ok: false };
+  const q = String(queryText).toLowerCase().trim();
+  try {
+    const tabs = await chrome.tabs.query({});
+    const found = tabs.find(t => (t.title || "").toLowerCase().includes(q) || (t.url || "").toLowerCase().includes(q));
+    if (found && found.id) {
+      await chrome.tabs.update(found.id, { active: true });
+      if (found.windowId) {
+        await chrome.windows.update(found.windowId, { focused: true });
+      }
+      return { ok: true, tabId: found.id };
+    }
+  } catch {}
+  return { ok: false };
+}

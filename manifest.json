@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_appName__",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "__MSG_appDescription__",
   "default_locale": "en",
   "homepage_url": "https://mcolaker.github.io/BookmarkFlow-Bar/",
@@ -13,6 +13,9 @@
     "tabs",
     "scripting"
   ],
+  "omnibox": {
+    "keyword": "bf"
+  },
   "action": {
     "default_title": "__MSG_appName__",
     "default_popup": "src/popup.html",
@@ -67,6 +70,7 @@
       "js": [
         "src/i18n.js",
         "src/settings.js",
+        "src/intent-router.js",
         "src/content.js"
       ],
       "run_at": "document_idle"
@@ -76,6 +80,9 @@
     {
       "resources": [
         "_favicon/*",
+        "src/design-tokens.css",
+        "src/spotlight.css",
+        "src/settings.css",
         "src/content.css",
         "src/newtab.css"
       ],

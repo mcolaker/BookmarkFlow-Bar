@@ -16,6 +16,12 @@ Add a customizable multi-row bookmark bar to ordinary web pages, search your boo
 
 HIGHLIGHTS
 
+• Direct search link capture & one-click folder chips (save without leaving search)
+• Zero-latency local intent routing engine with live smart badges (URL, command, tag, folder, tab)
+• Full bar concealment (Alt+Shift+H), screen-edge peek restore strip & toolbar snooze badges
+• Universal undo (Ctrl+Z) with visual progress feedback & instant toast notifications
+• Centralized obsidian design tokens & Windows high contrast (forced-colors) accessibility
+• Optional Windows Desktop Companion with global shortcuts (Win+Shift+B)
 • Stash all open tabs to folder with a single click or keyboard command (#stash)
 • Offline JSON backup & restore for bookmarks, settings, tags, and reading list
 • Zero-cloud smart auto-tagging (#tag) and Spotlight tag filtering

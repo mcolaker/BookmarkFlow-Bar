@@ -23,6 +23,8 @@ const BOOKMARK_DROP_TOLERANCE = 36;
 const BOOKMARK_GHOST_OFFSET = 12;
 const FOLDER_MENU_GAP = 16;
 const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
+const LAST_USED_FOLDER_STORAGE_KEY = "bfLastUsedFolderId";
+let lastUsedFolderId = "";
 
 const elements = {
   bookmarkBar: document.getElementById("bookmarkBar"),
@@ -32,9 +34,13 @@ const elements = {
   bookmarkStrip: document.getElementById("bookmarkStrip"),
   addBookmark: document.getElementById("addBookmark"),
   addDialog: document.getElementById("addDialog"),
+  addDialogTitle: document.getElementById("addDialogTitle"),
   addForm: document.getElementById("addForm"),
   addTitle: document.getElementById("addTitle"),
   addUrl: document.getElementById("addUrl"),
+  addUrlUnlockBtn: document.getElementById("addUrlUnlockBtn"),
+  addFolderSelect: document.getElementById("addFolderSelect"),
+  addFolderChips: document.getElementById("addFolderChips"),
   addStatus: document.getElementById("addStatus"),
   addSubmit: document.getElementById("addSubmit"),
   addClose: document.getElementById("addClose"),
@@ -49,6 +55,8 @@ const elements = {
   main: document.querySelector(".nt-main"),
   searchForm: document.getElementById("searchForm"),
   searchInput: document.getElementById("searchInput"),
+  searchIntentBadge: document.getElementById("searchIntentBadge"),
+  searchInlineSaveBtn: document.getElementById("searchInlineSaveBtn"),
   clockDisplay: document.getElementById("clockDisplay"),
   greetingDisplay: document.getElementById("greetingDisplay"),
   shortcutsWrap: document.getElementById("shortcutsWrap"),
@@ -61,7 +69,8 @@ const elements = {
   readingListContainer: document.getElementById("readingListContainer"),
   quickGuideBtn: document.getElementById("quickGuideBtn"),
   quickTipsWidget: document.getElementById("quickTipsWidget"),
-  dismissQuickTips: document.getElementById("dismissQuickTips")
+  dismissQuickTips: document.getElementById("dismissQuickTips"),
+  toastNotification: document.getElementById("toastNotification")
 };
 
 let appState = null;
@@ -94,10 +103,11 @@ async function init() {
 
   elements.consentGate.hidden = true;
   elements.newTabWorkspace.hidden = false;
-  [appState, pinnedFolderIds, bookmarkTagsMap] = await Promise.all([
+  [appState, pinnedFolderIds, bookmarkTagsMap, lastUsedFolderId] = await Promise.all([
     getState(),
     getPinnedFolderIds(),
-    loadBookmarkTags()
+    loadBookmarkTags(),
+    loadLastUsedFolderId()
   ]);
   render();
 
@@ -109,6 +119,33 @@ async function init() {
   elements.searchForm.addEventListener("submit", handleSearchSubmit);
   elements.searchInput.addEventListener("input", handleSearchInput);
   elements.searchInput.addEventListener("keydown", handleSearchKeydown);
+  elements.searchInlineSaveBtn?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const targetUrl = elements.searchInlineSaveBtn.dataset.url;
+    if (!targetUrl) return;
+
+    const existingId = elements.searchInlineSaveBtn.dataset.existingId;
+    if (existingId) {
+      const existingTitle = elements.searchInlineSaveBtn.dataset.existingTitle || "";
+      const existingParentId = elements.searchInlineSaveBtn.dataset.existingParentId || "";
+      hideSearchResults();
+      openAddBookmarkDialog(elements.searchInput, {
+        editNodeId: existingId,
+        title: existingTitle,
+        url: targetUrl,
+        parentId: existingParentId
+      });
+      return;
+    }
+
+    const targetParentId = elements.searchInlineSaveBtn.dataset.parentId || appState?.bookmarkBar?.id || "";
+    hideSearchResults();
+    elements.searchInput.value = "";
+    triggerSearchSaveFlash();
+    elements.searchInput.focus();
+    await handleDirectSaveBookmark(targetUrl, targetParentId);
+  });
   document.addEventListener("click", handleSearchOutsideClick);
   initQuickTips();
   elements.addBookmark.addEventListener("click", () => openAddBookmarkDialog());
@@ -116,6 +153,30 @@ async function init() {
   elements.readingListBtn?.addEventListener("click", toggleReadingDrawer);
   elements.readingClose?.addEventListener("click", closeReadingDrawer);
   elements.addForm.addEventListener("submit", handleAddBookmarkSubmit);
+  elements.addFolderSelect?.addEventListener("change", () => {
+    elements.addDialog.dataset.parentId = elements.addFolderSelect.value;
+    updateFolderChipsActive(elements.addFolderSelect.value);
+  });
+  elements.addUrlUnlockBtn?.addEventListener("click", () => {
+    if (elements.addUrl.readOnly) {
+      elements.addUrl.readOnly = false;
+      elements.addUrl.classList.remove("is-locked");
+      elements.addUrlUnlockBtn.textContent = "🔓";
+      elements.addUrlUnlockBtn.title = t("lockUrl") || "Lock address";
+      elements.addUrlUnlockBtn.setAttribute("aria-label", t("lockUrl") || "Lock address");
+      elements.addUrl.focus();
+      elements.addUrl.select();
+    } else {
+      elements.addUrl.readOnly = true;
+      elements.addUrl.classList.add("is-locked");
+      elements.addUrlUnlockBtn.textContent = "🔒";
+      elements.addUrlUnlockBtn.title = t("unlockUrl") || "Unlock address to edit";
+      elements.addUrlUnlockBtn.setAttribute("aria-label", t("unlockUrl") || "Unlock address to edit");
+    }
+  });
+  elements.addUrl.addEventListener("input", () => {
+    elements.addUrl.classList.remove("is-invalid-url");
+  });
   elements.addClose.addEventListener("click", closeAddBookmarkDialog);
   elements.addCancel.addEventListener("click", closeAddBookmarkDialog);
   elements.addFolder.addEventListener("click", () => createFolderFromPrompt(""));
@@ -140,6 +201,12 @@ async function init() {
       return;
     }
 
+    if (LAST_USED_FOLDER_STORAGE_KEY in changes) {
+      lastUsedFolderId = typeof changes[LAST_USED_FOLDER_STORAGE_KEY].newValue === "string"
+        ? changes[LAST_USED_FOLDER_STORAGE_KEY].newValue
+        : "";
+    }
+
     if (BOOKMARK_TAGS_STORAGE_KEY in changes) {
       bookmarkTagsMap = normalizeAllBookmarkTags(changes[BOOKMARK_TAGS_STORAGE_KEY].newValue);
       render();
@@ -150,6 +217,15 @@ async function init() {
       render();
     }
   });
+}
+
+async function loadLastUsedFolderId() {
+  try {
+    const localState = await chrome.storage.local.get(LAST_USED_FOLDER_STORAGE_KEY);
+    return typeof localState[LAST_USED_FOLDER_STORAGE_KEY] === "string" ? localState[LAST_USED_FOLDER_STORAGE_KEY] : "";
+  } catch {
+    return "";
+  }
 }
 
 function getState() {
@@ -554,7 +630,11 @@ async function handleSearchSubmit(event) {
 
   const directTarget = resolveDirectNavigationTarget(value);
   if (directTarget) {
-    window.location.href = directTarget;
+    hideSearchResults();
+    openAddBookmarkDialog(elements.searchInput, {
+      url: directTarget,
+      title: getHostname(directTarget) || directTarget
+    });
     return;
   }
 
@@ -603,10 +683,157 @@ function getSearchIndex() {
     title: b.title,
     url: b.url,
     path: b.path,
+    parentId: b.parentId,
     tags: resolveItemTags(b, bookmarkTagsMap)
   }));
 
   return cachedSearchIndex;
+}
+
+function normalizeUrlForMatch(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== "string") return "";
+  try {
+    const parsed = new URL(rawUrl);
+    const path = parsed.pathname.replace(/\/+$/, "");
+    return (parsed.origin + path + (parsed.search || "")).toLowerCase();
+  } catch {
+    return rawUrl.trim().toLowerCase().replace(/\/+$/, "");
+  }
+}
+
+function findExistingBookmarkByUrl(url) {
+  const norm = normalizeUrlForMatch(url);
+  if (!norm) return null;
+  const index = getSearchIndex();
+  return index.find(b => b.url && normalizeUrlForMatch(b.url) === norm) || null;
+}
+
+function getQuickSaveTargetInfo(url = "") {
+  const barNode = appState?.bookmarkBar;
+  const parentId = lastUsedFolderId || barNode?.id || "";
+  let folderName = "";
+  if (parentId && parentId !== barNode?.id) {
+    const allFolders = collectAllFolders(barNode);
+    const targetFolder = allFolders.find(f => f.id === parentId);
+    folderName = targetFolder?.title || "";
+  }
+  let titleText = folderName
+    ? (t("quickSaveToFolder", folderName) || `'${folderName}' Klasörüne Kaydet (Ctrl+S)`)
+    : (t("quickSaveToBar") || "Yer İmleri Çubuğuna Kaydet (Ctrl+S)");
+
+  let existing = null;
+  if (url) {
+    existing = findExistingBookmarkByUrl(url);
+    if (existing?.title) {
+      titleText = t("quickEditExistingBookmark", existing.title) || `'${existing.title}' Yer İmini Düzenle (Ctrl+S)`;
+    }
+  }
+
+  return { parentId: parentId || barNode?.id || "", folderName, titleText, existingBookmark: existing };
+}
+
+function triggerSearchSaveFlash() {
+  const searchBox = document.querySelector(".nt-search-box");
+  if (!searchBox) return;
+  searchBox.classList.remove("is-saved-flash");
+  void searchBox.offsetWidth;
+  searchBox.classList.add("is-saved-flash");
+  window.setTimeout(() => {
+    searchBox.classList.remove("is-saved-flash");
+  }, 360);
+}
+
+function triggerSearchRestoredFlash() {
+  const searchBox = document.querySelector(".nt-search-box");
+  if (!searchBox) return;
+  searchBox.classList.remove("is-restored");
+  void searchBox.offsetWidth;
+  searchBox.classList.add("is-restored");
+  window.setTimeout(() => {
+    searchBox.classList.remove("is-restored");
+  }, 410);
+}
+
+let lastDirectSavedUrl = "";
+let lastEscapeClearedSearchText = "";
+let inlineSaveLeaveTimeout = null;
+
+function hideInlineSaveBtnSmoothly(inlineSaveBtn) {
+  if (!inlineSaveBtn || inlineSaveBtn.hidden) return;
+  if (inlineSaveBtn.classList.contains("is-leaving")) return;
+  inlineSaveBtn.classList.add("is-leaving");
+  delete inlineSaveBtn.dataset.url;
+  delete inlineSaveBtn.dataset.parentId;
+  delete inlineSaveBtn.dataset.existingId;
+  delete inlineSaveBtn.dataset.existingTitle;
+  delete inlineSaveBtn.dataset.existingParentId;
+  inlineSaveBtn.classList.remove("is-edit-mode");
+  if (inlineSaveLeaveTimeout) {
+    clearTimeout(inlineSaveLeaveTimeout);
+  }
+  inlineSaveLeaveTimeout = window.setTimeout(() => {
+    inlineSaveBtn.hidden = true;
+    inlineSaveBtn.classList.remove("is-leaving");
+    inlineSaveLeaveTimeout = null;
+  }, 120);
+}
+
+function showInlineSaveBtn(inlineSaveBtn, url, parentId, titleText, existingBookmark = null) {
+  if (inlineSaveLeaveTimeout) {
+    clearTimeout(inlineSaveLeaveTimeout);
+    inlineSaveLeaveTimeout = null;
+  }
+  inlineSaveBtn.classList.remove("is-leaving");
+  inlineSaveBtn.hidden = false;
+  inlineSaveBtn.dataset.url = url;
+  inlineSaveBtn.dataset.parentId = parentId;
+  if (existingBookmark) {
+    inlineSaveBtn.classList.add("is-edit-mode");
+    inlineSaveBtn.dataset.existingId = existingBookmark.id;
+    inlineSaveBtn.dataset.existingTitle = existingBookmark.title || "";
+    inlineSaveBtn.dataset.existingParentId = existingBookmark.parentId || "";
+    inlineSaveBtn.textContent = "✏️";
+  } else {
+    inlineSaveBtn.classList.remove("is-edit-mode");
+    delete inlineSaveBtn.dataset.existingId;
+    delete inlineSaveBtn.dataset.existingTitle;
+    delete inlineSaveBtn.dataset.existingParentId;
+    inlineSaveBtn.textContent = "⭐";
+  }
+  inlineSaveBtn.title = titleText;
+  inlineSaveBtn.setAttribute("aria-label", titleText);
+}
+
+function updateSearchIntentBadge(intentResult) {
+  const badge = elements.searchIntentBadge;
+  const inlineSaveBtn = elements.searchInlineSaveBtn;
+  if (!badge) return;
+
+  const query = elements.searchInput.value.trim();
+  if (!query || !intentResult || !intentResult.badge) {
+    badge.hidden = true;
+    badge.textContent = "";
+    badge.className = "nt-intent-badge";
+    if (inlineSaveBtn) {
+      hideInlineSaveBtnSmoothly(inlineSaveBtn);
+    }
+    return;
+  }
+
+  const { icon, key, label, className } = intentResult.badge;
+  const localizedLabel = (typeof t === "function" && t(key)) ? t(key) : label;
+  badge.textContent = `${icon} ${localizedLabel}`;
+  badge.className = `nt-intent-badge ${className || ""}`;
+  badge.hidden = false;
+
+  if (inlineSaveBtn) {
+    if (intentResult.intent === "url" && intentResult.url) {
+      const { parentId, titleText, existingBookmark } = getQuickSaveTargetInfo(intentResult.url);
+      showInlineSaveBtn(inlineSaveBtn, intentResult.url, parentId, titleText, existingBookmark);
+    } else {
+      hideInlineSaveBtnSmoothly(inlineSaveBtn);
+    }
+  }
 }
 
 function handleSearchInput() {
@@ -617,6 +844,13 @@ function handleSearchInput() {
     hideSearchResults();
     return;
   }
+
+  const allFolders = collectAllFolders(appState?.bookmarkBar);
+  const intentResult = typeof BookmarkIntentRoutingEngine !== "undefined"
+    ? BookmarkIntentRoutingEngine.detectUserIntent(query, { folders: allFolders })
+    : null;
+
+  updateSearchIntentBadge(intentResult);
 
   const allBookmarks = getSearchIndex();
   const textLocale = getTextLocale();
@@ -639,6 +873,79 @@ function handleSearchInput() {
     url: b.url,
     path: b.path
   }));
+
+  if (intentResult && intentResult.intent === "folder") {
+    let folderNode = null;
+    if (intentResult.folderId) {
+      folderNode = findNodeById(getBookmarkTreeRoot(), intentResult.folderId);
+    } else if (intentResult.folderQuery) {
+      const qLower = intentResult.folderQuery.toLowerCase();
+      const matched = allFolders.find(f => (f.title || "").toLowerCase().includes(qLower));
+      if (matched) {
+        folderNode = findNodeById(getBookmarkTreeRoot(), matched.id);
+      }
+    }
+    if (folderNode && Array.isArray(folderNode.children)) {
+      const folderBookmarks = folderNode.children
+        .filter(c => c.url)
+        .slice(0, 8)
+        .map(b => ({
+          type: "bookmark",
+          id: b.id,
+          title: b.title,
+          url: b.url,
+          path: folderNode.title
+        }));
+      results.unshift(...folderBookmarks);
+    }
+  }
+
+  if (intentResult && intentResult.intent === "open_tab" && intentResult.tabQuery) {
+    results.unshift({
+      type: "action",
+      action: "switchToTab",
+      title: `${t("intentTabMode") || "Tab Switch"}: ${intentResult.tabQuery}`,
+      desc: t("openInBrowserDesc") || "Switch to matching open tab",
+      icon: "🗂️",
+      tabQuery: intentResult.tabQuery
+    });
+  }
+
+  const directTarget = resolveDirectNavigationTarget(query);
+  if (directTarget) {
+    const existingBookmark = findExistingBookmarkByUrl(directTarget);
+    let existingNotice = "";
+    if (existingBookmark?.title) {
+      const barNode = appState?.bookmarkBar;
+      let folderTitle = "";
+      if (existingBookmark.parentId === barNode?.id) {
+        folderTitle = t("bookmarksBar") || "Yer İmleri Çubuğu";
+      } else if (existingBookmark.parentId) {
+        const allFolders = collectAllFolders(barNode);
+        folderTitle = allFolders.find(f => f.id === existingBookmark.parentId)?.title || "";
+      }
+      existingNotice = folderTitle
+        ? ` • ${t("existingBookmarkWithFolderNotice", [existingBookmark.title, folderTitle]) || `Zaten yer imlerinde: ${existingBookmark.title} (${folderTitle} içinde)`}`
+        : ` • ${t("existingBookmarkNotice", existingBookmark.title) || `Zaten yer imlerinde: ${existingBookmark.title}`}`;
+    }
+    results.unshift({
+      type: "action",
+      action: "captureUrlToBookmark",
+      title: `${t("addBookmarkToTarget")}: ${directTarget}`,
+      desc: `${t("addBookmarkToTargetDesc")}${existingNotice}`,
+      icon: existingBookmark ? "✏️" : "⭐",
+      targetUrl: directTarget,
+      existingBookmark
+    });
+    results.splice(1, 0, {
+      type: "action",
+      action: "openDirectUrl",
+      title: `${t("openInBrowser")}: ${directTarget}`,
+      desc: t("openInBrowserDesc"),
+      icon: "🌐",
+      targetUrl: directTarget
+    });
+  }
 
   const isHealthQuery = /^(health|sa[gğ]l[iı]k|k[iı]r[iı]k|dead|broken|duplicate|m[uü]kerrer|bak[iı]m|maintenance|#health)/i.test(query.toLowerCase());
   if (isHealthQuery) {
@@ -697,6 +1004,41 @@ function handleSearchInput() {
 }
 
 function handleSearchKeydown(event) {
+  if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && (event.key === "s" || event.key === "S")) {
+    const inlineSaveBtn = elements.searchInlineSaveBtn;
+    if (inlineSaveBtn && !inlineSaveBtn.hidden && inlineSaveBtn.dataset.url) {
+      event.preventDefault();
+      event.stopPropagation();
+      inlineSaveBtn.click();
+      return;
+    }
+  }
+
+  if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && (event.key === "z" || event.key === "Z")) {
+    if (!elements.searchInput.value && lastEscapeClearedSearchText) {
+      event.preventDefault();
+      event.stopPropagation();
+      elements.searchInput.value = lastEscapeClearedSearchText;
+      elements.searchInput.focus();
+      elements.searchInput.select();
+      handleSearchInput();
+      triggerSearchRestoredFlash();
+      showToastNotification(t("queryRestoredToast") || "✓ Metin geri getirildi", 1500, null, "is-undone");
+      lastEscapeClearedSearchText = "";
+      return;
+    }
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    if (elements.searchInput.value.trim()) {
+      lastEscapeClearedSearchText = elements.searchInput.value;
+    }
+    hideSearchResults();
+    elements.searchInput.value = "";
+    return;
+  }
+
   if (!currentSearchResults.length || elements.searchResults.hidden) {
     return;
   }
@@ -710,13 +1052,6 @@ function handleSearchKeydown(event) {
   if (event.key === "ArrowUp") {
     event.preventDefault();
     moveSearchSelection(-1);
-    return;
-  }
-
-  if (event.key === "Escape") {
-    event.preventDefault();
-    hideSearchResults();
-    elements.searchInput.value = "";
     return;
   }
 
@@ -802,6 +1137,115 @@ function renderSearchResults() {
 
     info.append(titleEl, urlEl);
 
+    if (item.action === "captureUrlToBookmark") {
+      const chips = document.createElement("div");
+      chips.className = "nt-search-action-chips";
+
+      const barNode = appState?.bookmarkBar;
+      const existingBookmark = item.existingBookmark || findExistingBookmarkByUrl(item.targetUrl);
+
+      if (existingBookmark) {
+        if (existingBookmark.parentId !== barNode?.id) {
+          const moveBarChip = document.createElement("button");
+          moveBarChip.type = "button";
+          moveBarChip.className = "nt-search-action-chip is-move-chip";
+          moveBarChip.textContent = `⭐ ${t("moveToBar") || "Move to Bar"}`;
+          moveBarChip.title = t("moveToBar") || "Move to Bar";
+          moveBarChip.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            await handleMoveBookmarkToFolder(existingBookmark.id, barNode?.id || "", t("bookmarksBar") || "Bookmarks Bar");
+          });
+          chips.append(moveBarChip);
+        }
+
+        const allFolders = collectAllFolders(barNode);
+        const targetFolder = allFolders.find(f => !f.isBar && f.id !== existingBookmark.parentId && (f.id === lastUsedFolderId || pinnedFolderIds.includes(f.id)))
+          || allFolders.find(f => !f.isBar && f.id !== existingBookmark.parentId);
+        if (targetFolder) {
+          const moveFolderChip = document.createElement("button");
+          moveFolderChip.type = "button";
+          moveFolderChip.className = "nt-search-action-chip is-move-chip";
+          moveFolderChip.textContent = `📁 ${targetFolder.title}`;
+          moveFolderChip.title = t("moveToFolder", targetFolder.title) || `'${targetFolder.title}' Klasörüne Taşı`;
+          moveFolderChip.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeFolderPickerMenu();
+            await handleMoveBookmarkToFolder(existingBookmark.id, targetFolder.id, targetFolder.title);
+          });
+          chips.append(moveFolderChip);
+        }
+
+        if (allFolders.length > 1) {
+          const pickerChip = document.createElement("button");
+          pickerChip.type = "button";
+          pickerChip.className = "nt-search-action-chip is-folder-picker-chip";
+          pickerChip.textContent = "📁▾";
+          pickerChip.title = t("otherFolders") || "Diğer Klasörler…";
+          pickerChip.setAttribute("aria-haspopup", "true");
+          pickerChip.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (activeFolderPickerMenu) {
+              closeFolderPickerMenu();
+            } else {
+              showFolderPickerMenu(existingBookmark, pickerChip, card);
+            }
+          });
+          chips.append(pickerChip);
+        }
+
+        const editChip = document.createElement("button");
+        editChip.type = "button";
+        editChip.className = "nt-search-action-chip is-edit-chip";
+        editChip.textContent = `✏️ ${t("edit") || "Edit"}`;
+        editChip.title = t("editBookmark") || "Edit Bookmark";
+        editChip.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeFolderPickerMenu();
+          hideSearchResults();
+          openAddBookmarkDialog(elements.searchInput, {
+            url: item.targetUrl,
+            title: existingBookmark.title || getHostname(item.targetUrl) || item.targetUrl,
+            parentId: existingBookmark.parentId,
+            editNodeId: existingBookmark.id
+          });
+        });
+        chips.append(editChip);
+      } else {
+        const barChip = document.createElement("button");
+        barChip.type = "button";
+        barChip.className = "nt-search-action-chip";
+        barChip.textContent = `⭐ ${t("saveToBar") || "Add to Bar"}`;
+        barChip.title = t("saveToBar") || "Add to Bar";
+        barChip.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          await handleDirectSaveBookmark(item.targetUrl, barNode?.id || "");
+        });
+        chips.append(barChip);
+
+        const allFolders = collectAllFolders(barNode);
+        const targetFolder = allFolders.find(f => !f.isBar && (f.id === lastUsedFolderId || pinnedFolderIds.includes(f.id))) || allFolders.find(f => !f.isBar);
+        if (targetFolder) {
+          const folderChip = document.createElement("button");
+          folderChip.type = "button";
+          folderChip.className = "nt-search-action-chip";
+          folderChip.textContent = `📁 ${targetFolder.title}`;
+          folderChip.title = `${t("saveToFolder") || "Add to Folder"}: ${targetFolder.path || targetFolder.title}`;
+          folderChip.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            await handleDirectSaveBookmark(item.targetUrl, targetFolder.id);
+          });
+          chips.append(folderChip);
+        }
+      }
+      info.append(chips);
+    }
+
     if (item.type === "bookmark") {
       const itemTags = resolveItemTags(item, bookmarkTagsMap);
       if (itemTags.length > 0) {
@@ -848,6 +1292,39 @@ async function openSearchResult(item, event) {
 
   if (item.type === "action") {
     hideSearchResults();
+    if (item.action === "captureUrlToBookmark") {
+      const existing = item.existingBookmark || findExistingBookmarkByUrl(item.targetUrl);
+      openAddBookmarkDialog(elements.searchInput, {
+        url: item.targetUrl,
+        title: existing?.title || getHostname(item.targetUrl) || item.targetUrl,
+        parentId: existing?.parentId,
+        editNodeId: existing?.id
+      });
+      return;
+    }
+    if (item.action === "openDirectUrl") {
+      if (isNewTab) {
+        window.open(item.targetUrl, "_blank");
+      } else {
+        window.location.href = item.targetUrl;
+      }
+      return;
+    }
+    if (item.action === "switchToTab") {
+      if (typeof chrome !== "undefined" && chrome.tabs && chrome.tabs.query) {
+        chrome.tabs.query({}, (tabs) => {
+          const q = (item.tabQuery || "").toLowerCase();
+          const found = tabs.find(tab => (tab.title || "").toLowerCase().includes(q) || (tab.url || "").toLowerCase().includes(q));
+          if (found && found.id) {
+            chrome.tabs.update(found.id, { active: true });
+            if (found.windowId && chrome.windows) chrome.windows.update(found.windowId, { focused: true });
+          }
+        });
+      }
+      hideSearchResults();
+      elements.searchInput.value = "";
+      return;
+    }
     if (item.action === "openHealthInspector") {
       chrome.tabs.create({ url: chrome.runtime.getURL("src/bookmark-maintenance.html#health") });
       return;
@@ -891,6 +1368,317 @@ async function openSearchResult(item, event) {
   }
 }
 
+async function handleDirectSaveBookmark(url, parentId) {
+  if (!url || !isSafeBookmarkUrl(url)) {
+    return;
+  }
+  lastDirectSavedUrl = url;
+  const title = getHostname(url) || url;
+  const response = await sendMessage({
+    type: "BF_CREATE_BOOKMARK",
+    title,
+    url,
+    parentId: parentId || "",
+    allowDuplicate: true
+  });
+  if (response?.ok) {
+    appState = response;
+    const createdId = response.createdId;
+    if (parentId) {
+      lastUsedFolderId = parentId;
+      chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: parentId }).catch(() => {});
+    }
+    hideSearchResults();
+    elements.searchInput.value = "";
+    render();
+
+    const barNode = appState?.bookmarkBar;
+    let toastMsg = "";
+    if (parentId && parentId !== barNode?.id) {
+      const allFolders = collectAllFolders(barNode);
+      const targetFolder = allFolders.find(f => f.id === parentId);
+      const folderName = targetFolder?.title || "";
+      toastMsg = t("bookmarkSavedToFolderToast", folderName) || `✓ ${folderName} klasörüne kaydedildi`;
+    } else {
+      toastMsg = t("bookmarkSavedToBarToast") || "✓ Yer İmleri Çubuğuna kaydedildi";
+    }
+
+    const action = createdId ? {
+      label: t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)",
+      onClick: async () => {
+        const delRes = await sendMessage({
+          type: "BF_DELETE_BOOKMARK",
+          nodeId: createdId
+        });
+        if (delRes?.ok) {
+          appState = delRes;
+          render();
+          showToastNotification(t("bookmarkDeletedToast") || "✓ Yer imi kaldırıldı", 1800, null, "is-undone");
+          if (lastDirectSavedUrl) {
+            elements.searchInput.value = lastDirectSavedUrl;
+            elements.searchInput.focus();
+            elements.searchInput.select();
+            handleSearchInput();
+            triggerSearchRestoredFlash();
+            lastDirectSavedUrl = "";
+          }
+        }
+      }
+    } : null;
+
+    showToastNotification(toastMsg, 3500, action);
+  }
+}
+
+async function handleMoveBookmarkToFolder(bookmarkId, targetFolderId, targetFolderName) {
+  if (!bookmarkId || !targetFolderId) return;
+  const response = await sendMessage({
+    type: "BF_MOVE_TO_FOLDER",
+    nodeId: bookmarkId,
+    parentId: targetFolderId
+  });
+  if (!response?.ok) {
+    showToastNotification(response?.error || t("genericOperationFailed"), 2000, null, "is-error");
+    return;
+  }
+  appState = response;
+  lastUsedFolderId = targetFolderId;
+  chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: targetFolderId }).catch(() => {});
+  hideSearchResults();
+  elements.searchInput.value = "";
+  render();
+
+  const previousParentId = response.previousParentId;
+  const action = previousParentId ? {
+    label: t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)",
+    onClick: async () => {
+      const revertResp = await sendMessage({
+        type: "BF_MOVE_TO_FOLDER",
+        nodeId: bookmarkId,
+        parentId: previousParentId
+      });
+      if (revertResp?.ok) {
+        appState = revertResp;
+        render();
+        showToastNotification(t("bookmarkMovedBackToast") || "✓ Yer imi önceki konumuna geri taşındı", 2000, null, "is-undone");
+      }
+    }
+  } : null;
+
+  const msg = t("bookmarkMovedToFolderToast", targetFolderName) || `✓ '${targetFolderName}' klasörüne taşındı`;
+  showToastNotification(msg, 3500, action);
+}
+
+let activeFolderPickerMenu = null;
+
+function closeFolderPickerMenu() {
+  if (activeFolderPickerMenu) {
+    activeFolderPickerMenu.remove();
+    activeFolderPickerMenu = null;
+  }
+}
+
+function showFolderPickerMenu(existingBookmark, anchorBtn, card) {
+  closeFolderPickerMenu();
+  if (!existingBookmark || !anchorBtn || !card) return;
+
+  const barNode = appState?.bookmarkBar;
+  const allFolders = collectAllFolders(barNode);
+
+  const menu = document.createElement("div");
+  menu.className = "nt-folder-picker-menu";
+  menu.setAttribute("role", "menu");
+
+  const header = document.createElement("div");
+  header.className = "nt-folder-picker-header";
+  header.textContent = t("chooseFolderToMove") || "Taşınacak Klasörü Seçin";
+  menu.append(header);
+
+  const barItem = document.createElement("button");
+  barItem.type = "button";
+  barItem.className = "nt-folder-picker-item";
+  const isCurrentBar = existingBookmark.parentId === barNode?.id;
+  if (isCurrentBar) {
+    barItem.classList.add("is-current");
+    barItem.disabled = true;
+  }
+  barItem.innerHTML = `<span>⭐</span> <span>${t("bookmarksBar") || "Yer İmleri Çubuğu"}</span>`;
+  if (isCurrentBar) {
+    const tag = document.createElement("span");
+    tag.className = "nt-folder-picker-tag";
+    tag.textContent = t("currentFolderTag") || "(mevcut)";
+    barItem.append(tag);
+  } else {
+    barItem.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeFolderPickerMenu();
+      await handleMoveBookmarkToFolder(existingBookmark.id, barNode?.id || "", t("bookmarksBar") || "Yer İmleri Çubuğu");
+    });
+  }
+  menu.append(barItem);
+
+  allFolders.filter(f => !f.isBar).forEach((folder) => {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "nt-folder-picker-item";
+    const isCurrent = existingBookmark.parentId === folder.id;
+    if (isCurrent) {
+      item.classList.add("is-current");
+      item.disabled = true;
+    }
+    const folderTitle = folder.path || folder.title;
+    item.innerHTML = `<span>📁</span> <span>${folderTitle}</span>`;
+    if (isCurrent) {
+      const tag = document.createElement("span");
+      tag.className = "nt-folder-picker-tag";
+      tag.textContent = t("currentFolderTag") || "(mevcut)";
+      item.append(tag);
+    } else {
+      item.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeFolderPickerMenu();
+        await handleMoveBookmarkToFolder(existingBookmark.id, folder.id, folder.title);
+      });
+    }
+    menu.append(item);
+  });
+
+  card.style.position = "relative";
+  card.append(menu);
+  activeFolderPickerMenu = menu;
+}
+
+
+let toastTimeoutId = null;
+let toastKeydownHandler = null;
+let toastHoverCleanups = null;
+
+function cleanupToastKeydown() {
+  if (elements.toastNotification) {
+    elements.toastNotification.classList.remove("is-undone");
+  }
+  if (toastTimeoutId) {
+    clearTimeout(toastTimeoutId);
+    toastTimeoutId = null;
+  }
+  if (toastKeydownHandler) {
+    window.removeEventListener("keydown", toastKeydownHandler, true);
+    toastKeydownHandler = null;
+  }
+  if (typeof toastHoverCleanups === "function") {
+    toastHoverCleanups();
+    toastHoverCleanups = null;
+  }
+}
+
+function showToastNotification(message, durationMs = 1800, action = null, variant = "") {
+  if (!elements.toastNotification) return;
+
+  const wasVisible = !elements.toastNotification.hidden;
+  cleanupToastKeydown();
+  elements.toastNotification.replaceChildren();
+
+  if (wasVisible) {
+    elements.toastNotification.classList.remove("is-switching");
+    void elements.toastNotification.offsetWidth;
+    elements.toastNotification.classList.add("is-switching");
+    window.setTimeout(() => {
+      elements.toastNotification?.classList.remove("is-switching");
+    }, 240);
+  }
+
+  if (variant) {
+    elements.toastNotification.classList.add(variant);
+  } else {
+    elements.toastNotification.classList.remove("is-undone");
+  }
+
+  const textSpan = document.createElement("span");
+  textSpan.className = "nt-toast-text";
+  textSpan.textContent = message;
+  elements.toastNotification.appendChild(textSpan);
+
+  if (action && typeof action.onClick === "function") {
+    const actionBtn = document.createElement("button");
+    actionBtn.type = "button";
+    actionBtn.className = "nt-toast-action-btn";
+    const undoLabel = action.label || t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)";
+    actionBtn.textContent = undoLabel;
+    actionBtn.title = t("undoWithShortcut") || undoLabel;
+    actionBtn.setAttribute("aria-label", t("undoWithShortcut") || undoLabel);
+    actionBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      cleanupToastKeydown();
+      elements.toastNotification.hidden = true;
+      action.onClick();
+    });
+    elements.toastNotification.appendChild(actionBtn);
+
+    const progressBar = document.createElement("div");
+    progressBar.className = "nt-toast-progress";
+    progressBar.style.animationDuration = `${durationMs}ms`;
+    elements.toastNotification.appendChild(progressBar);
+
+    toastKeydownHandler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === "z" || e.key === "Z")) {
+        e.preventDefault();
+        e.stopPropagation();
+        cleanupToastKeydown();
+        elements.toastNotification.hidden = true;
+        action.onClick();
+      }
+    };
+    window.addEventListener("keydown", toastKeydownHandler, true);
+  }
+
+  elements.toastNotification.classList.remove("is-leaving");
+  elements.toastNotification.hidden = false;
+
+  let remainingMs = durationMs;
+  let endTime = Date.now() + durationMs;
+  let isLeaving = false;
+
+  function startTimer(ms) {
+    toastTimeoutId = window.setTimeout(() => {
+      isLeaving = true;
+      elements.toastNotification.classList.add("is-leaving");
+      window.setTimeout(() => {
+        cleanupToastKeydown();
+        elements.toastNotification.hidden = true;
+        elements.toastNotification.classList.remove("is-leaving");
+      }, 250);
+    }, ms);
+  }
+
+  startTimer(remainingMs);
+
+  const onMouseEnter = () => {
+    if (isLeaving) return;
+    if (toastTimeoutId) {
+      clearTimeout(toastTimeoutId);
+      toastTimeoutId = null;
+    }
+    remainingMs = Math.max(250, endTime - Date.now());
+  };
+
+  const onMouseLeave = () => {
+    if (isLeaving || elements.toastNotification.hidden) return;
+    endTime = Date.now() + remainingMs;
+    startTimer(remainingMs);
+  };
+
+  elements.toastNotification.addEventListener("mouseenter", onMouseEnter);
+  elements.toastNotification.addEventListener("mouseleave", onMouseLeave);
+
+  toastHoverCleanups = () => {
+    elements.toastNotification.removeEventListener("mouseenter", onMouseEnter);
+    elements.toastNotification.removeEventListener("mouseleave", onMouseLeave);
+  };
+}
+
 async function triggerWebSearch(query, disposition = "CURRENT_TAB") {
   const directTarget = resolveDirectNavigationTarget(query);
   if (directTarget) {
@@ -914,48 +1702,221 @@ async function triggerWebSearch(query, disposition = "CURRENT_TAB") {
 }
 
 function hideSearchResults() {
+  closeFolderPickerMenu();
   elements.searchResults.hidden = true;
   elements.searchResults.innerHTML = "";
   elements.searchInput.setAttribute("aria-expanded", "false");
   elements.searchInput.removeAttribute("aria-activedescendant");
   currentSearchResults = [];
   searchActiveIndex = -1;
+  if (elements.searchIntentBadge) {
+    elements.searchIntentBadge.hidden = true;
+    elements.searchIntentBadge.textContent = "";
+    elements.searchIntentBadge.className = "nt-intent-badge";
+  }
+  if (elements.searchInlineSaveBtn) {
+    hideInlineSaveBtnSmoothly(elements.searchInlineSaveBtn);
+  }
 }
 
 function handleSearchOutsideClick(event) {
+  if (activeFolderPickerMenu && !activeFolderPickerMenu.contains(event.target)) {
+    closeFolderPickerMenu();
+  }
   if (!elements.searchResults.hidden && !elements.searchForm.contains(event.target)) {
     hideSearchResults();
   }
 }
 
-function collectSearchableBookmarks(node, results = [], path = "") {
+function collectSearchableBookmarks(node, results = [], path = "", parentId = "") {
   if (!node) return results;
   const currentPath = path ? (node.title ? `${path} / ${node.title}` : path) : (node.title || "");
+  const currentParentId = node.id || parentId;
   if (node.url && isSafeBookmarkUrl(node.url)) {
     results.push({
       id: node.id,
       title: node.title || node.url,
       url: node.url,
-      path: path
+      path: path,
+      parentId: node.parentId || parentId
     });
   }
   if (Array.isArray(node.children)) {
     for (const child of node.children) {
-      collectSearchableBookmarks(child, results, currentPath);
+      collectSearchableBookmarks(child, results, currentPath, currentParentId);
     }
   }
   return results;
 }
 
-function openAddBookmarkDialog(returnFocusElement = document.activeElement) {
+function collectAllFolders(node, path = "", list = []) {
+  if (!node) return list;
+  const isFolder = Array.isArray(node.children);
+  if (isFolder) {
+    const isRootBar = node.id === appState?.bookmarkBar?.id;
+    const title = node.title || (isRootBar ? (t("bookmarksBar") || "Bookmarks Bar") : "");
+    const currentPath = path ? (title ? `${path} / ${title}` : path) : title;
+    if (node.id && node.id !== "0") {
+      list.push({
+        id: node.id,
+        title: title || (t("bookmarksBar") || "Bookmarks Bar"),
+        path: currentPath,
+        isBar: isRootBar
+      });
+    }
+    for (const child of node.children) {
+      if (Array.isArray(child.children)) {
+        collectAllFolders(child, currentPath, list);
+      }
+    }
+  }
+  return list;
+}
+
+function populateFolderSelect(selectedParentId = "") {
+  if (!elements.addFolderSelect) return;
+  elements.addFolderSelect.innerHTML = "";
+
+  const barNode = appState?.bookmarkBar;
+  const folders = collectAllFolders(barNode);
+
+  if (!folders.length && barNode?.id) {
+    folders.push({
+      id: barNode.id,
+      title: t("bookmarksBar") || "Bookmarks Bar",
+      path: t("bookmarksBar") || "Bookmarks Bar",
+      isBar: true
+    });
+  }
+
+  const effectiveSelected = selectedParentId || (folders.some(f => f.id === lastUsedFolderId) ? lastUsedFolderId : (barNode?.id || ""));
+
+  folders.forEach((f) => {
+    const option = document.createElement("option");
+    option.value = f.id;
+    option.textContent = f.isBar ? `⭐ ${f.title}` : `📁 ${f.path || f.title}`;
+    if (f.id === effectiveSelected) {
+      option.selected = true;
+    }
+    elements.addFolderSelect.appendChild(option);
+  });
+
+  renderFolderChips(folders, effectiveSelected);
+}
+
+function renderFolderChips(folders, currentSelectedId) {
+  if (!elements.addFolderChips) return;
+  elements.addFolderChips.innerHTML = "";
+
+  if (!Array.isArray(folders) || folders.length === 0) {
+    elements.addFolderChips.hidden = true;
+    return;
+  }
+
+  const barFolder = folders.find(f => f.isBar);
+  const otherFolders = folders.filter(f => !f.isBar);
+  const prioritized = [];
+
+  if (Array.isArray(pinnedFolderIds)) {
+    for (const pid of pinnedFolderIds) {
+      const match = otherFolders.find(f => f.id === pid);
+      if (match && !prioritized.some(p => p.id === match.id)) {
+        prioritized.push(match);
+      }
+    }
+  }
+
+  for (const f of otherFolders) {
+    if (!prioritized.some(p => p.id === f.id)) {
+      prioritized.push(f);
+    }
+  }
+
+  const chipCandidates = [];
+  if (barFolder) {
+    chipCandidates.push(barFolder);
+  }
+  chipCandidates.push(...prioritized.slice(0, 3));
+
+  if (chipCandidates.length <= 1) {
+    elements.addFolderChips.hidden = true;
+    return;
+  }
+
+  elements.addFolderChips.hidden = false;
+
+  chipCandidates.forEach((f) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "nt-folder-chip" + (f.id === currentSelectedId ? " is-active" : "");
+    btn.setAttribute("aria-pressed", f.id === currentSelectedId ? "true" : "false");
+    btn.dataset.folderId = f.id;
+    btn.title = f.path || f.title;
+    btn.textContent = f.isBar ? `⭐ ${t("bookmarksBar") || "Bar"}` : `📁 ${f.title}`;
+
+    btn.addEventListener("click", () => {
+      elements.addFolderSelect.value = f.id;
+      elements.addDialog.dataset.parentId = f.id;
+      lastUsedFolderId = f.id;
+      chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: f.id }).catch(() => {});
+      updateFolderChipsActive(f.id);
+    });
+
+    elements.addFolderChips.appendChild(btn);
+  });
+}
+
+function updateFolderChipsActive(selectedId) {
+  if (!elements.addFolderChips) return;
+  const chips = elements.addFolderChips.querySelectorAll(".nt-folder-chip");
+  chips.forEach((chip) => {
+    const isActive = chip.dataset.folderId === selectedId;
+    chip.classList.toggle("is-active", isActive);
+    chip.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+}
+
+function openAddBookmarkDialog(returnFocusElement = document.activeElement, customData = null) {
   if (elements.addDialog.hidden) {
     addDialogReturnFocus = createFocusReturnTarget(returnFocusElement);
   }
-  const suggestion = getAddBookmarkSuggestion();
+  const suggestion = customData ? {
+    title: customData.title || "",
+    url: customData.url || "",
+    parentId: customData.parentId || elements.addDialog.dataset.parentId || "",
+    status: "",
+    editNodeId: customData.editNodeId || ""
+  } : getAddBookmarkSuggestion();
+
   resetAddDuplicateState();
-  elements.addDialog.dataset.parentId = suggestion.parentId || "";
+  const parentId = suggestion.parentId || elements.addDialog.dataset.parentId || "";
+  elements.addDialog.dataset.parentId = parentId;
+  if (suggestion.editNodeId) {
+    elements.addDialog.dataset.editNodeId = suggestion.editNodeId;
+    elements.addDialogTitle.textContent = t("editBookmark") || "Yer İmini Düzenle";
+    elements.addSubmit.textContent = t("save") || "Kaydet";
+    elements.addUrl.readOnly = true;
+    elements.addUrl.classList.add("is-locked");
+    elements.addUrl.classList.remove("is-invalid-url");
+    if (elements.addUrlUnlockBtn) {
+      elements.addUrlUnlockBtn.hidden = false;
+      elements.addUrlUnlockBtn.textContent = "🔒";
+      elements.addUrlUnlockBtn.title = t("unlockUrl") || "Unlock address to edit";
+      elements.addUrlUnlockBtn.setAttribute("aria-label", t("unlockUrl") || "Unlock address to edit");
+    }
+  } else {
+    delete elements.addDialog.dataset.editNodeId;
+    elements.addDialogTitle.textContent = t("addBookmark") || "Yer İmi Ekle";
+    elements.addSubmit.textContent = t("add") || "Ekle";
+    elements.addUrl.readOnly = false;
+    elements.addUrl.classList.remove("is-locked", "is-invalid-url");
+    if (elements.addUrlUnlockBtn) {
+      elements.addUrlUnlockBtn.hidden = true;
+    }
+  }
   elements.addTitle.value = suggestion.title;
   elements.addUrl.value = suggestion.url;
+  populateFolderSelect(parentId);
   renderAddBookmarkStatus(suggestion.status || (suggestion.url ? "" : t("enterAddressToAdd")), false);
   elements.addDialog.hidden = false;
   setNewTabModalBackground(true);
@@ -969,6 +1930,14 @@ function closeAddBookmarkDialog({ restoreFocus = true } = {}) {
   const returnFocus = addDialogReturnFocus;
   addDialogReturnFocus = null;
   resetAddDuplicateState();
+  delete elements.addDialog.dataset.editNodeId;
+  elements.addDialogTitle.textContent = t("addBookmark") || "Yer İmi Ekle";
+  elements.addSubmit.textContent = t("add") || "Ekle";
+  elements.addUrl.readOnly = false;
+  elements.addUrl.classList.remove("is-locked", "is-invalid-url");
+  if (elements.addUrlUnlockBtn) {
+    elements.addUrlUnlockBtn.hidden = true;
+  }
   elements.addDialog.hidden = true;
   setNewTabModalBackground(false);
   if (restoreFocus) {
@@ -980,13 +1949,48 @@ function closeAddBookmarkDialog({ restoreFocus = true } = {}) {
 async function handleAddBookmarkSubmit(event) {
   event.preventDefault();
 
+  elements.addUrl.classList.remove("is-invalid-url");
   const title = elements.addTitle.value.trim();
-  const url = normalizeBookmarkInputUrl(elements.addUrl.value);
-  const parentId = elements.addDialog.dataset.parentId || "";
+  const rawUrl = elements.addUrl.value.trim();
+  const url = normalizeBookmarkInputUrl(rawUrl);
+  if (url && url !== rawUrl) {
+    elements.addUrl.value = url;
+  }
+  const selectedParent = elements.addFolderSelect?.value;
+  const parentId = (selectedParent !== undefined && selectedParent !== "") ? selectedParent : (elements.addDialog.dataset.parentId || "");
   const allowDuplicate = Boolean(elements.addDialog.dataset.duplicateUrl && areBookmarkUrlsEqual(elements.addDialog.dataset.duplicateUrl, url) && (elements.addDialog.dataset.duplicateParentId || "") === parentId);
   if (!url || !isSafeBookmarkUrl(url)) {
+    elements.addUrl.classList.add("is-invalid-url");
     renderAddBookmarkStatus(t("validUrlRequired"), true);
     elements.addUrl.focus();
+    elements.addUrl.select();
+    return;
+  }
+
+  const editNodeId = elements.addDialog.dataset.editNodeId;
+  if (editNodeId) {
+    elements.addSubmit.disabled = true;
+    renderAddBookmarkStatus(t("saving") || "Kaydediliyor...", false);
+    const response = await sendMessage({
+      type: "BF_RENAME_BOOKMARK",
+      nodeId: editNodeId,
+      title,
+      url,
+      parentId
+    });
+    elements.addSubmit.disabled = false;
+    if (!response?.ok) {
+      renderAddBookmarkStatus(response?.error || t("bookmarkRenameFailed"), true);
+      return;
+    }
+    appState = response;
+    renderAddBookmarkStatus(t("bookmarkUpdatedToast") || "✓ Yer imi güncellendi", false);
+    showToastNotification(t("bookmarkUpdatedToast") || "✓ Yer imi güncellendi", 1800, null, "is-undone");
+    window.setTimeout(() => {
+      const returnFocus = closeAddBookmarkDialog({ restoreFocus: false });
+      render();
+      restoreFocusTarget(returnFocus);
+    }, 600);
     return;
   }
 
@@ -1015,7 +2019,12 @@ async function handleAddBookmarkSubmit(event) {
   }
 
   resetAddDuplicateState();
-  renderAddBookmarkStatus(parentId ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
+  if (parentId) {
+    lastUsedFolderId = parentId;
+    chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: parentId }).catch(() => {});
+  }
+  const isSubfolder = Boolean(parentId && parentId !== appState?.bookmarkBar?.id && parentId !== appState?.bookmarkBarId);
+  renderAddBookmarkStatus(isSubfolder ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
   window.setTimeout(() => {
     const returnFocus = closeAddBookmarkDialog({ restoreFocus: false });
     render();
@@ -1130,7 +2139,7 @@ function normalizeBookmarkInputUrl(value) {
     return trimmed;
   }
 
-  if (/^[^\s]+\.[^\s]{2,}(\/.*)?$/i.test(trimmed)) {
+  if (/^([^\s]+\.[^\s]{2,}|localhost(:\d+)?|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?)(\/.*)?$/i.test(trimmed)) {
     return `https://${trimmed}`;
   }
 

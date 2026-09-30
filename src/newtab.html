@@ -55,6 +55,8 @@
         <label class="nt-search-label" for="searchInput" data-i18n="webSearch">Web Search</label>
         <div class="nt-search-box">
           <input id="searchInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search the web or type a URL" data-i18n-placeholder="newTabSearchPlaceholder" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="searchResults">
+          <button type="button" class="nt-inline-save-btn" id="searchInlineSaveBtn" hidden title="Kaydet" data-i18n-title="quickSaveBookmark" aria-label="Kaydet" data-i18n-aria-label="quickSaveBookmark">⭐ <span data-i18n="save">Kaydet</span></button>
+          <div class="nt-intent-badge" id="searchIntentBadge" hidden aria-hidden="true"></div>
           <button type="submit" data-i18n="search">Search</button>
         </div>
         <div class="nt-search-results" id="searchResults" role="listbox" aria-label="Search suggestions" hidden></div>
@@ -120,8 +122,16 @@
         </label>
         <label class="nt-add-field">
           <span data-i18n="address">Address</span>
-          <input id="addUrl" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
+          <div class="nt-url-input-wrap">
+            <input id="addUrl" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
+            <button class="nt-url-unlock-btn" id="addUrlUnlockBtn" type="button" hidden title="Unlock address to edit" aria-label="Unlock address to edit" data-i18n-title="unlockUrl" data-i18n-aria-label="unlockUrl">🔒</button>
+          </div>
         </label>
+        <label class="nt-add-field">
+          <span data-i18n="targetFolder">Target Folder</span>
+          <select id="addFolderSelect" class="nt-add-select"></select>
+        </label>
+        <div class="nt-folder-chips" id="addFolderChips" aria-label="Quick folders" hidden></div>
         <p class="nt-add-status" id="addStatus" aria-live="polite"></p>
         <div class="nt-add-actions">
           <button class="nt-add-secondary" id="addCancel" type="button" data-i18n="cancel">Cancel</button>
@@ -130,8 +140,11 @@
       </form>
     </div>
 
+    <div class="nt-toast" id="toastNotification" role="status" aria-live="polite" hidden></div>
+
     <script src="i18n.js"></script>
     <script src="settings.js"></script>
+    <script src="intent-router.js"></script>
     <script src="newtab.js"></script>
   </body>
 </html>

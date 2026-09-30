@@ -88,6 +88,7 @@
   "enterAddressToAdd": { "message": "Eklemek istediğiniz adresi yazın." },
   "pageAddressUnavailable": { "message": "Bu sayfa otomatik eklenemiyor; adresi elle yazın." },
   "adding": { "message": "Ekleniyor…" },
+  "saving": { "message": "Kaydediliyor…" },
   "addAnyway": { "message": "Yine de ekle" },
   "duplicateBookmarkPrompt": { "message": "Bu adres seçilen klasörde zaten var. Kopya oluşturmak için tekrar Ekle'yi seçin." },
   "validUrlRequired": { "message": "Geçerli bir http, https veya mailto adresi girin." },
@@ -372,6 +373,10 @@
   "quickMenuRestoreBar": { "message": "Çubuğu Göster (Alt + Shift + H)" },
   "quickMenuDisableSite": { "message": "Bu Sitede Devre Dışı Bırak" },
   "quickMenuSettings": { "message": "Ayarlar" },
+  "barHiddenToast": { "message": "✓ BookmarkFlow gizlendi (Geri getirmek için: Alt + Shift + H)" },
+  "barRestoredToast": { "message": "✓ BookmarkFlow geri getirildi" },
+  "siteStatusSnoozed": { "message": "Bu sekmede gizlendi (Alt+Shift+H)" },
+  "restoreBar": { "message": "Çubuğu Göster" },
   "pageControlsTip": { "message": "İpucu: Sayfadaki BF butonuna sağ tıklayarak hızlı menüyü açabilir veya Alt+Shift+B ile açıp kapatabilirsiniz." },
   "navDesktop": { "message": "💻 Masaüstü ve Kısayollar" },
   "desktopIntegrationHeading": { "message": "Windows Masaüstü Entegrasyonu ve Global Kısayollar" },
@@ -383,5 +388,114 @@
   "hotkeyStashTabsLabel": { "message": "Sekmeleri Sakla Kısayolu:" },
   "saveDesktopHotkeys": { "message": "Kaydet ve Masaüstüne Uygula" },
   "resetDesktopHotkeys": { "message": "Varsayılanlara Sıfırla" },
-  "desktopHotkeysSaved": { "message": "Global masaüstü kısayolları başarıyla güncellendi!" }
+  "desktopHotkeysSaved": { "message": "Global masaüstü kısayolları başarıyla güncellendi!" },
+  "addBookmarkToTarget": { "message": "Yer İmlerine Ekle" },
+  "addBookmarkToTargetDesc": { "message": "Klasör seçip kaydetmek için Enter'a basın" },
+  "openInBrowser": { "message": "Web Sayfasını Aç" },
+  "openInBrowserDesc": { "message": "Bu adrese doğrudan git" },
+  "targetFolder": { "message": "Hedef Klasör" },
+  "selectFolder": { "message": "Klasör Seçin" },
+  "omniboxDefaultSuggestion": { "message": "BookmarkFlow Bar: Bağlantıyı yer imlerine kaydetmek için Enter'a basın" },
+  "omniboxAddToBar": { "message": "Yer İmleri Çubuğuna Ekle" },
+  "omniboxAddToFolder": { "message": "Klasöre ekle" },
+  "bookmarkAddedNotification": { "message": "Yer imi başarıyla kaydedildi!" },
+  "bookmarksBar": { "message": "Yer İmleri Çubuğu" },
+  "quickFolders": { "message": "Hızlı Klasörler" },
+  "saveToBar": { "message": "Çubuğa Ekle" },
+  "saveToFolder": { "message": "Klasöre Ekle" },
+  "bookmarkSavedToBarToast": { "message": "✓ Yer İmleri Çubuğuna kaydedildi" },
+  "bookmarkSavedToFolderToast": { "message": "✓ $1 klasörüne kaydedildi", "placeholders": { "title": { "content": "$1" } } },
+  "intentLinkMode": { "message": "Bağlantı Modu" },
+  "intentCommandMode": { "message": "Komut Modu" },
+  "intentTagMode": { "message": "Etiket Modu" },
+  "intentFolderMode": { "message": "Klasör Modu" },
+  "intentTabMode": { "message": "Sekme Modu" },
+  "intentSearchMode": { "message": "Akıllı Arama" },
+  "siteDisabledToast": { "message": "BookmarkFlow bu sitede devre dışı bırakıldı. Tekrar açmak için uzantı simgesine veya Ayarlar'a tıklayabilirsiniz." },
+  "navSites": { "message": "🌐 Devre Dışı Siteler" },
+  "disabledSitesHeading": { "message": "Devre Dışı Bırakılan Siteler" },
+  "disabledSitesDescription": { "message": "BookmarkFlow'un gizlendiği web siteleri. İstediğiniz sitenin engelini kaldırarak çubuğu tekrar aktif edebilirsiniz." },
+  "addDisabledHost": { "message": "Site Ekle" },
+  "addSitePlaceholder": { "message": "ornek.com" },
+  "disabledSitesEmpty": { "message": "Hiçbir site devre dışı bırakılmadı. BookmarkFlow tüm web sitelerinde aktif." },
+  "removeDisabledHost": { "message": "Etkinleştir" },
+  "hostAddedSuccess": { "message": "Site devre dışı bırakılanlar listesine eklendi." },
+  "hostRemovedSuccess": { "message": "Site etkinleştirildi." },
+  "invalidHostError": { "message": "Lütfen geçerli bir alan adı girin (örn. github.com)." },
+  "disabledWebsitesAria": { "message": "Devre dışı bırakılan siteler listesi" },
+  "undo": { "message": "Geri Al" },
+  "bookmarkDeletedToast": { "message": "✓ Yer imi kaldırıldı" },
+  "quickSaveBookmark": { "message": "Yer İmlerine Kaydet" },
+  "quickSaveToBar": { "message": "Yer İmleri Çubuğuna Kaydet (Ctrl+S)" },
+  "quickSaveToFolder": {
+    "message": "'$FOLDER$' Klasörüne Kaydet (Ctrl+S)",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projeler"
+      }
+    }
+  },
+  "undoWithShortcut": { "message": "Geri Al (Ctrl+Z)" },
+  "queryRestoredToast": { "message": "✓ Metin geri getirildi" },
+  "existingBookmarkNotice": {
+    "message": "Zaten yer imlerinde: $TITLE$",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      }
+    }
+  },
+  "editBookmark": { "message": "Yer İmini Düzenle" },
+  "quickEditExistingBookmark": {
+    "message": "'$TITLE$' Yer İmini Düzenle (Ctrl+S)",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      }
+    }
+  },
+  "bookmarkUpdatedToast": { "message": "✓ Yer imi güncellendi" },
+  "unlockUrl": { "message": "Düzenlemek için adres kilidini aç" },
+  "lockUrl": { "message": "Adresi kilitle" },
+  "moveToBar": { "message": "Çubuğa Taşı" },
+  "moveToFolder": {
+    "message": "'$FOLDER$' Klasörüne Taşı",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projeler"
+      }
+    }
+  },
+  "bookmarkMovedToFolderToast": {
+    "message": "✓ '$FOLDER$' klasörüne taşındı",
+    "placeholders": {
+      "folder": {
+        "content": "$1",
+        "example": "Projeler"
+      }
+    }
+  },
+  "bookmarkMovedBackToast": { "message": "✓ Yer imi önceki konumuna geri taşındı" },
+  "existingBookmarkWithFolderNotice": {
+    "message": "Zaten yer imlerinde: $TITLE$ ($FOLDER$ içinde)",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "GitHub"
+      },
+      "folder": {
+        "content": "$2",
+        "example": "Projeler"
+      }
+    }
+  },
+  "otherFolders": { "message": "Diğer Klasörler…" },
+  "chooseFolderToMove": { "message": "Taşınacak Klasörü Seçin" },
+  "currentFolderTag": { "message": "(mevcut)" },
+  "urlAutoCompletedHttps": { "message": "Protokol otomatik tamamlandı (https://)" },
+  "actionTitleSnoozed": { "message": "BookmarkFlow Bar bu sekmede gizlendi (Açmak için tıklayın veya Alt+Shift+H)" }
 }

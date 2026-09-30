@@ -25,11 +25,13 @@
   const BOOKMARK_GHOST_OFFSET = 12;
   const FOLDER_MENU_GAP = 16;
   const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
+  const LAST_USED_FOLDER_STORAGE_KEY = "bfLastUsedFolderId";
   const MESSAGE_GET_CONSENT_STATUS = "BF_GET_CONSENT_STATUS";
   const MESSAGE_GET_STATE = "BF_GET_STATE";
   const MESSAGE_GET_PAGE_INFO = "BF_GET_PAGE_INFO";
   const MESSAGE_MOVE_BOOKMARK = "BF_MOVE_BOOKMARK";
 const MESSAGE_MOVE_TOP_LEVEL = "BF_MOVE_TOP_LEVEL";
+const MESSAGE_MOVE_TO_FOLDER = "BF_MOVE_TO_FOLDER";
 const MESSAGE_DELETE_BOOKMARK = "BF_DELETE_BOOKMARK";
 const MESSAGE_CREATE_BOOKMARK = "BF_CREATE_BOOKMARK";
 const MESSAGE_CREATE_FOLDER = "BF_CREATE_FOLDER";
@@ -50,6 +52,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     matchesTagFilter,
     isHostDisabled,
     addDisabledHost,
+    removeDisabledHost,
     isSafeBookmarkUrl,
     isSensitiveHost,
     areBookmarkUrlsEqual,
@@ -76,6 +79,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let contextMenuState = null;
   let suppressNextClick = false;
   let pinnedFolderIds = [];
+  let lastUsedFolderId = "";
+  let lastCommandDirectSavedUrl = "";
+  let lastEscapeClearedCommandText = "";
+  let commandInlineSaveLeaveTimeout = null;
   let firstRunTooltipSeen = true;
   let extensionContextInvalidated = false;
   let addDialogReturnFocus = null;
@@ -106,12 +113,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         return;
       }
 
-      const [response, , savedPinnedFolderIds, , firstRunTooltipState] = await Promise.all([
+      const [response, , savedPinnedFolderIds, , firstRunTooltipState, savedLastUsedFolderId] = await Promise.all([
         sendMessage({ type: MESSAGE_GET_STATE }),
         loadPanelPosition(),
         loadPinnedFolderIds(),
         loadBookmarkTags(),
-        hasExtensionContext() ? chrome.storage.local.get("bfFirstRunTooltipSeen") : Promise.resolve({})
+        hasExtensionContext() ? chrome.storage.local.get("bfFirstRunTooltipSeen") : Promise.resolve({}),
+        loadLastUsedFolderId()
       ]);
       if (!response?.ok) {
         return;
@@ -120,6 +128,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       injectPageStyle();
       appState = response;
       pinnedFolderIds = savedPinnedFolderIds;
+      if (savedLastUsedFolderId) {
+        lastUsedFolderId = savedLastUsedFolderId;
+      }
       firstRunTooltipSeen = Boolean(firstRunTooltipState?.bfFirstRunTooltipSeen);
       interfaceInitialized = true;
       renderFromState();
@@ -315,6 +326,59 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       if (message?.type === MESSAGE_RUN_COMMAND) {
         sendResponse(runExternalCommand(message.command));
       }
+
+      if (message?.type === "BF_INSPECT_ISOLATION") {
+        const barEl = shadowRoot?.querySelector(".bf-bar");
+        const markEl = shadowRoot?.querySelector(".bf-mark");
+        const searchInput = shadowRoot?.querySelector(".bf-search-input");
+        const barComputed = barEl ? window.getComputedStyle(barEl) : null;
+
+        let hasFocusRing = false;
+        let focusedComputed = null;
+        if (searchInput) {
+          searchInput.focus();
+          focusedComputed = window.getComputedStyle(searchInput);
+          const boxShadow = focusedComputed?.boxShadow || "";
+          const borderColor = focusedComputed?.borderColor || "";
+          hasFocusRing = Boolean(
+            (focusedComputed?.outlineStyle !== "none" && focusedComputed?.outlineWidth !== "0px") ||
+            boxShadow.includes("242") ||
+            boxShadow.includes("rgba") ||
+            borderColor.includes("242")
+          );
+        }
+
+        const isFontIsolated = Boolean(
+          barComputed &&
+          !barComputed.fontFamily.toLowerCase().includes("comic sans")
+        );
+        const isColorIsolated = Boolean(
+          barComputed &&
+          barComputed.color !== "rgb(255, 0, 0)"
+        );
+        const isMarginIsolated = Boolean(
+          barComputed &&
+          barComputed.margin !== "33px" &&
+          barComputed.margin !== "42px"
+        );
+        const isShadowModeClosed = !document.querySelector("#bookmarkflow-host")?.shadowRoot;
+
+        sendResponse({
+          ok: true,
+          shadowModeClosed: isShadowModeClosed,
+          isolated: isFontIsolated && isColorIsolated && isMarginIsolated,
+          barStyles: {
+            fontFamily: barComputed?.fontFamily,
+            color: barComputed?.color,
+            margin: barComputed?.margin
+          },
+          a11y: {
+            hasFocusRing,
+            outline: focusedComputed?.outline,
+            boxShadow: focusedComputed?.boxShadow
+          }
+        });
+      }
     });
   }
 
@@ -376,6 +440,19 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
   }
 
+  async function loadLastUsedFolderId() {
+    if (!hasExtensionContext()) {
+      return "";
+    }
+    try {
+      const localState = await chrome.storage.local.get(LAST_USED_FOLDER_STORAGE_KEY);
+      return typeof localState[LAST_USED_FOLDER_STORAGE_KEY] === "string" ? localState[LAST_USED_FOLDER_STORAGE_KEY] : "";
+    } catch (error) {
+      handleExtensionContextError(error);
+      return "";
+    }
+  }
+
   async function loadPinnedFolderIds() {
     try {
       const localState = await chrome.storage.local.get(FOLDER_RAIL_PINNED_STORAGE_KEY);
@@ -428,6 +505,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    if (LAST_USED_FOLDER_STORAGE_KEY in changes) {
+      lastUsedFolderId = typeof changes[LAST_USED_FOLDER_STORAGE_KEY].newValue === "string"
+        ? changes[LAST_USED_FOLDER_STORAGE_KEY].newValue
+        : "";
+    }
+
     if (BOOKMARK_TAGS_STORAGE_KEY in changes) {
       bookmarkTagsMap = normalizeAllBookmarkTags(changes[BOOKMARK_TAGS_STORAGE_KEY].newValue);
       renderFromState();
@@ -478,12 +561,19 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     ensureHost();
     if (isSnoozed) {
-      renderRestoreButton();
-      updatePageOffsetSoon();
+      clearPageOffset();
+      shadow.querySelector(".bf-app")?.remove();
+      host.classList.add("is-snoozed");
+      renderEdgeRestoreStrip();
+      notifyTabSnoozeState(true);
       restoreFocusTarget(modalReturnFocus);
       return;
     }
 
+    removeEdgeRestoreStrip();
+    host.classList.remove("is-snoozed");
+    host.hidden = false;
+    notifyTabSnoozeState(false);
     render();
     updatePageOffsetSoon();
     restoreFocusTarget(modalReturnFocus);
@@ -511,7 +601,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       closeContextMenu();
       if (isSnoozed) {
         isSnoozed = false;
-        isExpanded = false;
+        isExpanded = true;
       } else {
         isExpanded = !isExpanded;
       }
@@ -524,15 +614,23 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       let returnFocus = null;
       if (isSnoozed) {
         isSnoozed = false;
+        renderFromState();
+        showContentToastNotification(t("barRestoredToast") || "✓ BookmarkFlow geri getirildi");
       } else {
         isSnoozed = true;
         isExpanded = false;
         returnFocus = closeModalDialogsForRender();
         closeFolderMenu();
         closeContextMenu();
+        showContentToastNotification(t("barHiddenToast") || "✓ BookmarkFlow gizlendi (Geri getirmek için: Alt + Shift + H)");
+        renderFromState();
       }
-      renderFromState();
       restoreFocusTarget(returnFocus);
+      return { ok: true };
+    }
+
+    if (command === "show-toast") {
+      showContentToastNotification(t("bookmarkSavedToBarToast") || "✓ Yer İmleri Çubuğuna kaydedildi");
       return { ok: true };
     }
 
@@ -783,20 +881,38 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     return Math.min(max, Math.max(min, value));
   }
 
-  function renderRestoreButton() {
-    applyPanelPlacement();
-    shadow.querySelector(".bf-app")?.remove();
+  function renderEdgeRestoreStrip() {
+    if (!shadow || shadow.querySelector(".bf-edge-restore")) {
+      return;
+    }
 
-    const app = document.createElement("div");
-    app.className = "bf-app is-snoozed";
-    app.innerHTML = `
-      <button class="bf-restore" type="button" data-bf-action="restore" data-bf-drag-handle="true" title="${escapeAttribute(t("dragOrOpen"))}" aria-label="${escapeAttribute(t("dragOrOpen"))}">BF</button>
-      <div class="bf-context-menu" hidden></div>
-    `;
+    const strip = document.createElement("button");
+    strip.type = "button";
+    strip.className = "bf-edge-restore";
+    strip.setAttribute("aria-label", t("restoreBar") || "Show Bar");
+    strip.setAttribute("title", t("restoreBar") || "Show Bar (Alt + Shift + H)");
+    strip.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      runExternalCommand("hide-restore");
+    });
 
-    shadow.append(app);
-    applyPanelPlacement();
-    bindShadowEvents(app);
+    shadow.append(strip);
+  }
+
+  function removeEdgeRestoreStrip() {
+    shadow?.querySelector(".bf-edge-restore")?.remove();
+  }
+
+  function notifyTabSnoozeState(snoozed) {
+    try {
+      chrome.runtime?.sendMessage?.({
+        type: "BF_SET_TAB_SNOOZED",
+        snoozed: Boolean(snoozed)
+      }, () => {
+        if (chrome.runtime?.lastError) {}
+      });
+    } catch {}
   }
 
   function render() {
@@ -869,8 +985,16 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
           </label>
           <label class="bf-add-field">
             <span>${escapeHtml(t("address"))}</span>
-            <input class="bf-add-url" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
+            <div class="bf-url-input-wrap">
+              <input class="bf-add-url" type="text" autocomplete="off" spellcheck="false" placeholder="https://">
+              <button class="bf-url-unlock-btn" type="button" hidden title="${escapeAttribute(t("unlockUrl"))}" aria-label="${escapeAttribute(t("unlockUrl"))}">🔒</button>
+            </div>
           </label>
+          <label class="bf-add-field">
+            <span>${escapeHtml(t("targetFolder"))}</span>
+            <select class="bf-add-select"></select>
+          </label>
+          <div class="bf-folder-chips" aria-label="${escapeAttribute(t("quickFolders"))}" hidden></div>
           <p class="bf-add-status" aria-live="polite"></p>
           <div class="bf-add-actions">
             <button class="bf-add-secondary" type="button" data-bf-action="close-add-bookmark">${escapeHtml(t("cancel"))}</button>
@@ -882,11 +1006,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         <div class="bf-command-panel" role="dialog" aria-modal="true" aria-label="${escapeAttribute(t("bookmarkSearch"))}" tabindex="-1">
           <div class="bf-command-head">
             <input class="bf-command-input" type="search" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="bf-command-list" aria-expanded="false" aria-label="${escapeAttribute(t("bookmarkSearch"))}" placeholder="${escapeAttribute(t("bookmarkSearchPlaceholder"))}">
+            <button type="button" class="bf-command-inline-save" data-bf-action="inline-save-search" hidden title="${escapeAttribute(t("quickSaveBookmark"))}" aria-label="${escapeAttribute(t("quickSaveBookmark"))}">⭐ ${escapeHtml(t("save"))}</button>
+            <div class="bf-intent-badge" hidden aria-hidden="true"></div>
             <button class="bf-command-close" type="button" data-bf-action="close-search" title="${escapeAttribute(t("close"))}" aria-label="${escapeAttribute(t("close"))}">×</button>
           </div>
           <div class="bf-command-list" id="bf-command-list" role="listbox" aria-label="${escapeAttribute(t("bookmarkSearch"))}"></div>
         </div>
       </div>
+      <div class="bf-toast" role="status" aria-live="polite" hidden></div>
     `;
 
     const grid = app.querySelector(".bf-grid");
@@ -1007,6 +1134,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     app.addEventListener("click", createSafeEventHandler((event) => {
       const targetElement = getEventTargetElement(event);
+      if (activeContentFolderPickerMenu && !activeContentFolderPickerMenu.contains(targetElement)) {
+        closeContentFolderPickerMenu();
+      }
       if (!targetElement) {
         return;
       }
@@ -1058,6 +1188,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }));
     commandInput?.addEventListener("keydown", createSafeEventHandler(handleCommandKeydown));
 
+    app.querySelector(".bf-add-url")?.addEventListener("input", createSafeEventHandler(() => {
+      app.querySelector(".bf-add-url")?.classList.remove("is-invalid-url");
+    }));
     app.querySelector(".bf-add-panel")?.addEventListener("submit", createSafeEventHandler(handleAddBookmarkSubmit));
   }
 
@@ -1753,6 +1886,32 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    if (action === "inline-save-search") {
+      const inlineBtn = actionButton || shadow?.querySelector(".bf-command-inline-save");
+      const targetUrl = inlineBtn?.dataset?.url;
+      if (!targetUrl) return;
+
+      const existingId = inlineBtn?.dataset?.existingId;
+      if (existingId) {
+        const existingTitle = inlineBtn?.dataset?.existingTitle || "";
+        const existingParentId = inlineBtn?.dataset?.existingParentId || "";
+        closeCommandPalette({ restoreFocus: false });
+        openAddBookmarkDialog(getActiveDialogElement(), {
+          editNodeId: existingId,
+          title: existingTitle,
+          url: targetUrl,
+          parentId: existingParentId
+        });
+        return;
+      }
+
+      triggerCommandSaveFlash();
+      closeCommandPalette();
+      const targetParentId = inlineBtn?.dataset?.parentId || appState?.bookmarkBar?.id || "";
+      handleDirectSaveBookmark(targetUrl, targetParentId);
+      return;
+    }
+
     if (action === "add-bookmark") {
       closeCommandPalette();
       closeContextMenu();
@@ -1763,6 +1922,29 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     if (action === "close-add-bookmark") {
       closeAddBookmarkDialog();
+      return;
+    }
+
+    if (action === "unlock-url") {
+      const urlInput = shadow?.querySelector(".bf-add-url");
+      const unlockBtn = shadow?.querySelector(".bf-url-unlock-btn");
+      if (urlInput && unlockBtn) {
+        if (urlInput.readOnly) {
+          urlInput.readOnly = false;
+          urlInput.classList.remove("is-locked");
+          unlockBtn.textContent = "🔓";
+          unlockBtn.title = t("lockUrl") || "Lock address";
+          unlockBtn.setAttribute("aria-label", t("lockUrl") || "Lock address");
+          urlInput.focus();
+          urlInput.select();
+        } else {
+          urlInput.readOnly = true;
+          urlInput.classList.add("is-locked");
+          unlockBtn.textContent = "🔒";
+          unlockBtn.title = t("unlockUrl") || "Unlock address to edit";
+          unlockBtn.setAttribute("aria-label", t("unlockUrl") || "Unlock address to edit");
+        }
+      }
       return;
     }
 
@@ -1853,7 +2035,6 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     if (action === "hide") {
       const returnFocus = closeModalDialogsForRender();
-      isSnoozed = true;
       isExpanded = false;
       closeFolderMenu();
       closeContextMenu();
@@ -1867,6 +2048,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       isSnoozed = true;
       isExpanded = false;
       closeFolderMenu();
+      showContentToastNotification(t("barHiddenToast") || "✓ BookmarkFlow gizlendi (Geri getirmek için: Alt + Shift + H)");
       renderFromState();
       return;
     }
@@ -1876,6 +2058,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       isSnoozed = false;
       isExpanded = false;
       renderFromState();
+      showContentToastNotification(t("barRestoredToast") || "✓ BookmarkFlow geri getirildi");
       return;
     }
 
@@ -1893,16 +2076,54 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
             chrome.storage.local.set({ disabledHosts: updatedDisabled }).catch(() => {});
           } catch {}
         }
-        renderFromState();
+        const app = shadow?.querySelector(".bf-app");
+        if (app) {
+          app.style.display = "none";
+        }
+        const mark = shadow?.querySelector(".bf-mark, .bf-restore");
+        if (mark) {
+          mark.style.display = "none";
+        }
+
+        let disableTeardownTimer = window.setTimeout(() => {
+          renderFromState();
+        }, 3600);
+
+        showContentToastNotification(t("siteDisabledToast"), 3500, {
+          label: t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)",
+          onClick: () => {
+            clearTimeout(disableTeardownTimer);
+            const currentDisabled = appState?.settings?.disabledHosts || [];
+            const restoredDisabled = removeDisabledHost(currentDisabled, currentHost);
+            if (appState?.settings) {
+              appState.settings.disabledHosts = restoredDisabled;
+            }
+            if (hasExtensionContext()) {
+              try {
+                chrome.storage.local.set({ disabledHosts: restoredDisabled }).catch(() => {});
+              } catch {}
+            }
+            if (app) {
+              app.style.display = "";
+            }
+            if (mark) {
+              mark.style.display = "";
+            }
+            renderFromState();
+            showContentToastNotification(t("hostRemovedSuccess") || "✓ Site etkinleştirildi", 1800, null, "is-undone");
+          }
+        });
       }
       return;
     }
 
     if (action === "quick-open-settings") {
       closeContextMenu();
-      try {
-        window.open(chrome.runtime.getURL("src/bookmark-maintenance.html"), "_blank", "noopener,noreferrer");
-      } catch {}
+      if (hasExtensionContext()) {
+        try {
+          chrome.runtime.sendMessage({ type: "BF_OPEN_SETTINGS" }).catch(() => {});
+        } catch {}
+      }
       return;
     }
   }
@@ -2141,7 +2362,144 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     window.alert(response?.error || t("bookmarkMoveFailed"));
   }
 
-  function openAddBookmarkDialog(returnFocusElement = getActiveDialogElement()) {
+  function populateContentFolderSelect(dialog, selectedParentId = "") {
+    const select = dialog?.querySelector(".bf-add-select");
+    if (!select) return;
+    select.replaceChildren();
+
+    const barNode = appState?.bookmarkBar;
+    const folders = [];
+    const walk = (node, path = "") => {
+      if (!node) return;
+      if (Array.isArray(node.children)) {
+        const isRootBar = node.id === appState?.bookmarkBar?.id;
+        const title = node.title || (isRootBar ? (t("bookmarksBar") || "Bookmarks Bar") : "");
+        const currentPath = path ? (title ? `${path} / ${title}` : path) : title;
+        if (node.id && node.id !== "0") {
+          folders.push({
+            id: node.id,
+            title: title || (t("bookmarksBar") || "Bookmarks Bar"),
+            path: currentPath,
+            isBar: isRootBar
+          });
+        }
+        for (const child of node.children) {
+          if (Array.isArray(child.children)) {
+            walk(child, currentPath);
+          }
+        }
+      }
+    };
+    walk(barNode);
+
+    if (!folders.length && barNode?.id) {
+      folders.push({
+        id: barNode.id,
+        title: t("bookmarksBar") || "Bookmarks Bar",
+        path: t("bookmarksBar") || "Bookmarks Bar",
+        isBar: true
+      });
+    }
+
+    const effectiveSelected = selectedParentId || (folders.some(f => f.id === lastUsedFolderId) ? lastUsedFolderId : (barNode?.id || ""));
+
+    folders.forEach((f) => {
+      const option = document.createElement("option");
+      option.value = f.id;
+      option.textContent = f.isBar ? `⭐ ${f.title}` : `📁 ${f.path || f.title}`;
+      if (f.id === effectiveSelected) {
+        option.selected = true;
+      }
+      select.appendChild(option);
+    });
+
+    renderContentFolderChips(dialog, folders, effectiveSelected);
+
+    select.onchange = () => {
+      dialog.dataset.parentId = select.value;
+      updateContentFolderChipsActive(dialog, select.value);
+    };
+  }
+
+  function renderContentFolderChips(dialog, folders, currentSelectedId) {
+    const chipsContainer = dialog?.querySelector(".bf-folder-chips");
+    if (!chipsContainer) return;
+    chipsContainer.replaceChildren();
+
+    if (!Array.isArray(folders) || folders.length === 0) {
+      chipsContainer.hidden = true;
+      return;
+    }
+
+    const barFolder = folders.find(f => f.isBar);
+    const otherFolders = folders.filter(f => !f.isBar);
+    const prioritized = [];
+
+    if (Array.isArray(pinnedFolderIds)) {
+      for (const pid of pinnedFolderIds) {
+        const match = otherFolders.find(f => f.id === pid);
+        if (match && !prioritized.some(p => p.id === match.id)) {
+          prioritized.push(match);
+        }
+      }
+    }
+
+    for (const f of otherFolders) {
+      if (!prioritized.some(p => p.id === f.id)) {
+        prioritized.push(f);
+      }
+    }
+
+    const chipCandidates = [];
+    if (barFolder) {
+      chipCandidates.push(barFolder);
+    }
+    chipCandidates.push(...prioritized.slice(0, 3));
+
+    if (chipCandidates.length <= 1) {
+      chipsContainer.hidden = true;
+      return;
+    }
+
+    chipsContainer.hidden = false;
+    const select = dialog.querySelector(".bf-add-select");
+
+    chipCandidates.forEach((f) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "bf-folder-chip" + (f.id === currentSelectedId ? " is-active" : "");
+      btn.setAttribute("aria-pressed", f.id === currentSelectedId ? "true" : "false");
+      btn.dataset.folderId = f.id;
+      btn.title = f.path || f.title;
+      btn.textContent = f.isBar ? `⭐ ${t("bookmarksBar") || "Bar"}` : `📁 ${f.title}`;
+
+      btn.addEventListener("click", () => {
+        if (select) {
+          select.value = f.id;
+        }
+        dialog.dataset.parentId = f.id;
+        lastUsedFolderId = f.id;
+        if (hasExtensionContext()) {
+          chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: f.id }).catch(() => {});
+        }
+        updateContentFolderChipsActive(dialog, f.id);
+      });
+
+      chipsContainer.appendChild(btn);
+    });
+  }
+
+  function updateContentFolderChipsActive(dialog, selectedId) {
+    const chips = dialog?.querySelectorAll(".bf-folder-chip");
+    if (!chips) return;
+    chips.forEach((chip) => {
+      const isActive = chip.dataset.folderId === selectedId;
+      chip.classList.toggle("is-active", isActive);
+      chip.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+  }
+
+  function openAddBookmarkDialog(returnFocusElement = getActiveDialogElement(), customData = null) {
     const dialog = shadow?.querySelector(".bf-add");
     const titleInput = shadow?.querySelector(".bf-add-title");
     const urlInput = shadow?.querySelector(".bf-add-url");
@@ -2158,11 +2516,43 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       addDialogReturnFocus = inheritedReturnFocus || createFocusReturnTarget(returnFocusElement);
     }
 
-    const suggestion = getSuggestedBookmarkData();
+    const suggestion = customData ? {
+      title: customData.title || "",
+      url: customData.url || "",
+      parentId: customData.parentId || dialog.dataset.parentId || "",
+      status: "",
+      editNodeId: customData.editNodeId || ""
+    } : getSuggestedBookmarkData();
+
     resetAddDuplicateState(dialog, submit);
-    dialog.dataset.parentId = suggestion.parentId || "";
+    const parentId = suggestion.parentId || dialog.dataset.parentId || "";
+    dialog.dataset.parentId = parentId;
+    const titleEl = shadow?.querySelector("#bf-add-dialog-title");
+    const unlockBtn = shadow?.querySelector(".bf-url-unlock-btn");
+    if (suggestion.editNodeId) {
+      dialog.dataset.editNodeId = suggestion.editNodeId;
+      if (titleEl) titleEl.textContent = t("editBookmark") || "Yer İmini Düzenle";
+      if (submit) submit.textContent = t("save") || "Kaydet";
+      urlInput.readOnly = true;
+      urlInput.classList.add("is-locked");
+      urlInput.classList.remove("is-invalid-url");
+      if (unlockBtn) {
+        unlockBtn.hidden = false;
+        unlockBtn.textContent = "🔒";
+        unlockBtn.title = t("unlockUrl") || "Unlock address to edit";
+        unlockBtn.setAttribute("aria-label", t("unlockUrl") || "Unlock address to edit");
+      }
+    } else {
+      delete dialog.dataset.editNodeId;
+      if (titleEl) titleEl.textContent = t("addBookmark") || "Yer İmi Ekle";
+      if (submit) submit.textContent = t("add") || "Ekle";
+      urlInput.readOnly = false;
+      urlInput.classList.remove("is-locked", "is-invalid-url");
+      if (unlockBtn) unlockBtn.hidden = true;
+    }
     titleInput.value = suggestion.title;
     urlInput.value = suggestion.url;
+    populateContentFolderSelect(dialog, parentId);
     if (status) {
       status.textContent = suggestion.status || (suggestion.url ? "" : t("pageAddressUnavailable"));
       status.classList.remove("is-error", "is-success");
@@ -2180,10 +2570,23 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function closeAddBookmarkDialog({ restoreFocus = true } = {}) {
     const dialog = shadow?.querySelector(".bf-add");
     const submit = shadow?.querySelector(".bf-add-primary");
+    const titleEl = shadow?.querySelector("#bf-add-dialog-title");
+    const urlInput = shadow?.querySelector(".bf-add-url");
+    const unlockBtn = shadow?.querySelector(".bf-url-unlock-btn");
     const returnFocus = addDialogReturnFocus;
     addDialogReturnFocus = null;
+    if (urlInput) {
+      urlInput.readOnly = false;
+      urlInput.classList.remove("is-locked", "is-invalid-url");
+    }
+    if (unlockBtn) {
+      unlockBtn.hidden = true;
+    }
     if (dialog) {
       resetAddDuplicateState(dialog, submit);
+      delete dialog.dataset.editNodeId;
+      if (titleEl) titleEl.textContent = t("addBookmark") || "Yer İmi Ekle";
+      if (submit) submit.textContent = t("add") || "Ekle";
       dialog.hidden = true;
     }
     updateModalBackgroundState();
@@ -2315,13 +2718,49 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const submit = shadow?.querySelector(".bf-add-primary");
     const dialog = shadow?.querySelector(".bf-add");
     const title = titleInput?.value.trim() || "";
-    const url = normalizeBookmarkInputUrl(urlInput?.value || "");
-    const parentId = dialog?.dataset.parentId || "";
+    urlInput?.classList.remove("is-invalid-url");
+    const rawUrl = urlInput?.value.trim() || "";
+    const url = normalizeBookmarkInputUrl(rawUrl);
+    if (url && url !== rawUrl && urlInput) {
+      urlInput.value = url;
+    }
+    const select = dialog?.querySelector(".bf-add-select");
+    const parentId = select?.value || dialog?.dataset.parentId || "";
     const allowDuplicate = Boolean(dialog?.dataset.duplicateUrl && areBookmarkUrlsEqual(dialog.dataset.duplicateUrl, url) && (dialog.dataset.duplicateParentId || "") === parentId);
 
     if (!url || !isSafeBookmarkUrl(url)) {
+      urlInput?.classList.add("is-invalid-url");
       renderAddBookmarkStatus(t("validUrlRequired"), true);
       urlInput?.focus();
+      urlInput?.select();
+      return;
+    }
+
+    const editNodeId = dialog?.dataset?.editNodeId;
+    if (editNodeId) {
+      if (submit) submit.disabled = true;
+      if (status) {
+        status.textContent = t("saving") || "Kaydediliyor...";
+        status.classList.remove("is-error", "is-success");
+      }
+      const response = await sendMessage({
+        type: MESSAGE_RENAME_BOOKMARK,
+        nodeId: editNodeId,
+        title,
+        url,
+        parentId
+      });
+      if (submit) submit.disabled = false;
+      if (!response?.ok) {
+        renderAddBookmarkStatus(response?.error || t("bookmarkRenameFailed"), true);
+        return;
+      }
+      appState = response;
+      showContentToastNotification(t("bookmarkUpdatedToast") || "✓ Yer imi güncellendi", 1800, null, "is-undone");
+      window.setTimeout(() => {
+        closeAddBookmarkDialog({ restoreFocus: false });
+        renderFromState();
+      }, 600);
       return;
     }
 
@@ -2357,12 +2796,360 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     resetAddDuplicateState(dialog, submit);
-    renderAddBookmarkStatus(parentId ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
+    if (parentId) {
+      lastUsedFolderId = parentId;
+      if (hasExtensionContext()) {
+        chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: parentId }).catch(() => {});
+      }
+    }
+    const isSubfolder = Boolean(parentId && parentId !== appState?.bookmarkBar?.id && parentId !== appState?.bookmarkBarId);
+    renderAddBookmarkStatus(isSubfolder ? t("bookmarkAddedToFolder") : t("bookmarkAdded"), false);
     window.setTimeout(() => {
       const returnFocus = closeAddBookmarkDialog({ restoreFocus: false });
       renderFromState();
       restoreFocusTarget(returnFocus);
     }, 900);
+  }
+
+  async function handleDirectSaveBookmark(url, parentId) {
+    if (!url || !isSafeBookmarkUrl(url)) {
+      return;
+    }
+    lastCommandDirectSavedUrl = url;
+    const title = getHostname(url) || url;
+    const response = await sendMessage({
+      type: MESSAGE_CREATE_BOOKMARK,
+      title,
+      url,
+      parentId: parentId || "",
+      allowDuplicate: true
+    });
+    if (response?.ok) {
+      appState = response;
+      if (parentId) {
+        lastUsedFolderId = parentId;
+        if (hasExtensionContext()) {
+          chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: parentId }).catch(() => {});
+        }
+      }
+      renderFromState();
+
+      const barNode = appState?.bookmarkBar;
+      let toastMsg = "";
+      if (parentId && parentId !== barNode?.id) {
+        const folders = [];
+        const walk = (node) => {
+          if (!node) return;
+          if (Array.isArray(node.children)) {
+            if (node.id && node.id !== "0") {
+              folders.push({ id: node.id, title: node.title || "" });
+            }
+            for (const c of node.children) {
+              if (Array.isArray(c.children)) walk(c);
+            }
+          }
+        };
+        walk(barNode);
+        const targetFolder = folders.find(f => f.id === parentId);
+        const folderName = targetFolder?.title || "";
+        toastMsg = t("bookmarkSavedToFolderToast", folderName) || `✓ ${folderName} klasörüne kaydedildi`;
+      } else {
+        toastMsg = t("bookmarkSavedToBarToast") || "✓ Yer İmleri Çubuğuna kaydedildi";
+      }
+      const createdId = response?.createdId;
+      const action = createdId ? {
+        label: t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)",
+        onClick: async () => {
+          const delRes = await sendMessage({
+            type: MESSAGE_DELETE_BOOKMARK,
+            nodeId: createdId
+          });
+          if (delRes?.ok) {
+            appState = delRes;
+            renderFromState();
+            showContentToastNotification(t("bookmarkDeletedToast") || "✓ Yer imi kaldırıldı", 1800, null, "is-undone");
+            if (lastCommandDirectSavedUrl) {
+              commandQuery = lastCommandDirectSavedUrl;
+              openCommandPalette();
+              const input = shadow?.querySelector(".bf-command-input");
+              if (input) {
+                input.value = lastCommandDirectSavedUrl;
+                input.focus();
+                input.select();
+              }
+              triggerCommandRestoredFlash();
+              lastCommandDirectSavedUrl = "";
+            }
+          }
+        }
+      } : null;
+      showContentToastNotification(toastMsg, 3500, action);
+    }
+  }
+
+  async function handleContentMoveBookmarkToFolder(bookmarkId, targetFolderId, targetFolderName) {
+    if (!bookmarkId || !targetFolderId) return;
+    const response = await sendMessage({
+      type: MESSAGE_MOVE_TO_FOLDER,
+      nodeId: bookmarkId,
+      parentId: targetFolderId
+    });
+    if (!response?.ok) {
+      showContentToastNotification(response?.error || t("genericOperationFailed"), 2000, null, "is-error");
+      return;
+    }
+    appState = response;
+    lastUsedFolderId = targetFolderId;
+    if (hasExtensionContext()) {
+      chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: targetFolderId }).catch(() => {});
+    }
+    closeCommandPalette();
+    renderFromState();
+
+    const previousParentId = response.previousParentId;
+    const action = previousParentId ? {
+      label: t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)",
+      onClick: async () => {
+        const revertResp = await sendMessage({
+          type: MESSAGE_MOVE_TO_FOLDER,
+          nodeId: bookmarkId,
+          parentId: previousParentId
+        });
+        if (revertResp?.ok) {
+          appState = revertResp;
+          renderFromState();
+          showContentToastNotification(t("bookmarkMovedBackToast") || "✓ Yer imi önceki konumuna geri taşındı", 2000, null, "is-undone");
+        }
+      }
+    } : null;
+
+    const msg = t("bookmarkMovedToFolderToast", targetFolderName) || `✓ '${targetFolderName}' klasörüne taşındı`;
+    showContentToastNotification(msg, 3500, action);
+  }
+
+  let activeContentFolderPickerMenu = null;
+
+  function closeContentFolderPickerMenu() {
+    if (activeContentFolderPickerMenu) {
+      activeContentFolderPickerMenu.remove();
+      activeContentFolderPickerMenu = null;
+    }
+  }
+
+  function showContentFolderPickerMenu(existingBookmark, anchorBtn, card) {
+    closeContentFolderPickerMenu();
+    if (!existingBookmark || !anchorBtn || !card) return;
+
+    const barNode = appState?.bookmarkBar;
+    const folders = [];
+    const walk = (node) => {
+      if (!node) return;
+      if (node.children && !node.url) {
+        const isRootBar = node.id === barNode?.id;
+        const tTitle = isRootBar ? (t("bookmarksBar") || "Yer İmleri Çubuğu") : (node.title || t("folder"));
+        if (node.id && node.id !== "0") {
+          folders.push({ id: node.id, title: tTitle, isBar: isRootBar });
+        }
+        for (const c of node.children) {
+          if (Array.isArray(c.children)) walk(c);
+        }
+      }
+    };
+    walk(barNode);
+
+    const menu = document.createElement("div");
+    menu.className = "bf-folder-picker-menu";
+    menu.setAttribute("role", "menu");
+
+    const header = document.createElement("div");
+    header.className = "bf-folder-picker-header";
+    header.textContent = t("chooseFolderToMove") || "Taşınacak Klasörü Seçin";
+    menu.append(header);
+
+    const barItem = document.createElement("button");
+    barItem.type = "button";
+    barItem.className = "bf-folder-picker-item";
+    const isCurrentBar = existingBookmark.parentId === barNode?.id;
+    if (isCurrentBar) {
+      barItem.classList.add("is-current");
+      barItem.disabled = true;
+    }
+    barItem.innerHTML = `<span>⭐</span> <span>${t("bookmarksBar") || "Yer İmleri Çubuğu"}</span>`;
+    if (isCurrentBar) {
+      const tag = document.createElement("span");
+      tag.className = "bf-folder-picker-tag";
+      tag.textContent = t("currentFolderTag") || "(mevcut)";
+      barItem.append(tag);
+    } else {
+      barItem.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeContentFolderPickerMenu();
+        await handleContentMoveBookmarkToFolder(existingBookmark.id, barNode?.id || "", t("bookmarksBar") || "Yer İmleri Çubuğu");
+      });
+    }
+    menu.append(barItem);
+
+    folders.filter(f => !f.isBar).forEach((folder) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "bf-folder-picker-item";
+      const isCurrent = existingBookmark.parentId === folder.id;
+      if (isCurrent) {
+        item.classList.add("is-current");
+        item.disabled = true;
+      }
+      item.innerHTML = `<span>📁</span> <span>${folder.title}</span>`;
+      if (isCurrent) {
+        const tag = document.createElement("span");
+        tag.className = "bf-folder-picker-tag";
+        tag.textContent = t("currentFolderTag") || "(mevcut)";
+        item.append(tag);
+      } else {
+        item.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeContentFolderPickerMenu();
+          await handleContentMoveBookmarkToFolder(existingBookmark.id, folder.id, folder.title);
+        });
+      }
+      menu.append(item);
+    });
+
+    card.style.position = "relative";
+    card.append(menu);
+    activeContentFolderPickerMenu = menu;
+  }
+
+
+  let contentToastTimeoutId = null;
+  let contentToastKeydownHandler = null;
+  let contentToastHoverCleanups = null;
+
+  function cleanupContentToastKeydown() {
+    const toast = shadow?.querySelector(".bf-toast");
+    if (toast) {
+      toast.classList.remove("is-undone");
+    }
+    if (contentToastTimeoutId) {
+      clearTimeout(contentToastTimeoutId);
+      contentToastTimeoutId = null;
+    }
+    if (contentToastKeydownHandler) {
+      window.removeEventListener("keydown", contentToastKeydownHandler, true);
+      contentToastKeydownHandler = null;
+    }
+    if (typeof contentToastHoverCleanups === "function") {
+      contentToastHoverCleanups();
+      contentToastHoverCleanups = null;
+    }
+  }
+
+  function showContentToastNotification(message, durationMs = 1800, action = null, variant = "") {
+    const toast = shadow?.querySelector(".bf-toast");
+    if (!toast) return;
+
+    const wasVisible = !toast.hidden;
+    cleanupContentToastKeydown();
+    toast.replaceChildren();
+
+    if (wasVisible) {
+      toast.classList.remove("is-switching");
+      void toast.offsetWidth;
+      toast.classList.add("is-switching");
+      window.setTimeout(() => {
+        toast?.classList.remove("is-switching");
+      }, 240);
+    }
+
+    if (variant) {
+      toast.classList.add(variant);
+    } else {
+      toast.classList.remove("is-undone");
+    }
+
+    const textSpan = document.createElement("span");
+    textSpan.className = "bf-toast-text";
+    textSpan.textContent = message;
+    toast.appendChild(textSpan);
+
+    if (action && typeof action.onClick === "function") {
+      const actionBtn = document.createElement("button");
+      actionBtn.type = "button";
+      actionBtn.className = "bf-toast-action-btn";
+      const undoLabel = action.label || t("undoWithShortcut") || t("undo") || "Geri Al (Ctrl+Z)";
+      actionBtn.textContent = undoLabel;
+      actionBtn.title = t("undoWithShortcut") || undoLabel;
+      actionBtn.setAttribute("aria-label", t("undoWithShortcut") || undoLabel);
+      actionBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        cleanupContentToastKeydown();
+        toast.hidden = true;
+        action.onClick();
+      });
+      toast.appendChild(actionBtn);
+
+      const progressBar = document.createElement("div");
+      progressBar.className = "bf-toast-progress";
+      progressBar.style.animationDuration = `${durationMs}ms`;
+      toast.appendChild(progressBar);
+
+      contentToastKeydownHandler = (e) => {
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === "z" || e.key === "Z")) {
+          e.preventDefault();
+          e.stopPropagation();
+          cleanupContentToastKeydown();
+          toast.hidden = true;
+          action.onClick();
+        }
+      };
+      window.addEventListener("keydown", contentToastKeydownHandler, true);
+    }
+
+    toast.classList.remove("is-leaving");
+    toast.hidden = false;
+
+    let remainingMs = durationMs;
+    let endTime = Date.now() + durationMs;
+    let isLeaving = false;
+
+    function startTimer(ms) {
+      contentToastTimeoutId = window.setTimeout(() => {
+        isLeaving = true;
+        toast.classList.add("is-leaving");
+        window.setTimeout(() => {
+          cleanupContentToastKeydown();
+          toast.hidden = true;
+          toast.classList.remove("is-leaving");
+        }, 250);
+      }, ms);
+    }
+
+    startTimer(remainingMs);
+
+    const onMouseEnter = () => {
+      if (isLeaving) return;
+      if (contentToastTimeoutId) {
+        clearTimeout(contentToastTimeoutId);
+        contentToastTimeoutId = null;
+      }
+      remainingMs = Math.max(250, endTime - Date.now());
+    };
+
+    const onMouseLeave = () => {
+      if (isLeaving || toast.hidden) return;
+      endTime = Date.now() + remainingMs;
+      startTimer(remainingMs);
+    };
+
+    toast.addEventListener("mouseenter", onMouseEnter);
+    toast.addEventListener("mouseleave", onMouseLeave);
+
+    contentToastHoverCleanups = () => {
+      toast.removeEventListener("mouseenter", onMouseEnter);
+      toast.removeEventListener("mouseleave", onMouseLeave);
+    };
   }
 
   function markAddDuplicateState(dialog, submit, url, parentId) {
@@ -2418,7 +3205,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return trimmed;
     }
 
-    if (/^[^\s]+\.[^\s]{2,}(\/.*)?$/i.test(trimmed)) {
+    if (/^([^\s]+\.[^\s]{2,}|localhost(:\d+)?|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?)(\/.*)?$/i.test(trimmed)) {
       return `https://${trimmed}`;
     }
 
@@ -2910,6 +3697,19 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function closeCommandPalette({ restoreFocus = true } = {}) {
+    closeContentFolderPickerMenu();
+    updateCommandIntentBadge(shadow?.querySelector(".bf-app"), null);
+    const inlineSaveBtn = shadow?.querySelector(".bf-command-inline-save");
+    if (inlineSaveBtn) {
+      if (commandInlineSaveLeaveTimeout) {
+        clearTimeout(commandInlineSaveLeaveTimeout);
+        commandInlineSaveLeaveTimeout = null;
+      }
+      inlineSaveBtn.classList.remove("is-leaving");
+      inlineSaveBtn.hidden = true;
+      delete inlineSaveBtn.dataset.url;
+      delete inlineSaveBtn.dataset.parentId;
+    }
     const command = shadow?.querySelector(".bf-command");
     const input = shadow?.querySelector(".bf-command-input");
     const returnFocus = commandDialogReturnFocus;
@@ -2926,11 +3726,158 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     return returnFocus;
   }
 
+  function normalizeUrlForMatch(rawUrl) {
+    if (!rawUrl || typeof rawUrl !== "string") return "";
+    try {
+      const parsed = new URL(rawUrl);
+      const path = parsed.pathname.replace(/\/+$/, "");
+      return (parsed.origin + path + (parsed.search || "")).toLowerCase();
+    } catch {
+      return rawUrl.trim().toLowerCase().replace(/\/+$/, "");
+    }
+  }
+
+  function findExistingBookmarkByUrl(url) {
+    const norm = normalizeUrlForMatch(url);
+    if (!norm) return null;
+    const entries = getAllBookmarkEntries();
+    return entries.find(b => b.url && normalizeUrlForMatch(b.url) === norm) || null;
+  }
+
+  function getContentQuickSaveTargetInfo(url = "") {
+    const barNode = appState?.bookmarkBar;
+    const parentId = lastUsedFolderId || barNode?.id || "";
+    let folderName = "";
+    if (parentId && parentId !== barNode?.id) {
+      const allFolders = typeof getCachedFolderNodes === "function" ? getCachedFolderNodes() : [];
+      const targetFolder = allFolders.find(f => f.id === parentId);
+      folderName = targetFolder?.title || "";
+    }
+    let titleText = folderName
+      ? (t("quickSaveToFolder", folderName) || `'${folderName}' Klasörüne Kaydet (Ctrl+S)`)
+      : (t("quickSaveToBar") || "Yer İmleri Çubuğuna Kaydet (Ctrl+S)");
+
+    let existing = null;
+    if (url) {
+      existing = findExistingBookmarkByUrl(url);
+      if (existing?.title) {
+        titleText = t("quickEditExistingBookmark", existing.title) || `'${existing.title}' Yer İmini Düzenle (Ctrl+S)`;
+      }
+    }
+
+    return { parentId: parentId || barNode?.id || "", folderName, titleText, existingBookmark: existing };
+  }
+
+  function triggerCommandSaveFlash() {
+    const head = shadow?.querySelector(".bf-command-head");
+    if (!head) return;
+    head.classList.remove("is-saved-flash");
+    void head.offsetWidth;
+    head.classList.add("is-saved-flash");
+    window.setTimeout(() => {
+      head.classList.remove("is-saved-flash");
+    }, 360);
+  }
+
+  function triggerCommandRestoredFlash() {
+    const head = shadow?.querySelector(".bf-command-head");
+    if (!head) return;
+    head.classList.remove("is-restored");
+    void head.offsetWidth;
+    head.classList.add("is-restored");
+    window.setTimeout(() => {
+      head.classList.remove("is-restored");
+    }, 410);
+  }
+
+  function hideCommandInlineSaveBtnSmoothly(inlineSaveBtn) {
+    if (!inlineSaveBtn || inlineSaveBtn.hidden) return;
+    if (inlineSaveBtn.classList.contains("is-leaving")) return;
+    inlineSaveBtn.classList.add("is-leaving");
+    delete inlineSaveBtn.dataset.url;
+    delete inlineSaveBtn.dataset.parentId;
+    delete inlineSaveBtn.dataset.existingId;
+    delete inlineSaveBtn.dataset.existingTitle;
+    delete inlineSaveBtn.dataset.existingParentId;
+    inlineSaveBtn.classList.remove("is-edit-mode");
+    if (commandInlineSaveLeaveTimeout) {
+      clearTimeout(commandInlineSaveLeaveTimeout);
+    }
+    commandInlineSaveLeaveTimeout = window.setTimeout(() => {
+      inlineSaveBtn.hidden = true;
+      inlineSaveBtn.classList.remove("is-leaving");
+      commandInlineSaveLeaveTimeout = null;
+    }, 120);
+  }
+
+  function showCommandInlineSaveBtn(inlineSaveBtn, url, parentId, titleText, existingBookmark = null) {
+    if (commandInlineSaveLeaveTimeout) {
+      clearTimeout(commandInlineSaveLeaveTimeout);
+      commandInlineSaveLeaveTimeout = null;
+    }
+    inlineSaveBtn.classList.remove("is-leaving");
+    inlineSaveBtn.hidden = false;
+    inlineSaveBtn.dataset.url = url;
+    inlineSaveBtn.dataset.parentId = parentId;
+    if (existingBookmark) {
+      inlineSaveBtn.classList.add("is-edit-mode");
+      inlineSaveBtn.dataset.existingId = existingBookmark.id;
+      inlineSaveBtn.dataset.existingTitle = existingBookmark.title || "";
+      inlineSaveBtn.dataset.existingParentId = existingBookmark.parentId || "";
+      inlineSaveBtn.textContent = "✏️";
+    } else {
+      inlineSaveBtn.classList.remove("is-edit-mode");
+      delete inlineSaveBtn.dataset.existingId;
+      delete inlineSaveBtn.dataset.existingTitle;
+      delete inlineSaveBtn.dataset.existingParentId;
+      inlineSaveBtn.textContent = "⭐";
+    }
+    inlineSaveBtn.title = titleText;
+    inlineSaveBtn.setAttribute("aria-label", titleText);
+  }
+
+  function updateCommandIntentBadge(app, intentResult) {
+    const badge = app?.querySelector(".bf-intent-badge");
+    const inlineSaveBtn = app?.querySelector(".bf-command-inline-save");
+    if (!badge) return;
+
+    if (!intentResult || !intentResult.badge || !commandQuery) {
+      badge.hidden = true;
+      badge.textContent = "";
+      badge.className = "bf-intent-badge";
+      if (inlineSaveBtn) {
+        hideCommandInlineSaveBtnSmoothly(inlineSaveBtn);
+      }
+      return;
+    }
+
+    const { icon, key, label, className } = intentResult.badge;
+    const localizedLabel = (typeof t === "function" && t(key)) ? t(key) : label;
+    badge.textContent = `${icon} ${localizedLabel}`;
+    badge.className = `bf-intent-badge ${className || ""}`;
+    badge.hidden = false;
+
+    if (inlineSaveBtn) {
+      if (intentResult.intent === "url" && intentResult.url) {
+        const { parentId, titleText, existingBookmark } = getContentQuickSaveTargetInfo(intentResult.url);
+        showCommandInlineSaveBtn(inlineSaveBtn, intentResult.url, parentId, titleText, existingBookmark);
+      } else {
+        hideCommandInlineSaveBtnSmoothly(inlineSaveBtn);
+      }
+    }
+  }
+
   function renderCommandResults(app) {
     const list = app?.querySelector(".bf-command-list");
     if (!list) {
       return;
     }
+
+    const allFolders = typeof getCachedFolderNodes === "function" ? getCachedFolderNodes() : [];
+    const intentResult = typeof BookmarkIntentRoutingEngine !== "undefined"
+      ? BookmarkIntentRoutingEngine.detectUserIntent(commandQuery, { folders: allFolders })
+      : null;
+    updateCommandIntentBadge(app, intentResult);
 
     list.replaceChildren();
 
@@ -2955,15 +3902,124 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       })
       .slice(0, query ? 40 : 14);
 
+    if (intentResult && intentResult.intent === "folder") {
+      let folderNode = null;
+      if (intentResult.folderId) {
+        folderNode = findNodeById(treeRoot, intentResult.folderId);
+      } else if (intentResult.folderQuery) {
+        const qLower = intentResult.folderQuery.toLowerCase();
+        const matched = allFolders.find(f => (f.title || "").toLowerCase().includes(qLower));
+        if (matched) {
+          folderNode = findNodeById(treeRoot, matched.id);
+        }
+      }
+      if (folderNode && Array.isArray(folderNode.children)) {
+        const folderBookmarks = folderNode.children
+          .filter(c => c.url)
+          .slice(0, 8)
+          .map(b => ({
+            id: b.id,
+            title: b.title,
+            url: b.url,
+            path: folderNode.title
+          }));
+        entries.unshift(...folderBookmarks);
+      }
+    }
+
+    if (intentResult && intentResult.intent === "open_tab" && intentResult.tabQuery) {
+      entries.unshift({
+        id: "bf-action-switch-tab",
+        title: `${t("intentTabMode") || "Tab Switch"}: ${intentResult.tabQuery}`,
+        path: t("openInBrowserDesc") || "Switch to matching open tab",
+        icon: "🗂️",
+        isQuickAction: true,
+        handler: () => {
+          if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+            chrome.runtime.sendMessage({
+              type: "BF_SWITCH_TO_TAB",
+              query: intentResult.tabQuery
+            });
+          }
+          closeCommandPalette();
+        }
+      });
+    }
+
+    const directTarget = resolveDirectNavigationTarget(commandQuery);
+    if (directTarget) {
+      const existingBookmark = findExistingBookmarkByUrl(directTarget);
+      let existingNotice = "";
+      if (existingBookmark?.title) {
+        const barNode = appState?.bookmarkBar;
+        let folderTitle = "";
+        if (existingBookmark.parentId === barNode?.id) {
+          folderTitle = t("bookmarksBar") || "Yer İmleri Çubuğu";
+        } else if (existingBookmark.parentId) {
+          const folders = [];
+          const walk = (node) => {
+            if (!node) return;
+            if (Array.isArray(node.children)) {
+              if (node.id && node.id !== "0") {
+                folders.push({ id: node.id, title: node.title || "" });
+              }
+              for (const c of node.children) {
+                if (Array.isArray(c.children)) walk(c);
+              }
+            }
+          };
+          walk(barNode);
+          folderTitle = folders.find(f => f.id === existingBookmark.parentId)?.title || "";
+        }
+        existingNotice = folderTitle
+          ? ` • ${t("existingBookmarkWithFolderNotice", [existingBookmark.title, folderTitle]) || `Zaten yer imlerinde: ${existingBookmark.title} (${folderTitle} içinde)`}`
+          : ` • ${t("existingBookmarkNotice", existingBookmark.title) || `Zaten yer imlerinde: ${existingBookmark.title}`}`;
+      }
+      entries.unshift({
+        id: "bf-action-capture-url",
+        title: `${t("addBookmarkToTarget")}: ${directTarget}`,
+        path: `${t("addBookmarkToTargetDesc")}${existingNotice}`,
+        icon: existingBookmark ? "✏️" : "⭐",
+        isQuickAction: true,
+        directTarget,
+        existingBookmark,
+        handler: () => {
+          openAddBookmarkDialog(getActiveDialogElement(), {
+            url: directTarget,
+            title: existingBookmark?.title || getHostname(directTarget) || directTarget,
+            parentId: existingBookmark?.parentId,
+            editNodeId: existingBookmark?.id
+          });
+        }
+      });
+      entries.splice(1, 0, {
+        id: "bf-action-open-direct",
+        title: `${t("openInBrowser")}: ${directTarget}`,
+        path: t("openInBrowserDesc"),
+        icon: "🌐",
+        isQuickAction: true,
+        handler: () => {
+          window.location.href = directTarget;
+        }
+      });
+    }
+
     const isHealthQuery = /^(health|sa[gğ]l[iı]k|k[iı]r[iı]k|dead|broken|duplicate|m[uü]kerrer|bak[iı]m|maintenance|#health)/i.test(query);
     if (isHealthQuery) {
       entries.unshift({
         id: "bf-action-health",
         title: t("quickActionOpenHealth"),
-        url: chrome.runtime.getURL("src/bookmark-maintenance.html#health"),
+        url: "#health",
         path: t("quickActionOpenHealthDesc"),
         icon: "🩺",
-        isQuickAction: true
+        isQuickAction: true,
+        handler: () => {
+          if (hasExtensionContext()) {
+            try {
+              chrome.runtime.sendMessage({ type: "BF_OPEN_SETTINGS", hash: "health" }).catch(() => {});
+            } catch {}
+          }
+        }
       });
     }
 
@@ -3083,8 +4139,38 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function handleCommandKeydown(event) {
+    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && (event.key === "s" || event.key === "S")) {
+      const inlineSaveBtn = shadow?.querySelector(".bf-command-inline-save");
+      if (inlineSaveBtn && !inlineSaveBtn.hidden && inlineSaveBtn.dataset.url) {
+        event.preventDefault();
+        event.stopPropagation();
+        inlineSaveBtn.click();
+        return;
+      }
+    }
+
+    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && (event.key === "z" || event.key === "Z")) {
+      const input = shadow?.querySelector(".bf-command-input");
+      if (input && !input.value && lastEscapeClearedCommandText) {
+        event.preventDefault();
+        event.stopPropagation();
+        input.value = lastEscapeClearedCommandText;
+        commandQuery = lastEscapeClearedCommandText;
+        renderCommandResults(shadow.querySelector(".bf-app"));
+        input.focus();
+        input.select();
+        triggerCommandRestoredFlash();
+        showContentToastNotification(t("queryRestoredToast") || "✓ Metin geri getirildi", 1500, null, "is-undone");
+        lastEscapeClearedCommandText = "";
+        return;
+      }
+    }
+
     if (event.key === "Escape") {
       event.preventDefault();
+      if (commandQuery) {
+        lastEscapeClearedCommandText = commandQuery;
+      }
       closeCommandPalette();
       return;
     }
@@ -3214,7 +4300,16 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         if (typeof entry.handler === "function") {
           entry.handler();
         } else if (entry.url && entry.url !== "#") {
-          window.open(entry.url, "_blank");
+          if (entry.url.startsWith("chrome-extension://") || entry.url.includes("bookmark-maintenance.html")) {
+            const hash = entry.url.includes("#") ? entry.url.split("#")[1] : "";
+            if (hasExtensionContext()) {
+              try {
+                chrome.runtime.sendMessage({ type: "BF_OPEN_SETTINGS", hash }).catch(() => {});
+              } catch {}
+            }
+          } else {
+            window.open(entry.url, "_blank");
+          }
         }
       });
 
@@ -3230,6 +4325,132 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       path.textContent = entry.path;
 
       copy.append(title, path);
+
+      if (entry.id === "bf-action-capture-url" && entry.directTarget) {
+        const chips = document.createElement("span");
+        chips.className = "bf-command-action-chips";
+
+        const barNode = appState?.bookmarkBar;
+        const existingBookmark = entry.existingBookmark || findExistingBookmarkByUrl(entry.directTarget);
+
+        const folders = [];
+        const walk = (node) => {
+          if (!node) return;
+          if (Array.isArray(node.children)) {
+            const isRootBar = node.id === appState?.bookmarkBar?.id;
+            const tTitle = node.title || (isRootBar ? (t("bookmarksBar") || "Bookmarks Bar") : "");
+            if (node.id && node.id !== "0") {
+              folders.push({ id: node.id, title: tTitle, isBar: isRootBar });
+            }
+            for (const c of node.children) {
+              if (Array.isArray(c.children)) walk(c);
+            }
+          }
+        };
+        walk(barNode);
+
+        if (existingBookmark) {
+          if (existingBookmark.parentId !== barNode?.id) {
+            const moveBarChip = document.createElement("button");
+            moveBarChip.type = "button";
+            moveBarChip.className = "bf-command-action-chip is-move-chip";
+            moveBarChip.textContent = `⭐ ${t("moveToBar") || "Move to Bar"}`;
+            moveBarChip.title = t("moveToBar") || "Move to Bar";
+            moveBarChip.addEventListener("click", async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              await handleContentMoveBookmarkToFolder(existingBookmark.id, barNode?.id || "", t("bookmarksBar") || "Bookmarks Bar");
+            });
+            chips.append(moveBarChip);
+          }
+
+          const targetFolder = folders.find(f => !f.isBar && f.id !== existingBookmark.parentId && (f.id === lastUsedFolderId || pinnedFolderIds.includes(f.id)))
+            || folders.find(f => !f.isBar && f.id !== existingBookmark.parentId);
+          if (targetFolder) {
+            const moveFolderChip = document.createElement("button");
+            moveFolderChip.type = "button";
+            moveFolderChip.className = "bf-command-action-chip is-move-chip";
+            moveFolderChip.textContent = `📁 ${targetFolder.title}`;
+            moveFolderChip.title = t("moveToFolder", targetFolder.title) || `'${targetFolder.title}' Klasörüne Taşı`;
+            moveFolderChip.addEventListener("click", async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              closeContentFolderPickerMenu();
+              await handleContentMoveBookmarkToFolder(existingBookmark.id, targetFolder.id, targetFolder.title);
+            });
+            chips.append(moveFolderChip);
+          }
+
+          if (folders.length > 1) {
+            const pickerChip = document.createElement("button");
+            pickerChip.type = "button";
+            pickerChip.className = "bf-command-action-chip is-folder-picker-chip";
+            pickerChip.textContent = "📁▾";
+            pickerChip.title = t("otherFolders") || "Diğer Klasörler…";
+            pickerChip.setAttribute("aria-haspopup", "true");
+            pickerChip.addEventListener("click", (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (activeContentFolderPickerMenu) {
+                closeContentFolderPickerMenu();
+              } else {
+                showContentFolderPickerMenu(existingBookmark, pickerChip, item);
+              }
+            });
+            chips.append(pickerChip);
+          }
+
+          const editChip = document.createElement("button");
+          editChip.type = "button";
+          editChip.className = "bf-command-action-chip is-edit-chip";
+          editChip.textContent = `✏️ ${t("edit") || "Edit"}`;
+          editChip.title = t("editBookmark") || "Edit Bookmark";
+          editChip.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeContentFolderPickerMenu();
+            closeCommandPalette();
+            openAddBookmarkDialog(getActiveDialogElement(), {
+              url: entry.directTarget,
+              title: existingBookmark.title || getHostname(entry.directTarget) || entry.directTarget,
+              parentId: existingBookmark.parentId,
+              editNodeId: existingBookmark.id
+            });
+          });
+          chips.append(editChip);
+        } else {
+          const barChip = document.createElement("button");
+          barChip.type = "button";
+          barChip.className = "bf-command-action-chip";
+          barChip.textContent = `⭐ ${t("saveToBar") || "Add to Bar"}`;
+          barChip.title = t("saveToBar") || "Add to Bar";
+          barChip.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeCommandPalette();
+            await handleDirectSaveBookmark(entry.directTarget, barNode?.id || "");
+          });
+          chips.append(barChip);
+
+          const targetFolder = folders.find(f => !f.isBar && (f.id === lastUsedFolderId || pinnedFolderIds.includes(f.id))) || folders.find(f => !f.isBar);
+          if (targetFolder) {
+            const folderChip = document.createElement("button");
+            folderChip.type = "button";
+            folderChip.className = "bf-command-action-chip";
+            folderChip.textContent = `📁 ${targetFolder.title}`;
+            folderChip.title = `${t("saveToFolder") || "Add to Folder"}: ${targetFolder.title}`;
+            folderChip.addEventListener("click", async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              closeCommandPalette();
+              await handleDirectSaveBookmark(entry.directTarget, targetFolder.id);
+            });
+            chips.append(folderChip);
+          }
+        }
+        copy.append(chips);
+      }
+
       link.append(icon, copy);
       return link;
     }
@@ -3424,6 +4645,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     return url.toString();
   }
 
+  function resolveDirectNavigationTarget(value) {
+    const trimmed = String(value || "").trim();
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    if (/^[^\s]+\.[^\s]{2,}(\/.*)?$/i.test(trimmed)) {
+      return `https://${trimmed}`;
+    }
+    return "";
+  }
+
   function getHostname(url) {
     try {
       return new URL(url).hostname.replace(/^www\./, "");
@@ -3505,11 +4737,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       hiddenOnSites: settings.showOnSites === false,
       autoHiddenSensitive: Boolean(settings.autoHideSensitiveSites && isSensitiveHost(hostName)),
       dockedBottom: shouldUseBottomDock(),
+      snoozed: isSnoozed,
+      edgeRestoreActive: Boolean(isSnoozed && shadow?.querySelector(".bf-edge-restore")),
       expanded: isExpanded,
       renderedAppExpanded: Boolean(renderedApp?.classList.contains("is-expanded")),
-      renderedAppVisible,
-      renderedAppBounds,
-      launcherBounds,
+      renderedAppVisible: Boolean(renderedAppVisible && !isSnoozed),
+      renderedAppBounds: isSnoozed ? null : renderedAppBounds,
+      launcherBounds: isSnoozed ? null : launcherBounds,
       introTooltipText: shadow?.querySelector(".bf-intro-tooltip")?.textContent?.trim() || null,
       searchOpen: Boolean(command && !command.hidden),
       commandResults,
@@ -3794,6 +5028,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     closeContextMenu();
     closeCommandPalette({ restoreFocus: false });
     closeAddBookmarkDialog({ restoreFocus: false });
+    removeEdgeRestoreStrip();
+    notifyTabSnoozeState(false);
     host?.remove();
     host = null;
     shadow = null;
