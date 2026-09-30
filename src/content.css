@@ -1410,6 +1410,14 @@
   border-color: var(--bf-theme-accent);
 }
 
+:host([data-theme="turquoise-glow"]) .bf-command-input:focus,
+:host([data-theme="turquoise-glow"]) .bf-command-input:focus-visible,
+.bf-app[data-theme="turquoise-glow"] .bf-command-input:focus,
+.bf-app[data-theme="turquoise-glow"] .bf-command-input:focus-visible {
+  border-color: #22d3ee;
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.45);
+}
+
 .bf-add-field input:focus,
 .bf-add-field select:focus {
   border-color: var(--bf-theme-accent);
@@ -1746,6 +1754,12 @@
 
 .bf-toast.is-undone .bf-toast-progress {
   background: #27ae60;
+}
+
+:host([data-theme="turquoise-glow"]) .bf-toast:not(.is-undone) .bf-toast-progress,
+.bf-app[data-theme="turquoise-glow"] .bf-toast:not(.is-undone) .bf-toast-progress {
+  background: linear-gradient(90deg, #22d3ee, #06b6d4);
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
 }
 
 .bf-toast.is-switching {
