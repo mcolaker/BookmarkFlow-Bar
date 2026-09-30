@@ -1099,6 +1099,15 @@
   color: #ffe082;
 }
 
+:host([data-theme="turquoise-glow"]) .bf-command-action-chip:hover,
+:host([data-theme="turquoise-glow"]) .bf-command-action-chip:focus-visible,
+.bf-app[data-theme="turquoise-glow"] .bf-command-action-chip:hover,
+.bf-app[data-theme="turquoise-glow"] .bf-command-action-chip:focus-visible {
+  border-color: #22d3ee;
+  color: #ecfeff;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.35);
+}
+
 .bf-tag-list {
   display: inline-flex;
   flex-wrap: wrap;
@@ -1907,6 +1916,17 @@
   width: 6px;
   background: var(--bf-theme-accent, #f2c94c);
   box-shadow: -3px 0 16px rgba(242, 201, 76, 0.85);
+}
+
+:host([data-theme="turquoise-glow"]) .bf-edge-restore:hover,
+:host([data-theme="turquoise-glow"]) .bf-edge-restore:focus-visible {
+  background: linear-gradient(180deg, transparent, rgba(34, 211, 238, 0.35) 15%, rgba(34, 211, 238, 0.95) 50%, rgba(34, 211, 238, 0.35) 85%, transparent);
+  box-shadow: -2px 0 14px rgba(34, 211, 238, 0.65);
+}
+
+:host([data-theme="turquoise-glow"]) .bf-edge-restore:active {
+  background: #22d3ee;
+  box-shadow: -3px 0 18px rgba(34, 211, 238, 0.9);
 }
 
 @media (prefers-reduced-motion: reduce) {

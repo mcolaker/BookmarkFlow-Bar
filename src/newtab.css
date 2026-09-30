@@ -1633,6 +1633,15 @@ body[data-bg="custom"] {
   color: #ffe082;
 }
 
+:root[data-theme="turquoise-glow"] .nt-search-action-chip:hover,
+:root[data-theme="turquoise-glow"] .nt-search-action-chip:focus-visible,
+:root[data-theme="turquoise-glow"] .nt-inline-save-btn:hover,
+:root[data-theme="turquoise-glow"] .nt-inline-save-btn:focus-visible {
+  border-color: #22d3ee;
+  color: #ecfeff;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.35);
+}
+
 .nt-tag-list {
   display: flex;
   flex-wrap: wrap;

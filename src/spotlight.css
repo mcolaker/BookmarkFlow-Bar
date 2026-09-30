@@ -227,6 +227,17 @@
   outline-offset: var(--bf-token-focus-offset, 2px);
 }
 
+:root[data-theme="turquoise-glow"] .bf-command-action-chip:hover,
+:root[data-theme="turquoise-glow"] .bf-command-action-chip:focus-visible,
+:host([data-theme="turquoise-glow"]) .bf-command-action-chip:hover,
+:host([data-theme="turquoise-glow"]) .bf-command-action-chip:focus-visible,
+.bf-app[data-theme="turquoise-glow"] .bf-command-action-chip:hover,
+.bf-app[data-theme="turquoise-glow"] .bf-command-action-chip:focus-visible {
+  border-color: #22d3ee;
+  color: #ecfeff;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.35);
+}
+
 /* Sonuç Listesi */
 .bf-command-list {
   overflow-y: auto;
