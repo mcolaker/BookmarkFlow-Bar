@@ -35,6 +35,7 @@
     "obsidian",
     "midnight-gradient",
     "emerald-aurora",
+    "turquoise-abyss",
     "custom"
   ]);
 

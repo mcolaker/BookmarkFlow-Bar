@@ -336,6 +336,7 @@
   "bgObsidian": { "message": "Obsidyen" },
   "bgMidnight": { "message": "Gece" },
   "bgEmerald": { "message": "Zümrüt" },
+  "bgTurquoise": { "message": "Turkuaz" },
   "bgCustom": { "message": "Özel" },
   "uploadWallpaper": { "message": "Duvar kağıdı yükle" },
   "clearWallpaper": { "message": "Duvar kağıdını kaldır" },

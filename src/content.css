@@ -136,6 +136,17 @@
   --bf-theme-palette-bg: #07151c;
   --bf-theme-palette-border: #153d4c;
   --bf-theme-palette-hover: #133543;
+  --bf-folder-bg: #09202a;
+  --bf-folder-bg-hover: #0e2d3b;
+  --bf-folder-border: #184656;
+  --bf-folder-text: #ecfeff;
+  --bf-folder-accent: #22d3ee;
+}
+
+:host([data-theme="turquoise-glow"]) .bf-folder-icon,
+.bf-app[data-theme="turquoise-glow"] .bf-folder-icon {
+  color: #22d3ee;
+  filter: drop-shadow(0 0 3px rgba(34, 211, 238, 0.45));
 }
 
 :host(.bf-bottom) {

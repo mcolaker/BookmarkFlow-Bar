@@ -117,6 +117,16 @@
   --nt-theme-palette-bg: #07151c;
   --nt-theme-palette-border: #153d4c;
   --nt-theme-palette-hover: #133543;
+  --nt-folder-bg: #09202a;
+  --nt-folder-bg-hover: #0e2d3b;
+  --nt-folder-border: #184656;
+  --nt-folder-text: #ecfeff;
+  --nt-folder-accent: #22d3ee;
+}
+
+:root[data-theme="turquoise-glow"] .nt-folder-icon {
+  color: #22d3ee;
+  filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.45));
 }
 
 * {
@@ -140,6 +150,10 @@ body[data-bg="midnight-gradient"] {
 
 body[data-bg="emerald-aurora"] {
   background: radial-gradient(circle at 50% 25%, #0f2c1f 0%, #071710 55%, #030a06 100%) !important;
+}
+
+body[data-bg="turquoise-abyss"] {
+  background: radial-gradient(circle at 50% 25%, #0e303d 0%, #061318 65%, #02070a 100%) !important;
 }
 
 body[data-bg="custom"] {

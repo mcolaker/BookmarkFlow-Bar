@@ -16,3 +16,9 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
   - `src/popup.html` arayüzüne 5'li şık segment seçicisi (`.segments-five`) ile `Turquoise / Turkuaz` seçeneği eklendi; `src/settings.js` içinde `SUPPORTED_THEMES` listesine dahil edildi.
   - İngilizce (`_locales/en`) ve Türkçe (`_locales/tr`) dil dosyalarında `themeTurquoise` anahtarı ile %100 dil paritesi sağlandı.
   - Eş zamanlı olarak eksik olan Siber İndigo (`cyber-indigo`) varyantı `src/design-tokens.css`, `src/spotlight.css` ve `src/settings.css` kütüphanelerine de işlenerek tasarım token bütünlüğü eksiksiz hale getirildi.
+- **Turkuaz Okyanus Arka Planı (Turquoise Abyss) ve Canlı Klasör Rozeti Vurgusu (BF-UX-025)**:
+  - Yeni Sekme sayfasına temadan bağımsız seçilebilen 5. duvar kağıdı olarak derin okyanus degrade geçişine sahip Turkuaz Uçurum (`turquoise-abyss`, `radial-gradient(circle at 50% 25%, #0e303d 0%, #061318 65%, #02070a 100%)`) eklendi.
+  - `src/popup.html` içerisindeki yeni sekme arka planı kontrol kartı 5'li segment gridine (`.segments-five`) genişletildi ve `turquoise-abyss` seçeneği yerleştirildi.
+  - `src/settings.js` içinde `SUPPORTED_NEWTAB_BACKGROUNDS` dizisine `"turquoise-abyss"` eklendi ve normalizasyon fonksiyonuyla güvenceye alındı.
+  - Turkuaz temada yer imi klasörleri için okyanus derinliğinde yüzeyler (`--bf-folder-bg: #09202a`, `--bf-folder-border: #184656`, `--bf-folder-text: #ecfeff`, `--bf-folder-accent: #22d3ee`) ve klasör simgelerine (`.bf-folder-icon`, `.nt-folder-icon`) parlak turkuaz mikro ışıltı (`filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.45))`) uygulandı.
+  - `_locales/en` ve `_locales/tr` yerelleştirme sözlüklerine `bgTurquoise` anahtarı eklenerek %100 dil paritesi korundu.
