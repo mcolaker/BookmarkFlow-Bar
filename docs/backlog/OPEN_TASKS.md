@@ -1,6 +1,6 @@
 # BookmarkFlow Bar Açık İşler
 
-Son güncelleme: 2026-09-29
+Son güncelleme: 2026-09-30
 
 Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kuralları için [AGENTS.md](../../AGENTS.md) otoritedir.
 
@@ -687,4 +687,13 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Kabul kriteri: `src/newtab.css` turkuaz temada `.nt-shortcut-card` ve `.nt-shortcut-icon-box` için turkuaz hover/focus ışıltı kurallarını barındırır; `src/bookmark-maintenance.js` kullanıcının temasını `document.documentElement.dataset.theme` üzerine yansıtır; `src/bookmark-maintenance.css` sağlık metrik kartlarında ve sağlıklı bağlantı sayacında canlı turkuaz ışıltı uygular; `scripts/ui-behavior-contract.test.mjs` BF-UX-028 sözleşme testini içerir; 103/103 test ve `npm run validate:all` sıfır hatayla geçer.
 - Doğrulama kapısı: 103/103 test başarılı (`npm test`); `scripts/ui-behavior-contract.test.mjs` içinde BF-UX-028 sözleşme testi yeşil geçti; `node scripts/validate-backlog.mjs` sıfır hatayla geçti; `npm run validate:all` (açık kaynak, DCO, public tree, manifest, backlog, governance ve medya QA sözleşmeleri) sıfır hatayla geçti; `git diff --check` temizdir.
 - Sonraki adım: Yok; kısayol kartlarında turkuaz ışıltı ve sağlık tarayıcısı canlı metrik rozetleri entegrasyonu başarıyla tamamlandı ve doğrulandı.
+- Son güncelleme: 2026-09-30.
+
+## BF-UX-029 - Yeni Sekme Canlı Saat / Karşılama Metninde Turkuaz Mikro Gradyan ve Klasör Birleştirme Butonu Vurgusu
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, Yeni Sekme sayfasının merkezindeki dinamik saat (`#clockDisplay`) ve karşılama metnine (`#greetingDisplay`) Turkuaz Işıltı (`turquoise-glow`) temasında linear-gradient ve drop-shadow ile zarif buz-turkuaz degrade geçişi uygulanmasını; ayrıca Yer İmi Bakım Merkezinde (`src/bookmark-maintenance.html`, `src/bookmark-maintenance.css`) çift klasörlerin tespitinde çıkan "Klasörleri Birleştir" butonuna (`#merge.primary`) turkuaz temada canlı neon ışıltı ve aktif basılma yay efekti eklenmesini talep etti. `src/newtab.css` içerisine `:root[data-theme="turquoise-glow"] #clockDisplay`, `.nt-clock`, `#greetingDisplay` ve `.nt-greeting` için `linear-gradient(135deg, #ffffff 30%, #22d3ee 100%)`, `-webkit-background-clip: text`, `-webkit-text-fill-color: transparent`, `text-shadow: none` ve `filter: drop-shadow(...)` kuralları eklendi; `src/bookmark-maintenance.css` içerisine `:root[data-theme="turquoise-glow"] .primary`, `:root[data-theme="turquoise-glow"] #merge.primary` için `linear-gradient(135deg, #22d3ee, #0891b2)`, `box-shadow: 0 4px 16px rgba(34, 211, 238, 0.35)`, hover parlaklığı ve `:active` basılma yay fiziği ile form elemanları için `:focus-visible` turkuaz odak halkası entegre edildi; `scripts/ui-behavior-contract.test.mjs` içerisine 104. sözleşme testi eklenerek tüm yüzeyler doğrulandı.
+- Kabul kriteri: `src/newtab.css` turkuaz temada saat ve karşılama metnine text-clip mikro gradyan kurallarını barındırır; `src/bookmark-maintenance.css` `#merge.primary` birleştirme butonuna turkuaz gradyan, gölge ve aktif basılma efektlerini uygular; `scripts/ui-behavior-contract.test.mjs` BF-UX-029 sözleşme testini içerir; 104/104 test ve `npm run validate:all` sıfır hatayla geçer.
+- Doğrulama kapısı: 104/104 test başarılı (`npm test`); `scripts/ui-behavior-contract.test.mjs` içinde BF-UX-029 sözleşme testi yeşil geçti; `node scripts/validate-backlog.mjs` sıfır hatayla geçti; `npm run validate:all` (açık kaynak, DCO, public tree, manifest, backlog, governance ve medya QA sözleşmeleri) sıfır hatayla geçti; `git diff --check` temizdir.
+- Sonraki adım: Yok; saat ve karşılama metninde turkuaz degrade ile klasör birleştirme butonu vurgusu entegrasyonu başarıyla tamamlandı ve doğrulandı.
 - Son güncelleme: 2026-09-30.

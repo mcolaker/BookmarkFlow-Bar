@@ -1095,6 +1095,23 @@ body[data-bg="custom"] {
   letter-spacing: 0.02em;
 }
 
+:root[data-theme="turquoise-glow"] #clockDisplay,
+:root[data-theme="turquoise-glow"] .nt-clock {
+  background: linear-gradient(135deg, #ffffff 30%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.25));
+}
+
+:root[data-theme="turquoise-glow"] #greetingDisplay,
+:root[data-theme="turquoise-glow"] .nt-greeting {
+  background: linear-gradient(135deg, #ffffff 30%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.22));
+}
+
 .nt-search {
   width: min(760px, 100%);
   display: grid;

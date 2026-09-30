@@ -1565,3 +1565,20 @@ test("turquoise glow shortcuts grid and health inspector metrics contract (BF-UX
   // Maintenance JS loads and sets theme
   assert.match(maintJs, /document\.documentElement\.dataset\.theme\s*=\s*settings\.theme/u, "bookmark-maintenance.js must sync theme from settings");
 });
+
+test("turquoise glow clock greeting and folder merge button contract (BF-UX-029)", () => {
+  const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  const maintCss = readFileSync(path.join(root, "src/bookmark-maintenance.css"), "utf8");
+
+  // New tab clock and greeting gradient styles
+  assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+#clockDisplay/u, "newtab.css must style #clockDisplay for turquoise-glow");
+  assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+#greetingDisplay/u, "newtab.css must style #greetingDisplay for turquoise-glow");
+  assert.match(newTabCss, /-webkit-background-clip:\s*text/u, "newtab.css must use -webkit-background-clip: text");
+  assert.match(newTabCss, /-webkit-text-fill-color:\s*transparent/u, "newtab.css must use -webkit-text-fill-color: transparent");
+
+  // Maintenance merge folders button turquoise action styling
+  assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+#merge\.primary/u, "bookmark-maintenance.css must style #merge.primary for turquoise-glow");
+  assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+#merge\.primary:hover:not\(:disabled\)/u, "bookmark-maintenance.css must style #merge.primary hover");
+  assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+#merge\.primary:active:not\(:disabled\)/u, "bookmark-maintenance.css must style #merge.primary active");
+  assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+button:focus-visible/u, "bookmark-maintenance.css must style button:focus-visible for turquoise-glow");
+});
