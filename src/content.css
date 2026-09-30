@@ -115,6 +115,29 @@
   --bf-theme-palette-hover: #211c47;
 }
 
+:host([data-theme="turquoise-glow"]),
+.bf-app[data-theme="turquoise-glow"] {
+  --bf-theme-bar-bg: #0a1a20;
+  --bf-theme-bar-border: #183f4f;
+  --bf-theme-card-bg: #0d2028;
+  --bf-theme-dialog-bg: #0c1e27;
+  --bf-theme-surface: #102732;
+  --bf-theme-surface-hover: #173746;
+  --bf-theme-border: #1b4556;
+  --bf-theme-border-subtle: #143644;
+  --bf-theme-accent: #22d3ee;
+  --bf-theme-accent-contrast: #04232c;
+  --bf-theme-accent-glow: rgba(34, 211, 238, 0.42);
+  --bf-theme-accent-subtle: rgba(34, 211, 238, 0.16);
+  --bf-theme-text: #ecfeff;
+  --bf-theme-text-muted: #7fd5e3;
+  --bf-theme-search-bg: #081820;
+  --bf-theme-search-border: #174354;
+  --bf-theme-palette-bg: #07151c;
+  --bf-theme-palette-border: #153d4c;
+  --bf-theme-palette-hover: #133543;
+}
+
 :host(.bf-bottom) {
   top: auto;
   bottom: 0;

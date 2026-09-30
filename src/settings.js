@@ -23,7 +23,8 @@
     "gold-obsidian",
     "oled-black",
     "emerald-matrix",
-    "cyber-indigo"
+    "cyber-indigo",
+    "turquoise-glow"
   ]);
 
   function normalizeTheme(theme) {

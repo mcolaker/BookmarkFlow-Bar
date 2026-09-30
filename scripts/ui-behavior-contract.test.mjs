@@ -192,8 +192,11 @@ test("multi-theme engine contract is supported across settings, popup, new tab, 
   const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
   const popupCss = readFileSync(path.join(root, "src/popup.css"), "utf8");
   const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  const designTokensCss = readFileSync(path.join(root, "src/design-tokens.css"), "utf8");
+  const spotlightCss = readFileSync(path.join(root, "src/spotlight.css"), "utf8");
+  const settingsCss = readFileSync(path.join(root, "src/settings.css"), "utf8");
 
-  const supportedThemes = ["gold-obsidian", "oled-black", "emerald-matrix", "cyber-indigo"];
+  const supportedThemes = ["gold-obsidian", "oled-black", "emerald-matrix", "cyber-indigo", "turquoise-glow"];
 
   for (const theme of supportedThemes) {
     assert.match(settingsSource, new RegExp(`"${theme}"`, "u"));
@@ -202,6 +205,9 @@ test("multi-theme engine contract is supported across settings, popup, new tab, 
       assert.match(popupCss, new RegExp(`\\[data-theme="${theme}"\\]`, "u"));
       assert.match(newTabCss, new RegExp(`\\[data-theme="${theme}"\\]`, "u"));
       assert.match(contentCss, new RegExp(`\\[data-theme="${theme}"\\]`, "u"));
+      assert.match(designTokensCss, new RegExp(`\\[data-theme="${theme}"\\]`, "u"));
+      assert.match(spotlightCss, new RegExp(`\\[data-theme="${theme}"\\]`, "u"));
+      assert.match(settingsCss, new RegExp(`\\[data-theme="${theme}"\\]`, "u"));
     }
   }
 

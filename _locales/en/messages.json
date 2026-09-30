@@ -42,6 +42,7 @@
   "themeOled": { "message": "OLED" },
   "themeEmerald": { "message": "Emerald" },
   "themeIndigo": { "message": "Indigo" },
+  "themeTurquoise": { "message": "Turquoise" },
   "folderRail": { "message": "Folder rail" },
   "folderRailPosition": { "message": "Folder rail position" },
   "off": { "message": "Off" },

@@ -42,6 +42,7 @@
   "themeOled": { "message": "OLED" },
   "themeEmerald": { "message": "Zümrüt" },
   "themeIndigo": { "message": "İndigo" },
+  "themeTurquoise": { "message": "Turkuaz" },
   "folderRail": { "message": "Klasör rayı" },
   "folderRailPosition": { "message": "Klasör rayı konumu" },
   "off": { "message": "Kapalı" },

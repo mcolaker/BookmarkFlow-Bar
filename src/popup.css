@@ -64,6 +64,21 @@
   --popup-kbd-bg: #1c1a38;
 }
 
+:root[data-theme="turquoise-glow"] {
+  --popup-bg: #07161d;
+  --popup-html-bg: #061318;
+  --popup-text: #ecfeff;
+  --popup-text-muted: rgba(236, 254, 255, 0.68);
+  --popup-surface: #102732;
+  --popup-border: #1b4556;
+  --popup-accent: #22d3ee;
+  --popup-accent-contrast: #04232c;
+  --popup-accent-glow: rgba(34, 211, 238, 0.44);
+  --popup-accent-subtle: rgba(34, 211, 238, 0.16);
+  --popup-accent-hover: rgba(34, 211, 238, 0.62);
+  --popup-kbd-bg: #102732;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -227,6 +242,16 @@ p {
 
 .segments-three {
   grid-template-columns: repeat(3, 1fr);
+}
+
+.segments-five {
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.segments-five button {
+  font-size: 11px;
+  padding: 0 2px;
 }
 
 .segments button,
