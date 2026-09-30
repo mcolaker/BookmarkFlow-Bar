@@ -34,6 +34,7 @@ const elements = {
   bookmarkStrip: document.getElementById("bookmarkStrip"),
   addBookmark: document.getElementById("addBookmark"),
   addDialog: document.getElementById("addDialog"),
+  addDialogTitle: document.getElementById("addDialogTitle"),
   addForm: document.getElementById("addForm"),
   addTitle: document.getElementById("addTitle"),
   addUrl: document.getElementById("addUrl"),
