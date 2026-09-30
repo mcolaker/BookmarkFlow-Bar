@@ -1,6 +1,8 @@
 const {
   DATA_CONSENT_STORAGE_KEY,
   DATA_CONSENT_VERSION,
+  SETTINGS_STORAGE_KEY,
+  normalizeSettings,
   addDisabledHost,
   removeDisabledHost
 } = BookmarkFlowConfig;
@@ -88,6 +90,14 @@ async function init() {
     });
     renderStatus(t("dataConsentRequired"), "error");
     return;
+  }
+
+  try {
+    const stored = await chrome.storage.sync.get(SETTINGS_STORAGE_KEY);
+    const settings = normalizeSettings(stored?.[SETTINGS_STORAGE_KEY]);
+    document.documentElement.dataset.theme = settings.theme;
+  } catch {
+    // fallback
   }
 
   elements.refresh.addEventListener("click", () => {

@@ -1158,6 +1158,19 @@ body[data-bg="custom"] {
   box-shadow: 0 6px 18px var(--nt-theme-accent-subtle);
 }
 
+:root[data-theme="turquoise-glow"] .nt-shortcut-card:hover,
+:root[data-theme="turquoise-glow"] .nt-shortcut-card:focus-visible {
+  border-color: rgba(34, 211, 238, 0.45);
+  box-shadow: 0 4px 16px rgba(34, 211, 238, 0.12);
+  background: rgba(34, 211, 238, 0.08);
+}
+
+:root[data-theme="turquoise-glow"] .nt-shortcut-card:hover .nt-shortcut-icon-box,
+:root[data-theme="turquoise-glow"] .nt-shortcut-card:focus-visible .nt-shortcut-icon-box {
+  border-color: #22d3ee;
+  box-shadow: 0 6px 18px rgba(34, 211, 238, 0.35);
+}
+
 .nt-shortcut-icon {
   width: 22px;
   height: 22px;
@@ -1170,6 +1183,10 @@ body[data-bg="custom"] {
   font-weight: 700;
   color: var(--nt-theme-accent);
   text-transform: uppercase;
+}
+
+:root[data-theme="turquoise-glow"] .nt-shortcut-initial {
+  color: #22d3ee;
 }
 
 .nt-shortcut-title {
