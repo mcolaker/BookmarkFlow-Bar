@@ -102,7 +102,7 @@ export function packageRelease(ref) {
     "archive",
     "--format=tar",
     release.tagRef,
-  ], { cwd: root, stdio: ["ignore", "pipe", "pipe"] });
+  ], { cwd: root, stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 * 1024 * 1024 });
   assertReleaseArchiveContract(listTarEntries(tarArchive));
 
   mkdirSync(dist, { recursive: true });
