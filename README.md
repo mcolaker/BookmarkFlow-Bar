@@ -14,24 +14,24 @@
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
   <img alt="Firefox Add-ons Ready" src="https://img.shields.io/badge/Firefox-Add--ons%20Ready-FF7139?logo=firefoxbrowser&logoColor=white">
   <img alt="Microsoft Edge Compatible" src="https://img.shields.io/badge/Edge-Compatible-0078D7?logo=microsoftedge&logoColor=white">
-  <img alt="Source version 0.3.0" src="https://img.shields.io/badge/source-0.3.0-F2C94C">
+  <img alt="Source version 0.3.1" src="https://img.shields.io/badge/source-0.3.1-F2C94C">
   <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
 
 <p align="center">
   <strong><a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf">Install from Chrome Web Store</a></strong> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.0/bookmarkflow-bar-0.3.0.zip">Chrome ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.0/bookmarkflow-bar-0.3.0-firefox.zip">Firefox ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.0/bookmarkflow-bar-0.3.0-edge.zip">Edge ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.0/bookmarkflow-bar-0.3.0.zip.sha256">Verify SHA-256</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.1/bookmarkflow-bar-0.3.1.zip">Chrome ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.1/bookmarkflow-bar-0.3.1-firefox.zip">Firefox ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.1/bookmarkflow-bar-0.3.1-edge.zip">Edge ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.1/bookmarkflow-bar-0.3.1.zip.sha256">Verify SHA-256</a> ·
   <a href="#install-from-source">Installation guide</a> ·
   <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Product website</a> ·
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/discussions">Join Discussions</a>
 </p>
 
 <p align="center">
-  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.3.0 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
+  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.3.1 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
 </p>
 
 > [!NOTE]
@@ -65,13 +65,13 @@ Chrome's native bookmarks bar is intentionally simple, but it cannot become a tr
 - **Offline JSON backup & restore.** Download complete, local-first snapshots of your bookmarks, settings, tags, and reading list in standard JSON format, and restore with safe merge.
 - **Zero-cloud smart auto-tagging.** Local, private tag engine that automatically associates bookmarks with `#dev`, `#ai`, `#video`, `#social`, `#design`, and `#reading` tags based on domain and URL patterns.
 - **Offline reading list drawer.** Keep a dedicated "Read Later" queue right in your New Tab page, check off read articles, or add pages instantly from the Spotlight command palette.
-- **Ambient New Tab wallpapers.** Choose between Obsidian dark, Midnight Gradient, Emerald Aurora, or custom offline user-uploaded wallpapers.
+- **Ambient New Tab wallpapers.** Choose between Obsidian dark, Midnight Gradient, Emerald Aurora, Turquoise Abyss, or custom offline user-uploaded wallpapers.
 - **See more at once.** Use multiple rows, compact density, horizontal scrolling, favicons, and readable titles.
 - **Find anything at the speed of thought.** Spotlight / Raycast style real-time search palette with cyclic arrow navigation (`ArrowDown`/`ArrowUp`), active result highlight, and instant keyboard shortcuts.
-- **Personalize your visual experience.** Switch effortlessly between 4 curated obsidian dark palettes: Gold Obsidian, OLED Midnight Black, Emerald Matrix, and Cyber Indigo, with instant real-time sync across popup, new tab, and page bar.
-- **Inspect bookmark health & dead links.** 100% local, zero-telemetry dead link and duplicate checker with concurrency-limited safe verification and instant inline remediation.
+- **Personalize your visual experience.** Switch effortlessly between 5 curated dark palettes: Gold Obsidian, OLED Midnight Black, Emerald Matrix, Cyber Indigo, and Turquoise Glow, with instant real-time sync across popup, new tab, and page bar.
+- **Inspect bookmark health & dead links.** 100% local, zero-telemetry dead link and duplicate checker with concurrency-limited safe verification, duplicate folder merge action, and instant inline remediation.
 - **Smart tags & `#tag` spotlight filtering.** Auto-inferred tags from folder hierarchies and domains plus custom tags, filterable instantly via `#tag` queries with theme-adaptive visual pills.
-- **Focused New Tab with Quick Shortcuts.** Minimalist ambient start page featuring a real-time digital clock, contextual greetings, and an 8-item Quick Shortcuts grid built from your top bookmarks.
+- **Focused New Tab with Quick Shortcuts & Dynamic Clock.** Minimalist ambient start page featuring a real-time digital clock with theme text-clip gradients, contextual greetings, and an 8-item Quick Shortcuts grid built from your top bookmarks.
 - **Organize without duplication.** Work with the folders already stored in your browser and pin important folders to a left or right rail.
 - **Stay presentation-ready.** Streamer mode reduces bookmark labels to icons when you share your screen.
 - **Cross-browser flexibility.** Native packages and support for Chromium browsers (Chrome, Edge, Brave, Opera) and Mozilla Firefox.
