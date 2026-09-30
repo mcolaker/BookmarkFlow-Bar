@@ -530,6 +530,23 @@ select {
   color: #f2c94c;
 }
 
+:root[data-theme="turquoise-glow"] .health-metric-card[role="button"]:hover,
+:root[data-theme="turquoise-glow"] .health-metric-card[role="button"]:focus-visible {
+  border-color: rgba(34, 211, 238, 0.45);
+  box-shadow: 0 4px 16px rgba(34, 211, 238, 0.15);
+}
+
+:root[data-theme="turquoise-glow"] .health-metric-card.is-selected {
+  border-color: #22d3ee;
+  background: rgba(34, 211, 238, 0.12);
+  box-shadow: 0 0 0 1px #22d3ee, 0 0 14px rgba(34, 211, 238, 0.25);
+}
+
+:root[data-theme="turquoise-glow"] .health-metric-card.healthy .metric-num {
+  color: #22d3ee;
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.45);
+}
+
 .health-progress-wrap {
   margin-top: 16px;
   height: 6px;
@@ -578,6 +595,13 @@ select {
   background: rgba(242, 201, 76, 0.14);
   border-color: #f2c94c;
   color: #f2c94c;
+}
+
+:root[data-theme="turquoise-glow"] .health-filter-btn.is-active {
+  background: rgba(34, 211, 238, 0.18);
+  border-color: #22d3ee;
+  color: #22d3ee;
+  box-shadow: 0 2px 10px rgba(34, 211, 238, 0.25);
 }
 
 .filter-count {

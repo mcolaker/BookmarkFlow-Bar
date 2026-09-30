@@ -1545,3 +1545,23 @@ test("turquoise glow toast progress and search focus ring contract (BF-UX-027)",
   assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-search-box:focus-within/u, "newtab.css must style turquoise focus-within for .nt-search-box");
   assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-toast:not\(\.is-undone\)\s+\.nt-toast-progress/u, "newtab.css must style turquoise toast progress");
 });
+
+test("turquoise glow shortcuts grid and health inspector metrics contract (BF-UX-028)", () => {
+  const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  const maintCss = readFileSync(path.join(root, "src/bookmark-maintenance.css"), "utf8");
+  const maintJs = readFileSync(path.join(root, "src/bookmark-maintenance.js"), "utf8");
+
+  // New tab shortcut card turquoise hover/focus and initial
+  assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-shortcut-card:hover/u, "newtab.css must style turquoise shortcut card hover");
+  assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-shortcut-card:hover\s+\.nt-shortcut-icon-box/u, "newtab.css must style turquoise shortcut icon box");
+  assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-shortcut-initial/u, "newtab.css must style turquoise shortcut initial");
+
+  // Maintenance health inspector metrics and active filter
+  assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+\.health-metric-card\[role="button"\]:hover/u, "bookmark-maintenance.css must style turquoise health metric hover");
+  assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+\.health-metric-card\.is-selected/u, "bookmark-maintenance.css must style turquoise selected metric card");
+  assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+\.health-metric-card\.healthy\s+\.metric-num/u, "bookmark-maintenance.css must style turquoise healthy counter");
+  assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+\.health-filter-btn\.is-active/u, "bookmark-maintenance.css must style turquoise active filter button");
+
+  // Maintenance JS loads and sets theme
+  assert.match(maintJs, /document\.documentElement\.dataset\.theme\s*=\s*settings\.theme/u, "bookmark-maintenance.js must sync theme from settings");
+});
