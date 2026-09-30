@@ -62,6 +62,44 @@ body[data-theme="emerald-matrix"] {
   --settings-text-muted: #86efac;
 }
 
+/* Cyber Indigo Tema Varyantı */
+:root[data-theme="cyber-indigo"],
+body[data-theme="cyber-indigo"] {
+  --settings-bg-base: #0a0918;
+  --settings-bg-card: #15132d;
+  --settings-bg-dialog: #14122c;
+  --settings-bg-surface: #1a1738;
+  --settings-bg-surface-hover: #25214e;
+  --settings-border-default: #312c66;
+  --settings-border-subtle: #282454;
+  --settings-border-strong: #3f3982;
+  --settings-accent: #818cf8;
+  --settings-accent-contrast: #0c0a22;
+  --settings-accent-glow: rgba(129, 140, 248, 0.42);
+  --settings-accent-subtle: rgba(129, 140, 248, 0.16);
+  --settings-text-primary: #f5f3ff;
+  --settings-text-muted: #a5b4fc;
+}
+
+/* Turquoise Glow Tema Varyantı */
+:root[data-theme="turquoise-glow"],
+body[data-theme="turquoise-glow"] {
+  --settings-bg-base: #061318;
+  --settings-bg-card: #0a1a22;
+  --settings-bg-dialog: #0c1e27;
+  --settings-bg-surface: #102732;
+  --settings-bg-surface-hover: #173746;
+  --settings-border-default: #1b4556;
+  --settings-border-subtle: #143644;
+  --settings-border-strong: #22586e;
+  --settings-accent: #22d3ee;
+  --settings-accent-contrast: #04232c;
+  --settings-accent-glow: rgba(34, 211, 238, 0.42);
+  --settings-accent-subtle: rgba(34, 211, 238, 0.16);
+  --settings-text-primary: #ecfeff;
+  --settings-text-muted: #7fd5e3;
+}
+
 /* Ayarlar & Bakım Kapsayıcısı */
 .maintenance {
   width: min(920px, calc(100% - 32px));

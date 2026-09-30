@@ -96,6 +96,29 @@
   --nt-theme-palette-hover: #211c47;
 }
 
+:root[data-theme="turquoise-glow"] {
+  --nt-theme-bg: #061318;
+  --nt-theme-bar-bg: #0a1a20;
+  --nt-theme-bar-border: #183f4f;
+  --nt-theme-card-bg: #0d2028;
+  --nt-theme-dialog-bg: #0c1e27;
+  --nt-theme-surface: #102732;
+  --nt-theme-surface-hover: #173746;
+  --nt-theme-border: #1b4556;
+  --nt-theme-border-subtle: #143644;
+  --nt-theme-accent: #22d3ee;
+  --nt-theme-accent-contrast: #04232c;
+  --nt-theme-accent-glow: rgba(34, 211, 238, 0.42);
+  --nt-theme-accent-subtle: rgba(34, 211, 238, 0.16);
+  --nt-theme-text: #ecfeff;
+  --nt-theme-text-muted: #7fd5e3;
+  --nt-theme-search-bg: #081820;
+  --nt-theme-search-border: #174354;
+  --nt-theme-palette-bg: #07151c;
+  --nt-theme-palette-border: #153d4c;
+  --nt-theme-palette-hover: #133543;
+}
+
 * {
   box-sizing: border-box;
 }

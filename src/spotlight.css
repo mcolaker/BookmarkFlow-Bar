@@ -56,6 +56,38 @@
   --bf-spotlight-subtle: rgba(74, 222, 128, 0.16);
 }
 
+/* Cyber Indigo Tema Varyantı */
+:root[data-theme="cyber-indigo"],
+:host([data-theme="cyber-indigo"]),
+.bf-app[data-theme="cyber-indigo"] {
+  --bf-spotlight-backdrop: rgba(10, 9, 24, 0.55);
+  --bf-spotlight-panel-bg: #14122c;
+  --bf-spotlight-panel-border: #312c66;
+  --bf-spotlight-header-border: #282454;
+  --bf-spotlight-item-hover: #1f1b44;
+  --bf-spotlight-item-active: #2a255c;
+  --bf-spotlight-accent: #818cf8;
+  --bf-spotlight-contrast: #0c0a22;
+  --bf-spotlight-glow: rgba(129, 140, 248, 0.42);
+  --bf-spotlight-subtle: rgba(129, 140, 248, 0.16);
+}
+
+/* Turquoise Glow Tema Varyantı */
+:root[data-theme="turquoise-glow"],
+:host([data-theme="turquoise-glow"]),
+.bf-app[data-theme="turquoise-glow"] {
+  --bf-spotlight-backdrop: rgba(6, 19, 24, 0.55);
+  --bf-spotlight-panel-bg: #0c1e27;
+  --bf-spotlight-panel-border: #1b4556;
+  --bf-spotlight-header-border: #143644;
+  --bf-spotlight-item-hover: #133442;
+  --bf-spotlight-item-active: #194659;
+  --bf-spotlight-accent: #22d3ee;
+  --bf-spotlight-contrast: #04232c;
+  --bf-spotlight-glow: rgba(34, 211, 238, 0.42);
+  --bf-spotlight-subtle: rgba(34, 211, 238, 0.16);
+}
+
 /* Spotlight Paleti Kapsayıcısı */
 .bf-command {
   pointer-events: auto;

@@ -97,6 +97,44 @@
   --bf-token-gold-subtle: rgba(74, 222, 128, 0.16);
 }
 
+/* Cyber Indigo Tema Varyantı */
+:root[data-theme="cyber-indigo"],
+:host([data-theme="cyber-indigo"]),
+.bf-app[data-theme="cyber-indigo"] {
+  --bf-token-bg-base: #0a0918;
+  --bf-token-bg-card: #15132d;
+  --bf-token-bg-dialog: #14122c;
+  --bf-token-bg-surface: #1a1738;
+  --bf-token-bg-surface-hover: #25214e;
+  --bf-token-border-default: #312c66;
+  --bf-token-border-subtle: #282454;
+  --bf-token-gold-primary: #818cf8;
+  --bf-token-gold-contrast: #0c0a22;
+  --bf-token-gold-glow: rgba(129, 140, 248, 0.42);
+  --bf-token-gold-subtle: rgba(129, 140, 248, 0.16);
+  --bf-token-text-primary: #f5f3ff;
+  --bf-token-text-muted: #a5b4fc;
+}
+
+/* Turquoise Glow Tema Varyantı */
+:root[data-theme="turquoise-glow"],
+:host([data-theme="turquoise-glow"]),
+.bf-app[data-theme="turquoise-glow"] {
+  --bf-token-bg-base: #061318;
+  --bf-token-bg-card: #0a1a22;
+  --bf-token-bg-dialog: #0c1e27;
+  --bf-token-bg-surface: #102732;
+  --bf-token-bg-surface-hover: #173746;
+  --bf-token-border-default: #1b4556;
+  --bf-token-border-subtle: #143644;
+  --bf-token-gold-primary: #22d3ee;
+  --bf-token-gold-contrast: #04232c;
+  --bf-token-gold-glow: rgba(34, 211, 238, 0.42);
+  --bf-token-gold-subtle: rgba(34, 211, 238, 0.16);
+  --bf-token-text-primary: #ecfeff;
+  --bf-token-text-muted: #7fd5e3;
+}
+
 /* Modern Web Guidance: Erişilebilir Hareket Azaltma */
 @media (prefers-reduced-motion: reduce) {
   :root,
