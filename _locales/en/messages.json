@@ -336,6 +336,7 @@
   "bgObsidian": { "message": "Obsidian" },
   "bgMidnight": { "message": "Midnight" },
   "bgEmerald": { "message": "Emerald" },
+  "bgTurquoise": { "message": "Turquoise" },
   "bgCustom": { "message": "Custom" },
   "uploadWallpaper": { "message": "Upload wallpaper" },
   "clearWallpaper": { "message": "Clear wallpaper" },

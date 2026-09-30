@@ -215,6 +215,10 @@ test("multi-theme engine contract is supported across settings, popup, new tab, 
   assert.match(newTabSource, /document\.documentElement\.dataset\.theme\s*=/u);
   assert.match(contentSource, /host\.dataset\.theme\s*=/u);
   assert.match(contentSource, /app\.dataset\.theme\s*=/u);
+  assert.match(popupHtml, /data-bg="turquoise-abyss"/u);
+  assert.match(newTabCss, /body\[data-bg="turquoise-abyss"\]/u);
+  assert.match(newTabCss, /--nt-folder-accent:\s*#22d3ee/u);
+  assert.match(contentCss, /--bf-folder-accent:\s*#22d3ee/u);
 });
 
 test("bookmark health inspection contract is implemented in bookmark-maintenance", () => {
@@ -346,9 +350,10 @@ test("power suite: stash tabs, backup & restore, auto-tagging, reading list, new
   assert.strictEqual(CUSTOM_WALLPAPER_STORAGE_KEY, "bfCustomWallpaper");
   assert.deepStrictEqual(
     SUPPORTED_NEWTAB_BACKGROUNDS,
-    ["obsidian", "midnight-gradient", "emerald-aurora", "custom"]
+    ["obsidian", "midnight-gradient", "emerald-aurora", "turquoise-abyss", "custom"]
   );
   assert.strictEqual(normalizeNewTabBackground("midnight-gradient"), "midnight-gradient");
+  assert.strictEqual(normalizeNewTabBackground("turquoise-abyss"), "turquoise-abyss");
   assert.strictEqual(normalizeNewTabBackground("invalid"), "obsidian");
 
   // Zero-cloud smart auto-tagging
