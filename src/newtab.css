@@ -1215,6 +1215,11 @@ body[data-bg="custom"] {
   box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.22);
 }
 
+:root[data-theme="turquoise-glow"] .nt-search-box:focus-within {
+  border-color: #22d3ee;
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.45), 0 0 16px rgba(34, 211, 238, 0.18);
+}
+
 .nt-search-box input {
   flex: 1 1 auto;
   min-width: 0;
@@ -1994,6 +1999,11 @@ body[data-bg="custom"] {
 
 .nt-toast.is-undone .nt-toast-progress {
   background: #27ae60;
+}
+
+:root[data-theme="turquoise-glow"] .nt-toast:not(.is-undone) .nt-toast-progress {
+  background: linear-gradient(90deg, #22d3ee, #06b6d4);
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
 }
 
 .nt-toast.is-switching {

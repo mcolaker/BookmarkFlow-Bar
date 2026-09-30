@@ -1528,3 +1528,20 @@ test("turquoise glow edge peek and search action accents contract (BF-UX-026)", 
   assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-search-action-chip:hover/u, "newtab.css must style action chips for turquoise-glow");
   assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-inline-save-btn:hover/u, "newtab.css must style inline save button for turquoise-glow");
 });
+
+test("turquoise glow toast progress and search focus ring contract (BF-UX-027)", () => {
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  const spotlightCss = readFileSync(path.join(root, "src/spotlight.css"), "utf8");
+  const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+
+  // Content command input focus ring and toast progress
+  assert.match(contentCss, /:host\(\[data-theme="turquoise-glow"\]\)\s+\.bf-command-input:focus/u, "content.css must define turquoise focus for .bf-command-input");
+  assert.match(contentCss, /:host\(\[data-theme="turquoise-glow"\]\)\s+\.bf-toast:not\(\.is-undone\)\s+\.bf-toast-progress/u, "content.css must style turquoise toast progress");
+
+  // Spotlight command input focus ring
+  assert.match(spotlightCss, /\[data-theme="turquoise-glow"\]\s+\.bf-command-input:focus/u, "spotlight.css must style turquoise focus for .bf-command-input");
+
+  // New tab search box focus-within and toast progress
+  assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-search-box:focus-within/u, "newtab.css must style turquoise focus-within for .nt-search-box");
+  assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-toast:not\(\.is-undone\)\s+\.nt-toast-progress/u, "newtab.css must style turquoise toast progress");
+});
