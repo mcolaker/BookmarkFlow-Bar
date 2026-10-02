@@ -48,12 +48,14 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(decisionIndex, /Yapay Zeka Otonom Video İnisiyatifi/u, "DECISION_INDEX.md must contain Decision 19");
   assert.match(decisionIndex, /Otonom Geliştirici Araçları ve Teftiş İnisiyatifi/u, "DECISION_INDEX.md must contain Decision 20");
   assert.match(decisionIndex, /Terminal-Öncelikli GitHub CLI Standardı/u, "DECISION_INDEX.md must contain Decision 23");
+  assert.match(decisionIndex, /GitHub Actions Otomatik PR Birleştirme/u, "DECISION_INDEX.md must contain Decision 24");
 
   const projectState = readFileSync(path.join(root, "docs/agent/PROJECT_STATE.md"), "utf8");
   assert.match(projectState, /# PROJECT_STATE\.md/u, "PROJECT_STATE.md must declare header");
   assert.match(projectState, /Google Chrome/u, "PROJECT_STATE.md must declare Chrome support");
   assert.match(projectState, /BF-GOV-011/u, "PROJECT_STATE.md must document BF-GOV-011");
   assert.match(projectState, /BF-GOV-016/u, "PROJECT_STATE.md must document BF-GOV-016");
+  assert.match(projectState, /BF-GOV-017/u, "PROJECT_STATE.md must document BF-GOV-017");
 
   const ruleChangelog = readFileSync(path.join(root, "docs/agent/RULE_CHANGELOG.md"), "utf8");
   assert.match(ruleChangelog, /BF-GOV-010/u, "RULE_CHANGELOG.md must document BF-GOV-010");
@@ -61,6 +63,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(ruleChangelog, /BF-QA-004/u, "RULE_CHANGELOG.md must document BF-QA-004");
   assert.match(ruleChangelog, /BF-GOV-011/u, "RULE_CHANGELOG.md must document BF-GOV-011");
   assert.match(ruleChangelog, /BF-GOV-016/u, "RULE_CHANGELOG.md must document BF-GOV-016");
+  assert.match(ruleChangelog, /BF-GOV-017/u, "RULE_CHANGELOG.md must document BF-GOV-017");
 });
 
 test("agentic motion & media QA scripts contract (BF-QA-002, BF-QA-003, BF-QA-004)", () => {

@@ -715,3 +715,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `gh version` 2.102.0 ve `gh auth status` (mcolaker, active account) yeşil; 104/104 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` (açık kaynak, DCO, public tree, manifest, backlog, governance ve medya QA sözleşmeleri) sıfır hatayla geçti; `git diff --check` temizdir; PR doğrudan terminalden `gh pr create` ile açılarak ana dala birleştirildi.
 - Sonraki adım: Yok; bundan sonraki tüm PR, issue ve release işlemleri doğrudan terminalden `gh` CLI ile yürütülür.
 - Son güncelleme: 2026-10-02.
+
+## BF-GOV-017 - GitHub Actions Otomatik PR Birleştirme ve PowerShell Ortam Entegrasyonunu Sağla
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, PR açıldıktan sonra CI testlerinin tamamlanmasını beklerken harcanan süreyi ve PowerShell kabuklarında `gh` aracının ortam yolu gecikmesini tamamen ortadan kaldırmayı talep etti. GitHub CLI üzerinden `gh api -X PATCH repos/mcolaker/BookmarkFlow-Bar -F allow_auto_merge=true` komutuyla repoda `allow_auto_merge` özelliği etkinleştirildi; böylece `gh pr merge --auto --merge` ile PR açılır açılmaz otomatik merge kuyruğa alınabilir hale geldi. Ayrıca kullanıcının Windows PowerShell `$PROFILE` dosyasına `Test-Command` doğrulayıcısı ve `$env:ProgramFiles\GitHub CLI` dinamik yol mekanizması entegre edildi.
+- Kabul kriteri: `allow_auto_merge` repo ayarı `true` olarak doğrulanır; PowerShell `$PROFILE` BOM'suz UTF-8 olarak `Test-Command` ve `gh` yolunu barındırır; `DECISION_INDEX.md` Karar 24 eklenir; `release_distribution.md` auto-merge akışını belgeler; testler ve doğrulama kapıları sıfır hatayla geçer.
+- Doğrulama kapısı: `gh api repos/mcolaker/BookmarkFlow-Bar --jq .allow_auto_merge` çıktısı `true`; child PowerShell sürecinde `Test-Command gh` çıktısı `True`; 104/104 test ve `npm run validate:all` başarılı; `git diff --check` temizdir.
+- Sonraki adım: Yok; tüm PR'lar artık doğrudan `gh pr merge --auto --merge` ile sıfır insan müdahalesiyle birleştirilebilir.
+- Son güncelleme: 2026-10-02.
