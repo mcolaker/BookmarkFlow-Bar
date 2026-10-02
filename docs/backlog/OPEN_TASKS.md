@@ -733,3 +733,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node scripts/release-github-cli.mjs --dry-run` başarıyla çalıştı ve 6 dağıtım paketini simüle etti; `sh .githooks/pre-push` 105/105 testle yeşil geçti; `npm run validate:all` ve `git diff --check` temizdir; PR doğrudan terminalden açılıp auto-merge ile birleştirildi.
 - Sonraki adım: Yok; sürüm yayınlama aşamasında `npm run release:github` ile GitHub Release tek adımda oluşturulabilir.
 - Son güncelleme: 2026-10-02.
+
+## BF-GOV-019 - Tek Komutla Sürüm Etiketleme, Paketleme ve GitHub Release Orkestrasyonunu Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, sürüm yayınlama aşamasında test doğrulama, çalışma ağacı temizlik kontrolü, Git etiketleme (`git tag -s vX.Y.Z`), Chromium, Firefox ve Edge paketleme ve GitHub Release yayınlama adımlarının ayrı ayrı yürütülmesi yerine tek bir komutta (`npm run release:full`) otonom olarak birleştirilmesini talep etti. `scripts/release-pipeline.mjs` orkestrasyon betiği ve `scripts/release-pipeline-contract.test.mjs` sözleşme testi geliştirildi; `package.json` içerisine `release:full` betiği eklendi. Betik; `--dry-run`, `--skip-tests` ve `--skip-tag` parametreleri ile tam simülasyon ve güvenli sürüm çıkarma döngüsünü sağlamaktadır.
+- Kabul kriteri: `scripts/release-pipeline.mjs` tüm release adımlarını otonom zincirler; `--dry-run` modunda hatasız simüle eder; kirli çalışma ağaçlarında fail-closed durur; `release-pipeline-contract.test.mjs` 4/4 testle yeşil geçer; `package.json` `release:full` betiğini içerir; `DECISION_INDEX.md` Karar 26 eklenir; tüm testler ve doğrulama kapıları sıfır hatayla geçer.
+- Doğrulama kapısı: `node scripts/release-pipeline.mjs --dry-run` başarıyla çalıştı ve 6 adımı simüle etti; `scripts/release-pipeline-contract.test.mjs` 4/4 geçti; 109/109 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` ve `git diff --check` temizdir.
+- Sonraki adım: Yok; bundan sonraki tüm sürümler `npm run release:full` ile tek komutta yayınlanabilir.
+- Son güncelleme: 2026-10-02.

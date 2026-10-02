@@ -60,3 +60,6 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
 - **Otomatik Release Betiği & Pre-Push Kalite Kancası (BF-GOV-018)**:
   - Dağıtım paketleri ve SHA-256 sağlama toplamları `npm run release:github` (`scripts/release-github-cli.mjs`) ile tek adımda GitHub Release'e aktarılır; `--dry-run` ile simüle edilebilir.
   - Yerel repoda `git push` öncesinde `.githooks/pre-push` kancası çalışarak governance kurallarını ve tüm birim/sözleşme testlerini (`npm test`) otomatik doğrular.
+- **Tek Komutla Sürüm Etiketleme, Paketleme ve GitHub Release Orkestrasyonu (BF-GOV-019)**:
+  - `npm run release:full` (`scripts/release-pipeline.mjs`) komutu ile test doğrulaması, çalışma ağacı denetimi, Git annotated imzalı etiket oluşturma, Chromium, Firefox ve Edge paketleme ve GitHub Release yayınlama işlemleri uçtan uca tek adımda icra edilir.
+  - Sürüm öncesi testler `--dry-run` bayrağı ile risksiz şekilde simüle edilebilir.
