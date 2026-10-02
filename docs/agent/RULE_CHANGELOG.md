@@ -2,6 +2,13 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-02] — Tek Komutla Sürüm Etiketleme, Paketleme ve GitHub Release Orkestrasyonu (BF-GOV-019 / Karar 26)
+- **Sürüm Yayınlama Orkestrasyonu (`scripts/release-pipeline.mjs`)**: Test çalıştırma (`npm run validate:all`), çalışma ağacı temizlik denetimi, Git annotated imzalı tag oluşturma (`git tag -s vX.Y.Z`), Chromium, Firefox ve Edge paketleme ve GitHub Release varlık yükleme (`releaseWithGhCli`) adımları tek bir yerel orkestrasyon betiğinde (`npm run release:full`) birleştirildi.
+- **Dry-Run ve Güvenlik Parametreleri**: `--dry-run`, `--skip-tests` ve `--skip-tag` parametreleri eklenerek sürüm öncesi tam simülasyon ve kontrollü dağıtım sağlandı; kirli çalışma ağaçlarında fail-closed durma mekanizması garantiye alındı.
+- **Kılavuz ve Karar Entegrasyonu**: `docs/agent-playbooks/release_distribution.md` ve `docs/agent/DECISION_INDEX.md` (Karar 26) güncellendi.
+
+---
+
 ## [2026-10-02] — GitHub CLI Otomatik Release Betiği ve Pre-Push Kalite Kancası (BF-GOV-018 / Karar 25)
 - **Terminalden Otomatik Release Yayınlama (`scripts/release-github-cli.mjs`)**: Dağıtım paketlerini (Chromium, Firefox, Edge) ve SHA-256 sağlama toplamlarını tarayıcıya gerek kalmadan tek komutla (`npm run release:github`) doğrudan GitHub Release'e yükleyen resmi CLI otomasyon betiği eklendi; `--dry-run` simülasyonu ve `CHANGELOG.md` otomatik not çıkarma mekanizması kuruldu.
 - **Git Pre-Push Kalite Kancası (`.githooks/pre-push`)**: Yerel geliştirme ortamında uzak repoya `git push` yapılmadan önce `node scripts/validate-governance.mjs` ve tüm testleri (`npm test`) otomatik çalıştıran Git kancası (`core.hooksPath = .githooks`) devreye alındı.

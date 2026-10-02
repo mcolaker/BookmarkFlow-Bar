@@ -50,6 +50,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(decisionIndex, /Terminal-Öncelikli GitHub CLI Standardı/u, "DECISION_INDEX.md must contain Decision 23");
   assert.match(decisionIndex, /GitHub Actions Otomatik PR Birleştirme/u, "DECISION_INDEX.md must contain Decision 24");
   assert.match(decisionIndex, /GitHub CLI Otomatik Release Betiği/u, "DECISION_INDEX.md must contain Decision 25");
+  assert.match(decisionIndex, /Tek Komutla Sürüm Etiketleme, Paketleme ve GitHub Release Orkestrasyonu/u, "DECISION_INDEX.md must contain Decision 26");
 
   const projectState = readFileSync(path.join(root, "docs/agent/PROJECT_STATE.md"), "utf8");
   assert.match(projectState, /# PROJECT_STATE\.md/u, "PROJECT_STATE.md must declare header");
@@ -58,6 +59,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(projectState, /BF-GOV-016/u, "PROJECT_STATE.md must document BF-GOV-016");
   assert.match(projectState, /BF-GOV-017/u, "PROJECT_STATE.md must document BF-GOV-017");
   assert.match(projectState, /BF-GOV-018/u, "PROJECT_STATE.md must document BF-GOV-018");
+  assert.match(projectState, /BF-GOV-019/u, "PROJECT_STATE.md must document BF-GOV-019");
 
   const ruleChangelog = readFileSync(path.join(root, "docs/agent/RULE_CHANGELOG.md"), "utf8");
   assert.match(ruleChangelog, /BF-GOV-010/u, "RULE_CHANGELOG.md must document BF-GOV-010");
@@ -67,6 +69,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(ruleChangelog, /BF-GOV-016/u, "RULE_CHANGELOG.md must document BF-GOV-016");
   assert.match(ruleChangelog, /BF-GOV-017/u, "RULE_CHANGELOG.md must document BF-GOV-017");
   assert.match(ruleChangelog, /BF-GOV-018/u, "RULE_CHANGELOG.md must document BF-GOV-018");
+  assert.match(ruleChangelog, /BF-GOV-019/u, "RULE_CHANGELOG.md must document BF-GOV-019");
 });
 
 test("agentic motion & media QA scripts contract (BF-QA-002, BF-QA-003, BF-QA-004)", () => {
