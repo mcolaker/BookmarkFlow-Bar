@@ -2,6 +2,13 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-02] — GitHub Actions Otomatik PR Birleştirme ve PowerShell Ortam Entegrasyonu (BF-GOV-017 / Karar 24)
+- **GitHub Otomatik PR Birleştirme (`allow_auto_merge`)**: Repo seviyesinde otomatik birleştirme bayrağı terminalden açılarak (`allow_auto_merge=true`) PR açıldığı andan itibaren `gh pr merge --auto --merge` komutuyla CI kontrolleri bittiği milisaniyede GitHub tarafından otomatik merge yapılması sağlandı.
+- **PowerShell Ortam Entegrasyonu**: Windows PowerShell `$PROFILE` yapılandırmasına `Test-Command` kontrol fonksiyonu ve `gh` ikilisinin her yeni oturumda dinamik yol tanımlayıcısıyla (`$env:ProgramFiles\GitHub CLI`) tanınmasını sağlayan mekanizma entegre edildi.
+- **Kılavuz Entegrasyonu**: `docs/agent-playbooks/release_distribution.md` ve `docs/agent/DECISION_INDEX.md` (Karar 24) güncellendi.
+
+---
+
 ## [2026-10-02] — Terminal-Öncelikli GitHub CLI Standardı (BF-GOV-016 / Karar 23)
 - **Terminal-Öncelikli GitHub İşlemleri**: Kullanıcının 2026-10-02 tarihli açık talebi ("tarayıcıyı kullanmak yerine git terminali falan yok mu direkt terminalden tüm işlemleri yapsan daha hızlı olmaz mı?") doğrultusunda, GitHub üzerindeki dal oluşturma, push, Pull Request açma (`gh pr create`), CI bekleme (`gh pr checks --watch`), PR birleştirme (`gh pr merge --auto --merge`) ve sürüm yönetiminin tarayıcı arayüzü açılmadan doğrudan terminalden resmi GitHub CLI (`gh`) aracılığıyla otonom yürütülmesi standartlaştırıldı.
 - **Tarayıcı Bağımlılığının Sıfırlanması**: GitHub PR ve release süreçlerinde tarayıcı açma ve GUI tıklama gereksinimi tamamen ortadan kaldırıldı; operasyon süreleri 1-2 saniyeye indirilerek hata payı sıfırlandı. Tarayıcı yalnızca görsel varlık/medya doğrulaması durumlarında ikincil araç olarak tutuldu.

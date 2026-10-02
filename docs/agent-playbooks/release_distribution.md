@@ -56,3 +56,4 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
   - Otomatik Birleştirme: `gh pr merge --auto --merge` veya `gh pr merge --merge --delete-branch`
   - Sürüm / Release Yönetimi: `gh release create vX.Y.Z --title "vX.Y.Z — ..." --notes "..." <varlıklar>`
 - **Sıfır Tarayıcı Bağımlılığı**: GitHub işlemleri için tarayıcı açma (Browser harness/Playwright) devreden çıkarılmış olup işlemler doğrudan CLI üzerinden saniyeler içinde tamamlanır. Tarayıcı yalnız görsel/medya denetiminde ikincil olarak kullanılır.
+- **Auto-Merge Yetkilendirmesi (BF-GOV-017)**: Repoda `allow_auto_merge` özelliği etkinleştirilmiş olup PR açıldığı anda `gh pr merge --auto --merge` komutu verilerek CI kontrolleri bittiği anda GitHub tarafından otomatik olarak ana dala katılması sağlanır.
