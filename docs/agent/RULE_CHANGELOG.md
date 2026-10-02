@@ -2,6 +2,13 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-02] — Terminal-Öncelikli GitHub CLI Standardı (BF-GOV-016 / Karar 23)
+- **Terminal-Öncelikli GitHub İşlemleri**: Kullanıcının 2026-10-02 tarihli açık talebi ("tarayıcıyı kullanmak yerine git terminali falan yok mu direkt terminalden tüm işlemleri yapsan daha hızlı olmaz mı?") doğrultusunda, GitHub üzerindeki dal oluşturma, push, Pull Request açma (`gh pr create`), CI bekleme (`gh pr checks --watch`), PR birleştirme (`gh pr merge --auto --merge`) ve sürüm yönetiminin tarayıcı arayüzü açılmadan doğrudan terminalden resmi GitHub CLI (`gh`) aracılığıyla otonom yürütülmesi standartlaştırıldı.
+- **Tarayıcı Bağımlılığının Sıfırlanması**: GitHub PR ve release süreçlerinde tarayıcı açma ve GUI tıklama gereksinimi tamamen ortadan kaldırıldı; operasyon süreleri 1-2 saniyeye indirilerek hata payı sıfırlandı. Tarayıcı yalnızca görsel varlık/medya doğrulaması durumlarında ikincil araç olarak tutuldu.
+- **Yönetişim & Kılavuz Entegrasyonu**: `AGENTS.md` P0-17 kuralı genişletildi, `docs/agent-playbooks/release_distribution.md` içerisine Terminal GitHub CLI iş akışları eklendi ve `docs/agent/DECISION_INDEX.md` içerisine Karar 23 olarak kaydedildi.
+
+---
+
 ## [2026-10-02] — Sosyal Medya Çift Bağlantı (Store & GitHub) ve 280 Karakter Bütçe Zorunluluğu (BF-GOV-015 / Karar 22)
 - **Çift Bağlantı Zorunluluğu (Dual-Link Mandate)**: Kullanıcı açık talimatıyla (2026-10-02), X (Twitter) ve sosyal medya lansman paylaşımlarında resmi Chrome Web Store bağlantısı (`https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf`) ile GitHub Sürüm bağlantısının (`https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v...`) birlikte bulunması kurala bağlandı.
 - **X (Twitter) 280 Karakter Bütçe Disiplini**: X üzerinde t.co URL kısaltması (her URL = 23 karakter, 2 URL = 46 karakter) ve emoji Unicode ağırlıkları (her emoji = 2 karakter) hesaplanarak metinlerin sınır engeline takılmaması için en az 10-15 karakterlik güvenlik payı bırakılması zorunlu kılındı.

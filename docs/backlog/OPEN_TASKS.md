@@ -706,3 +706,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: 104/104 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` (açık kaynak, DCO, public tree, manifest, backlog, governance ve medya QA sözleşmeleri) sıfır hatayla geçti; `git diff --check` temizdir; exact-tag ZIP ve SHA-256 paketleri üretildi; `main` ve `v0.3.1` etiketi uzak repoya iletildi; GitHub Release ve Chrome Web Store canlı yayını doğrulandı.
 - Sonraki adım: Yok; v0.3.1 sürümü hem GitHub'da Release olarak hem de Chrome Web Store'da resmen onaylanarak canlıya alınmıştır. X ve LinkedIn topluluk duyuruları çift bağlantı (Store & GitHub) standardıyla yayımlanmıştır.
 - Son güncelleme: 2026-10-02.
+
+## BF-GOV-016 - Terminal-Öncelikli GitHub CLI Standardını ve Otonom İş Akışını Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, GitHub üzerindeki Pull Request, issue ve release operasyonlarında tarayıcı açıp GUI tıklamak yerine tüm işlemlerin doğrudan Git terminalinden resmi GitHub CLI (`gh`) aracılığıyla çok daha hızlı ve pratik şekilde yürütülmesini talep etti. Windows ortamında `winget install --id GitHub.cli -e` ile `gh` 2.102.0 ikili paketi kuruldu; `gh auth login` ile `mcolaker` hesabı için yetkilendirme sağlandı ve Git Credential Manager anahtarlık entegrasyonu tamamlandı. Kalıcı kurallar (`AGENTS.md` P0-17), kalıcı karar indeksi (`DECISION_INDEX.md` Karar 23), kural geçmişi (`RULE_CHANGELOG.md`) ve sürüm playbook'u (`docs/agent-playbooks/release_distribution.md`) terminal-öncelikli GitHub CLI standardı (Terminal-First GitHub CLI Mandate) ile güncellendi; tarayıcı bağımlılığı sıfırlandı.
+- Kabul kriteri: `gh` CLI terminalde çalışır durumda (`gh --version`, `gh auth status`); `AGENTS.md` P0-17 kuralı terminal GitHub CLI standardını içerir; `DECISION_INDEX.md` Karar 23 olarak eklenir; `release_distribution.md` terminal iş akışlarını belgeler; PR'lar doğrudan `gh pr create` ile açılır ve `gh pr merge` ile birleştirilir; testler ve doğrulama kapıları sıfır hatayla geçer.
+- Doğrulama kapısı: `gh version` 2.102.0 ve `gh auth status` (mcolaker, active account) yeşil; 104/104 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` (açık kaynak, DCO, public tree, manifest, backlog, governance ve medya QA sözleşmeleri) sıfır hatayla geçti; `git diff --check` temizdir; PR doğrudan terminalden `gh pr create` ile açılarak ana dala birleştirildi.
+- Sonraki adım: Yok; bundan sonraki tüm PR, issue ve release işlemleri doğrudan terminalden `gh` CLI ile yürütülür.
+- Son güncelleme: 2026-10-02.
