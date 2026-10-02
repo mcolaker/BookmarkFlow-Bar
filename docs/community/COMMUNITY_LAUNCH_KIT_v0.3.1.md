@@ -6,32 +6,32 @@ Bu doküman, BookmarkFlow Bar v0.3.1 sürümü için hazırlanmış sosyal medya
 
 ## 1. X (Twitter) Announcement (< 280 Characters)
 
-### English (Recommended for Global Reach)
+### English (Dual-Link Mandate < 280 Weighted Chars)
 ```text
-BookmarkFlow Bar v0.3.1 is out! 🌊✨
+BookmarkFlow Bar v0.3.1 is live! 🌊✨
 
-Meet our 5th official theme: Turquoise Glow!
-💎 Turquoise Glow theme & oceanic surfaces
-🌊 Turquoise Abyss deep-ocean wallpaper
-✨ Glowing edge peek & action buttons
-⏰ Dynamic icy-turquoise clock gradient
-📁 Duplicate folder merge button polish
+Meet theme 5: Turquoise Glow!
+💎 Turquoise Glow & ocean surfaces
+🌊 Turquoise Abyss wallpaper
+✨ Glowing edge peek & actions
+⏰ Icy-turquoise clock gradient
 
-github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.3.1
+🌐 Chrome: https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf
+📦 GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.3.1
 ```
 
-### Türkçe (TR Topluluk)
+### Türkçe (Çift Bağlantı Standartı < 280 Ağırlıklı Karakter)
 ```text
 BookmarkFlow Bar v0.3.1 yayında! 🌊✨
 
-5. resmi temamız Turkuaz Işıltı ile tanışın:
-💎 Canlı Turkuaz Işıltı teması & okyanus zeminleri
-🌊 Turkuaz Uçurum Yeni Sekme duvar kağıdı
-✨ Parlayan kenar tutamacı & aksiyon butonları
-⏰ Dinamik buz-turkuaz saat degrade geçişi
-📁 Klasör birleştirme butonu geliştirmeleri
+5. temamız Turkuaz Işıltı ile tanışın!
+💎 Canlı turkuaz & okyanus zeminleri
+🌊 Turkuaz Uçurum duvar kağıdı
+✨ Parlayan kenar & aksiyonlar
+⏰ Buz-turkuaz saat degrade geçişi
 
-github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.3.1
+🌐 Chrome: https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf
+📦 GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.3.1
 ```
 
 ---
