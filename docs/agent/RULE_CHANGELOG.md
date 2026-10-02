@@ -2,6 +2,13 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-02] — Sosyal Medya Çift Bağlantı (Store & GitHub) ve 280 Karakter Bütçe Zorunluluğu (BF-GOV-015 / Karar 22)
+- **Çift Bağlantı Zorunluluğu (Dual-Link Mandate)**: Kullanıcı açık talimatıyla (2026-10-02), X (Twitter) ve sosyal medya lansman paylaşımlarında resmi Chrome Web Store bağlantısı (`https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf`) ile GitHub Sürüm bağlantısının (`https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v...`) birlikte bulunması kurala bağlandı.
+- **X (Twitter) 280 Karakter Bütçe Disiplini**: X üzerinde t.co URL kısaltması (her URL = 23 karakter, 2 URL = 46 karakter) ve emoji Unicode ağırlıkları (her emoji = 2 karakter) hesaplanarak metinlerin sınır engeline takılmaması için en az 10-15 karakterlik güvenlik payı bırakılması zorunlu kılındı.
+- **Yönetişim & Sözleşme Entegrasyonu**: `AGENTS.md` P0-16 kuralı genişletildi; `docs/agent-playbooks/release_distribution.md`, `.agents/skills/bookmarkflow-release/SKILL.md` ve `docs/agent/DECISION_INDEX.md` (Karar 22) güncellendi.
+
+---
+
 ## [2026-09-30] — Otonom Sosyal Medya Paylaşım Yetkilendirmesi (BF-GOV-014 / Karar 21)
 - **Harici Platform Yetki Devri**: Kullanıcının 2026-09-30 tarihli açık talimatı ("hem x hem linkedinden bundan sonra paylaşımları senin yapmanı istiyorum") uyarınca, her sürüm çıkışında ve topluluk duyurusu aşamasında X (Twitter) ve LinkedIn platformlarında lansman metinleri ve 2x Retina görsel varlıklarının AI asistan tarafından doğrudan yayınlanması kalıcı olarak yetkilendirildi.
 - **Kullanıcı Onayı Otomasyonu**: Rutin sürüm döngülerinde sosyal medya gönderimi için ek onay adımı beklenmeksizin hazırlanmış `COMMUNITY_LAUNCH_KIT` varlıkları canlı oturumlar üzerinden otonom paylaşılır.

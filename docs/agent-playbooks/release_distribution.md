@@ -29,8 +29,13 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
   - X (Twitter) Lansman Görseli: 1200x675 piksel.
   - LinkedIn Lansman Görseli: 1200x627 piksel.
   - Koyu lacivert/altın (`#0b0f19` / `#f2c94c`) renk dili, sentetik yer imi verileri, temiz tipografi.
-- **Lansman Metinleri**:
-  - Kullanıcıya kopyalanıp paylaşılabilecek X duyuru metni, LinkedIn bülteni ve iki dilli (Türkçe & İngilizce) Chrome Web Store sürüm notları hazır bir paket olarak sunulur.
+- **Lansman Metinleri & Çift Bağlantı Standardı**:
+  - Kullanıcıya kopyalanıp paylaşılabilecek veya otonom yayınlanacak X duyuru metni, LinkedIn bülteni ve iki dilli (Türkçe & İngilizce) Chrome Web Store sürüm notları hazır bir paket olarak sunulur.
+  - **Çift Bağlantı Zorunluluğu (Dual-Link Mandate)**: X (Twitter) ve sosyal medya duyurularında hem resmi **Chrome Web Store** bağlantısı (`https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf`) hem de **GitHub Sürüm/Release** bağlantısı istisnasız birlikte bulunmalıdır.
+  - **X (Twitter) 280 Karakter Bütçe Disiplini**:
+    - X algoritmasında her URL (`http`/`https`) t.co nedeniyle 23 karakter sayılır (2 URL = 46 karakter bütçe tüketir).
+    - Emojiler (🌊, ✨, 💎 vb.) 2 karakter sayılır; satır sonları 1 karakterdir.
+    - Metin taslakları her zaman 280 karakter sınırının altında güvenli marjla (en az 10-15 karakter boşluk) tasarlanmalı, asla sınır hatası vermemelidir.
 - **README Güncelleme Kuralı**:
   - `README.md` dosyası yeni sürüm yetenekleri, indirme linkleri, sürüm rozetleri ve vitrin görselleriyle eksiksiz güncellenir; asla ertelenemez.
 
