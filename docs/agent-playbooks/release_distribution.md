@@ -45,3 +45,14 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
 
 - Tüm commit'ler Developer Certificate of Origin 1.1 `Signed-off-by` satırı taşımalıdır.
 - Merge öncesi tüm doğrulama betikleri (`npm run validate:all`) yerel olarak yeşil olmalı ve GitHub Actions terminal `success` vermelidir.
+
+---
+
+## 5. Terminal-Öncelikli GitHub CLI İş Akışı (Terminal-First GitHub CLI Mandate - BF-GOV-016)
+
+- **Doğrudan Terminal İşlemleri**: PR açma, inceleme, CI bekleme ve birleştirme işlemleri tarayıcı açılmadan resmi `gh` CLI ile doğrudan terminalden icra edilir:
+  - PR Açma: `gh pr create --title "..." --body "..." --base main --head <branch>`
+  - CI Durumunu İzleme: `gh pr checks --watch`
+  - Otomatik Birleştirme: `gh pr merge --auto --merge` veya `gh pr merge --merge --delete-branch`
+  - Sürüm / Release Yönetimi: `gh release create vX.Y.Z --title "vX.Y.Z — ..." --notes "..." <varlıklar>`
+- **Sıfır Tarayıcı Bağımlılığı**: GitHub işlemleri için tarayıcı açma (Browser harness/Playwright) devreden çıkarılmış olup işlemler doğrudan CLI üzerinden saniyeler içinde tamamlanır. Tarayıcı yalnız görsel/medya denetiminde ikincil olarak kullanılır.

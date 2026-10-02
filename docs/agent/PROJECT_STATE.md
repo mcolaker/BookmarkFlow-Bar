@@ -42,6 +42,7 @@ v0.3.1 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak et
 7. **Sosyal Medya Çift Bağlantı (Store & GitHub) & 280 Karakter Bütçe Zorunluluğu (BF-GOV-015 / Karar 22)**: X ve sosyal medya paylaşımlarında istisnasız hem resmi Chrome Web Store hem GitHub linkinin yer alması; t.co ve Unicode emoji ağırlıkları gözetilerek 280 sınırının fail-closed korunması.
 8. **Otonom Geliştirici Araçları ve Teftiş İnisiyatifi (BF-GOV-011 / Karar 20)**: Yapay zeka asistanının Chrome DevTools (Shadow DOM izolasyonu, CSS layout, a11y, bellek sızıntısı), Modern Web Guidance ve Gemini API araçlarını tam otonom çalıştırma yetkisi.
 9. **JaponiGo Yönetişim & İşletim Çekirdeği Mimarisi (BF-GOV-010)**: `AGENTS.md` operating kernel, kanonik kararlar indeksi (`DECISION_INDEX.md`) ve modüler alan playbook'ları (`docs/agent-playbooks/`).
+10. **Terminal-Öncelikli GitHub CLI Standardı (BF-GOV-016 / Karar 23)**: GitHub üzerinde PR açma (`gh pr create`), CI izleme (`gh pr checks --watch`), birleştirme (`gh pr merge --auto --merge`) ve sürüm yönetiminin tarayıcı açılmadan doğrudan resmi `gh` CLI ile terminalden yürütülmesi; tarayıcı bağımlılığının sıfırlanması.
 
 ---
 

@@ -9,4 +9,5 @@ Bu dosya, bir sonraki sürüme dahil edilecek tüm yeni özellikleri, kullanıc�
 
 ## [Sıradaki Sürüm / Unreleased] — Hazırlık Aşamasında
 
-*(Henüz unreleased değişiklik bulunmamaktadır. Yeni özellikler ve iyileştirmeler buraya eklenecektir.)*
+### Yönetişim ve Geliştirici Deneyimi
+- **Terminal-Öncelikli GitHub CLI Standardı (BF-GOV-016 / Karar 23)**: Pull Request açma, CI durumunu izleme ve birleştirme süreçlerinde tarayıcı ihtiyacını tamamen ortadan kaldıran resmi GitHub CLI (`gh`) entegrasyonu; `AGENTS.md` P0-17 kuralı altında otonom terminal iş akışının kurala bağlanması.
