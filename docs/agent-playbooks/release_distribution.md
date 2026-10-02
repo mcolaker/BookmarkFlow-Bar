@@ -57,3 +57,6 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
   - Sürüm / Release Yönetimi: `gh release create vX.Y.Z --title "vX.Y.Z — ..." --notes "..." <varlıklar>`
 - **Sıfır Tarayıcı Bağımlılığı**: GitHub işlemleri için tarayıcı açma (Browser harness/Playwright) devreden çıkarılmış olup işlemler doğrudan CLI üzerinden saniyeler içinde tamamlanır. Tarayıcı yalnız görsel/medya denetiminde ikincil olarak kullanılır.
 - **Auto-Merge Yetkilendirmesi (BF-GOV-017)**: Repoda `allow_auto_merge` özelliği etkinleştirilmiş olup PR açıldığı anda `gh pr merge --auto --merge` komutu verilerek CI kontrolleri bittiği anda GitHub tarafından otomatik olarak ana dala katılması sağlanır.
+- **Otomatik Release Betiği & Pre-Push Kalite Kancası (BF-GOV-018)**:
+  - Dağıtım paketleri ve SHA-256 sağlama toplamları `npm run release:github` (`scripts/release-github-cli.mjs`) ile tek adımda GitHub Release'e aktarılır; `--dry-run` ile simüle edilebilir.
+  - Yerel repoda `git push` öncesinde `.githooks/pre-push` kancası çalışarak governance kurallarını ve tüm birim/sözleşme testlerini (`npm test`) otomatik doğrular.

@@ -6,6 +6,8 @@
 !/.gitattributes
 !/.github/
 !/.github/**
+!/.githooks/
+!/.githooks/**
 !/AGENTS.md
 !/_locales/
 !/_locales/**

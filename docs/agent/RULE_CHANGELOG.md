@@ -2,6 +2,13 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-02] — GitHub CLI Otomatik Release Betiği ve Pre-Push Kalite Kancası (BF-GOV-018 / Karar 25)
+- **Terminalden Otomatik Release Yayınlama (`scripts/release-github-cli.mjs`)**: Dağıtım paketlerini (Chromium, Firefox, Edge) ve SHA-256 sağlama toplamlarını tarayıcıya gerek kalmadan tek komutla (`npm run release:github`) doğrudan GitHub Release'e yükleyen resmi CLI otomasyon betiği eklendi; `--dry-run` simülasyonu ve `CHANGELOG.md` otomatik not çıkarma mekanizması kuruldu.
+- **Git Pre-Push Kalite Kancası (`.githooks/pre-push`)**: Yerel geliştirme ortamında uzak repoya `git push` yapılmadan önce `node scripts/validate-governance.mjs` ve tüm testleri (`npm test`) otomatik çalıştıran Git kancası (`core.hooksPath = .githooks`) devreye alındı.
+- **Kılavuz ve Karar Entegrasyonu**: `docs/agent-playbooks/release_distribution.md` ve `docs/agent/DECISION_INDEX.md` (Karar 25) güncellendi.
+
+---
+
 ## [2026-10-02] — GitHub Actions Otomatik PR Birleştirme ve PowerShell Ortam Entegrasyonu (BF-GOV-017 / Karar 24)
 - **GitHub Otomatik PR Birleştirme (`allow_auto_merge`)**: Repo seviyesinde otomatik birleştirme bayrağı terminalden açılarak (`allow_auto_merge=true`) PR açıldığı andan itibaren `gh pr merge --auto --merge` komutuyla CI kontrolleri bittiği milisaniyede GitHub tarafından otomatik merge yapılması sağlandı.
 - **PowerShell Ortam Entegrasyonu**: Windows PowerShell `$PROFILE` yapılandırmasına `Test-Command` kontrol fonksiyonu ve `gh` ikilisinin her yeni oturumda dinamik yol tanımlayıcısıyla (`$env:ProgramFiles\GitHub CLI`) tanınmasını sağlayan mekanizma entegre edildi.

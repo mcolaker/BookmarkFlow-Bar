@@ -63,7 +63,7 @@ const scanPatterns = [
   { label: "AWS access key", value: /\bAKIA[0-9A-Z]{16}\b/u },
 ];
 
-const extensionlessTextFiles = new Set(["DCO", "NOTICE", ".imgbotconfig"]);
+const extensionlessTextFiles = new Set(["DCO", "NOTICE", ".imgbotconfig", ".githooks/pre-push"]);
 
 for (const path of publicFiles) {
   if (

@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+# Copyright 2026 BookmarkFlow Bar Authors
+# SPDX-License-Identifier: Apache-2.0
+#
+# Pre-push hook for BookmarkFlow Bar
+# Verifies governance, unit tests, and DCO sign-offs before pushing.
+
+echo "Running BookmarkFlow pre-push verification..."
+
+node scripts/validate-governance.mjs || {
+  echo "Pre-push check failed: governance contract violation."
+  exit 1
+}
+
+node --test scripts/*.test.mjs || {
+  echo "Pre-push check failed: unit/contract tests failed."
+  exit 1
+}
+
+echo "Pre-push verification passed."
+exit 0

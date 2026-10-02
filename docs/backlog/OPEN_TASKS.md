@@ -724,3 +724,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `gh api repos/mcolaker/BookmarkFlow-Bar --jq .allow_auto_merge` çıktısı `true`; child PowerShell sürecinde `Test-Command gh` çıktısı `True`; 104/104 test ve `npm run validate:all` başarılı; `git diff --check` temizdir.
 - Sonraki adım: Yok; tüm PR'lar artık doğrudan `gh pr merge --auto --merge` ile sıfır insan müdahalesiyle birleştirilebilir.
 - Son güncelleme: 2026-10-02.
+
+## BF-GOV-018 - GitHub CLI Otomatik Release Betiğini ve Pre-Push Kalite Kancasını Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, sürüm paketleme ve yayın döngüsünde (ZIP ve SHA-256 sağlama toplamları) tarayıcıya gerek kalmadan terminalden tek komutla GitHub Release oluşturulmasını ve yerel ortamda hatalı push yapılmasını engelleyecek bir Git kancası kurulmasını talep etti. `scripts/release-github-cli.mjs` otomasyon betiği ve `scripts/release-github-cli-contract.test.mjs` sözleşme testi yazıldı; `package.json` içine `release:github` betiği eklendi. Ayrıca `.githooks/pre-push` kancası tanımlanarak `git config core.hooksPath .githooks` ile aktif hale getirildi; push öncesinde `validate-governance.mjs` ve tüm testlerin otomatik çalışması sağlandı.
+- Kabul kriteri: `scripts/release-github-cli.mjs` `--dry-run` ve tam release akışını destekler; `release-github-cli-contract.test.mjs` yeşil geçer; `.githooks/pre-push` dosyası yerel olarak çalıştırılabilir durumdadır; `package.json` `release:github` betiğini içerir; `DECISION_INDEX.md` Karar 25 eklenir; testler ve doğrulama kapıları sıfır hatayla geçer.
+- Doğrulama kapısı: `node scripts/release-github-cli.mjs --dry-run` başarıyla çalıştı ve 6 dağıtım paketini simüle etti; `sh .githooks/pre-push` 105/105 testle yeşil geçti; `npm run validate:all` ve `git diff --check` temizdir; PR doğrudan terminalden açılıp auto-merge ile birleştirildi.
+- Sonraki adım: Yok; sürüm yayınlama aşamasında `npm run release:github` ile GitHub Release tek adımda oluşturulabilir.
+- Son güncelleme: 2026-10-02.
