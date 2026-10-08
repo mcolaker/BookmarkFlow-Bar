@@ -501,5 +501,8 @@
   "chooseFolderToMove": { "message": "Taşınacak Klasörü Seçin" },
   "currentFolderTag": { "message": "(mevcut)" },
   "urlAutoCompletedHttps": { "message": "Protokol otomatik tamamlandı (https://)" },
-  "actionTitleSnoozed": { "message": "BookmarkFlow Bar bu sekmede gizlendi (Açmak için tıklayın veya Alt+Shift+H)" }
+  "actionTitleSnoozed": { "message": "BookmarkFlow Bar bu sekmede gizlendi (Açmak için tıklayın veya Alt+Shift+H)" },
+  "clearText": { "message": "Metni temizle" },
+  "openInIncognitoWindow": { "message": "Gizli pencerede aç" },
+  "addressCopiedToast": { "message": "✓ Adres panoya kopyalandı" }
 }

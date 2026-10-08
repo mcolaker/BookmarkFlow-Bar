@@ -1168,7 +1168,7 @@
   width: 100%;
   height: 28px;
   box-sizing: border-box;
-  padding: 0 10px;
+  padding: 0 28px 0 10px;
   border-radius: 6px;
   border: 1px solid var(--bf-theme-border, #303743);
   background: var(--bf-theme-surface, rgba(255, 255, 255, 0.05));
@@ -1182,6 +1182,36 @@
 .bf-menu-filter:focus {
   border-color: var(--bf-theme-accent, #22d3ee);
   box-shadow: 0 0 0 2px var(--bf-theme-accent-glow, rgba(34, 211, 238, 0.25));
+}
+
+.bf-menu-filter-clear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  margin-top: -2px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--bf-theme-text-muted, #8f98a8);
+  font-size: 15px;
+  font-family: inherit;
+  line-height: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.bf-menu-filter-clear:hover,
+.bf-menu-filter-clear:focus-visible {
+  color: var(--bf-theme-text, #f7f9fc);
+  background: var(--bf-theme-surface-hover, rgba(255, 255, 255, 0.1));
+  outline: none;
 }
 
 .bf-menu-filter::placeholder {
@@ -1698,6 +1728,7 @@
 .bf-context-action:focus-visible,
 .bf-context-swatch:focus-visible,
 .bf-menu-filter:focus-visible,
+.bf-menu-filter-clear:focus-visible,
 .bf-command-input:focus-visible,
 .bf-command-close:focus-visible,
 .bf-add-field input:focus-visible,

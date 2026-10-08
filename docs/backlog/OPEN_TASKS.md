@@ -814,3 +814,21 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 132/132 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
 - Sonraki adım: Yok; kalabalık klasör filtreleme ve akıcı yay fiziği açılış animasyonu başarıyla devreye alınmıştır.
 - Son güncelleme: 2026-10-08.
+
+## BF-UX-033 - Açılır Klasör Menüsünde Hızlı Temizleme (Clear Input `×`) Mikro Aksiyonunu Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, klasör menüsü filtre girdisinde metin arandıktan sonra aramayı sıfırlamak için tüm karakterleri tek tek silmek yerine tek tıkla arama kutusunu sıfırlayan bir hızlı temizleme mikro butonunu talep etti. (1) `src/content.js` `openFolderMenu` içine `.bf-menu-filter-clear` butonu entegre edildi; (2) `clearText` yerelleştirme anahtarı ("Clear text" / "Metni temizle") `aria-label` ile erişilebilir kılındı; (3) Butona tıklandığında `filterInput.value = ""` yapılıp `updateFilter()` tetiklenerek tüm yer imleri anında geri yüklendi ve odak `filterInput.focus()` ile arama kutusuna iade edildi; (4) `src/content.css` içinde `position: absolute; right: 6px; top: 50%; transform: translateY(-50%)` ile optik hizalandı; `.bf-menu-filter` dolgusu `padding: 0 28px 0 10px` yapılarak metin çakışması önlendi; `:focus-visible` grubuna dahil edildi.
+- Kabul kriteri: `.bf-menu-filter-clear` butonu filtre girdisinde metin varken görünür, yokken gizlidir; tıklandığında filtreyi sıfırlar, sonuçları geri yükler ve odağı korur; TR/EN dil paritesi %100 korunur; `BF-UX-033` sözleşme testi yeşil geçer; tüm testler (134/134) temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 134/134 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; açılır klasör filtre hızlı temizleme mikro aksiyonu başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-08.
+
+## BF-UX-034 - Açılır Menü Yer İmlerinde Sağ Tık ile "Gizli Pencerede Aç" ve "Kopyala" Hızlı Eylemlerini Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, klasör menüsündeki yer imlerine sağ tıklandığında sayfa içi BookmarkFlow bağlam menüsünün açılarak URL kopyalama ve yeni gizli pencerede açma seçenekleri sunulmasını talep etti. (1) `createFolderMenuLink` içine `contextmenu` olay dinleyicisi eklenerek `openBookmarkContextMenu(node, event.clientX, event.clientY)` doğrudan tetiklendi; (2) `openBookmarkContextMenu` içine `open-bookmark-incognito` eylemi ("Open in incognito window" / "Gizli pencerede aç") eklendi; (3) `src/background.js` içinde `BF_OPEN_INCOGNITO` mesaj rotası tanımlanarak `chrome.windows.create({ incognito: true, url })` ve izin fallback'i sağlandı; (4) `copyContextBookmarkUrl` fonksiyonu menüleri kapatıp panoya yazma sonrasında `addressCopiedToast` ("✓ Adres panoya kopyalandı") yeşil onay toast bildirimini gösterecek şekilde güçlendirildi; (5) `_locales/en` ve `_locales/tr` içerisine `openInIncognitoWindow` ve `addressCopiedToast` anahtarları eklenerek %100 dil paritesi sağlandı.
+- Kabul kriteri: Menü içi yer imlerine sağ tıklandığında BookmarkFlow bağlam menüsü açılır; gizli pencerede açma seçeneği çalışır; kopyalama toast bildirimi üretir; TR/EN dil paritesi %100 korunur; `BF-UX-034` sözleşme testi geçer; `validate:all` temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 134/134 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; açılır menü yer imi bağlam menüsü, gizli pencere ve kopyalama onay bildirimleri başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-08.

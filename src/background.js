@@ -270,6 +270,20 @@ function routeMessage(message, sender) {
     return switchToMatchingTab(message.query);
   }
 
+  if (message?.type === "BF_OPEN_INCOGNITO") {
+    const url = message?.url;
+    if (!url || !isSafeBookmarkUrl(url)) {
+      return Promise.resolve({ ok: false, error: "Invalid URL" });
+    }
+    return chrome.windows.create({ incognito: true, url })
+      .then(() => ({ ok: true }))
+      .catch(() => {
+        return chrome.tabs.create({ url })
+          .then(() => ({ ok: true, fallback: true }))
+          .catch((tabErr) => ({ ok: false, error: tabErr?.message || String(tabErr) }));
+      });
+  }
+
   if (message?.type === MESSAGE_OPEN_SETTINGS || message?.type === "OPEN_SETTINGS_REQUESTED") {
     const hash = typeof message?.hash === "string" && message.hash ? `#${message.hash.replace(/^#/, "")}` : "";
     const pageUrl = chrome.runtime.getURL(`src/bookmark-maintenance.html${hash}`);

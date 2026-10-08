@@ -1625,3 +1625,60 @@ test("folder menu spring physics motion and appearance keyframes contract (BF-UX
   // Keyboard active focus ring
   assert.match(contentCss, /\.bf-menu\s+\.bf-result\.is-keyboard-active\b/u, "content.css must style .is-keyboard-active");
 });
+
+test("folder menu quick clear filter micro action contract (BF-UX-033)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  // Localization keys
+  assert.ok(enMessages.clearText?.message, "en messages must define clearText");
+  assert.ok(trMessages.clearText?.message, "tr messages must define clearText");
+
+  // Filter clear button creation and DOM binding
+  assert.match(contentJs, /bf-menu-filter-clear/u, "content.js must create .bf-menu-filter-clear button");
+  assert.match(contentJs, /filterClearBtn\.textContent\s*=\s*"×"/u, "filterClearBtn must render × character");
+  assert.match(contentJs, /t\("clearText"\)/u, "filterClearBtn must use localized clearText aria-label");
+  assert.match(contentJs, /filterClearBtn\.hidden\s*=\s*!filterInput\.value/u, "filterClearBtn visibility must reflect filterInput.value");
+
+  // Click behavior: clear text, re-filter, restore focus
+  assert.match(contentJs, /filterInput\.value\s*=\s*""[^;]*;\s*updateFilter\(\)/u, "filterClearBtn click must clear input and re-filter");
+  assert.match(contentJs, /filterInput\.focus\(\)/u, "filterClearBtn click must return focus to input");
+
+  // CSS styling: absolute position, padding clearance, hover and focus-visible
+  assert.match(contentCss, /\.bf-menu-filter\s*\{[^}]*padding:\s*0\s+28px\s+0\s+10px/u, "content.css must pad .bf-menu-filter to prevent text overlap with clear button");
+  assert.match(contentCss, /\.bf-menu-filter-clear\s*\{[^}]*position:\s*absolute/u, "content.css must position .bf-menu-filter-clear absolutely");
+  assert.match(contentCss, /\.bf-menu-filter-clear\s*\{[^}]*right:\s*6px/u, "content.css must position .bf-menu-filter-clear at right: 6px");
+  assert.match(contentCss, /\.bf-menu-filter-clear:focus-visible/u, "content.css must provide visible focus outline for .bf-menu-filter-clear");
+});
+
+test("folder menu item right click context menu and incognito/copy action contract (BF-UX-034)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  // Localization keys
+  assert.ok(enMessages.openInIncognitoWindow?.message, "en messages must define openInIncognitoWindow");
+  assert.ok(trMessages.openInIncognitoWindow?.message, "tr messages must define openInIncognitoWindow");
+  assert.ok(enMessages.addressCopiedToast?.message, "en messages must define addressCopiedToast");
+  assert.ok(trMessages.addressCopiedToast?.message, "tr messages must define addressCopiedToast");
+
+  // Folder menu item right-click context menu attachment
+  assert.match(contentJs, /link\.addEventListener\("contextmenu",\s*\(event\)\s*=>/u, "createFolderMenuLink must attach contextmenu event");
+  assert.match(contentJs, /openBookmarkContextMenu\(node,\s*event\.clientX,\s*event\.clientY\)/u, "folder menu link contextmenu must open context menu with coords");
+
+  // Context menu incognito option
+  assert.match(contentJs, /createContextMenuButton\("open-bookmark-incognito",\s*t\("openInIncognitoWindow"\)\)/u, "openBookmarkContextMenu must include incognito button");
+  assert.match(contentJs, /action === "open-bookmark-incognito"/u, "handleAction must route open-bookmark-incognito");
+  assert.match(contentJs, /function openContextBookmarkInIncognito\s*\(/u, "content.js must define openContextBookmarkInIncognito");
+  assert.match(contentJs, /type:\s*"BF_OPEN_INCOGNITO"/u, "openContextBookmarkInIncognito must send BF_OPEN_INCOGNITO message");
+
+  // Background incognito routing
+  assert.match(backgroundJs, /message\?\.type === "BF_OPEN_INCOGNITO"/u, "background.js must handle BF_OPEN_INCOGNITO");
+  assert.match(backgroundJs, /chrome\.windows\.create\(\{\s*incognito:\s*true/u, "background.js must create incognito window");
+
+  // Copy address toast feedback
+  assert.match(contentJs, /showContentToastNotification\(t\("addressCopiedToast"\)/u, "copyContextBookmarkUrl must show addressCopiedToast notification");
+});

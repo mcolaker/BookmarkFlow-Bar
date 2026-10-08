@@ -1957,6 +1957,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    if (action === "open-bookmark-incognito") {
+      openContextBookmarkInIncognito();
+      return;
+    }
+
     if (action === "copy-bookmark-url") {
       copyContextBookmarkUrl();
       return;
@@ -2135,7 +2140,23 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function openContextBookmarkInNewTab() {
     const url = contextMenuState?.url;
     closeContextMenu();
+    closeFolderMenu();
     if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  }
+
+  function openContextBookmarkInIncognito() {
+    const url = contextMenuState?.url;
+    closeContextMenu();
+    closeFolderMenu();
+    if (url && hasExtensionContext()) {
+      try {
+        chrome.runtime.sendMessage({ type: "BF_OPEN_INCOGNITO", url }).catch(() => {});
+      } catch {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    } else if (url) {
       window.open(url, "_blank", "noopener,noreferrer");
     }
   }
@@ -2143,8 +2164,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function copyContextBookmarkUrl() {
     const url = contextMenuState?.url;
     closeContextMenu();
+    closeFolderMenu();
     if (url) {
-      navigator.clipboard?.writeText(url).catch(() => {});
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          showContentToastNotification(t("addressCopiedToast") || "✓ Adres panoya kopyalandı");
+        }).catch(() => {
+          showContentToastNotification(t("addressCopiedToast") || "✓ Adres panoya kopyalandı");
+        });
+      } else {
+        showContentToastNotification(t("addressCopiedToast") || "✓ Adres panoya kopyalandı");
+      }
     }
   }
 
@@ -3422,11 +3452,20 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       filterInput.className = "bf-menu-filter";
       filterInput.placeholder = t("filterInFolderPlaceholder") || "Filter bookmarks…";
       filterInput.setAttribute("aria-label", t("filterInFolderPlaceholder") || "Filter bookmarks…");
-      filterWrap.append(filterInput);
+
+      const filterClearBtn = document.createElement("button");
+      filterClearBtn.type = "button";
+      filterClearBtn.className = "bf-menu-filter-clear";
+      filterClearBtn.textContent = "×";
+      filterClearBtn.setAttribute("aria-label", t("clearText") || "Clear text");
+      filterClearBtn.hidden = true;
+
+      filterWrap.append(filterInput, filterClearBtn);
       menu.append(filterWrap);
 
-      filterInput.addEventListener("input", () => {
+      const updateFilter = () => {
         const query = filterInput.value.trim().toLowerCase();
+        filterClearBtn.hidden = !filterInput.value;
         let matchCount = 0;
         const results = menu.querySelectorAll(".bf-result");
         results.forEach((el) => {
@@ -3444,6 +3483,16 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
           emptyFilter.hidden = matchCount > 0 || !query;
         }
         headerCount.textContent = query ? `${matchCount}/${entries.length}` : `${entries.length}`;
+      };
+
+      filterInput.addEventListener("input", updateFilter);
+
+      filterClearBtn.addEventListener("click", () => {
+        filterInput.value = "";
+        updateFilter();
+        try {
+          filterInput.focus();
+        } catch {}
       });
     }
 
@@ -3744,6 +3793,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (node.url) {
       menu.append(
         createContextMenuButton("open-bookmark-tab", t("openInNewTab")),
+        createContextMenuButton("open-bookmark-incognito", t("openInIncognitoWindow")),
         createContextMenuButton("copy-bookmark-url", t("copyAddress")),
         createContextMenuButton("rename-bookmark", t("renameBookmark")),
         createContextMenuButton("edit-bookmark-tags", t("editTags"))
@@ -4354,6 +4404,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     markFolderMenuItem(link, entry);
     link.addEventListener("click", () => {
       closeFolderMenu();
+    });
+    link.addEventListener("contextmenu", (event) => {
+      const node = findNodeById(getBookmarkTreeRoot(), entry.id);
+      if (node) {
+        event.preventDefault();
+        event.stopPropagation();
+        openBookmarkContextMenu(node, event.clientX, event.clientY);
+      }
     });
     link.addEventListener("mouseenter", () => {
       const menu = shadow?.querySelector(".bf-menu");
