@@ -2,6 +2,10 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-08] — Kural-Bazlı Tetikleyiciler ve Kural-Ötesi Tam Otonom MCP Model İnisiyatifi (BF-GOV-022 / Karar 29)
+- **Konu ve Alan Bazlı Otonom Tetikleyiciler**: Chrome DevTools, Modern Web Guidance, Google Developer Knowledge, Context7, Gemini API/Agentic Video, Live Chrome Pilot ve Google Workspace için proje ihtiyaçlarına özgü operasyonel tetikleme alanları `AGENTS.md` P0-20-A ve `browser_extension.md` altında kesinleştirildi.
+- **Kural-Ötesi Tam Model Karar İnisiyatifi (Beyond-Rules Autonomous Discretion)**: Yapay zeka modeline, listelenen alanların ve önceden tanımlanmış kuralların ötesinde, kendi teknik uzmanlığıyla gerekli veya yararlı gördüğü her an dilediği MCP aracını kullanıcı onayı beklemeksizin tam otonom çalıştırma yetkisi `AGENTS.md` P0-20-B altında verildi.
+
 ## [2026-10-08] — Tam Otonom Geliştirici Araçları/MCP Ekosistemi, CI Raw-Key Kapısı ve Canlı Chrome CDP Pilotu (BF-GOV-021 / Karar 28)
 - **Tam Otonom MCP & Geliştirici Araçları İnisiyatifi**: Modern Web Guidance, Chrome Extensions, Chrome DevTools MCP, Google Developer Knowledge, Context7, Sequential Thinking, Codebase Memory, Gemini API & Agentic Video ve Google Workspace (Docs/Sheets) araçlarının model tarafından kullanıcıdan açık onay beklemeksizin proaktif ve tam otonom çağrılması `AGENTS.md` P0-20 kuralı ve Task Router tablosunda yetkilendirildi.
 - **GitHub Actions Bağımsız Raw-Key Kapısı**: `.github/workflows/validate.yml` CI iş akışına `Run raw-key & mojibake gate` adımı eklenerek PR aşamasında çeviri anahtarı bütünlüğü ve karakter kodlaması bağımsız kontrol adımı olarak ayrıştırıldı.

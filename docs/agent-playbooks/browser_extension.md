@@ -93,9 +93,19 @@ Tarayıcı operasyonları iki ayrı kanala ayrılır:
 
 ---
 
-## 10. Tam Otonom MCP ve Geliştirici Araçları Ekosistem Rehberi (BF-GOV-021)
+## 10. Tam Otonom MCP Ekosistemi ve Model Karar İnisiyatifi Rehberi (BF-GOV-021 & BF-GOV-022 / Karar 29)
 
-1. **Modern Web Guidance & Chrome Extensions**: Modern tarayıcı standartları, MV3 service worker yönetimi, declarativeNetRequest ve CSS container queries / `:has()` kullanımı için model tarafından otonom çağrılır.
-2. **Chrome DevTools MCP & a11y-debugging**: Sayfa içi çubuk kapalı Shadow DOM incelemesi, CSS taşmaları, kontrast ve ARIA odak halkası denetimlerinde otonom kullanılır.
-3. **Google Developer Knowledge & Context7**: Chrome Extension API ve Chromium spesifikasyonlarının resmi doküman sorgulamalarında anında devreye sokulur.
-4. **Live Chrome Pilot (`scripts/live-chrome-pilot.mjs`)**: Kullanıcının `chrome.exe --remote-debugging-port=9222` ile açık olan çalışan Chrome oturumunu denetler; sekmeleri (Store Console, GitHub, X, LinkedIn) analiz eder.
+1. **Arayüz, Performans ve Kapalı Shadow DOM**:
+   - `Chrome DevTools MCP` ve `a11y-debugging`: Sayfa içi çubuk kapalı Shadow DOM izolasyonu, CSS taşmaları, kontrast, ARIA ve LCP render profillemesinde otonom çağrılır.
+2. **Manifest V3 ve Tarayıcı API Standartları**:
+   - `Modern Web Guidance` & `Chrome Extensions`: Service worker yaşam döngüsü, depolama kotaları (`chrome.storage.local`), modern CSS (`:has()`, container queries) ve güvenli DOM manipülasyonunda devreye girer.
+3. **Resmi Dokümantasyon ve Standartlar**:
+   - `Google Developer Knowledge` & `Context7`: Chrome Extensions API referansları, Chromium kaynak kod detayları ve W3C spesifikasyonlarının taranmasında kullanılır.
+4. **Multimodal Akıcılık ve Medya Kalitesi**:
+   - `Gemini API` & `Agentic Video Motoru`: `npm run qa:motion` ve `npm run qa:media` süreçlerinde animasyon fiziği ve sıfır jank denetimini yürütür.
+5. **Canlı Kullanıcı Oturumu ve Sekme Denetimi**:
+   - `Live Chrome Pilot` (`scripts/live-chrome-pilot.mjs` / `npm run pilot:chrome`): Kullanıcının port 9222 üzerindeki canlı çalışan Chrome profilini denetler.
+6. **Sürüm Dokümantasyonu ve Raporlama**:
+   - `Google Workspace (Docs, Sheets, Drive)`: Lansman kitleri, sürüm notları ve kullanıcı onaylı yer imi sağlık/analiz raporu şablonlarını yönetir (P0-1 sıfır-bulut kuralı korunarak).
+7. **Kural-Ötesi Tam Model Karar İnisiyatifi (Beyond-Rules Autonomous Discretion)**:
+   - Model, yukarıdaki senaryolarla sınırlı değildir. Kod kalitesi, optimizasyon, güvenlik veya mimari ihtiyaç gördüğü her an, önceden tanımlanmış bir kural olmasa dahi kendi teknik uzmanlığıyla dilediği MCP aracını kullanıcıya sormadan otonom çalıştırabilir.
