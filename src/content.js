@@ -66,6 +66,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let shadow = null;
   let resizeObserver = null;
   let activeFolderId = "";
+  let lastFolderAnchor = null;
   let searchQuery = "";
   let isExpanded = false;
   let commandQuery = "";
@@ -1192,6 +1193,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       app.querySelector(".bf-add-url")?.classList.remove("is-invalid-url");
     }));
     app.querySelector(".bf-add-panel")?.addEventListener("submit", createSafeEventHandler(handleAddBookmarkSubmit));
+
+    const folderMenu = app.querySelector(".bf-menu");
+    folderMenu?.addEventListener("keydown", createSafeEventHandler(handleFolderMenuKeydown));
   }
 
   function handleBookmarkPointerDown(event) {
@@ -3375,8 +3379,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    lastFolderAnchor = anchor;
     const entries = getFolderMenuEntries(folder);
     menu.replaceChildren();
+
+    const isRailAnchor = Boolean(anchor.closest(".bf-folder-rail"));
+    const railOnRight = Boolean(anchor.closest(".folder-rail-right"));
+    menu.classList.toggle("is-rail-right", railOnRight);
 
     const header = document.createElement("div");
     header.className = "bf-menu-header";
@@ -3403,6 +3412,41 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     header.append(headerInfo, headerCount);
     menu.append(header);
 
+    let filterInput = null;
+    if (entries.length >= 15) {
+      const filterWrap = document.createElement("div");
+      filterWrap.className = "bf-menu-filter-wrap";
+
+      filterInput = document.createElement("input");
+      filterInput.type = "text";
+      filterInput.className = "bf-menu-filter";
+      filterInput.placeholder = t("filterInFolderPlaceholder") || "Filter bookmarks…";
+      filterInput.setAttribute("aria-label", t("filterInFolderPlaceholder") || "Filter bookmarks…");
+      filterWrap.append(filterInput);
+      menu.append(filterWrap);
+
+      filterInput.addEventListener("input", () => {
+        const query = filterInput.value.trim().toLowerCase();
+        let matchCount = 0;
+        const results = menu.querySelectorAll(".bf-result");
+        results.forEach((el) => {
+          const title = (el.querySelector(".bf-result-title")?.textContent || "").toLowerCase();
+          const url = (el.href || "").toLowerCase();
+          const tags = Array.from(el.querySelectorAll(".bf-tag-pill")).map((p) => p.textContent.toLowerCase()).join(" ");
+          const matches = !query || title.includes(query) || url.includes(query) || tags.includes(query);
+          el.hidden = !matches;
+          if (matches) {
+            matchCount++;
+          }
+        });
+        const emptyFilter = menu.querySelector(".bf-menu-filter-empty");
+        if (emptyFilter) {
+          emptyFilter.hidden = matchCount > 0 || !query;
+        }
+        headerCount.textContent = query ? `${matchCount}/${entries.length}` : `${entries.length}`;
+      });
+    }
+
     if (!entries.length) {
       const empty = document.createElement("div");
       empty.className = "bf-empty";
@@ -3412,12 +3456,18 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       entries.slice(0, 120).forEach((entry) => {
         menu.append(createFolderMenuLink(entry));
       });
+
+      if (entries.length >= 15) {
+        const emptyFilter = document.createElement("div");
+        emptyFilter.className = "bf-empty bf-menu-filter-empty";
+        emptyFilter.textContent = t("noMatchingBookmarksInFolder") || "No matching bookmarks found.";
+        emptyFilter.hidden = true;
+        menu.append(emptyFilter);
+      }
     }
 
     const anchorRect = anchor.getBoundingClientRect();
     const appRect = shadow?.querySelector(".bf-app")?.getBoundingClientRect() || host?.getBoundingClientRect() || { left: 0, top: 0, bottom: 0 };
-    const isRailAnchor = Boolean(anchor.closest(".bf-folder-rail"));
-    const railOnRight = Boolean(anchor.closest(".folder-rail-right"));
     const railRect = isRailAnchor ? shadow?.querySelector(".bf-folder-rail")?.getBoundingClientRect() : null;
     const menuWidth = Math.min(420, window.innerWidth - 20);
     const left = isRailAnchor
@@ -3438,16 +3488,158 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
     menu.hidden = false;
     updateFolderRailSelection();
+
+    if (filterInput) {
+      requestAnimationFrame(() => {
+        try {
+          filterInput.focus();
+        } catch {}
+      });
+    }
   }
 
-  function closeFolderMenu() {
+  function closeFolderMenu({ restoreFocus = false } = {}) {
     activeFolderId = "";
     const menu = shadow?.querySelector(".bf-menu");
     if (menu) {
       menu.hidden = true;
+      menu.classList.remove("is-rail-right");
       menu.replaceChildren();
     }
     updateFolderRailSelection();
+    if (restoreFocus && lastFolderAnchor) {
+      try {
+        lastFolderAnchor.focus();
+      } catch {}
+    }
+  }
+
+  function handleFolderMenuKeydown(event) {
+    const menu = shadow?.querySelector(".bf-menu");
+    if (!menu || menu.hidden || !activeFolderId) {
+      return false;
+    }
+
+    const filterInput = menu.querySelector(".bf-menu-filter");
+    const isFilterFocused = filterInput && (shadow?.activeElement === filterInput || document.activeElement === filterInput);
+    const visibleResults = Array.from(menu.querySelectorAll(".bf-result:not([hidden])"));
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      if (filterInput && filterInput.value) {
+        filterInput.value = "";
+        filterInput.dispatchEvent(new Event("input"));
+        return true;
+      }
+      closeFolderMenu({ restoreFocus: true });
+      return true;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!visibleResults.length) {
+        return true;
+      }
+
+      let activeIndex = visibleResults.findIndex(
+        (el) => el === shadow?.activeElement || el.classList.contains("is-keyboard-active")
+      );
+
+      let nextIndex = 0;
+      if (isFilterFocused || activeIndex === -1) {
+        nextIndex = 0;
+      } else {
+        nextIndex = (activeIndex + 1) % visibleResults.length;
+      }
+
+      visibleResults.forEach((el, idx) => {
+        el.classList.toggle("is-keyboard-active", idx === nextIndex);
+      });
+      visibleResults[nextIndex]?.focus();
+      visibleResults[nextIndex]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      return true;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!visibleResults.length) {
+        return true;
+      }
+
+      let activeIndex = visibleResults.findIndex(
+        (el) => el === shadow?.activeElement || el.classList.contains("is-keyboard-active")
+      );
+
+      if (activeIndex <= 0) {
+        if (filterInput) {
+          visibleResults.forEach((el) => el.classList.remove("is-keyboard-active"));
+          filterInput.focus();
+          return true;
+        }
+        activeIndex = visibleResults.length;
+      }
+
+      let prevIndex = activeIndex - 1;
+      if (prevIndex < 0) {
+        prevIndex = visibleResults.length - 1;
+      }
+
+      visibleResults.forEach((el, idx) => {
+        el.classList.toggle("is-keyboard-active", idx === prevIndex);
+      });
+      visibleResults[prevIndex]?.focus();
+      visibleResults[prevIndex]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      return true;
+    }
+
+    if (event.key === "Enter") {
+      if (isFilterFocused && visibleResults.length > 0) {
+        event.preventDefault();
+        event.stopPropagation();
+        visibleResults[0].click();
+        return true;
+      }
+      const activeItem = visibleResults.find(
+        (el) => el === shadow?.activeElement || el.classList.contains("is-keyboard-active")
+      );
+      if (activeItem) {
+        event.preventDefault();
+        event.stopPropagation();
+        activeItem.click();
+        return true;
+      }
+    }
+
+    if (event.key === "Tab") {
+      if (!visibleResults.length) return false;
+      const activeIndex = visibleResults.findIndex((el) => el === shadow?.activeElement);
+      if (isFilterFocused && !event.shiftKey) {
+        event.preventDefault();
+        event.stopPropagation();
+        visibleResults[0]?.focus();
+        visibleResults.forEach((el, idx) => el.classList.toggle("is-keyboard-active", idx === 0));
+        return true;
+      }
+      if (activeIndex === 0 && event.shiftKey && filterInput) {
+        event.preventDefault();
+        event.stopPropagation();
+        visibleResults.forEach((el) => el.classList.remove("is-keyboard-active"));
+        filterInput.focus();
+        return true;
+      }
+      if (activeIndex === visibleResults.length - 1 && !event.shiftKey && filterInput) {
+        event.preventDefault();
+        event.stopPropagation();
+        visibleResults.forEach((el) => el.classList.remove("is-keyboard-active"));
+        filterInput.focus();
+        return true;
+      }
+    }
+
+    return false;
   }
 
   function updateFolderRailSelection() {
@@ -4160,6 +4352,15 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function createFolderMenuLink(entry) {
     const link = createResultLink(entry);
     markFolderMenuItem(link, entry);
+    link.addEventListener("click", () => {
+      closeFolderMenu();
+    });
+    link.addEventListener("mouseenter", () => {
+      const menu = shadow?.querySelector(".bf-menu");
+      menu?.querySelectorAll(".bf-result.is-keyboard-active")?.forEach((el) => {
+        el.classList.remove("is-keyboard-active");
+      });
+    });
     return link;
   }
 
@@ -4965,13 +5166,18 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       }
 
       closeCommandPalette();
-      closeFolderMenu();
+      closeFolderMenu({ restoreFocus: true });
       closeContextMenu();
       closeAddBookmarkDialog();
       const panel = shadow?.querySelector(".bf-results");
       if (panel) {
         panel.hidden = true;
       }
+      return;
+    }
+
+    if (!activeModalPanel && handleFolderMenuKeydown(event)) {
+      return;
     }
   }
 

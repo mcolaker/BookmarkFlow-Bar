@@ -1582,3 +1582,46 @@ test("turquoise glow clock greeting and folder merge button contract (BF-UX-029)
   assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+#merge\.primary:active:not\(:disabled\)/u, "bookmark-maintenance.css must style #merge.primary active");
   assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+button:focus-visible/u, "bookmark-maintenance.css must style button:focus-visible for turquoise-glow");
 });
+
+test("folder menu keyboard navigation, escape restore focus, and in-menu filter contract (BF-UX-031)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+
+  // Keyboard navigation handler and keys
+  assert.match(contentJs, /function handleFolderMenuKeydown\s*\(/u, "content.js must define handleFolderMenuKeydown");
+  assert.match(contentJs, /event\.key === "ArrowDown"/u, "handleFolderMenuKeydown must handle ArrowDown");
+  assert.match(contentJs, /event\.key === "ArrowUp"/u, "handleFolderMenuKeydown must handle ArrowUp");
+  assert.match(contentJs, /event\.key === "Enter"/u, "handleFolderMenuKeydown must handle Enter");
+  assert.match(contentJs, /event\.key === "Escape"/u, "handleFolderMenuKeydown must handle Escape");
+
+  // In-menu filter input when folder has >= 15 items
+  assert.match(contentJs, /entries\.length >= 15/u, "openFolderMenu must render filter input for folders with >= 15 bookmarks");
+  assert.match(contentJs, /bf-menu-filter/u, "openFolderMenu must create .bf-menu-filter input");
+  assert.match(contentJs, /filterInFolderPlaceholder/u, "openFolderMenu must use localized placeholder");
+
+  // Restore focus to folder anchor on close
+  assert.match(contentJs, /lastFolderAnchor\s*=\s*anchor/u, "openFolderMenu must save lastFolderAnchor");
+  assert.match(contentJs, /lastFolderAnchor\.focus\(\)/u, "closeFolderMenu must restore focus to lastFolderAnchor");
+
+  // Mouse hover resets keyboard active indicator
+  assert.match(contentJs, /el\.classList\.remove\("is-keyboard-active"\)/u, "createFolderMenuLink must clear keyboard active on mouseenter");
+});
+
+test("folder menu spring physics motion and appearance keyframes contract (BF-UX-032)", () => {
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+
+  // Spring physics keyframes and cubic-bezier motion
+  assert.match(contentCss, /@keyframes bfMenuAppear\b/u, "content.css must define bfMenuAppear keyframe");
+  assert.match(contentCss, /@keyframes bfMenuAppearBottom\b/u, "content.css must define bfMenuAppearBottom keyframe");
+  assert.match(contentCss, /cubic-bezier\(0\.16,\s*1,\s*0\.3,\s*1\)/u, "content.css must use spring cubic-bezier curve");
+  assert.match(contentCss, /\.bf-menu:not\(\[hidden\]\)\s*\{[^}]*animation:\s*bfMenuAppear/u, "content.css must animate .bf-menu on open");
+  assert.match(contentCss, /:host\(\.bf-bottom\)\s+\.bf-menu:not\(\[hidden\]\)\s*\{[^}]*animation:\s*bfMenuAppearBottom/u, "content.css must animate bottom menu");
+
+  // Filter input and empty state styles
+  assert.match(contentCss, /\.bf-menu-filter-wrap\b/u, "content.css must style .bf-menu-filter-wrap");
+  assert.match(contentCss, /\.bf-menu-filter\b/u, "content.css must style .bf-menu-filter");
+  assert.match(contentCss, /\.bf-menu-filter:focus\b/u, "content.css must style .bf-menu-filter:focus");
+  assert.match(contentCss, /\.bf-menu-filter-empty\b/u, "content.css must style .bf-menu-filter-empty");
+
+  // Keyboard active focus ring
+  assert.match(contentCss, /\.bf-menu\s+\.bf-result\.is-keyboard-active\b/u, "content.css must style .is-keyboard-active");
+});

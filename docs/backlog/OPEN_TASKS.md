@@ -796,3 +796,21 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: 130/130 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
 - Sonraki adım: Yok; açılır klasör menüsü metin çakışması kökten giderilmiş ve görsel hiyerarşi kusursuzlaştırılmıştır.
 - Son güncelleme: 2026-10-08.
+
+## BF-UX-031 - Açılır Klasör Menüsünde Tam Klavye Dolaşımı ve Odak Döngüsünü Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Açılır klasör menüsü (`.bf-menu`) açıkken kullanıcıların klavye üzerinden yer imleri arasında gezinme ve seçim yapma desteği bulunmuyordu. `src/content.js` içerisine `handleFolderMenuKeydown` fonksiyonu entegre edildi: (1) `ArrowDown` ve `ArrowUp` tuşları ile görünür yer imleri arasında akıcı ve döngüsel geçiş; (2) Aktif öğenin `.is-keyboard-active` ve odak halkası (`outline: 2px solid var(--bf-theme-accent)`) ile vurgulanması; (3) `Enter` tuşuna basıldığında seçili yer iminin açılması; (4) `Tab` ve `Shift+Tab` ile filtre ve liste arasında döngüsel dolaşım; (5) `Escape` tuşuna basıldığında menünün kapanarak odağın açılış butonuna (`lastFolderAnchor`) otomatik geri yüklenmesi sağlandı.
+- Kabul kriteri: `handleFolderMenuKeydown` ArrowDown, ArrowUp, Enter, Tab ve Escape tuşlarını hatasız yönetir; `closeFolderMenu({ restoreFocus: true })` son odaklanılan buton hedefini geri yükler; `scripts/ui-behavior-contract.test.mjs` içerisinde `BF-UX-031` sözleşme testi yeşil geçer; tüm testler (132/132) sıfır hatayla çalışır.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 132/132 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` ve `git diff --check` temizdir.
+- Sonraki adım: Yok; açılır klasör menüsü tam klavye erişilebilirlik standardına kavuşturulmuştur.
+- Son güncelleme: 2026-10-08.
+
+## BF-UX-032 - Kalabalık Klasörler İçin Canlı Filtreleme ve Yay Fiziği Açılış Animasyonunu Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: 15 veya daha fazla yer imi içeren büyük klasörlerde kullanıcının fareyle uzun listeyi kaydırmak zorunda kalması ve menünün aniden ekranda belirmesi görsel akıcılığı düşürüyordu. (1) 15 veya daha fazla yer imi olan klasörlerde otomatik beliren 28px kompakt canlı filtre kutucuğu (`.bf-menu-filter`) eklendi; yer imi başlığı, URL'si ve akıllı etiketler üzerinde anlık arama desteği sunuldu; başlık sayaç rozeti canlı filtrelenen/toplam oranını (`3/24`) gösterecek şekilde dinamikleştirildi; (2) `_locales/en` ve `_locales/tr` içerisine `filterInFolderPlaceholder` ve `noMatchingBookmarksInFolder` anahtarları eklenerek %100 dil paritesi korundu; (3) `src/content.css` içerisine `cubic-bezier(0.16, 1, 0.3, 1)` mikro yay fiziği (`@keyframes bfMenuAppear`, `@keyframes bfMenuAppearBottom`) ile üst/alt çubuk ve sağ/sol ray konumlarına duyarlı akıcı açılış animasyonu entegre edildi.
+- Kabul kriteri: 15+ yer imli klasörlerde filtre kutucuğu otomatik belirir ve anlık filtreleme yapar; TR/EN paritesi %100 korunur; CSS'te `bfMenuAppear` ve `bfMenuAppearBottom` yay keyframe'leri aktiftir; `scripts/ui-behavior-contract.test.mjs` `BF-UX-032` sözleşme testi geçer; `validate:all` temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 132/132 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; kalabalık klasör filtreleme ve akıcı yay fiziği açılış animasyonu başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-08.

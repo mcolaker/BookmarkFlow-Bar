@@ -84,6 +84,8 @@
   "collapse": { "message": "Collapse" },
   "noFolders": { "message": "No folders yet." },
   "noBookmarksInFolder": { "message": "This folder has no bookmarks." },
+  "filterInFolderPlaceholder": { "message": "Filter bookmarks…" },
+  "noMatchingBookmarksInFolder": { "message": "No matching bookmarks found." },
   "noResults": { "message": "No results." },
   "searchEmptyPrivacy": { "message": "Start typing to search. Bookmarks stay hidden while the field is empty." },
   "enterAddressToAdd": { "message": "Enter the address you want to add." },

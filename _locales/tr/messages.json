@@ -84,6 +84,8 @@
   "collapse": { "message": "Daralt" },
   "noFolders": { "message": "Henüz klasör yok." },
   "noBookmarksInFolder": { "message": "Bu klasörde yer imi yok." },
+  "filterInFolderPlaceholder": { "message": "Yer imlerinde filtrele…" },
+  "noMatchingBookmarksInFolder": { "message": "Eşleşen yer imi bulunamadı." },
   "noResults": { "message": "Sonuç yok." },
   "searchEmptyPrivacy": { "message": "Aramak için yazmaya başlayın. Alan boşken yer imleri gizli kalır." },
   "enterAddressToAdd": { "message": "Eklemek istediğiniz adresi yazın." },
