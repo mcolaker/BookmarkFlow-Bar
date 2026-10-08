@@ -1233,6 +1233,14 @@
   outline-offset: -1px;
 }
 
+.bf-highlight {
+  background: var(--bf-theme-accent-glow, rgba(34, 211, 238, 0.25));
+  color: var(--bf-theme-accent, #22d3ee);
+  font-weight: 600;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
 .bf-command-action-chips {
   display: inline-flex;
   flex-wrap: wrap;
@@ -2151,5 +2159,10 @@
     background: Highlight;
     box-shadow: none;
     border-left: 2px solid Highlight;
+  }
+
+  .bf-highlight {
+    background: Highlight;
+    color: HighlightText;
   }
 }

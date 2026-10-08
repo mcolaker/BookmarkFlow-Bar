@@ -3402,6 +3402,40 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
   }
 
+  function highlightMatchingText(element, text, query) {
+    element.replaceChildren();
+    if (!query) {
+      element.textContent = text;
+      return;
+    }
+    const lowerText = text.toLowerCase();
+    const lowerQuery = query.toLowerCase();
+    let startIndex = 0;
+    let matchIndex = lowerText.indexOf(lowerQuery, startIndex);
+
+    if (matchIndex === -1) {
+      element.textContent = text;
+      return;
+    }
+
+    while (matchIndex !== -1) {
+      if (matchIndex > startIndex) {
+        element.append(document.createTextNode(text.slice(startIndex, matchIndex)));
+      }
+      const mark = document.createElement("mark");
+      mark.className = "bf-highlight";
+      mark.textContent = text.slice(matchIndex, matchIndex + query.length);
+      element.append(mark);
+
+      startIndex = matchIndex + query.length;
+      matchIndex = lowerText.indexOf(lowerQuery, startIndex);
+    }
+
+    if (startIndex < text.length) {
+      element.append(document.createTextNode(text.slice(startIndex)));
+    }
+  }
+
   function openFolderMenu(folderId, anchor) {
     const menu = shadow.querySelector(".bf-menu");
     const folder = findNodeById(getBookmarkTreeRoot(), folderId);
@@ -3469,13 +3503,20 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         let matchCount = 0;
         const results = menu.querySelectorAll(".bf-result");
         results.forEach((el) => {
-          const title = (el.querySelector(".bf-result-title")?.textContent || "").toLowerCase();
+          const titleEl = el.querySelector(".bf-result-title");
+          const rawTitle = titleEl?.dataset.rawTitle || titleEl?.textContent || "";
+          const title = rawTitle.toLowerCase();
           const url = (el.href || "").toLowerCase();
           const tags = Array.from(el.querySelectorAll(".bf-tag-pill")).map((p) => p.textContent.toLowerCase()).join(" ");
           const matches = !query || title.includes(query) || url.includes(query) || tags.includes(query);
           el.hidden = !matches;
           if (matches) {
             matchCount++;
+            if (titleEl) {
+              highlightMatchingText(titleEl, rawTitle, query);
+            }
+          } else if (titleEl) {
+            highlightMatchingText(titleEl, rawTitle, "");
           }
         });
         const emptyFilter = menu.querySelector(".bf-menu-filter-empty");
@@ -4405,6 +4446,26 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     link.addEventListener("click", () => {
       closeFolderMenu();
     });
+    link.addEventListener("auxclick", (event) => {
+      if (event.button === 1 && entry.url) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (hasExtensionContext()) {
+          try {
+            chrome.runtime.sendMessage({
+              type: "BF_OPEN_BACKGROUND_TAB",
+              url: entry.url
+            }).catch(() => {
+              window.open(entry.url, "_blank", "noopener,noreferrer");
+            });
+          } catch {
+            window.open(entry.url, "_blank", "noopener,noreferrer");
+          }
+        } else {
+          window.open(entry.url, "_blank", "noopener,noreferrer");
+        }
+      }
+    });
     link.addEventListener("contextmenu", (event) => {
       const node = findNodeById(getBookmarkTreeRoot(), entry.id);
       if (node) {
@@ -4750,7 +4811,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     const title = document.createElement("span");
     title.className = "bf-result-title";
-    title.textContent = entry.title || getHostname(entry.url);
+    const rawTitle = entry.title || getHostname(entry.url);
+    title.textContent = rawTitle;
+    title.dataset.rawTitle = rawTitle;
 
     const path = document.createElement("span");
     path.className = "bf-result-path";

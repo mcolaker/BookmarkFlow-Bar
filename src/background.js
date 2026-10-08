@@ -284,6 +284,16 @@ function routeMessage(message, sender) {
       });
   }
 
+  if (message?.type === "BF_OPEN_BACKGROUND_TAB") {
+    const url = message?.url;
+    if (!url || !isSafeBookmarkUrl(url)) {
+      return Promise.resolve({ ok: false, error: "Invalid URL" });
+    }
+    return chrome.tabs.create({ url, active: false })
+      .then(() => ({ ok: true }))
+      .catch((err) => ({ ok: false, error: err?.message || String(err) }));
+  }
+
   if (message?.type === MESSAGE_OPEN_SETTINGS || message?.type === "OPEN_SETTINGS_REQUESTED") {
     const hash = typeof message?.hash === "string" && message.hash ? `#${message.hash.replace(/^#/, "")}` : "";
     const pageUrl = chrome.runtime.getURL(`src/bookmark-maintenance.html${hash}`);

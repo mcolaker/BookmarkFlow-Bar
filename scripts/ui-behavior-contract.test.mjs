@@ -1682,3 +1682,36 @@ test("folder menu item right click context menu and incognito/copy action contra
   // Copy address toast feedback
   assert.match(contentJs, /showContentToastNotification\(t\("addressCopiedToast"\)/u, "copyContextBookmarkUrl must show addressCopiedToast notification");
 });
+
+test("folder menu auxclick middle-click background tab contract (BF-UX-035)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+
+  // Middle-click auxclick listener on folder menu link
+  assert.match(contentJs, /link\.addEventListener\("auxclick",\s*\(event\)\s*=>/u, "createFolderMenuLink must attach auxclick listener");
+  assert.match(contentJs, /event\.button === 1/u, "auxclick listener must check for middle mouse button (button === 1)");
+  assert.match(contentJs, /type:\s*"BF_OPEN_BACKGROUND_TAB"/u, "auxclick must dispatch BF_OPEN_BACKGROUND_TAB message");
+
+  // Background message handler
+  assert.match(backgroundJs, /message\?\.type === "BF_OPEN_BACKGROUND_TAB"/u, "background.js must handle BF_OPEN_BACKGROUND_TAB");
+  assert.match(backgroundJs, /chrome\.tabs\.create\(\{\s*url,\s*active:\s*false\s*\}\)/u, "background.js must create tab with active: false for background opening");
+});
+
+test("folder menu filter matching substring highlight contract (BF-UX-036)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+
+  // Helper and safe DOM highlight implementation
+  assert.match(contentJs, /function highlightMatchingText\s*\(/u, "content.js must define highlightMatchingText");
+  assert.match(contentJs, /document\.createElement\("mark"\)/u, "highlightMatchingText must create safe <mark> element");
+  assert.match(contentJs, /mark\.className\s*=\s*"bf-highlight"/u, "highlight mark element must have bf-highlight class");
+
+  // Filter integration and raw title storage
+  assert.match(contentJs, /highlightMatchingText\(titleEl,\s*rawTitle,\s*query\)/u, "updateFilter must call highlightMatchingText with query for matches");
+  assert.match(contentJs, /title\.dataset\.rawTitle\s*=\s*rawTitle/u, "createResultLink must preserve original title in dataset.rawTitle");
+
+  // CSS styling
+  assert.match(contentCss, /\.bf-highlight\s*\{[^}]*background:\s*var\(--bf-theme-accent-glow/u, "content.css must style .bf-highlight background with accent glow");
+  assert.match(contentCss, /\.bf-highlight\s*\{[^}]*color:\s*var\(--bf-theme-accent/u, "content.css must style .bf-highlight text color with accent");
+  assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-highlight\s*\{[^}]*background:\s*Highlight/u, "content.css must style .bf-highlight in forced-colors mode");
+});

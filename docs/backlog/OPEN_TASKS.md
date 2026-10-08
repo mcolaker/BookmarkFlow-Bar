@@ -832,3 +832,21 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 134/134 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
 - Sonraki adım: Yok; açılır menü yer imi bağlam menüsü, gizli pencere ve kopyalama onay bildirimleri başarıyla devreye alınmıştır.
 - Son güncelleme: 2026-10-08.
+
+## BF-UX-035 - Açılır Menü Yer İmlerinde Orta Tık (Auxclick) ile Arka Planda Yeni Sekmede Açma
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, klasör menüsündeki yer imlerine fare tekerleğiyle (orta tık) tıklandığında menüyü kapatmadan bağlantının doğrudan arka plan sekmede açılmasını talep etti. (1) `createFolderMenuLink` içine `auxclick` olay dinleyicisi eklendi; (2) `event.button === 1` tıklandığında `event.preventDefault()` ve `event.stopPropagation()` ile menü açık tutuldu; (3) `src/background.js` içine `BF_OPEN_BACKGROUND_TAB` mesaj rotası tanımlanarak `chrome.tabs.create({ url, active: false })` çağrısıyla sekmenin arka planda açılması sağlandı; (4) Eklenti bağlamı dışındaki ortamlar için `window.open` fallback'i korundu.
+- Kabul kriteri: `auxclick` dinleyicisi `button === 1` kontrolü yapar; `BF_OPEN_BACKGROUND_TAB` mesajı arka planda `active: false` ile yeni sekme açar; menü kapanmaz ve peş peşe sekme açılmasına izin verir; `BF-UX-035` sözleşme testi geçer; tüm testler (136/136) temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 136/136 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; açılır menü orta tık arka plan sekme desteği başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-08.
+
+## BF-UX-036 - Menü İçi Filtreleme İçin Eşleşen Karakterleri Vurgulama (Highlight Matching Substring)
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, klasör menüsü canlı filtresine sorgu girdiğinde yer imi başlığında sorguyla eşleşen harflerin görsel olarak vurgulanmasını talep etti. (1) `src/content.js` içerisinde XSS ve CSP güvenli, saf DOM text node ve `<mark class="bf-highlight">` üreten `highlightMatchingText` fonksiyonu geliştirildi; (2) `updateFilter` fonksiyonu eşleşen yer imlerinde başlık metnini canlı parçalayarak `<mark>` içine alacak, arama temizlendiğinde ise orijinal düz metni anında geri yükleyecek şekilde bağlandı; (3) `createResultLink` içerisinde `title.dataset.rawTitle` alanı tescillendi; (4) `src/content.css` içerisinde `.bf-highlight` kuralı `--bf-theme-accent-glow` ve `--bf-theme-accent` renkleriyle uyarlandı; `@media (forced-colors: active)` bloğuna yüksek kontrast Highlight desteği eklendi.
+- Kabul kriteri: Eşleşen alt dizgiler `<mark class="bf-highlight">` ile vurgulanır; arama silindiğinde başlık orijinal haline döner; sıfır `innerHTML` ile CSP ve güvenlik korunur; `BF-UX-036` sözleşme testi geçer; `validate:all` temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 136/136 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; menü içi filtreleme eşleşen karakter vurgusu başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-08.
