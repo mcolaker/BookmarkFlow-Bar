@@ -75,3 +75,22 @@ Bu kılavuz, BookmarkFlow Bar kullanıcı arayüzü, tasarım sistemi, erişileb
 
 - **Otonom Chrome DevTools ve Modern Web Guidance Teftişi (BF-GOV-011 / Karar 20)**:
   - Erişilebilirlik (ARIA etiketleri, kontrast oranları WCAG AA 4.5:1, klavye döngüsü), Largest Contentful Paint (LCP) ve bellek sızıntısı testlerinde Chrome DevTools MCP ve Modern Web Guidance ilkeleri yapay zeka tarafından doğrudan otonom işletilir.
+
+---
+
+## 6. Eklenti Kusursuz Kalite Dörtgeni (Extension Quality Quadrumvirate - Karar 31)
+
+Eklenti arayüzlerinde (Sayfa İçi Çubuk, Spotlight Paleti, Yeni Sekme Paneli, Popup ve Ayarlar) yapılan görsel veya etkileşimli değişikliklerde yalnızca kodun derlenmesi veya sözleşme testlerinin geçmesi nihai yeterlilik sayılamaz. Tam kalite onayı için aşağıdaki 4 hakemli denetim çemberi uygulanır:
+
+1. **Görsel & Hareket Hakemi (Visual & Motion Arbiter)**:
+   - **Araçlar**: Playwright + Gemini Agentic Video (`npm run qa:motion`) + `scripts/validate-media-qa.mjs`.
+   - **Kapsam**: Sayfa içi çubuk (`Alt+Shift+B`), Spotlight (`Alt+Shift+K`) ve New Tab geçişlerinde 60 FPS akıcılık, yay fiziği, sıfır jank ve sıfır layout taşması denetimi.
+2. **Sayfa İzolasyonu ve Shadow DOM Hakemi (Shadow DOM & Isolation Arbiter)**:
+   - **Araçlar**: Chrome DevTools MCP (`evaluate_script`, `get_computed_styles`) + `tests/content-contract.test.mjs`.
+   - **Kapsam**: Sayfa içi çubuğun kapalı Shadow DOM (`attachShadow({ mode: "closed" })`) sızıntısızlığı, barındırıcı sayfanın CSS değişkenlerinden veya global sıfırlamalarından etkilenmeme garantisi.
+3. **Erişilebilirlik ve Kontrast Hakemi (A11y & Contrast Arbiter)**:
+   - **Araçlar**: `a11y-debugging` MCP + WCAG 2.1 AA kuralları + klavye odak halkaları (`:focus-visible`).
+   - **Kapsam**: Minimum 4.5:1 kontrast oranı, tüm modal ve arama kartlarında çift yönlü döngüsel odak tuzağı (`focus trap`), `Escape` ile deterministik kapanma ve ekran okuyucu semantikleri (`role="status"`, `aria-live="polite"`).
+4. **Yerel Gizlilik ve Manifest V3 Hakemi (Zero-Cloud & MV3 Arbiter)**:
+   - **Araçlar**: `node scripts/mv3-api-audit.test.mjs` + `node scripts/verify-public-tree.mjs` + CSP denetimi.
+   - **Kapsam**: Sıfır harici ağ isteği, sıfır eval / new Function, Service Worker DOM bağımsızlığı ve %100 yerel depolama (`chrome.storage.local`) veri bütünlüğü.

@@ -15,6 +15,7 @@ const requiredFiles = [
   "docs/agent-playbooks/security_privacy.md",
   "docs/agent-playbooks/release_distribution.md",
   "docs/agent-playbooks/rule_governance.md",
+  "AGENT_RULE_COMPLIANCE_BENCHMARK.md",
 ];
 
 for (const relPath of requiredFiles) {
@@ -29,12 +30,20 @@ for (const relPath of requiredFiles) {
   }
 }
 
-const agentsContent = readFileSync(join(root, "AGENTS.md"), "utf8");
+const MAX_AGENTS_BYTES = 20480; // 20 KB soft ceiling budget
+const agentsBuffer = readFileSync(join(root, "AGENTS.md"));
+if (agentsBuffer.length > MAX_AGENTS_BYTES) {
+  throw new Error(`Governance contract violation: AGENTS.md exceeds context ceiling budget (${agentsBuffer.length} bytes > ${MAX_AGENTS_BYTES} bytes). Refactor domain details into playbooks.`);
+}
+
+const agentsContent = agentsBuffer.toString("utf8");
 const mandatoryPatterns = [
   "DECISION_INDEX.md",
   "PROJECT_STATE.md",
+  "AGENT_RULE_COMPLIANCE_BENCHMARK.md",
   "docs/agent-playbooks",
   "P0 — Tavizsiz Kurallar",
+  "Sessiz Nihai Yanıt Kapısı",
   "Bütünsel İkincil İyileştirme Standardı",
   "Task Router",
   "Zorunlu Nihai Rapor Şablonu",
@@ -43,6 +52,14 @@ const mandatoryPatterns = [
 for (const pattern of mandatoryPatterns) {
   if (!agentsContent.includes(pattern)) {
     throw new Error(`Governance contract violation: AGENTS.md missing mandatory pattern: "${pattern}"`);
+  }
+}
+
+const benchmarkContent = readFileSync(join(root, "AGENT_RULE_COMPLIANCE_BENCHMARK.md"), "utf8");
+const benchmarkPatterns = ["MUST Behavioural Checks", "Test Prompt", "Pass Rule", "P0-9", "P0-10"];
+for (const bp of benchmarkPatterns) {
+  if (!benchmarkContent.includes(bp)) {
+    throw new Error(`Governance contract violation: AGENT_RULE_COMPLIANCE_BENCHMARK.md missing mandatory pattern: "${bp}"`);
   }
 }
 

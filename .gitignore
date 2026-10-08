@@ -9,6 +9,7 @@
 !/.githooks/
 !/.githooks/**
 !/AGENTS.md
+!/AGENT_RULE_COMPLIANCE_BENCHMARK.md
 !/_locales/
 !/_locales/**
 !/CHANGELOG.md

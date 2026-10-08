@@ -1,6 +1,6 @@
 # PROJECT_STATE.md — BookmarkFlow Bar Canlı Proje Durumu
 
-Son güncelleme: 2026-10-02
+Son güncelleme: 2026-10-08
 Aktif Sürüm: `0.3.1`
 Aktif Dal: `main` (Sürüm: `v0.3.1`)
 
@@ -22,8 +22,10 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 118/118 PASS (%100 yeşil).
-- **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog, raw-key ve yönetişim sözleşmeleri temiz).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 130/130 PASS (%100 yeşil).
+- **Kural Uyumluluk ve Bağlam Bütçe Kapısı**: `AGENT_RULE_COMPLIANCE_BENCHMARK.md` ve `scripts/validate-governance.mjs` (Context ceiling budget <20 KB) devrede.
+- **Canlı Konsol Hata Bekçisi**: `scripts/live-console-guard.mjs` (`npm run guard:console`) ile Port 9222 CDP eklenti konsol ve istisna izleme aktif.
+- **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog, raw-key, MV3 deprecation ve yönetişim sözleşmeleri temiz).
 - **Biçim ve Satır Sonu**: `git diff --check` -> Sıfır hata (CRLF/LF normalize, EOF boş satırsız).
 - **Gizli Veri Denetimi**: Sıfır API anahtarı, sıfır token, sıfır mutlak kullanıcı yolu.
 

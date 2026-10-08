@@ -8,6 +8,7 @@ Bu dosya BookmarkFlow Bar projesinin her zaman yürürlükte olan ana işletim �
 
 - Kök `AGENTS.md` birincil depo kural otoritesidir.
 - Proje deposu kalıcı bellektir; proje için kritik kararlar için asla geçici sohbet belleğine güvenilmez.
+- Model kural uyumluluğu ve gerileme önleme standardı `AGENT_RULE_COMPLIANCE_BENCHMARK.md` dosyasında tescillenir.
 - Kalıcı mimari ve ürün kararları `docs/agent/DECISION_INDEX.md` dosyasında kayıt altına alınır.
 - Güncel mimari durum ve aktif sınırlar `docs/agent/PROJECT_STATE.md` dosyasında tutulur.
 - Görev ve durum takibi `docs/backlog/OPEN_TASKS.md` kanonik defterindedir.
@@ -52,6 +53,7 @@ Geçerli herhangi bir P0 kuralı ihlal edilmişse hiçbir görev tamamlanmış s
 22. **İki Kollu Tarayıcı Mimarisi ve Canlı Kullanıcı Profili Zorunluluğu (Bifurcated Browser & User's Live Chrome Invariant - Karar 27)**: Tarayıcı işlemlerinde: (1) Kamuya açık araştırmalar, teknik inceleme ve web API dokümantasyonu için sıfır izinli, <500ms çalışan Chrome DevTools MCP kullanılır; (2) Oturum gerektiren işlemler (Chrome Web Store Developer Console, GitHub PR/issue, X, LinkedIn) için ASLA geçici/sahte profiller açılmaz! Doğrudan kullanıcının varsayılan çalışan Chrome penceresine ve profiline CDP (`port 9222`) ile bağlanılır (`User's Live Chrome Invariant`). Böylece oturum ve 2FA engelleri tamamen ortadan kalkar.
 23. **3-Kademeli Dil ve Canlı Arayüz Raw-Key Güvencesi (Three-Tier Localization & Raw-Key Gate - Karar 27)**: Eklenti arayüzlerinde (Sayfa İçi Çubuk, Spotlight, Yeni Sekme, Popup, Ayarlar) ham çeviri anahtarı (`nt_*`, `bar_*`, `quick_*`, `app_*`) veya bozuk metin (mojibake) gösterilmesi kesinlikle yasaktır. (1) Statik anahtar paritesi kuralı; (2) `test:raw-keys` canlı arayüz ve DOM tarama testi; (3) Otomatik yerelleştirme tamamlayıcı kapısı ile %100 parite korunur.
 24. **Manifest V3 API Uyumluluk ve Kullanımdan Kalkma Güvencesi (Manifest V3 API Compliance & Zero-Deprecation Gate - Karar 30 - BF-QA-005)**: Eklenti kod tabanında (`src/`) eski Manifest V2 senkron veya kullanımdan kalkmış (deprecated) API'ler (`chrome.extension.*`, `chrome.browserAction.*`, `chrome.pageAction.*`, `chrome.tabs.executeScript`, `chrome.tabs.insertCSS`, `chrome.runtime.getBackgroundPage`, WebSQL `openDatabase` vb.) ASLA kullanılamaz. Tüm Chrome API çağrıları Manifest V3 resmi standartlarına uygun, `manifest.json` izinleriyle (%100) eşleşen ve Service Worker ortamında DOM globalsiz (`window`/`document` erişimsiz) çalışan yapıda olmalıdır. Bu kural `npm run test:mv3` sözleşme testi, CI iş akışı ve dağıtım paketleme ön kancası (`assertMv3Compliance`) ile fail-closed doğrulanır.
+25. **Sessiz Nihai Yanıt Kapısı (Final Response Gate - Karar 31)**: Model kullanıcıya nihai yanıt göndermeden önce zihninde sessizce şu 5 temel invariant'ı doğrular: (1) İletişim dili istisnasız Türkçe mi? (P0-9); (2) Öncelik etiketi (`[High]`, `[Medium]`, `[Low]`) taşıyan tek bir somut sonraki adım var mı? (P0-10); (3) Kodda, belgelerde veya yanıtta sıfır gizli veri ve sıfır yerel mutlak yol korundu mu? (P0-3); (4) Çalıştırılmayan hiçbir test veya kontrol "geçti" gösterilmedi mi? (P0-8); (5) Geçerli tüm P0 kısıtlamalarına (%100) uyuldu mu? Eksiklik varsa yanıt gönderilmeden önce yerinde düzeltilir.
 
 ---
 
@@ -112,7 +114,7 @@ Aşağıdaki kontroller terminalde fiilen çalıştırılır ve konsolun üretti
 
 ## 5. Kural ve Bellek Yönetişimi
 
-- **Kural ve Bellek Rafinasyonu (More Precise Over Time, Not Larger by Accumulation):** Kural sistemi zamanla yığılarak bağlamı şişirmemeli; zaman geçtikçe eskiyen kurallar ayıklanmalı, detaylar playbook'lara aktarılmalı ve çekirdek sistem daha keskin, öz ve modüler hale getirilmelidir.
+- **Kural ve Bellek Rafinasyonu (More Precise Over Time, Not Larger by Accumulation):** Kural sistemi zamanla yığılarak bağlamı şişirmemeli; zaman geçtikçe eskiyen kurallar ayıklanmalı, detaylar playbook'lara aktarılmalı ve çekirdek sistem daha keskin, öz ve modüler hale getirilmelidir. Kök `AGENTS.md` dosyasının bağlam tavan bütçesi maksimum 20.480 bayt (20 KB) ile sınırlandırılmıştır (`scripts/validate-governance.mjs`). Modelin kritik kurallara tam uyumu `AGENT_RULE_COMPLIANCE_BENCHMARK.md` ile tescillenir.
 - Proje kurallarında veya mimaride kalıcı değişiklik yapıldığında:
   1. `docs/agent-playbooks/rule_governance.md` prosedürü işletilir.
   2. Alınan kalıcı karar `docs/agent/DECISION_INDEX.md` dosyasına eklenir.
