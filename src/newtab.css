@@ -1589,6 +1589,15 @@ body[data-bg="custom"] {
   color: var(--nt-theme-accent);
 }
 
+.nt-highlight,
+.bf-highlight {
+  background: var(--nt-theme-accent-glow, rgba(34, 211, 238, 0.25));
+  color: var(--nt-theme-accent, #22d3ee);
+  font-weight: 600;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
 .nt-search-item-url {
   font-size: 11px;
   color: #8b949e;
@@ -2212,4 +2221,14 @@ body[data-bg="custom"] {
   font-size: 10px;
   color: #94a3b8;
   font-style: italic;
+}
+
+/* Modern Web Guidance: Erişilebilir Yüksek Kontrast Modu (Forced Colors) */
+@media (forced-colors: active) {
+  .nt-highlight,
+  .bf-highlight {
+    forced-color-adjust: none;
+    background: Highlight !important;
+    color: HighlightText !important;
+  }
 }

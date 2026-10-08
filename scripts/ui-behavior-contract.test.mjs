@@ -1715,3 +1715,26 @@ test("folder menu filter matching substring highlight contract (BF-UX-036)", () 
   assert.match(contentCss, /\.bf-highlight\s*\{[^}]*color:\s*var\(--bf-theme-accent/u, "content.css must style .bf-highlight text color with accent");
   assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-highlight\s*\{[^}]*background:\s*Highlight/u, "content.css must style .bf-highlight in forced-colors mode");
 });
+
+test("spotlight command palette and new tab search substring highlight contract (BF-UX-037)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const spotlightCss = readFileSync(path.join(root, "src/spotlight.css"), "utf8");
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+
+  // Content.js Spotlight & in-bar search highlighting
+  assert.match(contentJs, /highlightMatchingText\(titleEl,\s*titleEl\.dataset\.rawTitle[\s\S]*?query\)/u, "content.js must call highlightMatchingText in search or command results");
+  assert.match(contentJs, /renderCommandResults[\s\S]*?highlightMatchingText\(titleEl/u, "renderCommandResults must highlight titleEl for matching search results");
+  assert.match(contentJs, /renderSearchResults[\s\S]*?highlightMatchingText\(titleEl/u, "renderSearchResults must highlight titleEl for in-bar search results");
+
+  // Spotlight.css theme tokens and forced-colors
+  assert.match(spotlightCss, /\.bf-highlight\s*\{[^}]*color:\s*var\(--bf-spotlight-accent/u, "spotlight.css must style .bf-highlight color with spotlight accent");
+  assert.match(spotlightCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-highlight\s*\{[^}]*background:\s*Highlight/u, "spotlight.css must style .bf-highlight in forced-colors mode");
+
+  // New Tab search highlighting & CSS
+  assert.match(newtabJs, /function highlightMatchingText\s*\(/u, "newtab.js must define highlightMatchingText helper");
+  assert.match(newtabJs, /highlightMatchingText\(titleEl,\s*item\.title,\s*currentSearchQuery,\s*"nt-highlight"\)/u, "newtab.js renderSearchResults must call highlightMatchingText on bookmark items");
+  assert.match(newtabCss, /\.nt-highlight,\s*\.bf-highlight\s*\{[^}]*background:\s*var\(--nt-theme-accent-glow/u, "newtab.css must style .nt-highlight with theme accent glow");
+  assert.match(newtabCss, /\.nt-highlight,\s*\.bf-highlight\s*\{[^}]*color:\s*var\(--nt-theme-accent/u, "newtab.css must style .nt-highlight with theme accent");
+  assert.match(newtabCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.nt-highlight,\s*\.bf-highlight\s*\{[^}]*background:\s*Highlight/u, "newtab.css must style highlight in forced-colors mode");
+});
