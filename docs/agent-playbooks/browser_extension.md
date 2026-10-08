@@ -109,3 +109,13 @@ Tarayıcı operasyonları iki ayrı kanala ayrılır:
    - `Google Workspace (Docs, Sheets, Drive)`: Lansman kitleri, sürüm notları ve kullanıcı onaylı yer imi sağlık/analiz raporu şablonlarını yönetir (P0-1 sıfır-bulut kuralı korunarak).
 7. **Kural-Ötesi Tam Model Karar İnisiyatifi (Beyond-Rules Autonomous Discretion)**:
    - Model, yukarıdaki senaryolarla sınırlı değildir. Kod kalitesi, optimizasyon, güvenlik veya mimari ihtiyaç gördüğü her an, önceden tanımlanmış bir kural olmasa dahi kendi teknik uzmanlığıyla dilediği MCP aracını kullanıcıya sormadan otonom çalıştırabilir.
+
+---
+
+## 11. Manifest V3 API Uyumluluk ve Kullanımdan Kalkma Güvencesi (BF-QA-005 / Karar 30)
+
+1. **Sıfır MV2 Kalıntısı**: `chrome.extension.*`, `chrome.browserAction.*`, `chrome.pageAction.*`, `chrome.tabs.executeScript`, `chrome.tabs.insertCSS`, `chrome.runtime.getBackgroundPage`, WebSQL `openDatabase` gibi eski API'ler tamamen yasaklanmıştır.
+2. **CSP ve Güvenli Çalıştırma**: `eval()` veya `new Function()` dinamik dize derlemeleri ile uzak `<script src="https://...">` bağlantıları engellenir.
+3. **DOM-Free Service Worker**: `src/background.js` doğrudan `window` veya `document` DOM nesnelerine erişemez.
+4. **İzin ve API Eşleşmesi**: `src/` altındaki tüm `chrome.*` çağrıları `manifest.json` izinleriyle fail-closed kilitlenir.
+5. **Otomatik Kapı**: `npm run test:mv3` (`scripts/mv3-api-audit.test.mjs`), CI iş akışı ve dağıtım paketleme ön kancası (`assertMv3Compliance`) ile sürekli denetlenir.

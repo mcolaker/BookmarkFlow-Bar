@@ -769,3 +769,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node scripts/validate-governance.mjs`, `node scripts/validate-backlog.mjs`, `npm test` (118/118) ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
 - Sonraki adım: Yok; tüm alan bazlı tetikleyiciler ve tam otonom model karar inisiyatifi resmi işletim çekirdeğine bağlanmıştır.
 - Son güncelleme: 2026-10-08.
+
+## BF-QA-005 - Manifest V3 API Uyumluluk ve Kullanımdan Kalkma Taraması Güvencesini Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, kod tabanındaki tüm Chrome API çağrılarının (`bookmarks`, `storage`, `tabs`, `runtime`, `search`, `scripting`, `action`, `commands`, `omnibox`) Manifest V3 resmi standartlarıyla tam uyumlu olduğunu ve eski MV2 senkron metotlarının (`chrome.extension.*`, `chrome.browserAction.*`, `chrome.pageAction.*`, `chrome.tabs.executeScript`, `chrome.tabs.insertCSS`, `chrome.runtime.getBackgroundPage`, WebSQL `openDatabase` vb.) bulunmadığını fail-closed denetleyen bir statik AST/regex tarama testi yazılmasını talep etti. `scripts/mv3-api-audit.test.mjs` test paketi yazıldı ve `package.json` içerisine `test:mv3` betiği eklendi. `.github/workflows/validate.yml` CI iş akışına `Run Manifest V3 API compliance gate` adımı eklendi; `scripts/package-release.mjs` ve `package-cross-browser.mjs` paketleyicilerine `assertMv3Compliance` ön kancası bağlandı; `AGENTS.md` P0-24 kuralı ve `DECISION_INDEX.md` Karar 30 sisteme işlendi.
+- Kabul kriteri: `scripts/mv3-api-audit.test.mjs` 6/6 testle yeşil geçer; `package.json` `test:mv3` içerir; `.github/workflows/validate.yml` MV3 compliance adımını barındırır; `package-release.mjs` ve `package-cross-browser.mjs` paketlemeden önce `assertMv3Compliance` çalıştırır; `AGENTS.md` P0-24 ve `DECISION_INDEX.md` Karar 30 eklenir; tüm testler ve doğrulama kapıları sıfır hatayla geçer.
+- Doğrulama kapısı: `node --test scripts/mv3-api-audit.test.mjs` 6/6 geçti; 124/124 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-governance.mjs`, `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; Manifest V3 API uyumluluk ve sıfır-deprecation güvencesi yerel ve CI ortamında fail-closed aktiftir.
+- Son güncelleme: 2026-10-08.

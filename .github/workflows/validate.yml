@@ -47,6 +47,9 @@ jobs:
       - name: Run raw-key & mojibake gate
         run: npm run test:raw-keys
 
+      - name: Run Manifest V3 API compliance gate
+        run: npm run test:mv3
+
       - name: Validate canonical backlog contract
         run: |
           node scripts/validate-backlog.mjs
