@@ -69,3 +69,7 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
   - Chrome Web Store Developer Console, GitHub ve sosyal medya (X, LinkedIn) yayınlarında kesinlikle geçici/izole sahte profiller açılmaz; doğrudan kullanıcının varsayılan çalışan Chrome oturumuna CDP (`port 9222`) ile bağlanılır.
 - **3-Kademeli Raw-Key ve Dil Güvencesi (BF-GOV-020 / Karar 27)**:
   - Sürüm paketlemesi öncesinde `npm run test:raw-keys` çalıştırılarak hiçbir arayüzde çevrilmemiş ham anahtar (`nt_*`, `bar_*`) veya bozuk karakter (mojibake) kalmadığı doğrulanır.
+- **Live Chrome Pilot & Dağıtım Öncesi Raw-Key Güvencesi (BF-GOV-021 / Karar 28)**:
+  - `npm run pilot:chrome` (`scripts/live-chrome-pilot.mjs`) ile kullanıcının port 9222 üzerindeki canlı tarayıcı oturumu denetlenerek Chrome Web Store konsolu, GitHub ve sosyal medya hazırlığı taranır.
+  - Dağıtım arşivleri (`scripts/package-release.mjs` ve `scripts/package-cross-browser.mjs`) oluşturulmadan önce `assertRawKeyIntegrity` fail-closed kapısı çalıştırılarak hiçbir pakete çevrilmemiş ham anahtar veya mojibake karakter sızamayacağı garanti edilir.
+  - GitHub Actions CI iş akışında (`.github/workflows/validate.yml`) `Run raw-key & mojibake gate` adımı bağımsız kontrol olarak çalışır.

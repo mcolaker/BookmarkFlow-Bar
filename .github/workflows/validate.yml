@@ -44,6 +44,9 @@ jobs:
       - name: Run runtime and interaction contracts
         run: node --test scripts/runtime-contract.test.mjs scripts/ui-behavior-contract.test.mjs
 
+      - name: Run raw-key & mojibake gate
+        run: npm run test:raw-keys
+
       - name: Validate canonical backlog contract
         run: |
           node scripts/validate-backlog.mjs
