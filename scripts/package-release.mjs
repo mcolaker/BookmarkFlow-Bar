@@ -72,8 +72,22 @@ export function assertReleaseArchiveContract(archivedFiles) {
   }
 }
 
+export function assertRawKeyIntegrity(rootPath = root) {
+  try {
+    execFileSync(process.execPath, ["--test", join(rootPath, "scripts", "raw-key-contract.test.mjs")], {
+      cwd: rootPath,
+      stdio: ["ignore", "pipe", "pipe"],
+      encoding: "utf8",
+    });
+  } catch (error) {
+    const detail = error.stderr || error.stdout || error.message;
+    throw new Error(`Raw-key & mojibake integrity check failed before packaging: ${detail}`);
+  }
+}
+
 export function packageRelease(ref) {
   const release = assertImmutableReleaseTag(ref);
+  assertRawKeyIntegrity(root);
   const manifest = JSON.parse(git("show", `${release.tagRef}:manifest.json`));
   if (manifest.version !== release.version) {
     throw new Error(`Release tag ${release.ref} does not match manifest version ${JSON.stringify(manifest.version)}`);

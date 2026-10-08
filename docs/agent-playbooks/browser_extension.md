@@ -90,3 +90,12 @@ Tarayıcı operasyonları iki ayrı kanala ayrılır:
 2. **Mevcut Deseni Genişlet:** Projede oturmuş mimari desenleri koru ve genişlet.
 3. **Yerel Modern Web API'leri:** Harici kütüphane bağımlılığı eklemek kesinlikle yasaktır; modern tarayıcı API'leri (Native Messaging, Closed Shadow DOM, CSS Custom Properties) kullanılır.
 4. **Merkezi Otoriteyi Koruma:** `chrome.storage.local` ve yer imi ağacı tek bir kaynaktan yönetilir; alt bileşenler bağımsız senkronizasyon yapamaz.
+
+---
+
+## 10. Tam Otonom MCP ve Geliştirici Araçları Ekosistem Rehberi (BF-GOV-021)
+
+1. **Modern Web Guidance & Chrome Extensions**: Modern tarayıcı standartları, MV3 service worker yönetimi, declarativeNetRequest ve CSS container queries / `:has()` kullanımı için model tarafından otonom çağrılır.
+2. **Chrome DevTools MCP & a11y-debugging**: Sayfa içi çubuk kapalı Shadow DOM incelemesi, CSS taşmaları, kontrast ve ARIA odak halkası denetimlerinde otonom kullanılır.
+3. **Google Developer Knowledge & Context7**: Chrome Extension API ve Chromium spesifikasyonlarının resmi doküman sorgulamalarında anında devreye sokulur.
+4. **Live Chrome Pilot (`scripts/live-chrome-pilot.mjs`)**: Kullanıcının `chrome.exe --remote-debugging-port=9222` ile açık olan çalışan Chrome oturumunu denetler; sekmeleri (Store Console, GitHub, X, LinkedIn) analiz eder.

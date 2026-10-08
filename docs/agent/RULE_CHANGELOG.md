@@ -2,6 +2,12 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-08] — Tam Otonom Geliştirici Araçları/MCP Ekosistemi, CI Raw-Key Kapısı ve Canlı Chrome CDP Pilotu (BF-GOV-021 / Karar 28)
+- **Tam Otonom MCP & Geliştirici Araçları İnisiyatifi**: Modern Web Guidance, Chrome Extensions, Chrome DevTools MCP, Google Developer Knowledge, Context7, Sequential Thinking, Codebase Memory, Gemini API & Agentic Video ve Google Workspace (Docs/Sheets) araçlarının model tarafından kullanıcıdan açık onay beklemeksizin proaktif ve tam otonom çağrılması `AGENTS.md` P0-20 kuralı ve Task Router tablosunda yetkilendirildi.
+- **GitHub Actions Bağımsız Raw-Key Kapısı**: `.github/workflows/validate.yml` CI iş akışına `Run raw-key & mojibake gate` adımı eklenerek PR aşamasında çeviri anahtarı bütünlüğü ve karakter kodlaması bağımsız kontrol adımı olarak ayrıştırıldı.
+- **Dağıtım Paketlemesi Fail-Closed Ön Kancası**: `scripts/package-release.mjs` ve `scripts/package-cross-browser.mjs` betiklerine `assertRawKeyIntegrity` kancası entegre edilerek ekranda ham anahtar veya mojibake içeren paketlerin arşivlenmesi fail-closed engellendi.
+- **Live Chrome Pilot (`scripts/live-chrome-pilot.mjs`)**: P0-22 uyarınca kullanıcının port 9222 üzerindeki canlı çalışan Chrome profiline bağlanıp Chrome Web Store Developer Console, GitHub ve sosyal medya sekme durumunu denetleyen pilot betik ve test paketi (`scripts/live-chrome-pilot.test.mjs`, `npm run pilot:chrome`) sisteme dahil edildi.
+
 ## [2026-10-08] — JaponiGo Çekirdek Sinerjisi ve 3-Kademeli Raw-Key Güvencesi (BF-GOV-020 / Karar 27)
 - **Otonom Yerel Ara Kilometre Taşı Commit Yetkisi**: Modelin yeşil test ve hatasız statik analizle tamamladığı mantıksal ara adımlarda kullanıcıyı bekletmeden otonom yerel commit (`git commit -s`) oluşturabilmesi `AGENTS.md` P0-21 kuralına bağlandı; uzak işlemler kullanıcının kontrolünde tutuldu.
 - **İki Kollu Tarayıcı Mimarisi & Kullanıcının Canlı Chrome Profili (`port 9222 / CDP`)**: Kamuya açık web araştırmaları için sıfır izinli Chrome DevTools MCP; mağaza konsolu, GitHub ve sosyal medya işlemleri içinse kullanıcının aktif çalışan Chrome oturumuna doğrudan bağlanma (`User's Live Chrome Invariant`) `AGENTS.md` P0-22 kuralına bağlandı.

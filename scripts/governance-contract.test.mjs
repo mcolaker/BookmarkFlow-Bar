@@ -56,6 +56,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(decisionIndex, /GitHub CLI Otomatik Release Betiği/u, "DECISION_INDEX.md must contain Decision 25");
   assert.match(decisionIndex, /Tek Komutla Sürüm Etiketleme, Paketleme ve GitHub Release Orkestrasyonu/u, "DECISION_INDEX.md must contain Decision 26");
   assert.match(decisionIndex, /JaponiGo Çekirdek Sinerjisi/u, "DECISION_INDEX.md must contain Decision 27");
+  assert.match(decisionIndex, /Tam Otonom Geliştirici Araçları\/MCP Ekosistemi/u, "DECISION_INDEX.md must contain Decision 28");
 
   const projectState = readFileSync(path.join(root, "docs/agent/PROJECT_STATE.md"), "utf8");
   assert.match(projectState, /# PROJECT_STATE\.md/u, "PROJECT_STATE.md must declare header");
@@ -66,6 +67,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(projectState, /BF-GOV-018/u, "PROJECT_STATE.md must document BF-GOV-018");
   assert.match(projectState, /BF-GOV-019/u, "PROJECT_STATE.md must document BF-GOV-019");
   assert.match(projectState, /BF-GOV-020/u, "PROJECT_STATE.md must document BF-GOV-020");
+  assert.match(projectState, /BF-GOV-021/u, "PROJECT_STATE.md must document BF-GOV-021");
 
   const ruleChangelog = readFileSync(path.join(root, "docs/agent/RULE_CHANGELOG.md"), "utf8");
   assert.match(ruleChangelog, /BF-GOV-010/u, "RULE_CHANGELOG.md must document BF-GOV-010");
@@ -77,6 +79,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(ruleChangelog, /BF-GOV-018/u, "RULE_CHANGELOG.md must document BF-GOV-018");
   assert.match(ruleChangelog, /BF-GOV-019/u, "RULE_CHANGELOG.md must document BF-GOV-019");
   assert.match(ruleChangelog, /BF-GOV-020/u, "RULE_CHANGELOG.md must document BF-GOV-020");
+  assert.match(ruleChangelog, /BF-GOV-021/u, "RULE_CHANGELOG.md must document BF-GOV-021");
 });
 
 test("agentic motion & media QA scripts contract (BF-QA-002, BF-QA-003, BF-QA-004)", () => {
@@ -100,5 +103,7 @@ test("agentic motion & media QA scripts contract (BF-QA-002, BF-QA-003, BF-QA-00
   assert.ok(pkg.scripts?.["qa:motion"], "package.json must declare qa:motion script");
   assert.ok(pkg.scripts?.["qa:motion:auto"], "package.json must declare qa:motion:auto script");
   assert.ok(pkg.scripts?.["qa:media"], "package.json must declare qa:media script");
+  assert.ok(pkg.scripts?.["pilot:chrome"], "package.json must declare pilot:chrome script");
+  assert.ok(existsSync(path.join(root, "scripts/live-chrome-pilot.mjs")), "scripts/live-chrome-pilot.mjs must exist");
   assert.match(pkg.scripts?.["validate:all"], /validate-media-qa\.mjs --offline/u, "validate:all must run validate-media-qa.mjs in offline mode");
 });
