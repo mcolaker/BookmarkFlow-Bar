@@ -3378,6 +3378,31 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const entries = getFolderMenuEntries(folder);
     menu.replaceChildren();
 
+    const header = document.createElement("div");
+    header.className = "bf-menu-header";
+
+    const headerInfo = document.createElement("div");
+    headerInfo.className = "bf-menu-header-info";
+
+    const headerIcon = document.createElement("span");
+    headerIcon.className = "bf-menu-header-icon";
+    headerIcon.textContent = "📁";
+    headerIcon.setAttribute("aria-hidden", "true");
+
+    const headerTitle = document.createElement("span");
+    headerTitle.className = "bf-menu-header-title";
+    headerTitle.textContent = folder.title || t("folder") || "Folder";
+
+    headerInfo.append(headerIcon, headerTitle);
+
+    const headerCount = document.createElement("span");
+    headerCount.className = "bf-menu-header-count";
+    headerCount.textContent = `${entries.length}`;
+    headerCount.title = `${entries.length} ${t("bookmarks") || "bookmarks"}`;
+
+    header.append(headerInfo, headerCount);
+    menu.append(header);
+
     if (!entries.length) {
       const empty = document.createElement("div");
       empty.className = "bf-empty";

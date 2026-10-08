@@ -976,8 +976,12 @@
   width: 100%;
   max-width: none;
   justify-content: flex-start;
-  height: 35px;
-  margin-bottom: 6px;
+  min-height: 38px;
+  height: auto;
+  margin-bottom: 4px;
+  padding: 6px 10px;
+  box-sizing: border-box;
+  align-items: center;
 }
 
 .bf-result:last-child {
@@ -1023,20 +1027,92 @@
 }
 
 .bf-result-copy {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   min-width: 0;
-  gap: 3px;
+  flex: 1;
+  gap: 2px;
 }
 
 .bf-result-title {
   color: #f7f9fc;
-  line-height: 1.1;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 
 .bf-result-path {
   color: #8f98a8;
   font-size: 11px;
-  line-height: 1.1;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.bf-menu .bf-result {
+  min-height: 36px;
+  height: auto;
+  margin-bottom: 3px;
+  padding: 6px 10px;
+  align-items: center;
+}
+
+.bf-menu .bf-result-path {
+  display: none;
+}
+
+.bf-menu .bf-result .bf-tag-list {
+  margin-top: 2px;
+}
+
+.bf-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px 8px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  user-select: none;
+}
+
+.bf-menu-header-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.bf-menu-header-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.bf-menu-header-title {
+  color: var(--bf-theme-accent, #f2c94c);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bf-menu-header-count {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--bf-theme-text-muted, #8f98a8);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1px 6px;
+  border-radius: 9999px;
+  line-height: 1.2;
 }
 
 .bf-command-action-chips {

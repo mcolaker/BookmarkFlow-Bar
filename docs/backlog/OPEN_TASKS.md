@@ -787,3 +787,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node --test scripts/live-console-guard.test.mjs` 6/6 geçti; `npm run guard:console -- --dry-run` başarılı simülasyon çıktısı üretti; 130/130 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-governance.mjs`, `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
 - Sonraki adım: Yok; kural benchmark'ı, bağlam bütçe kapısı, kalite dörtgeni ve konsol hata bekçisi başarıyla devreye alınmıştır.
 - Son güncelleme: 2026-10-08.
+
+## BF-UX-030 - Açılır Klasör Menüsünde Metin Çakışması Giderimi ve Dinamik Satır Mimarisi
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcının paylaştığı ekran görüntüsünde (`media_1791475394998_da20fd1c.png`), açılır klasör menüsündeki (`.bf-menu`) yer imi satırlarında başlıklar, klasör yolları ("SIK KULLANILANLAR") ve akıllı etiket hapları dikeyde üst üste binerek okunaksız bir metin çarpışmasına (text collision cascade) yol açıyordu. Kök neden incelemesinde: (1) `src/content.css` içerisinde `.bf-result` elemanına sabit `height: 35px;` atanması nedeniyle içeriğin kutudan taşarak bir alttaki satırın başlığının üzerine binmesi; (2) Zaten o klasörün içinde bulunulmasına rağmen her yer iminin altına aynı klasör adının mükerrer olarak yazılması tespit edildi. `src/content.css` içerisinde `.bf-result` sabit yüksekliği kaldırılarak dinamik ve taşmasız `min-height: 38px; height: auto; padding: 6px 10px; box-sizing: border-box; align-items: center;` modeline geçirildi; `.bf-result-copy` dikey flex (`flex-direction: column; gap: 2px`) yapısına dönüştürüldü; `.bf-menu .bf-result-path` gizlenerek mükerrer yol kalabalığı sıfırlandı; menünün başına klasör ikonu, başlığı ve yer imi sayısını gösteren şık `.bf-menu-header` bileşeni eklendi.
+- Kabul kriteri: `.bf-result` sabit `height: 35px` kısıtından arındırılmış ve dinamik satır yüksekliğine kavuşturulmuştur; `.bf-result-copy` taşmasız dikey flex düzenindedir; açılır klasör menüsünde mükerrer klasör yolları gizlenmiştir; `.bf-menu-header` klasör başlığı ve sayaç rozetini taşır; tüm testler (130/130), `validate:all` ve `git diff --check` sıfır hatayla geçer.
+- Doğrulama kapısı: 130/130 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; açılır klasör menüsü metin çakışması kökten giderilmiş ve görsel hiyerarşi kusursuzlaştırılmıştır.
+- Son güncelleme: 2026-10-08.
