@@ -2,6 +2,13 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-08] — JaponiGo Kural Uyumluluk Benchmark'ı, Bağlam Bütçe Kapısı, Sessiz Yanıt Kapısı ve Kalite Dörtgeni (BF-GOV-023 / Karar 31)
+- **Kritik Kural Uyumluluk Benchmark'ı (`AGENT_RULE_COMPLIANCE_BENCHMARK.md`)**: Yeni oturumlarda ve bağlam genişlemelerinde yapay zeka modelinin 24 P0 kuralına ve kritik playbook yönlendirmelerine tam sadakatini İngilizce sentetik prompt ile fail-closed denetleyen resmi test harness'i oluşturuldu.
+- **Kural Bağlam Tavan Bütçesi Kapısı (`validate-governance.mjs`)**: Kök `AGENTS.md` dosyasının bağlam tavan bütçesi maksimum 20.480 bayt (20 KB) ile sınırlandırıldı; dosyanın kontrolsüz büyümesi ve zorunlu anahtar kelimelerin eksikliği fail-closed engellendi.
+- **Sessiz Nihai Yanıt Kapısı (`AGENTS.md` P0-25)**: Modelin her nihai yanıttan önce zihninde Türkçe dil paritesi, öncelik etiketli tek sonraki adım, sıfır gizli veri/mutlak yol, kanıtsız iddia yasağı ve P0 uyumunu sessizce doğrulaması zorunlu kılındı.
+- **Eklenti Kusursuz Kalite Dörtgeni (`ui_accessibility.md`)**: Eklenti arayüzleri için 4'lü hakem çemberi (Görsel & Hareket, Shadow DOM İzolasyonu, A11y & Kontrast, Yerel Gizlilik & MV3) resmi standart haline getirildi.
+- **Canlı Konsol Hata Bekçisi (`scripts/live-console-guard.mjs`, `npm run guard:console`)**: Kullanıcının port 9222 CDP oturumundaki eklenti sekmelerinde ve Service Worker'da fırlatılan console.error ve unhandled exception loglarını terminalden anında izleyen bekçi aracı ve sözleşme testi devreye alındı.
+
 ## [2026-10-08] — Manifest V3 API Uyumluluk ve Kullanımdan Kalkma Güvencesi (BF-QA-005 / Karar 30)
 - **Manifest V3 API Denetim ve Sıfır Deprecation Sözleşmesi**: Kod tabanında (`src/`) eski Manifest V2 senkron metotlarının (`chrome.extension.*`, `chrome.browserAction.*`, `chrome.pageAction.*`, `chrome.tabs.executeScript`, `chrome.tabs.insertCSS`, `chrome.runtime.getBackgroundPage`, WebSQL `openDatabase` vb.) bulunmadığını denetleyen fail-closed `scripts/mv3-api-audit.test.mjs` test paketi ve `npm run test:mv3` komutu eklendi.
 - **CSP ve DOM-Free Service Worker Taraması**: `eval()`, `new Function()`, HTML içi uzak `<script src="https://...">` bağlantıları ve Service Worker içinde doğrudan DOM nesnelerine (`window`/`document`) erişim girişimleri taranarak engellendi.

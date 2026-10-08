@@ -778,3 +778,75 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node --test scripts/mv3-api-audit.test.mjs` 6/6 geçti; 124/124 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-governance.mjs`, `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
 - Sonraki adım: Yok; Manifest V3 API uyumluluk ve sıfır-deprecation güvencesi yerel ve CI ortamında fail-closed aktiftir.
 - Son güncelleme: 2026-10-08.
+
+## BF-GOV-023 - JaponiGo Kural Uyumluluk Benchmark'ı, Bağlam Bütçe Kapısı, Sessiz Yanıt Kapısı ve Kalite Dörtgenini Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, JaponiGo'nun kural sisteminden tespit edilen 5 çekirdek mekanizmanın BookmarkFlow Bar projesine entegre edilmesini onayladı ve talep etti: (1) Modelin 24 P0 kuralına ve playbook yönlendirmelerine tam uyumunu sentetik İngilizce prompt ile fail-closed denetleyen `AGENT_RULE_COMPLIANCE_BENCHMARK.md` oluşturuldu; (2) `scripts/validate-governance.mjs` içerisine `AGENTS.md` dosyasının şişmesini engelleyen maksimum 20.480 bayt (20 KB) Context Ceiling Budget kapısı ve zorunlu anahtar kontrolleri eklendi; (3) `AGENTS.md` içerisine modelin nihai yanıttan önce zihninde 5 temel ilkeyi doğrulamasını şart koşan P0-25 Sessiz Nihai Yanıt Kapısı (Final Response Gate) entegre edildi; (4) `docs/agent-playbooks/ui_accessibility.md` kılavuzuna Görsel/Hareket, Shadow DOM İzolasyonu, A11y & Kontrast ve Yerel Gizlilik/MV3 ekseninde 4 hakemli Eklenti Kusursuz Kalite Dörtgeni tanımlandı; (5) Port 9222 canlı Chrome oturumunda eklenti sekmelerinde ve Service Worker'da fırlatılan konsol hatalarını ve istisnaları dinleyen `scripts/live-console-guard.mjs` (`npm run guard:console`) bekçi betiği ve `scripts/live-console-guard.test.mjs` sözleşme testi (6/6 yeşil) yazıldı.
+- Kabul kriteri: `AGENT_RULE_COMPLIANCE_BENCHMARK.md` MUST kriterlerini eksiksiz barındırır; `scripts/validate-governance.mjs` context ceiling budget (<20 KB) ve benchmark varlığını fail-closed denetler; `AGENTS.md` P0-25 kuralını içerir; `ui_accessibility.md` Kalite Dörtgenini barındırır; `scripts/live-console-guard.mjs` ve `live-console-guard.test.mjs` 6/6 geçer; `package.json` `guard:console` içerir; `DECISION_INDEX.md` Karar 31 eklenir; tüm testler (130/130) ve doğrulama kapıları sıfır hatayla geçer.
+- Doğrulama kapısı: `node --test scripts/live-console-guard.test.mjs` 6/6 geçti; `npm run guard:console -- --dry-run` başarılı simülasyon çıktısı üretti; 130/130 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-governance.mjs`, `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; kural benchmark'ı, bağlam bütçe kapısı, kalite dörtgeni ve konsol hata bekçisi başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-08.
+
+## BF-UX-030 - Açılır Klasör Menüsünde Metin Çakışması Giderimi ve Dinamik Satır Mimarisi
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcının paylaştığı ekran görüntüsünde (`media_1791475394998_da20fd1c.png`), açılır klasör menüsündeki (`.bf-menu`) yer imi satırlarında başlıklar, klasör yolları ("SIK KULLANILANLAR") ve akıllı etiket hapları dikeyde üst üste binerek okunaksız bir metin çarpışmasına (text collision cascade) yol açıyordu. Kök neden incelemesinde: (1) `src/content.css` içerisinde `.bf-result` elemanına sabit `height: 35px;` atanması nedeniyle içeriğin kutudan taşarak bir alttaki satırın başlığının üzerine binmesi; (2) Zaten o klasörün içinde bulunulmasına rağmen her yer iminin altına aynı klasör adının mükerrer olarak yazılması tespit edildi. `src/content.css` içerisinde `.bf-result` sabit yüksekliği kaldırılarak dinamik ve taşmasız `min-height: 38px; height: auto; padding: 6px 10px; box-sizing: border-box; align-items: center;` modeline geçirildi; `.bf-result-copy` dikey flex (`flex-direction: column; gap: 2px`) yapısına dönüştürüldü; `.bf-menu .bf-result-path` gizlenerek mükerrer yol kalabalığı sıfırlandı; menünün başına klasör ikonu, başlığı ve yer imi sayısını gösteren şık `.bf-menu-header` bileşeni eklendi.
+- Kabul kriteri: `.bf-result` sabit `height: 35px` kısıtından arındırılmış ve dinamik satır yüksekliğine kavuşturulmuştur; `.bf-result-copy` taşmasız dikey flex düzenindedir; açılır klasör menüsünde mükerrer klasör yolları gizlenmiştir; `.bf-menu-header` klasör başlığı ve sayaç rozetini taşır; tüm testler (130/130), `validate:all` ve `git diff --check` sıfır hatayla geçer.
+- Doğrulama kapısı: 130/130 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; açılır klasör menüsü metin çakışması kökten giderilmiş ve görsel hiyerarşi kusursuzlaştırılmıştır.
+- Son güncelleme: 2026-10-08.
+
+## BF-UX-031 - Açılır Klasör Menüsünde Tam Klavye Dolaşımı ve Odak Döngüsünü Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Açılır klasör menüsü (`.bf-menu`) açıkken kullanıcıların klavye üzerinden yer imleri arasında gezinme ve seçim yapma desteği bulunmuyordu. `src/content.js` içerisine `handleFolderMenuKeydown` fonksiyonu entegre edildi: (1) `ArrowDown` ve `ArrowUp` tuşları ile görünür yer imleri arasında akıcı ve döngüsel geçiş; (2) Aktif öğenin `.is-keyboard-active` ve odak halkası (`outline: 2px solid var(--bf-theme-accent)`) ile vurgulanması; (3) `Enter` tuşuna basıldığında seçili yer iminin açılması; (4) `Tab` ve `Shift+Tab` ile filtre ve liste arasında döngüsel dolaşım; (5) `Escape` tuşuna basıldığında menünün kapanarak odağın açılış butonuna (`lastFolderAnchor`) otomatik geri yüklenmesi sağlandı.
+- Kabul kriteri: `handleFolderMenuKeydown` ArrowDown, ArrowUp, Enter, Tab ve Escape tuşlarını hatasız yönetir; `closeFolderMenu({ restoreFocus: true })` son odaklanılan buton hedefini geri yükler; `scripts/ui-behavior-contract.test.mjs` içerisinde `BF-UX-031` sözleşme testi yeşil geçer; tüm testler (132/132) sıfır hatayla çalışır.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 132/132 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` ve `git diff --check` temizdir.
+- Sonraki adım: Yok; açılır klasör menüsü tam klavye erişilebilirlik standardına kavuşturulmuştur.
+- Son güncelleme: 2026-10-08.
+
+## BF-UX-032 - Kalabalık Klasörler İçin Canlı Filtreleme ve Yay Fiziği Açılış Animasyonunu Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: 15 veya daha fazla yer imi içeren büyük klasörlerde kullanıcının fareyle uzun listeyi kaydırmak zorunda kalması ve menünün aniden ekranda belirmesi görsel akıcılığı düşürüyordu. (1) 15 veya daha fazla yer imi olan klasörlerde otomatik beliren 28px kompakt canlı filtre kutucuğu (`.bf-menu-filter`) eklendi; yer imi başlığı, URL'si ve akıllı etiketler üzerinde anlık arama desteği sunuldu; başlık sayaç rozeti canlı filtrelenen/toplam oranını (`3/24`) gösterecek şekilde dinamikleştirildi; (2) `_locales/en` ve `_locales/tr` içerisine `filterInFolderPlaceholder` ve `noMatchingBookmarksInFolder` anahtarları eklenerek %100 dil paritesi korundu; (3) `src/content.css` içerisine `cubic-bezier(0.16, 1, 0.3, 1)` mikro yay fiziği (`@keyframes bfMenuAppear`, `@keyframes bfMenuAppearBottom`) ile üst/alt çubuk ve sağ/sol ray konumlarına duyarlı akıcı açılış animasyonu entegre edildi.
+- Kabul kriteri: 15+ yer imli klasörlerde filtre kutucuğu otomatik belirir ve anlık filtreleme yapar; TR/EN paritesi %100 korunur; CSS'te `bfMenuAppear` ve `bfMenuAppearBottom` yay keyframe'leri aktiftir; `scripts/ui-behavior-contract.test.mjs` `BF-UX-032` sözleşme testi geçer; `validate:all` temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 132/132 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; kalabalık klasör filtreleme ve akıcı yay fiziği açılış animasyonu başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-08.
+
+## BF-UX-033 - Açılır Klasör Menüsünde Hızlı Temizleme (Clear Input `×`) Mikro Aksiyonunu Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, klasör menüsü filtre girdisinde metin arandıktan sonra aramayı sıfırlamak için tüm karakterleri tek tek silmek yerine tek tıkla arama kutusunu sıfırlayan bir hızlı temizleme mikro butonunu talep etti. (1) `src/content.js` `openFolderMenu` içine `.bf-menu-filter-clear` butonu entegre edildi; (2) `clearText` yerelleştirme anahtarı ("Clear text" / "Metni temizle") `aria-label` ile erişilebilir kılındı; (3) Butona tıklandığında `filterInput.value = ""` yapılıp `updateFilter()` tetiklenerek tüm yer imleri anında geri yüklendi ve odak `filterInput.focus()` ile arama kutusuna iade edildi; (4) `src/content.css` içinde `position: absolute; right: 6px; top: 50%; transform: translateY(-50%)` ile optik hizalandı; `.bf-menu-filter` dolgusu `padding: 0 28px 0 10px` yapılarak metin çakışması önlendi; `:focus-visible` grubuna dahil edildi.
+- Kabul kriteri: `.bf-menu-filter-clear` butonu filtre girdisinde metin varken görünür, yokken gizlidir; tıklandığında filtreyi sıfırlar, sonuçları geri yükler ve odağı korur; TR/EN dil paritesi %100 korunur; `BF-UX-033` sözleşme testi yeşil geçer; tüm testler (134/134) temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 134/134 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; açılır klasör filtre hızlı temizleme mikro aksiyonu başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-08.
+
+## BF-UX-034 - Açılır Menü Yer İmlerinde Sağ Tık ile "Gizli Pencerede Aç" ve "Kopyala" Hızlı Eylemlerini Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, klasör menüsündeki yer imlerine sağ tıklandığında sayfa içi BookmarkFlow bağlam menüsünün açılarak URL kopyalama ve yeni gizli pencerede açma seçenekleri sunulmasını talep etti. (1) `createFolderMenuLink` içine `contextmenu` olay dinleyicisi eklenerek `openBookmarkContextMenu(node, event.clientX, event.clientY)` doğrudan tetiklendi; (2) `openBookmarkContextMenu` içine `open-bookmark-incognito` eylemi ("Open in incognito window" / "Gizli pencerede aç") eklendi; (3) `src/background.js` içinde `BF_OPEN_INCOGNITO` mesaj rotası tanımlanarak `chrome.windows.create({ incognito: true, url })` ve izin fallback'i sağlandı; (4) `copyContextBookmarkUrl` fonksiyonu menüleri kapatıp panoya yazma sonrasında `addressCopiedToast` ("✓ Adres panoya kopyalandı") yeşil onay toast bildirimini gösterecek şekilde güçlendirildi; (5) `_locales/en` ve `_locales/tr` içerisine `openInIncognitoWindow` ve `addressCopiedToast` anahtarları eklenerek %100 dil paritesi sağlandı.
+- Kabul kriteri: Menü içi yer imlerine sağ tıklandığında BookmarkFlow bağlam menüsü açılır; gizli pencerede açma seçeneği çalışır; kopyalama toast bildirimi üretir; TR/EN dil paritesi %100 korunur; `BF-UX-034` sözleşme testi geçer; `validate:all` temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 134/134 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; açılır menü yer imi bağlam menüsü, gizli pencere ve kopyalama onay bildirimleri başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-08.
+
+## BF-UX-035 - Açılır Menü Yer İmlerinde Orta Tık (Auxclick) ile Arka Planda Yeni Sekmede Açma
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, klasör menüsündeki yer imlerine fare tekerleğiyle (orta tık) tıklandığında menüyü kapatmadan bağlantının doğrudan arka plan sekmede açılmasını talep etti. (1) `createFolderMenuLink` içine `auxclick` olay dinleyicisi eklendi; (2) `event.button === 1` tıklandığında `event.preventDefault()` ve `event.stopPropagation()` ile menü açık tutuldu; (3) `src/background.js` içine `BF_OPEN_BACKGROUND_TAB` mesaj rotası tanımlanarak `chrome.tabs.create({ url, active: false })` çağrısıyla sekmenin arka planda açılması sağlandı; (4) Eklenti bağlamı dışındaki ortamlar için `window.open` fallback'i korundu.
+- Kabul kriteri: `auxclick` dinleyicisi `button === 1` kontrolü yapar; `BF_OPEN_BACKGROUND_TAB` mesajı arka planda `active: false` ile yeni sekme açar; menü kapanmaz ve peş peşe sekme açılmasına izin verir; `BF-UX-035` sözleşme testi geçer; tüm testler (136/136) temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 136/136 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; açılır menü orta tık arka plan sekme desteği başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-08.
+
+## BF-UX-036 - Menü İçi Filtreleme İçin Eşleşen Karakterleri Vurgulama (Highlight Matching Substring)
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, klasör menüsü canlı filtresine sorgu girdiğinde yer imi başlığında sorguyla eşleşen harflerin görsel olarak vurgulanmasını talep etti. (1) `src/content.js` içerisinde XSS ve CSP güvenli, saf DOM text node ve `<mark class="bf-highlight">` üreten `highlightMatchingText` fonksiyonu geliştirildi; (2) `updateFilter` fonksiyonu eşleşen yer imlerinde başlık metnini canlı parçalayarak `<mark>` içine alacak, arama temizlendiğinde ise orijinal düz metni anında geri yükleyecek şekilde bağlandı; (3) `createResultLink` içerisinde `title.dataset.rawTitle` alanı tescillendi; (4) `src/content.css` içerisinde `.bf-highlight` kuralı `--bf-theme-accent-glow` ve `--bf-theme-accent` renkleriyle uyarlandı; `@media (forced-colors: active)` bloğuna yüksek kontrast Highlight desteği eklendi.
+- Kabul kriteri: Eşleşen alt dizgiler `<mark class="bf-highlight">` ile vurgulanır; arama silindiğinde başlık orijinal haline döner; sıfır `innerHTML` ile CSP ve güvenlik korunur; `BF-UX-036` sözleşme testi geçer; `validate:all` temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 136/136 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; menü içi filtreleme eşleşen karakter vurgusu başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-08.

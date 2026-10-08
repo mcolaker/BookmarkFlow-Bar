@@ -66,6 +66,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let shadow = null;
   let resizeObserver = null;
   let activeFolderId = "";
+  let lastFolderAnchor = null;
   let searchQuery = "";
   let isExpanded = false;
   let commandQuery = "";
@@ -1192,6 +1193,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       app.querySelector(".bf-add-url")?.classList.remove("is-invalid-url");
     }));
     app.querySelector(".bf-add-panel")?.addEventListener("submit", createSafeEventHandler(handleAddBookmarkSubmit));
+
+    const folderMenu = app.querySelector(".bf-menu");
+    folderMenu?.addEventListener("keydown", createSafeEventHandler(handleFolderMenuKeydown));
   }
 
   function handleBookmarkPointerDown(event) {
@@ -1953,6 +1957,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    if (action === "open-bookmark-incognito") {
+      openContextBookmarkInIncognito();
+      return;
+    }
+
     if (action === "copy-bookmark-url") {
       copyContextBookmarkUrl();
       return;
@@ -2131,7 +2140,23 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function openContextBookmarkInNewTab() {
     const url = contextMenuState?.url;
     closeContextMenu();
+    closeFolderMenu();
     if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  }
+
+  function openContextBookmarkInIncognito() {
+    const url = contextMenuState?.url;
+    closeContextMenu();
+    closeFolderMenu();
+    if (url && hasExtensionContext()) {
+      try {
+        chrome.runtime.sendMessage({ type: "BF_OPEN_INCOGNITO", url }).catch(() => {});
+      } catch {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    } else if (url) {
       window.open(url, "_blank", "noopener,noreferrer");
     }
   }
@@ -2139,8 +2164,17 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function copyContextBookmarkUrl() {
     const url = contextMenuState?.url;
     closeContextMenu();
+    closeFolderMenu();
     if (url) {
-      navigator.clipboard?.writeText(url).catch(() => {});
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          showContentToastNotification(t("addressCopiedToast") || "✓ Adres panoya kopyalandı");
+        }).catch(() => {
+          showContentToastNotification(t("addressCopiedToast") || "✓ Adres panoya kopyalandı");
+        });
+      } else {
+        showContentToastNotification(t("addressCopiedToast") || "✓ Adres panoya kopyalandı");
+      }
     }
   }
 
@@ -3368,6 +3402,40 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
   }
 
+  function highlightMatchingText(element, text, query) {
+    element.replaceChildren();
+    if (!query) {
+      element.textContent = text;
+      return;
+    }
+    const lowerText = text.toLowerCase();
+    const lowerQuery = query.toLowerCase();
+    let startIndex = 0;
+    let matchIndex = lowerText.indexOf(lowerQuery, startIndex);
+
+    if (matchIndex === -1) {
+      element.textContent = text;
+      return;
+    }
+
+    while (matchIndex !== -1) {
+      if (matchIndex > startIndex) {
+        element.append(document.createTextNode(text.slice(startIndex, matchIndex)));
+      }
+      const mark = document.createElement("mark");
+      mark.className = "bf-highlight";
+      mark.textContent = text.slice(matchIndex, matchIndex + query.length);
+      element.append(mark);
+
+      startIndex = matchIndex + query.length;
+      matchIndex = lowerText.indexOf(lowerQuery, startIndex);
+    }
+
+    if (startIndex < text.length) {
+      element.append(document.createTextNode(text.slice(startIndex)));
+    }
+  }
+
   function openFolderMenu(folderId, anchor) {
     const menu = shadow.querySelector(".bf-menu");
     const folder = findNodeById(getBookmarkTreeRoot(), folderId);
@@ -3375,8 +3443,99 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    lastFolderAnchor = anchor;
     const entries = getFolderMenuEntries(folder);
     menu.replaceChildren();
+
+    const isRailAnchor = Boolean(anchor.closest(".bf-folder-rail"));
+    const railOnRight = Boolean(anchor.closest(".folder-rail-right"));
+    menu.classList.toggle("is-rail-right", railOnRight);
+
+    const header = document.createElement("div");
+    header.className = "bf-menu-header";
+
+    const headerInfo = document.createElement("div");
+    headerInfo.className = "bf-menu-header-info";
+
+    const headerIcon = document.createElement("span");
+    headerIcon.className = "bf-menu-header-icon";
+    headerIcon.textContent = "📁";
+    headerIcon.setAttribute("aria-hidden", "true");
+
+    const headerTitle = document.createElement("span");
+    headerTitle.className = "bf-menu-header-title";
+    headerTitle.textContent = folder.title || t("folder") || "Folder";
+
+    headerInfo.append(headerIcon, headerTitle);
+
+    const headerCount = document.createElement("span");
+    headerCount.className = "bf-menu-header-count";
+    headerCount.textContent = `${entries.length}`;
+    headerCount.title = `${entries.length} ${t("bookmarks") || "bookmarks"}`;
+
+    header.append(headerInfo, headerCount);
+    menu.append(header);
+
+    let filterInput = null;
+    if (entries.length >= 15) {
+      const filterWrap = document.createElement("div");
+      filterWrap.className = "bf-menu-filter-wrap";
+
+      filterInput = document.createElement("input");
+      filterInput.type = "text";
+      filterInput.className = "bf-menu-filter";
+      filterInput.placeholder = t("filterInFolderPlaceholder") || "Filter bookmarks…";
+      filterInput.setAttribute("aria-label", t("filterInFolderPlaceholder") || "Filter bookmarks…");
+
+      const filterClearBtn = document.createElement("button");
+      filterClearBtn.type = "button";
+      filterClearBtn.className = "bf-menu-filter-clear";
+      filterClearBtn.textContent = "×";
+      filterClearBtn.setAttribute("aria-label", t("clearText") || "Clear text");
+      filterClearBtn.hidden = true;
+
+      filterWrap.append(filterInput, filterClearBtn);
+      menu.append(filterWrap);
+
+      const updateFilter = () => {
+        const query = filterInput.value.trim().toLowerCase();
+        filterClearBtn.hidden = !filterInput.value;
+        let matchCount = 0;
+        const results = menu.querySelectorAll(".bf-result");
+        results.forEach((el) => {
+          const titleEl = el.querySelector(".bf-result-title");
+          const rawTitle = titleEl?.dataset.rawTitle || titleEl?.textContent || "";
+          const title = rawTitle.toLowerCase();
+          const url = (el.href || "").toLowerCase();
+          const tags = Array.from(el.querySelectorAll(".bf-tag-pill")).map((p) => p.textContent.toLowerCase()).join(" ");
+          const matches = !query || title.includes(query) || url.includes(query) || tags.includes(query);
+          el.hidden = !matches;
+          if (matches) {
+            matchCount++;
+            if (titleEl) {
+              highlightMatchingText(titleEl, rawTitle, query);
+            }
+          } else if (titleEl) {
+            highlightMatchingText(titleEl, rawTitle, "");
+          }
+        });
+        const emptyFilter = menu.querySelector(".bf-menu-filter-empty");
+        if (emptyFilter) {
+          emptyFilter.hidden = matchCount > 0 || !query;
+        }
+        headerCount.textContent = query ? `${matchCount}/${entries.length}` : `${entries.length}`;
+      };
+
+      filterInput.addEventListener("input", updateFilter);
+
+      filterClearBtn.addEventListener("click", () => {
+        filterInput.value = "";
+        updateFilter();
+        try {
+          filterInput.focus();
+        } catch {}
+      });
+    }
 
     if (!entries.length) {
       const empty = document.createElement("div");
@@ -3387,12 +3546,18 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       entries.slice(0, 120).forEach((entry) => {
         menu.append(createFolderMenuLink(entry));
       });
+
+      if (entries.length >= 15) {
+        const emptyFilter = document.createElement("div");
+        emptyFilter.className = "bf-empty bf-menu-filter-empty";
+        emptyFilter.textContent = t("noMatchingBookmarksInFolder") || "No matching bookmarks found.";
+        emptyFilter.hidden = true;
+        menu.append(emptyFilter);
+      }
     }
 
     const anchorRect = anchor.getBoundingClientRect();
     const appRect = shadow?.querySelector(".bf-app")?.getBoundingClientRect() || host?.getBoundingClientRect() || { left: 0, top: 0, bottom: 0 };
-    const isRailAnchor = Boolean(anchor.closest(".bf-folder-rail"));
-    const railOnRight = Boolean(anchor.closest(".folder-rail-right"));
     const railRect = isRailAnchor ? shadow?.querySelector(".bf-folder-rail")?.getBoundingClientRect() : null;
     const menuWidth = Math.min(420, window.innerWidth - 20);
     const left = isRailAnchor
@@ -3413,16 +3578,158 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
     menu.hidden = false;
     updateFolderRailSelection();
+
+    if (filterInput) {
+      requestAnimationFrame(() => {
+        try {
+          filterInput.focus();
+        } catch {}
+      });
+    }
   }
 
-  function closeFolderMenu() {
+  function closeFolderMenu({ restoreFocus = false } = {}) {
     activeFolderId = "";
     const menu = shadow?.querySelector(".bf-menu");
     if (menu) {
       menu.hidden = true;
+      menu.classList.remove("is-rail-right");
       menu.replaceChildren();
     }
     updateFolderRailSelection();
+    if (restoreFocus && lastFolderAnchor) {
+      try {
+        lastFolderAnchor.focus();
+      } catch {}
+    }
+  }
+
+  function handleFolderMenuKeydown(event) {
+    const menu = shadow?.querySelector(".bf-menu");
+    if (!menu || menu.hidden || !activeFolderId) {
+      return false;
+    }
+
+    const filterInput = menu.querySelector(".bf-menu-filter");
+    const isFilterFocused = filterInput && (shadow?.activeElement === filterInput || document.activeElement === filterInput);
+    const visibleResults = Array.from(menu.querySelectorAll(".bf-result:not([hidden])"));
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      if (filterInput && filterInput.value) {
+        filterInput.value = "";
+        filterInput.dispatchEvent(new Event("input"));
+        return true;
+      }
+      closeFolderMenu({ restoreFocus: true });
+      return true;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!visibleResults.length) {
+        return true;
+      }
+
+      let activeIndex = visibleResults.findIndex(
+        (el) => el === shadow?.activeElement || el.classList.contains("is-keyboard-active")
+      );
+
+      let nextIndex = 0;
+      if (isFilterFocused || activeIndex === -1) {
+        nextIndex = 0;
+      } else {
+        nextIndex = (activeIndex + 1) % visibleResults.length;
+      }
+
+      visibleResults.forEach((el, idx) => {
+        el.classList.toggle("is-keyboard-active", idx === nextIndex);
+      });
+      visibleResults[nextIndex]?.focus();
+      visibleResults[nextIndex]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      return true;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!visibleResults.length) {
+        return true;
+      }
+
+      let activeIndex = visibleResults.findIndex(
+        (el) => el === shadow?.activeElement || el.classList.contains("is-keyboard-active")
+      );
+
+      if (activeIndex <= 0) {
+        if (filterInput) {
+          visibleResults.forEach((el) => el.classList.remove("is-keyboard-active"));
+          filterInput.focus();
+          return true;
+        }
+        activeIndex = visibleResults.length;
+      }
+
+      let prevIndex = activeIndex - 1;
+      if (prevIndex < 0) {
+        prevIndex = visibleResults.length - 1;
+      }
+
+      visibleResults.forEach((el, idx) => {
+        el.classList.toggle("is-keyboard-active", idx === prevIndex);
+      });
+      visibleResults[prevIndex]?.focus();
+      visibleResults[prevIndex]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      return true;
+    }
+
+    if (event.key === "Enter") {
+      if (isFilterFocused && visibleResults.length > 0) {
+        event.preventDefault();
+        event.stopPropagation();
+        visibleResults[0].click();
+        return true;
+      }
+      const activeItem = visibleResults.find(
+        (el) => el === shadow?.activeElement || el.classList.contains("is-keyboard-active")
+      );
+      if (activeItem) {
+        event.preventDefault();
+        event.stopPropagation();
+        activeItem.click();
+        return true;
+      }
+    }
+
+    if (event.key === "Tab") {
+      if (!visibleResults.length) return false;
+      const activeIndex = visibleResults.findIndex((el) => el === shadow?.activeElement);
+      if (isFilterFocused && !event.shiftKey) {
+        event.preventDefault();
+        event.stopPropagation();
+        visibleResults[0]?.focus();
+        visibleResults.forEach((el, idx) => el.classList.toggle("is-keyboard-active", idx === 0));
+        return true;
+      }
+      if (activeIndex === 0 && event.shiftKey && filterInput) {
+        event.preventDefault();
+        event.stopPropagation();
+        visibleResults.forEach((el) => el.classList.remove("is-keyboard-active"));
+        filterInput.focus();
+        return true;
+      }
+      if (activeIndex === visibleResults.length - 1 && !event.shiftKey && filterInput) {
+        event.preventDefault();
+        event.stopPropagation();
+        visibleResults.forEach((el) => el.classList.remove("is-keyboard-active"));
+        filterInput.focus();
+        return true;
+      }
+    }
+
+    return false;
   }
 
   function updateFolderRailSelection() {
@@ -3527,6 +3834,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (node.url) {
       menu.append(
         createContextMenuButton("open-bookmark-tab", t("openInNewTab")),
+        createContextMenuButton("open-bookmark-incognito", t("openInIncognitoWindow")),
         createContextMenuButton("copy-bookmark-url", t("copyAddress")),
         createContextMenuButton("rename-bookmark", t("renameBookmark")),
         createContextMenuButton("edit-bookmark-tags", t("editTags"))
@@ -4135,6 +4443,43 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function createFolderMenuLink(entry) {
     const link = createResultLink(entry);
     markFolderMenuItem(link, entry);
+    link.addEventListener("click", () => {
+      closeFolderMenu();
+    });
+    link.addEventListener("auxclick", (event) => {
+      if (event.button === 1 && entry.url) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (hasExtensionContext()) {
+          try {
+            chrome.runtime.sendMessage({
+              type: "BF_OPEN_BACKGROUND_TAB",
+              url: entry.url
+            }).catch(() => {
+              window.open(entry.url, "_blank", "noopener,noreferrer");
+            });
+          } catch {
+            window.open(entry.url, "_blank", "noopener,noreferrer");
+          }
+        } else {
+          window.open(entry.url, "_blank", "noopener,noreferrer");
+        }
+      }
+    });
+    link.addEventListener("contextmenu", (event) => {
+      const node = findNodeById(getBookmarkTreeRoot(), entry.id);
+      if (node) {
+        event.preventDefault();
+        event.stopPropagation();
+        openBookmarkContextMenu(node, event.clientX, event.clientY);
+      }
+    });
+    link.addEventListener("mouseenter", () => {
+      const menu = shadow?.querySelector(".bf-menu");
+      menu?.querySelectorAll(".bf-result.is-keyboard-active")?.forEach((el) => {
+        el.classList.remove("is-keyboard-active");
+      });
+    });
     return link;
   }
 
@@ -4466,7 +4811,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     const title = document.createElement("span");
     title.className = "bf-result-title";
-    title.textContent = entry.title || getHostname(entry.url);
+    const rawTitle = entry.title || getHostname(entry.url);
+    title.textContent = rawTitle;
+    title.dataset.rawTitle = rawTitle;
 
     const path = document.createElement("span");
     path.className = "bf-result-path";
@@ -4940,13 +5287,18 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       }
 
       closeCommandPalette();
-      closeFolderMenu();
+      closeFolderMenu({ restoreFocus: true });
       closeContextMenu();
       closeAddBookmarkDialog();
       const panel = shadow?.querySelector(".bf-results");
       if (panel) {
         panel.hidden = true;
       }
+      return;
+    }
+
+    if (!activeModalPanel && handleFolderMenuKeydown(event)) {
+      return;
     }
   }
 

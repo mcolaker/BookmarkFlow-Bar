@@ -1582,3 +1582,136 @@ test("turquoise glow clock greeting and folder merge button contract (BF-UX-029)
   assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+#merge\.primary:active:not\(:disabled\)/u, "bookmark-maintenance.css must style #merge.primary active");
   assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+button:focus-visible/u, "bookmark-maintenance.css must style button:focus-visible for turquoise-glow");
 });
+
+test("folder menu keyboard navigation, escape restore focus, and in-menu filter contract (BF-UX-031)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+
+  // Keyboard navigation handler and keys
+  assert.match(contentJs, /function handleFolderMenuKeydown\s*\(/u, "content.js must define handleFolderMenuKeydown");
+  assert.match(contentJs, /event\.key === "ArrowDown"/u, "handleFolderMenuKeydown must handle ArrowDown");
+  assert.match(contentJs, /event\.key === "ArrowUp"/u, "handleFolderMenuKeydown must handle ArrowUp");
+  assert.match(contentJs, /event\.key === "Enter"/u, "handleFolderMenuKeydown must handle Enter");
+  assert.match(contentJs, /event\.key === "Escape"/u, "handleFolderMenuKeydown must handle Escape");
+
+  // In-menu filter input when folder has >= 15 items
+  assert.match(contentJs, /entries\.length >= 15/u, "openFolderMenu must render filter input for folders with >= 15 bookmarks");
+  assert.match(contentJs, /bf-menu-filter/u, "openFolderMenu must create .bf-menu-filter input");
+  assert.match(contentJs, /filterInFolderPlaceholder/u, "openFolderMenu must use localized placeholder");
+
+  // Restore focus to folder anchor on close
+  assert.match(contentJs, /lastFolderAnchor\s*=\s*anchor/u, "openFolderMenu must save lastFolderAnchor");
+  assert.match(contentJs, /lastFolderAnchor\.focus\(\)/u, "closeFolderMenu must restore focus to lastFolderAnchor");
+
+  // Mouse hover resets keyboard active indicator
+  assert.match(contentJs, /el\.classList\.remove\("is-keyboard-active"\)/u, "createFolderMenuLink must clear keyboard active on mouseenter");
+});
+
+test("folder menu spring physics motion and appearance keyframes contract (BF-UX-032)", () => {
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+
+  // Spring physics keyframes and cubic-bezier motion
+  assert.match(contentCss, /@keyframes bfMenuAppear\b/u, "content.css must define bfMenuAppear keyframe");
+  assert.match(contentCss, /@keyframes bfMenuAppearBottom\b/u, "content.css must define bfMenuAppearBottom keyframe");
+  assert.match(contentCss, /cubic-bezier\(0\.16,\s*1,\s*0\.3,\s*1\)/u, "content.css must use spring cubic-bezier curve");
+  assert.match(contentCss, /\.bf-menu:not\(\[hidden\]\)\s*\{[^}]*animation:\s*bfMenuAppear/u, "content.css must animate .bf-menu on open");
+  assert.match(contentCss, /:host\(\.bf-bottom\)\s+\.bf-menu:not\(\[hidden\]\)\s*\{[^}]*animation:\s*bfMenuAppearBottom/u, "content.css must animate bottom menu");
+
+  // Filter input and empty state styles
+  assert.match(contentCss, /\.bf-menu-filter-wrap\b/u, "content.css must style .bf-menu-filter-wrap");
+  assert.match(contentCss, /\.bf-menu-filter\b/u, "content.css must style .bf-menu-filter");
+  assert.match(contentCss, /\.bf-menu-filter:focus\b/u, "content.css must style .bf-menu-filter:focus");
+  assert.match(contentCss, /\.bf-menu-filter-empty\b/u, "content.css must style .bf-menu-filter-empty");
+
+  // Keyboard active focus ring
+  assert.match(contentCss, /\.bf-menu\s+\.bf-result\.is-keyboard-active\b/u, "content.css must style .is-keyboard-active");
+});
+
+test("folder menu quick clear filter micro action contract (BF-UX-033)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  // Localization keys
+  assert.ok(enMessages.clearText?.message, "en messages must define clearText");
+  assert.ok(trMessages.clearText?.message, "tr messages must define clearText");
+
+  // Filter clear button creation and DOM binding
+  assert.match(contentJs, /bf-menu-filter-clear/u, "content.js must create .bf-menu-filter-clear button");
+  assert.match(contentJs, /filterClearBtn\.textContent\s*=\s*"×"/u, "filterClearBtn must render × character");
+  assert.match(contentJs, /t\("clearText"\)/u, "filterClearBtn must use localized clearText aria-label");
+  assert.match(contentJs, /filterClearBtn\.hidden\s*=\s*!filterInput\.value/u, "filterClearBtn visibility must reflect filterInput.value");
+
+  // Click behavior: clear text, re-filter, restore focus
+  assert.match(contentJs, /filterInput\.value\s*=\s*""[^;]*;\s*updateFilter\(\)/u, "filterClearBtn click must clear input and re-filter");
+  assert.match(contentJs, /filterInput\.focus\(\)/u, "filterClearBtn click must return focus to input");
+
+  // CSS styling: absolute position, padding clearance, hover and focus-visible
+  assert.match(contentCss, /\.bf-menu-filter\s*\{[^}]*padding:\s*0\s+28px\s+0\s+10px/u, "content.css must pad .bf-menu-filter to prevent text overlap with clear button");
+  assert.match(contentCss, /\.bf-menu-filter-clear\s*\{[^}]*position:\s*absolute/u, "content.css must position .bf-menu-filter-clear absolutely");
+  assert.match(contentCss, /\.bf-menu-filter-clear\s*\{[^}]*right:\s*6px/u, "content.css must position .bf-menu-filter-clear at right: 6px");
+  assert.match(contentCss, /\.bf-menu-filter-clear:focus-visible/u, "content.css must provide visible focus outline for .bf-menu-filter-clear");
+});
+
+test("folder menu item right click context menu and incognito/copy action contract (BF-UX-034)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  // Localization keys
+  assert.ok(enMessages.openInIncognitoWindow?.message, "en messages must define openInIncognitoWindow");
+  assert.ok(trMessages.openInIncognitoWindow?.message, "tr messages must define openInIncognitoWindow");
+  assert.ok(enMessages.addressCopiedToast?.message, "en messages must define addressCopiedToast");
+  assert.ok(trMessages.addressCopiedToast?.message, "tr messages must define addressCopiedToast");
+
+  // Folder menu item right-click context menu attachment
+  assert.match(contentJs, /link\.addEventListener\("contextmenu",\s*\(event\)\s*=>/u, "createFolderMenuLink must attach contextmenu event");
+  assert.match(contentJs, /openBookmarkContextMenu\(node,\s*event\.clientX,\s*event\.clientY\)/u, "folder menu link contextmenu must open context menu with coords");
+
+  // Context menu incognito option
+  assert.match(contentJs, /createContextMenuButton\("open-bookmark-incognito",\s*t\("openInIncognitoWindow"\)\)/u, "openBookmarkContextMenu must include incognito button");
+  assert.match(contentJs, /action === "open-bookmark-incognito"/u, "handleAction must route open-bookmark-incognito");
+  assert.match(contentJs, /function openContextBookmarkInIncognito\s*\(/u, "content.js must define openContextBookmarkInIncognito");
+  assert.match(contentJs, /type:\s*"BF_OPEN_INCOGNITO"/u, "openContextBookmarkInIncognito must send BF_OPEN_INCOGNITO message");
+
+  // Background incognito routing
+  assert.match(backgroundJs, /message\?\.type === "BF_OPEN_INCOGNITO"/u, "background.js must handle BF_OPEN_INCOGNITO");
+  assert.match(backgroundJs, /chrome\.windows\.create\(\{\s*incognito:\s*true/u, "background.js must create incognito window");
+
+  // Copy address toast feedback
+  assert.match(contentJs, /showContentToastNotification\(t\("addressCopiedToast"\)/u, "copyContextBookmarkUrl must show addressCopiedToast notification");
+});
+
+test("folder menu auxclick middle-click background tab contract (BF-UX-035)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+
+  // Middle-click auxclick listener on folder menu link
+  assert.match(contentJs, /link\.addEventListener\("auxclick",\s*\(event\)\s*=>/u, "createFolderMenuLink must attach auxclick listener");
+  assert.match(contentJs, /event\.button === 1/u, "auxclick listener must check for middle mouse button (button === 1)");
+  assert.match(contentJs, /type:\s*"BF_OPEN_BACKGROUND_TAB"/u, "auxclick must dispatch BF_OPEN_BACKGROUND_TAB message");
+
+  // Background message handler
+  assert.match(backgroundJs, /message\?\.type === "BF_OPEN_BACKGROUND_TAB"/u, "background.js must handle BF_OPEN_BACKGROUND_TAB");
+  assert.match(backgroundJs, /chrome\.tabs\.create\(\{\s*url,\s*active:\s*false\s*\}\)/u, "background.js must create tab with active: false for background opening");
+});
+
+test("folder menu filter matching substring highlight contract (BF-UX-036)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+
+  // Helper and safe DOM highlight implementation
+  assert.match(contentJs, /function highlightMatchingText\s*\(/u, "content.js must define highlightMatchingText");
+  assert.match(contentJs, /document\.createElement\("mark"\)/u, "highlightMatchingText must create safe <mark> element");
+  assert.match(contentJs, /mark\.className\s*=\s*"bf-highlight"/u, "highlight mark element must have bf-highlight class");
+
+  // Filter integration and raw title storage
+  assert.match(contentJs, /highlightMatchingText\(titleEl,\s*rawTitle,\s*query\)/u, "updateFilter must call highlightMatchingText with query for matches");
+  assert.match(contentJs, /title\.dataset\.rawTitle\s*=\s*rawTitle/u, "createResultLink must preserve original title in dataset.rawTitle");
+
+  // CSS styling
+  assert.match(contentCss, /\.bf-highlight\s*\{[^}]*background:\s*var\(--bf-theme-accent-glow/u, "content.css must style .bf-highlight background with accent glow");
+  assert.match(contentCss, /\.bf-highlight\s*\{[^}]*color:\s*var\(--bf-theme-accent/u, "content.css must style .bf-highlight text color with accent");
+  assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-highlight\s*\{[^}]*background:\s*Highlight/u, "content.css must style .bf-highlight in forced-colors mode");
+});

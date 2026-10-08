@@ -1,6 +1,6 @@
 # PROJECT_STATE.md — BookmarkFlow Bar Canlı Proje Durumu
 
-Son güncelleme: 2026-10-02
+Son güncelleme: 2026-10-08
 Aktif Sürüm: `0.3.1`
 Aktif Dal: `main` (Sürüm: `v0.3.1`)
 
@@ -22,8 +22,10 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 118/118 PASS (%100 yeşil).
-- **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog, raw-key ve yönetişim sözleşmeleri temiz).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 136/136 PASS (%100 yeşil).
+- **Kural Uyumluluk ve Bağlam Bütçe Kapısı**: `AGENT_RULE_COMPLIANCE_BENCHMARK.md` ve `scripts/validate-governance.mjs` (Context ceiling budget <20 KB) devrede.
+- **Canlı Konsol Hata Bekçisi**: `scripts/live-console-guard.mjs` (`npm run guard:console`) ile Port 9222 CDP eklenti konsol ve istisna izleme aktif.
+- **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog, raw-key, MV3 deprecation ve yönetişim sözleşmeleri temiz).
 - **Biçim ve Satır Sonu**: `git diff --check` -> Sıfır hata (CRLF/LF normalize, EOF boş satırsız).
 - **Gizli Veri Denetimi**: Sıfır API anahtarı, sıfır token, sıfır mutlak kullanıcı yolu.
 
@@ -50,6 +52,14 @@ v0.3.1 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak et
 15. **Tam Otonom Geliştirici Araçları/MCP Ekosistemi, CI Raw-Key Kapısı ve Canlı Chrome CDP Pilotu (BF-GOV-021 / Karar 28)**: Modern Web Guidance, Chrome Extensions, Chrome DevTools MCP, Google Developer Knowledge, Context7, Sequential Thinking, Codebase Memory, Gemini API & Agentic Video ve Google Workspace araçlarının tam otonom inisiyatifi; `.github/workflows/validate.yml` CI iş akışında bağımsız `npm run test:raw-keys` adımı; `scripts/package-release.mjs` ve `package-cross-browser.mjs` paketleme süreçlerinde `assertRawKeyIntegrity` fail-closed kapısı; ve kullanıcının port 9222 üzerindeki canlı çalışan Chrome profiline bağlanan `scripts/live-chrome-pilot.mjs` pilotu.
 16. **Kural-Bazlı Tetikleyiciler ve Kural-Ötesi Tam Model Karar İnisiyatifi (BF-GOV-022 / Karar 29)**: Chrome DevTools, Modern Web Guidance, Google Developer Knowledge, Context7, Gemini API/Agentic Video, Live Chrome Pilot ve Google Workspace için alan bazlı tetikleyiciler kodlandı; ayrıca yapay zeka modeline tanımlı kuralların ötesinde dilediği MCP'yi kendi uzman teknik inisiyatifiyle tam otonom çalıştırma yetkisi (Beyond-Rules Autonomous Discretion) verildi.
 17. **Manifest V3 API Uyumluluk ve Sıfır Deprecation Güvencesi (BF-QA-005 / Karar 30)**: Kod tabanındaki tüm Chrome API çağrılarının (`bookmarks`, `storage`, `tabs`, `runtime`, `search`, `scripting`, `action`, `commands`, `omnibox`) Manifest V3 resmi standartlarıyla tam uyumlu olduğunu, eski MV2 senkron metotlarının bulunmadığını, CSP `eval`/`Function` ve uzak scriptlerin engellendiğini, Service Worker içinde DOM globalsiz çalışıldığını denetleyen fail-closed `scripts/mv3-api-audit.test.mjs` test paketi, `npm run test:mv3` komutu, CI kontrol adımı ve paketleme ön kancası (`assertMv3Compliance`) devreye alındı.
+18. **JaponiGo Kural Uyumluluk Benchmark'ı, Bağlam Bütçe Kapısı, Sessiz Yanıt Kapısı ve Kalite Dörtgeni (BF-GOV-023 / Karar 31)**: Modelin yeni oturumlarda 24 P0 kuralına tam uyumunu sentetik İngilizce prompt ile denetleyen `AGENT_RULE_COMPLIANCE_BENCHMARK.md` kılavuzu; `scripts/validate-governance.mjs` içerisinde `AGENTS.md` context ceiling bütçe kapısı (max 20 KB); `AGENTS.md` P0-25 Sessiz Nihai Yanıt Kapısı (Final Response Gate); `ui_accessibility.md` altında 4 hakemli Eklenti Kusursuz Kalite Dörtgeni; ve port 9222 CDP eklenti konsol/istisna izleyicisi `scripts/live-console-guard.mjs` (`npm run guard:console`).
+19. **Açılır Klasör Menüsünde Metin Çakışması Giderimi ve Dinamik Satır Mimarisi (BF-UX-030)**: Sabit `35px` satır yüksekliğinin etiketler ve klasör yolu içeren satırlarda dikey taşmaya yol açarak alttaki yer imlerinin üzerine binmesi sorunu kökten çözüldü (`min-height: 38px`, `height: auto`, dikey flex düzeni); açılır klasör menüsü içerisindeki mükerrer klasör yolu kalabalığı gizlendi ve menünün en üstüne klasör ikonu, adı ve dinamik sayaç rozeti içeren şık `.bf-menu-header` bileşeni eklendi.
+20. **Açılır Klasör Menüsünde Tam Klavye Dolaşımı ve Odak Döngüsü (BF-UX-031)**: Menü açıkken `ArrowDown` ve `ArrowUp` tuşlarıyla yer imleri arasında akıcı gezinme, `Enter` ile seçili bağlantıyı açma, `Tab`/`Shift+Tab` ile döngüsel dolaşım ve `Escape` ile menü kapanırken odağı otomatik olarak açılış butonuna (`lastFolderAnchor`) geri yükleyen erişilebilir klavye mimarisi devreye alındı.
+21. **Kalabalık Klasörler İçin Canlı Filtreleme ve Yay Fiziği Animasyonu (BF-UX-032)**: 15 veya daha fazla yer imi içeren klasörlerde otomatik beliren 28px kompakt canlı arama girdisi (`.bf-menu-filter`, tam TR/EN paritesi), canlı sayaç (`matchCount/total`) ve anlık filtreleme; açılışta `cubic-bezier(0.16, 1, 0.3, 1)` mikro yay fiziği (`bfMenuAppear`, `bfMenuAppearBottom`) ile akıcı görünüm kazandırıldı.
+22. **Açılır Klasör Menüsünde Hızlı Temizleme (Clear Input `×`) Mikro Aksiyonu (BF-UX-033)**: Menü içi canlı filtre kutusunda metin girildiğinde sağ tarafta beliren kompakt ve erişilebilir `×` temizleme butonu (`.bf-menu-filter-clear`, `clearText` çeviri anahtarı, klavye `:focus-visible` halkası); tek tıkla aramayı sıfırlar, tüm yer imlerini geri yükler ve odağı otomatik olarak arama kutusuna iade eder.
+23. **Açılır Menü Yer İmlerinde Sağ Tık ile "Gizli Pencerede Aç" / "Kopyala" Hızlı Eylemleri (BF-UX-034)**: Klasör menüsündeki herhangi bir yer imine sağ tıklandığında doğrudan açılan BookmarkFlow bağlam menüsü; `BF_OPEN_INCOGNITO` mesaj rotasıyla güvenli gizli pencere açma (`openInIncognitoWindow`) ve panoya kopyalama sonrası anlık yeşil onay bildirimi (`addressCopiedToast`) ile tam teşekküllü yer imi yönetimi.
+24. **Açılır Menü Yer İmlerinde Orta Tık (Auxclick) ile Arka Planda Yeni Sekmede Açma (BF-UX-035)**: Klasör menüsündeki yer imlerine fare tekerleğiyle (orta tık) tıklandığında menüyü kapatmadan bağlantıyı `BF_OPEN_BACKGROUND_TAB` mesaj rotasıyla (`chrome.tabs.create({ url, active: false })`) arka planda yeni sekmede açma yeteneği; peş peşe sekme açmak isteyen kullanıcılar için akıcı ve kesintisiz gezinme desteği.
+25. **Menü İçi Filtreleme İçin Eşleşen Karakterleri Vurgulama (Highlight Matching Substring - BF-UX-036)**: Kullanıcı canlı filtreye metin girdiğinde, yer imi başlığında sorguyla eşleşen karakterlerin XSS korumalı güvenli DOM text node mimarisiyle `<mark class="bf-highlight">` içine alınarak tema vurgusuyla (`--bf-theme-accent-glow`, `--bf-theme-accent`) belirginleştirilmesi; yüksek kontrast modunda (`forced-colors`) tam erişilebilir stil entegrasyonu.
 
 ---
 
