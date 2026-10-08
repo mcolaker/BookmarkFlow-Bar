@@ -2,6 +2,15 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-08] — JaponiGo Çekirdek Sinerjisi ve 3-Kademeli Raw-Key Güvencesi (BF-GOV-020 / Karar 27)
+- **Otonom Yerel Ara Kilometre Taşı Commit Yetkisi**: Modelin yeşil test ve hatasız statik analizle tamamladığı mantıksal ara adımlarda kullanıcıyı bekletmeden otonom yerel commit (`git commit -s`) oluşturabilmesi `AGENTS.md` P0-21 kuralına bağlandı; uzak işlemler kullanıcının kontrolünde tutuldu.
+- **İki Kollu Tarayıcı Mimarisi & Kullanıcının Canlı Chrome Profili (`port 9222 / CDP`)**: Kamuya açık web araştırmaları için sıfır izinli Chrome DevTools MCP; mağaza konsolu, GitHub ve sosyal medya işlemleri içinse kullanıcının aktif çalışan Chrome oturumuna doğrudan bağlanma (`User's Live Chrome Invariant`) `AGENTS.md` P0-22 kuralına bağlandı.
+- **3-Kademeli Dil ve Raw-Key Güvencesi (`test:raw-keys`)**: Ekranda çevrilmemiş ham anahtar (`nt_*`, `bar_*`, `quick_*`) veya bozuk UTF-8 (mojibake) sızıntılarını fail-closed denetleyen `scripts/raw-key-contract.test.mjs` yazıldı ve `AGENTS.md` P0-23 kuralına eklendi.
+- **Asgari Ön İnceleme ve Uygulama Sınırları**: Yeni kod yazmadan önce mevcut desen, yardımcı fonksiyon ve modern yerel web API'lerini önceliklendirme ilkesi `AGENTS.md` Bölüm 3 altına entegre edildi.
+- **Kural ve Bellek Rafinasyonu**: Kuralların biriktirilerek bağlamı şişirmemesi, zamanla daha keskin ve modüler hale getirilmesi ilkesi kabul edildi.
+
+---
+
 ## [2026-10-02] — Tek Komutla Sürüm Etiketleme, Paketleme ve GitHub Release Orkestrasyonu (BF-GOV-019 / Karar 26)
 - **Sürüm Yayınlama Orkestrasyonu (`scripts/release-pipeline.mjs`)**: Test çalıştırma (`npm run validate:all`), çalışma ağacı temizlik denetimi, Git annotated imzalı tag oluşturma (`git tag -s vX.Y.Z`), Chromium, Firefox ve Edge paketleme ve GitHub Release varlık yükleme (`releaseWithGhCli`) adımları tek bir yerel orkestrasyon betiğinde (`npm run release:full`) birleştirildi.
 - **Dry-Run ve Güvenlik Parametreleri**: `--dry-run`, `--skip-tests` ve `--skip-tag` parametreleri eklenerek sürüm öncesi tam simülasyon ve kontrollü dağıtım sağlandı; kirli çalışma ağaçlarında fail-closed durma mekanizması garantiye alındı.

@@ -38,6 +38,10 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(agents, /DECISION_INDEX\.md/u, "AGENTS.md must reference DECISION_INDEX.md");
   assert.match(agents, /Otonom Video İnisiyatifi/u, "AGENTS.md must declare Autonomous Video Trigger Authority");
   assert.match(agents, /Otonom Geliştirici Araçları ve Teftiş İnisiyatifi/u, "AGENTS.md must declare Autonomous DevTools, Web Guidance & Gemini API Authority");
+  assert.match(agents, /Otonom Ara Kilometre Taşı Commit Yetkisi/u, "AGENTS.md must declare Milestone Commit Authority");
+  assert.match(agents, /İki Kollu Tarayıcı Mimarisi/u, "AGENTS.md must declare Bifurcated Browser Architecture");
+  assert.match(agents, /3-Kademeli Dil ve Canlı Arayüz Raw-Key Güvencesi/u, "AGENTS.md must declare 3-Tier Localization");
+  assert.match(agents, /Asgari Ön İnceleme & Uygulama Sınırları/u, "AGENTS.md must declare Minimum Preflight Boundaries");
 
   const decisionIndex = readFileSync(path.join(root, "docs/agent/DECISION_INDEX.md"), "utf8");
   assert.match(decisionIndex, /# DECISION_INDEX\.md/u, "DECISION_INDEX.md must declare header");
@@ -51,6 +55,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(decisionIndex, /GitHub Actions Otomatik PR Birleştirme/u, "DECISION_INDEX.md must contain Decision 24");
   assert.match(decisionIndex, /GitHub CLI Otomatik Release Betiği/u, "DECISION_INDEX.md must contain Decision 25");
   assert.match(decisionIndex, /Tek Komutla Sürüm Etiketleme, Paketleme ve GitHub Release Orkestrasyonu/u, "DECISION_INDEX.md must contain Decision 26");
+  assert.match(decisionIndex, /JaponiGo Çekirdek Sinerjisi/u, "DECISION_INDEX.md must contain Decision 27");
 
   const projectState = readFileSync(path.join(root, "docs/agent/PROJECT_STATE.md"), "utf8");
   assert.match(projectState, /# PROJECT_STATE\.md/u, "PROJECT_STATE.md must declare header");
@@ -60,6 +65,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(projectState, /BF-GOV-017/u, "PROJECT_STATE.md must document BF-GOV-017");
   assert.match(projectState, /BF-GOV-018/u, "PROJECT_STATE.md must document BF-GOV-018");
   assert.match(projectState, /BF-GOV-019/u, "PROJECT_STATE.md must document BF-GOV-019");
+  assert.match(projectState, /BF-GOV-020/u, "PROJECT_STATE.md must document BF-GOV-020");
 
   const ruleChangelog = readFileSync(path.join(root, "docs/agent/RULE_CHANGELOG.md"), "utf8");
   assert.match(ruleChangelog, /BF-GOV-010/u, "RULE_CHANGELOG.md must document BF-GOV-010");
@@ -70,6 +76,7 @@ test("operating kernel and governance files contract (BF-GOV-010)", () => {
   assert.match(ruleChangelog, /BF-GOV-017/u, "RULE_CHANGELOG.md must document BF-GOV-017");
   assert.match(ruleChangelog, /BF-GOV-018/u, "RULE_CHANGELOG.md must document BF-GOV-018");
   assert.match(ruleChangelog, /BF-GOV-019/u, "RULE_CHANGELOG.md must document BF-GOV-019");
+  assert.match(ruleChangelog, /BF-GOV-020/u, "RULE_CHANGELOG.md must document BF-GOV-020");
 });
 
 test("agentic motion & media QA scripts contract (BF-QA-002, BF-QA-003, BF-QA-004)", () => {

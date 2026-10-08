@@ -63,3 +63,9 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
 - **Tek Komutla Sürüm Etiketleme, Paketleme ve GitHub Release Orkestrasyonu (BF-GOV-019)**:
   - `npm run release:full` (`scripts/release-pipeline.mjs`) komutu ile test doğrulaması, çalışma ağacı denetimi, Git annotated imzalı etiket oluşturma, Chromium, Firefox ve Edge paketleme ve GitHub Release yayınlama işlemleri uçtan uca tek adımda icra edilir.
   - Sürüm öncesi testler `--dry-run` bayrağı ile risksiz şekilde simüle edilebilir.
+- **Otonom Yerel Ara Commit Yetkisi (BF-GOV-020 / Karar 27)**:
+  - Model; ara kilometre taşlarında testler yeşil (`npm test` 110+/110+) ve analizi temiz olduğunda kullanıcıya sormadan otonom olarak DCO imzalı yerel commit (`git commit -s`) oluşturur; uzak push/PR ise kullanıcı onayıyla yürütülür.
+- **Canlı Kullanıcı Profili Zorunluluğu (User's Live Chrome Invariant - Karar 27)**:
+  - Chrome Web Store Developer Console, GitHub ve sosyal medya (X, LinkedIn) yayınlarında kesinlikle geçici/izole sahte profiller açılmaz; doğrudan kullanıcının varsayılan çalışan Chrome oturumuna CDP (`port 9222`) ile bağlanılır.
+- **3-Kademeli Raw-Key ve Dil Güvencesi (BF-GOV-020 / Karar 27)**:
+  - Sürüm paketlemesi öncesinde `npm run test:raw-keys` çalıştırılarak hiçbir arayüzde çevrilmemiş ham anahtar (`nt_*`, `bar_*`) veya bozuk karakter (mojibake) kalmadığı doğrulanır.
