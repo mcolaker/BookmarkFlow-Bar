@@ -3404,35 +3404,75 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
   function highlightMatchingText(element, text, query) {
     element.replaceChildren();
-    if (!query) {
-      element.textContent = text;
+    if (!text) {
       return;
     }
-    const lowerText = text.toLowerCase();
-    const lowerQuery = query.toLowerCase();
-    let startIndex = 0;
-    let matchIndex = lowerText.indexOf(lowerQuery, startIndex);
-
-    if (matchIndex === -1) {
+    if (!query || typeof query !== "string") {
       element.textContent = text;
       return;
     }
 
-    while (matchIndex !== -1) {
-      if (matchIndex > startIndex) {
-        element.append(document.createTextNode(text.slice(startIndex, matchIndex)));
+    const rawTokens = query.trim().split(/\s+/).filter(Boolean);
+    const tokens = [];
+    for (const raw of rawTokens) {
+      const t = raw.startsWith("#") ? raw.slice(1).trim() : raw.trim();
+      if (t) {
+        tokens.push(t.toLocaleLowerCase(getTextLocale()));
+      }
+    }
+
+    if (tokens.length === 0) {
+      element.textContent = text;
+      return;
+    }
+
+    const lowerText = text.toLocaleLowerCase(getTextLocale());
+    const ranges = [];
+
+    for (const token of tokens) {
+      let startIndex = 0;
+      while (startIndex < lowerText.length) {
+        const matchIndex = lowerText.indexOf(token, startIndex);
+        if (matchIndex === -1) {
+          break;
+        }
+        ranges.push([matchIndex, matchIndex + token.length]);
+        startIndex = matchIndex + 1;
+      }
+    }
+
+    if (ranges.length === 0) {
+      element.textContent = text;
+      return;
+    }
+
+    ranges.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+
+    const merged = [ranges[0]];
+    for (let i = 1; i < ranges.length; i++) {
+      const prev = merged[merged.length - 1];
+      const curr = ranges[i];
+      if (curr[0] <= prev[1]) {
+        prev[1] = Math.max(prev[1], curr[1]);
+      } else {
+        merged.push(curr);
+      }
+    }
+
+    let lastIndex = 0;
+    for (const [start, end] of merged) {
+      if (start > lastIndex) {
+        element.append(document.createTextNode(text.slice(lastIndex, start)));
       }
       const mark = document.createElement("mark");
       mark.className = "bf-highlight";
-      mark.textContent = text.slice(matchIndex, matchIndex + query.length);
+      mark.textContent = text.slice(start, end);
       element.append(mark);
-
-      startIndex = matchIndex + query.length;
-      matchIndex = lowerText.indexOf(lowerQuery, startIndex);
+      lastIndex = end;
     }
 
-    if (startIndex < text.length) {
-      element.append(document.createTextNode(text.slice(startIndex)));
+    if (lastIndex < text.length) {
+      element.append(document.createTextNode(text.slice(lastIndex)));
     }
   }
 
@@ -3966,7 +4006,16 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       empty.textContent = t("noResults");
       panel.append(empty);
     } else {
-      entries.forEach((entry) => panel.append(createResultLink(entry)));
+      entries.forEach((entry) => {
+        const link = createResultLink(entry);
+        if (query) {
+          const titleEl = link.querySelector(".bf-result-title");
+          if (titleEl) {
+            highlightMatchingText(titleEl, titleEl.dataset.rawTitle || titleEl.textContent || "", query);
+          }
+        }
+        panel.append(link);
+      });
     }
 
     panel.hidden = false;
@@ -4416,7 +4465,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     commandActiveIndex = clamp(commandActiveIndex, 0, entries.length - 1);
     entries.forEach((entry, index) => {
-      list.append(createCommandLink(entry, index));
+      const link = createCommandLink(entry, index);
+      if (query && !entry.isQuickAction) {
+        const titleEl = link.querySelector(".bf-result-title");
+        if (titleEl) {
+          highlightMatchingText(titleEl, titleEl.dataset.rawTitle || titleEl.textContent || "", query);
+        }
+      }
+      list.append(link);
     });
     syncActiveCommandItem(list, { scroll: false });
   }

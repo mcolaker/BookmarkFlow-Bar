@@ -22,7 +22,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 136/136 PASS (%100 yeşil).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 137/137 PASS (%100 yeşil).
 - **Kural Uyumluluk ve Bağlam Bütçe Kapısı**: `AGENT_RULE_COMPLIANCE_BENCHMARK.md` ve `scripts/validate-governance.mjs` (Context ceiling budget <20 KB) devrede.
 - **Canlı Konsol Hata Bekçisi**: `scripts/live-console-guard.mjs` (`npm run guard:console`) ile Port 9222 CDP eklenti konsol ve istisna izleme aktif.
 - **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog, raw-key, MV3 deprecation ve yönetişim sözleşmeleri temiz).
@@ -60,6 +60,7 @@ v0.3.1 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak et
 23. **Açılır Menü Yer İmlerinde Sağ Tık ile "Gizli Pencerede Aç" / "Kopyala" Hızlı Eylemleri (BF-UX-034)**: Klasör menüsündeki herhangi bir yer imine sağ tıklandığında doğrudan açılan BookmarkFlow bağlam menüsü; `BF_OPEN_INCOGNITO` mesaj rotasıyla güvenli gizli pencere açma (`openInIncognitoWindow`) ve panoya kopyalama sonrası anlık yeşil onay bildirimi (`addressCopiedToast`) ile tam teşekküllü yer imi yönetimi.
 24. **Açılır Menü Yer İmlerinde Orta Tık (Auxclick) ile Arka Planda Yeni Sekmede Açma (BF-UX-035)**: Klasör menüsündeki yer imlerine fare tekerleğiyle (orta tık) tıklandığında menüyü kapatmadan bağlantıyı `BF_OPEN_BACKGROUND_TAB` mesaj rotasıyla (`chrome.tabs.create({ url, active: false })`) arka planda yeni sekmede açma yeteneği; peş peşe sekme açmak isteyen kullanıcılar için akıcı ve kesintisiz gezinme desteği.
 25. **Menü İçi Filtreleme İçin Eşleşen Karakterleri Vurgulama (Highlight Matching Substring - BF-UX-036)**: Kullanıcı canlı filtreye metin girdiğinde, yer imi başlığında sorguyla eşleşen karakterlerin XSS korumalı güvenli DOM text node mimarisiyle `<mark class="bf-highlight">` içine alınarak tema vurgusuyla (`--bf-theme-accent-glow`, `--bf-theme-accent`) belirginleştirilmesi; yüksek kontrast modunda (`forced-colors`) tam erişilebilir stil entegrasyonu.
+26. **Spotlight ve Yeni Sekme Arama Paletlerinde Eşleşen Karakterleri Vurgulama Paritesi (BF-UX-037)**: Açılır klasör menüsündeki alt dizgi vurgulama mimarisi ana Spotlight arama paleti (`Alt+Shift+K`), sayfa içi arama paneli (`.bf-results`) ve New Tab canlı arama kartlarına teşmil edildi; çoklu kelime, `#tag` arındırma, yerel dil uyumu (`tr-TR` / `en-US`) ve çakışmasız aralık birleştirme ile `<mark class="bf-highlight">` ve `<mark class="nt-highlight">` vurgulaması sağlandı; Windows yüksek kontrast modunda (`forced-colors`) sistem `Highlight` renkleriyle tam erişilebilirlik güvenceye alındı.
 
 ---
 

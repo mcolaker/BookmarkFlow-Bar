@@ -82,6 +82,7 @@ let pinnedFolderIds = [];
 let addDialogReturnFocus = null;
 let searchActiveIndex = -1;
 let currentSearchResults = [];
+let currentSearchQuery = "";
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === "local" && DATA_CONSENT_STORAGE_KEY in changes) {
@@ -844,6 +845,7 @@ function handleSearchInput() {
     hideSearchResults();
     return;
   }
+  currentSearchQuery = query;
 
   const allFolders = collectAllFolders(appState?.bookmarkBar);
   const intentResult = typeof BookmarkIntentRoutingEngine !== "undefined"
@@ -1127,7 +1129,11 @@ function renderSearchResults() {
 
     const titleEl = document.createElement("div");
     titleEl.className = "nt-search-item-title";
-    titleEl.textContent = item.title;
+    if (item.type === "bookmark" && currentSearchQuery) {
+      highlightMatchingText(titleEl, item.title, currentSearchQuery, "nt-highlight");
+    } else {
+      titleEl.textContent = item.title;
+    }
 
     const urlEl = document.createElement("div");
     urlEl.className = "nt-search-item-url";
@@ -1702,6 +1708,7 @@ async function triggerWebSearch(query, disposition = "CURRENT_TAB") {
 }
 
 function hideSearchResults() {
+  currentSearchQuery = "";
   closeFolderPickerMenu();
   elements.searchResults.hidden = true;
   elements.searchResults.innerHTML = "";
@@ -3244,6 +3251,80 @@ function normalizeFolderTitle(value) {
 
 function getTextLocale() {
   return getLanguage() === "tr" ? "tr-TR" : "en-US";
+}
+
+function highlightMatchingText(element, text, query, highlightClass = "nt-highlight") {
+  element.replaceChildren();
+  if (!text) {
+    return;
+  }
+  if (!query || typeof query !== "string") {
+    element.textContent = text;
+    return;
+  }
+
+  const rawTokens = query.trim().split(/\s+/).filter(Boolean);
+  const tokens = [];
+  for (const raw of rawTokens) {
+    const t = raw.startsWith("#") ? raw.slice(1).trim() : raw.trim();
+    if (t) {
+      tokens.push(t.toLocaleLowerCase(getTextLocale()));
+    }
+  }
+
+  if (tokens.length === 0) {
+    element.textContent = text;
+    return;
+  }
+
+  const lowerText = text.toLocaleLowerCase(getTextLocale());
+  const ranges = [];
+
+  for (const token of tokens) {
+    let startIndex = 0;
+    while (startIndex < lowerText.length) {
+      const matchIndex = lowerText.indexOf(token, startIndex);
+      if (matchIndex === -1) {
+        break;
+      }
+      ranges.push([matchIndex, matchIndex + token.length]);
+      startIndex = matchIndex + 1;
+    }
+  }
+
+  if (ranges.length === 0) {
+    element.textContent = text;
+    return;
+  }
+
+  ranges.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+
+  const merged = [ranges[0]];
+  for (let i = 1; i < ranges.length; i++) {
+    const prev = merged[merged.length - 1];
+    const curr = ranges[i];
+    if (curr[0] <= prev[1]) {
+      prev[1] = Math.max(prev[1], curr[1]);
+    } else {
+      merged.push(curr);
+    }
+  }
+
+  let lastIndex = 0;
+  for (const [start, end] of merged) {
+    if (start > lastIndex) {
+      element.append(document.createTextNode(text.slice(lastIndex, start)));
+    }
+    const mark = document.createElement("mark");
+    mark.className = highlightClass;
+    mark.textContent = text.slice(start, end);
+    element.append(mark);
+    lastIndex = end;
+  }
+
+  if (lastIndex < text.length) {
+    element.append(document.createTextNode(text.slice(lastIndex)));
+  }
 }
 
 function getBookmarkTreeRoot() {
