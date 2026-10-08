@@ -22,8 +22,8 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 109/109 PASS (%100 yeşil).
-- **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog ve yönetişim sözleşmeleri temiz).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 113/113 PASS (%100 yeşil).
+- **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog, raw-key ve yönetişim sözleşmeleri temiz).
 - **Biçim ve Satır Sonu**: `git diff --check` -> Sıfır hata (CRLF/LF normalize, EOF boş satırsız).
 - **Gizli Veri Denetimi**: Sıfır API anahtarı, sıfır token, sıfır mutlak kullanıcı yolu.
 
@@ -46,6 +46,7 @@ v0.3.1 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak et
 11. **GitHub Actions Otomatik PR Birleştirme ve PowerShell Ortam Entegrasyonu (BF-GOV-017 / Karar 24)**: GitHub reposunda `allow_auto_merge=true` kalıcı olarak etkinleştirildi; Windows PowerShell profilinde `Test-Command` ve `gh` ikili yolu otomatik yükleme mekanizması kuruldu.
 12. **GitHub CLI Otomatik Release Betiği ve Pre-Push Kalite Kancası (BF-GOV-018 / Karar 25)**: `scripts/release-github-cli.mjs` ve `.githooks/pre-push` kancası devreye alındı; sürüm paketleme ve push doğrulama döngüleri yerel-öncelikli güvenceye kavuşturuldu.
 13. **Tek Komutla Sürüm Etiketleme, Paketleme ve GitHub Release Orkestrasyonu (BF-GOV-019 / Karar 26)**: `scripts/release-pipeline.mjs` ve `npm run release:full` komutu ile doğrulama, git tag oluşturma, çapraz tarayıcı paketleme ve GitHub Release yükleme süreci tek adımda birleştirildi; sürüm hazırlık süresi <15 saniyeye indirildi.
+14. **JaponiGo Çekirdek Sinerjisi ve 3-Kademeli Raw-Key Güvencesi (BF-GOV-020 / Karar 27)**: Otonom ara kilometre taşı commit yetkisi (`git commit -s`), asgari ön inceleme & uygulama sınırları (Minimum Preflight), iki kollu tarayıcı mimarisi (`User's Live Chrome Invariant - CDP 9222`) ve canlı raw-key/mojibake denetimi (`scripts/raw-key-contract.test.mjs`) kalıcı olarak entegre edildi.
 
 ---
 

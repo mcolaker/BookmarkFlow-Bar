@@ -9,6 +9,7 @@
     "test:open-source": "node scripts/validate-open-source.mjs && node --test scripts/open-source-contract.test.mjs scripts/dco-contract.test.mjs scripts/package-release-contract.test.mjs",
     "test:runtime": "node --test scripts/runtime-contract.test.mjs scripts/ui-behavior-contract.test.mjs",
     "test:regression": "node scripts/security-regression.mjs",
+    "test:raw-keys": "node --test scripts/raw-key-contract.test.mjs",
     "validate": "node scripts/validate-project.mjs",
     "validate:assets": "node scripts/validate-assets.mjs",
     "validate:tree": "node scripts/verify-public-tree.mjs",

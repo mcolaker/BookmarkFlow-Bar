@@ -742,3 +742,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node scripts/release-pipeline.mjs --dry-run` başarıyla çalıştı ve 6 adımı simüle etti; `scripts/release-pipeline-contract.test.mjs` 4/4 geçti; 109/109 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` ve `git diff --check` temizdir.
 - Sonraki adım: Yok; bundan sonraki tüm sürümler `npm run release:full` ile tek komutta yayınlanabilir.
 - Son güncelleme: 2026-10-02.
+
+## BF-GOV-020 - JaponiGo Çekirdek Sinerjisi, Asgari Ön İnceleme, İki Kollu Tarayıcı Mimarisi ve 3-Kademeli Raw-Key Güvencesini Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, JaponiGo projesinin kural ve işletim çekirdeği mimarisinin detaylı incelenerek BookmarkFlow Bar projesine entegre edilmesini talep etti. (1) Modelin testleri yeşil ara kilometre taşlarında otonom DCO imzalı yerel commit (`git commit -s`) oluşturabilmesi kurala bağlandı (`AGENTS.md` P0-21); (2) Kamuya açık araştırmalarda DevTools MCP, oturumlu işlerde ise kullanıcının canlı çalışan Chrome profiline doğrudan CDP (`port 9222`) ile bağlanma standardı getirildi (`AGENTS.md` P0-22, `browser_extension.md`, `release_distribution.md`); (3) Canlı arayüzlerde çevrilmemiş ham anahtar (`nt_*`, `bar_*`, `quick_*`) ve bozuk UTF-8 (mojibake) sızıntılarını fail-closed denetleyen `scripts/raw-key-contract.test.mjs` (4/4 yeşil) yazıldı ve `AGENTS.md` P0-23 kuralına bağlandı; (4) Asgari Ön İnceleme ve Uygulama Sınırları (Minimum Preflight) ile Kural ve Bellek Rafinasyonu ilkeleri `AGENTS.md` içerisine işlendi.
+- Kabul kriteri: `AGENTS.md` P0-21..23, Bölüm 3 Minimum Preflight ve Bölüm 5 bellek rafinasyonunu içerir; `scripts/raw-key-contract.test.mjs` 4/4 geçer; `package.json` `test:raw-keys` içerir; `browser_extension.md` ve `release_distribution.md` güncellenir; `DECISION_INDEX.md` Karar 27 eklenir; tüm testler ve doğrulama kapıları sıfır hatayla geçer.
+- Doğrulama kapısı: `node --test scripts/raw-key-contract.test.mjs` 4/4 geçti; 113/113 birim ve sözleşme testi başarılı (`npm test`); `npm run validate:all` ve `git diff --check` temizdir.
+- Sonraki adım: Yok; tüm kurallar, sözleşme testleri ve playbook belgeleri senkronize edilmiştir.
+- Son güncelleme: 2026-10-08.

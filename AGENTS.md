@@ -39,6 +39,9 @@ Geçerli herhangi bir P0 kuralı ihlal edilmişse hiçbir görev tamamlanmış s
 18. **Yerel Niyet ve Akıllı Yönlendirme Motoru (Zero-Latency Intent Engine)**: Arama ve Spotlight paletine girilen girdiler harici ağ isteği olmadan yerel kural motoruyla (`BookmarkIntentRoutingEngine`: URL, komut, etiket, klasör, sekme, arama) anında sınıflandırılır; kullanıcıya ne olacağını canlı gösteren akıllı rozet (`Smart Routing Badge`) sunulur. UI'da son kullanıcıya dönük AI/JEV teknik terimleri kullanılamaz (P0-13 ile tam uyumlu).
 19. **Agentic Motion, Medya Kalite Standardı ve Otonom Video İnisiyatifi (Autonomous Video Trigger Authority & Zero-Jank QA)**: Sayfa içi çubuk (`Alt+Shift+B`), Spotlight (`Alt+Shift+K`) ve New Tab geçişlerinde animasyon akıcılığı Playwright ve Gemini Agentic Video motoruyla (`npm run qa:motion`) denetlenir; tanıtım videoları ve GIF'ler (`npm run qa:media`) sıfır kişisel veri ve tam kadraj için fail-closed doğrulanır. **Otonom Video İnisiyatifi (Autonomous Video Authority):** Yapay zeka asistanı, dinamik hareket, animasyon akıcılığı, geçiş fiziği veya kaydırma jank şüphesi gördüğü her durumda kullanıcının açık komut vermesini (örneğin 'videoyu incele' demesini) KESİNLİKLE BEKLEMEZ. Yapay zeka modeli bu doğrulamayı gerekli gördüğü her an kendi inisiyatifiyle `scripts/inspect-motion-qa.mjs` çalıştırarak video denetimini icra eder. Kusur tespit edildiğinde video otomatik kalıcı arşive alınır (`[ARTIFACT: ...]`), temiz videolarda auto-purge işletilir.
 20. **Otonom Geliştirici Araçları ve Teftiş İnisiyatifi (Autonomous DevTools, Web Guidance & Gemini API Authority)**: Yapay zeka asistanı; sayfa içi kapalı Shadow DOM izolasyon denetimi, CSS/layout hata ayıklama, konsol ve ağ incelemeleri, bellek sızıntısı tespiti ve performans/LCP profillemede (**Chrome DevTools MCP**); modern web ve tarayıcı API standartları, CSS optimizasyonu, erişilebilirlik (a11y) ve MV3 mimarisinde (**Modern Web Guidance**); ve multimodal/video akıcılık ve medya kalite analizlerinde (**Gemini API**) kullanıcının açık komut veya talimat vermesini KESİNLİKLE BEKLEMEZ. Yapay zeka modeli, projenin ihtiyaç duyduğu her hata ayıklama, kodlama, optimizasyon ve doğrulama anında bu araçları kendi inisiyatifiyle tam otonom devreye sokar, analizleri yürütür ve bulguları projeye proaktif olarak uygular.
+21. **Otonom Ara Kilometre Taşı Commit Yetkisi (Autonomous Local Milestone Commit Authority - Karar 19 & Karar 27)**: Model; testleri yeşil (`npm test`, `validate`) ve statik analizi hatasız olan her mantıksal ara kilometre taşında kullanıcıya sormadan otonom olarak DCO imzalı yerel Git commit'i (`git commit -s`) oluşturur. Uzak repoya `push`, `PR` ve `release` operasyonları ise P0-17 uyarınca kesinlikle kullanıcının kontrolünde ve terminal-first yürütülür.
+22. **İki Kollu Tarayıcı Mimarisi ve Canlı Kullanıcı Profili Zorunluluğu (Bifurcated Browser & User's Live Chrome Invariant - Karar 27)**: Tarayıcı işlemlerinde: (1) Kamuya açık araştırmalar, teknik inceleme ve web API dokümantasyonu için sıfır izinli, <500ms çalışan Chrome DevTools MCP kullanılır; (2) Oturum gerektiren işlemler (Chrome Web Store Developer Console, GitHub PR/issue, X, LinkedIn) için ASLA geçici/sahte profiller açılmaz! Doğrudan kullanıcının varsayılan çalışan Chrome penceresine ve profiline CDP (`port 9222`) ile bağlanılır (`User's Live Chrome Invariant`). Böylece oturum ve 2FA engelleri tamamen ortadan kalkar.
+23. **3-Kademeli Dil ve Canlı Arayüz Raw-Key Güvencesi (Three-Tier Localization & Raw-Key Gate - Karar 27)**: Eklenti arayüzlerinde (Sayfa İçi Çubuk, Spotlight, Yeni Sekme, Popup, Ayarlar) ham çeviri anahtarı (`nt_*`, `bar_*`, `quick_*`, `app_*`) veya bozuk metin (mojibake) gösterilmesi kesinlikle yasaktır. (1) Statik anahtar paritesi kuralı; (2) `test:raw-keys` canlı arayüz ve DOM tarama testi; (3) Otomatik yerelleştirme tamamlayıcı kapısı ile %100 parite korunur.
 
 ---
 
@@ -58,16 +61,26 @@ Geçerli herhangi bir P0 kuralı ihlal edilmişse hiçbir görev tamamlanmış s
 
 ---
 
-## 3. Zorunlu Nihai Rapor Şablonu (Mandatory Verbatim Evidence)
+## 3. Asgari Ön İnceleme & Uygulama Sınırları (Minimum Preflight & Implementation Boundaries)
+
+Yeni soyutlama, bileşen veya yardımcı kod yazmadan önce aşağıdaki kontrol zinciri zorunludur:
+1. **Mevcut Yapıyı İncele:** Projede bu işi yapan mevcut bir yardımcı (`utils/`, `src/`) veya servis var mı?
+2. **Deseni Genişlet:** Tekerleği yeniden icat etmek yerine mevcut mimari desenleri genişlet.
+3. **Modern Yerel API Tercihi:** Harici kütüphane eklemek yerine tarayıcının yerel modern web API'lerini (CSS Grid/Flexbox, `Intl`, `crypto.randomUUID`, Native Messaging) kullan.
+4. **Merkezi Otoriteyi Koruma:** Yer imi verisi, senkronizasyon, ayarlar veya tema gibi merkezi veri otoriteleri asla alt UI bileşenlerine kontrolsüzce dağıtılamaz.
+
+---
+
+## 4. Zorunlu Nihai Rapor Şablonu (Mandatory Verbatim Evidence)
 
 Nihai raporda özetleme yapmak, kanıtları gizlemek veya "tüm kontroller temiz geçti" deyip geçmek KESİNLİKLE YASAKTIR. Her nihai yanıtta aşağıdaki bölümler eksiksiz sunulur:
 
 ### Bölüm 1: Canlı Doğrulama ve Konsol Kanıtları (Zorunlu Birebir Ham Çıktılar)
 Aşağıdaki kontroller terminalde fiilen çalıştırılır ve konsolun ürettiği çıktı markdown kod bloğu (` ``` `) içinde ham olarak sunulur:
 1. **Birim ve Sözleşme Test Çıktısı (`npm test`):**
-   - 67/67 testin geçtiğini gösteren terminal çıktısı eksiksiz yer almalıdır.
+   - Tüm sözleşme testlerinin geçtiğini gösteren terminal çıktısı eksiksiz yer almalıdır.
 2. **Toplu Proje ve Açık Kaynak Doğrulaması (`npm run validate:all`):**
-   - Açık kaynak, DCO, public tree, manifest, governance ve backlog doğrulama çıktısı ham olarak yer almalıdır.
+   - Açık kaynak, DCO, public tree, manifest, governance, raw-key ve backlog doğrulama çıktısı ham olarak yer almalıdır.
 3. **Satır Sonu ve Boşluk Denetimi (`git diff --check`):**
    - Sıfır hata çıktısı ham olarak sunulmalıdır.
 
@@ -87,8 +100,9 @@ Aşağıdaki kontroller terminalde fiilen çalıştırılır ve konsolun üretti
 
 ---
 
-## 4. Kural ve Bellek Yönetişimi
+## 5. Kural ve Bellek Yönetişimi
 
+- **Kural ve Bellek Rafinasyonu (More Precise Over Time, Not Larger by Accumulation):** Kural sistemi zamanla yığılarak bağlamı şişirmemeli; zaman geçtikçe eskiyen kurallar ayıklanmalı, detaylar playbook'lara aktarılmalı ve çekirdek sistem daha keskin, öz ve modüler hale getirilmelidir.
 - Proje kurallarında veya mimaride kalıcı değişiklik yapıldığında:
   1. `docs/agent-playbooks/rule_governance.md` prosedürü işletilir.
   2. Alınan kalıcı karar `docs/agent/DECISION_INDEX.md` dosyasına eklenir.

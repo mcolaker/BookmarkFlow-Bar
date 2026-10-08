@@ -65,3 +65,28 @@ Bu kılavuz, BookmarkFlow Bar tarayıcı eklentisi (Chrome, Firefox, Edge) mimar
   - Service Worker yaşam döngüsü, hafıza sızıntısı tespiti ve sekme etkileşimlerinde DevTools konsol ve ağ dinleyicileri kullanılır.
 - **Modern Web Guidance Standartları**:
   - CSS layout (flexbox, grid), mikro animasyonlar (`@keyframes`), erişilebilir odak tuzakları (`focus trap`), `backdrop-filter` performansı ve MV3 event-driven mimarisi Modern Web Guidance kılavuzlarına göre proaktif olarak denetlenir ve refaktör edilir.
+
+---
+
+## 7. İki Kollu Tarayıcı Mimarisi & Canlı Kullanıcı Profili (Bifurcated Browser & User's Live Chrome Invariant - Karar 27)
+
+Tarayıcı operasyonları iki ayrı kanala ayrılır:
+1. **Anonim / Kamuya Açık Web (DevTools MCP):** İzin istemeyen, <500ms hızında çalışan Chrome DevTools MCP; kamuya açık web araştırmalarında, MDN web API belgelerinde ve CSS/layout denetimlerinde kullanılır.
+2. **Oturumlu Web (Kullanıcının Canlı Chrome Oturumu - CDP Port 9222):** Chrome Web Store Developer Console, GitHub PR/issue yönetimi veya sosyal medya (X, LinkedIn) işlemlerinde **kesinlikle geçici/sahte profiller (`tmp`, `.browser_profile`) açılmaz**. Doğrudan kullanıcının varsayılan çalışan Chrome oturumuna CDP (`port 9222`) ile bağlanılır; böylece kullanıcının aktif oturumları, çerezleri ve 2FA yetkileri korunur.
+
+---
+
+## 8. 3-Kademeli Dil ve Raw-Key Güvencesi (Three-Tier Localization & Raw-Key Gate - Karar 27)
+
+1. **Kademe 1 — Statik Deterministik Kilit:** `_locales/en` ve `_locales/tr` arasında %100 anahtar ve yer tutucu paritesi `npm run validate` ile zorunludur.
+2. **Kademe 2 — Canlı Arayüz Raw-Key & Mojibake Taraması:** `npm run test:raw-keys` (`scripts/raw-key-contract.test.mjs`) ile tüm HTML ve JS dosyaları taranarak `chrome.i18n.getMessage`, `data-i18n` ve DOM metinlerinde tanımsız anahtar veya ekranda çevrilmemiş ham anahtar (`nt_*`, `bar_*`, `quick_*`) sızıntısı ile bozuk UTF-8 karakterleri (mojibake) fail-closed engellenir.
+3. **Kademe 3 — Otomatik Tamamlama:** Yeni bir UI metni veya özelliği eklendiğinde her iki dil dosyası eşzamanlı olarak güncellenir.
+
+---
+
+## 9. Asgari Ön İnceleme ve Uygulama Sınırları (Minimum Preflight & Implementation Boundaries)
+
+1. **Mevcut Yapıyı İncele:** Yeni bir yardımcı fonksiyon veya bileşen yazmadan önce `src/` altındaki mevcut yardımcıların (URL parser, i18n helper, depolama yöneticisi) varlığı taranır.
+2. **Mevcut Deseni Genişlet:** Projede oturmuş mimari desenleri koru ve genişlet.
+3. **Yerel Modern Web API'leri:** Harici kütüphane bağımlılığı eklemek kesinlikle yasaktır; modern tarayıcı API'leri (Native Messaging, Closed Shadow DOM, CSS Custom Properties) kullanılır.
+4. **Merkezi Otoriteyi Koruma:** `chrome.storage.local` ve yer imi ağacı tek bir kaynaktan yönetilir; alt bileşenler bağımsız senkronizasyon yapamaz.
