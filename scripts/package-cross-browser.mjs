@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import zlib from "node:zlib";
-import { assertRawKeyIntegrity } from "./package-release.mjs";
+import { assertMv3Compliance, assertRawKeyIntegrity } from "./package-release.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 
@@ -317,6 +317,9 @@ export function packageCrossBrowser(target = "all", options = {}) {
   const workspaceRoot = options.workspaceRoot || root;
   if (!options.skipRawKeyCheck) {
     assertRawKeyIntegrity(workspaceRoot);
+  }
+  if (!options.skipMv3Check) {
+    assertMv3Compliance(workspaceRoot);
   }
 
   const results = [];

@@ -2,6 +2,11 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-08] — Manifest V3 API Uyumluluk ve Kullanımdan Kalkma Güvencesi (BF-QA-005 / Karar 30)
+- **Manifest V3 API Denetim ve Sıfır Deprecation Sözleşmesi**: Kod tabanında (`src/`) eski Manifest V2 senkron metotlarının (`chrome.extension.*`, `chrome.browserAction.*`, `chrome.pageAction.*`, `chrome.tabs.executeScript`, `chrome.tabs.insertCSS`, `chrome.runtime.getBackgroundPage`, WebSQL `openDatabase` vb.) bulunmadığını denetleyen fail-closed `scripts/mv3-api-audit.test.mjs` test paketi ve `npm run test:mv3` komutu eklendi.
+- **CSP ve DOM-Free Service Worker Taraması**: `eval()`, `new Function()`, HTML içi uzak `<script src="https://...">` bağlantıları ve Service Worker içinde doğrudan DOM nesnelerine (`window`/`document`) erişim girişimleri taranarak engellendi.
+- **API İzin Eşleşmesi ve Dağıtım Ön Kancası**: Kullanılan tüm `chrome.*` çağrılarının `manifest.json` izinleriyle örtüşmesi güvenceye alındı; `package-release.mjs` ve `package-cross-browser.mjs` dağıtım paketleyicilerine `assertMv3Compliance` ön kancası ve `.github/workflows/validate.yml` CI iş akışına bağımsız kontrol adımı entegre edildi.
+
 ## [2026-10-08] — Kural-Bazlı Tetikleyiciler ve Kural-Ötesi Tam Otonom MCP Model İnisiyatifi (BF-GOV-022 / Karar 29)
 - **Konu ve Alan Bazlı Otonom Tetikleyiciler**: Chrome DevTools, Modern Web Guidance, Google Developer Knowledge, Context7, Gemini API/Agentic Video, Live Chrome Pilot ve Google Workspace için proje ihtiyaçlarına özgü operasyonel tetikleme alanları `AGENTS.md` P0-20-A ve `browser_extension.md` altında kesinleştirildi.
 - **Kural-Ötesi Tam Model Karar İnisiyatifi (Beyond-Rules Autonomous Discretion)**: Yapay zeka modeline, listelenen alanların ve önceden tanımlanmış kuralların ötesinde, kendi teknik uzmanlığıyla gerekli veya yararlı gördüğü her an dilediği MCP aracını kullanıcı onayı beklemeksizin tam otonom çalıştırma yetkisi `AGENTS.md` P0-20-B altında verildi.

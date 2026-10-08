@@ -85,9 +85,23 @@ export function assertRawKeyIntegrity(rootPath = root) {
   }
 }
 
+export function assertMv3Compliance(rootPath = root) {
+  try {
+    execFileSync(process.execPath, ["--test", join(rootPath, "scripts", "mv3-api-audit.test.mjs")], {
+      cwd: rootPath,
+      stdio: ["ignore", "pipe", "pipe"],
+      encoding: "utf8",
+    });
+  } catch (error) {
+    const detail = error.stderr || error.stdout || error.message;
+    throw new Error(`Manifest V3 API compliance check failed before packaging: ${detail}`);
+  }
+}
+
 export function packageRelease(ref) {
   const release = assertImmutableReleaseTag(ref);
   assertRawKeyIntegrity(root);
+  assertMv3Compliance(root);
   const manifest = JSON.parse(git("show", `${release.tagRef}:manifest.json`));
   if (manifest.version !== release.version) {
     throw new Error(`Release tag ${release.ref} does not match manifest version ${JSON.stringify(manifest.version)}`);
