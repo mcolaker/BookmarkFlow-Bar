@@ -760,3 +760,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node --test scripts/live-chrome-pilot.test.mjs` 5/5 geçti; `scripts/live-chrome-pilot.mjs --dry-run` başarılı simülasyon çıktısı üretti; 118/118 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-open-source.mjs`, `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
 - Sonraki adım: Yok; tam otonom MCP inisiyatifi, CI kapısı, paketleme kancası ve canlı pilot hazır ve işler durumdadır.
 - Son güncelleme: 2026-10-08.
+
+## BF-GOV-022 - Kural-Bazlı Tetikleyiciler ve Kural-Ötesi Tam Model Karar İnisiyatifini Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı, Google Developer Knowledge kurulumunun ardından, projeye katkı sağlayan MCP'lerin hangi konularda devreye gireceğinin kurallarda net olarak tanımlanmasını ve buna ek olarak modelin tanımlı kuralların ötesinde dilediği zaman kendi kararıyla tam otonom olarak MCP'leri kullanabilmesi yetkisinin verilmesini talep etti. `AGENTS.md` P0-20 kuralı (A: Konu ve Alan Bazlı Tetikleyiciler; B: Kural-Ötesi Tam Model Karar İnisiyatifi) olarak iki kademeli yapılandırıldı; `docs/agent-playbooks/browser_extension.md` Bölüm 10 genişletildi; `DECISION_INDEX.md` içerisine Karar 29 eklendi.
+- Kabul kriteri: `AGENTS.md` P0-20 hem konu bazlı tetikleyicileri hem de kural-ötesi model karar inisiyatifini (Beyond-Rules Autonomous Discretion) içerir; `browser_extension.md` operasyonel tetikleme matrisini barındırır; `DECISION_INDEX.md` Karar 29 eklenir; tüm testler (118/118) ve doğrulama kapıları sıfır hatayla geçer.
+- Doğrulama kapısı: `node scripts/validate-governance.mjs`, `node scripts/validate-backlog.mjs`, `npm test` (118/118) ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; tüm alan bazlı tetikleyiciler ve tam otonom model karar inisiyatifi resmi işletim çekirdeğine bağlanmıştır.
+- Son güncelleme: 2026-10-08.
