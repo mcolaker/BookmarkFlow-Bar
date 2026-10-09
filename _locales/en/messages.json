@@ -504,5 +504,23 @@
   "actionTitleSnoozed": { "message": "BookmarkFlow Bar is hidden on this tab (Click to open or press Alt+Shift+H)" },
   "clearText": { "message": "Clear text" },
   "openInIncognitoWindow": { "message": "Open in incognito window" },
-  "addressCopiedToast": { "message": "✓ Address copied to clipboard" }
+  "addressCopiedToast": { "message": "✓ Address copied to clipboard" },
+  "openAllInTabs": { "message": "Open all in tabs" },
+  "openAll": { "message": "Open all" },
+  "openAllConfirm": {
+    "message": "Open $COUNT$ tabs at once? This may affect browser performance.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "openAllSuccessToast": {
+    "message": "✓ Opened $COUNT$ tabs in background",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  }
 }

@@ -1257,10 +1257,14 @@ function renderSearchResults() {
       if (itemTags.length > 0) {
         const tagContainer = document.createElement("div");
         tagContainer.className = "nt-tag-list";
+        const tagQuery = (currentSearchQuery || "").trim().toLowerCase().replace(/^#/, "");
         itemTags.slice(0, 4).forEach((tag) => {
           const pill = document.createElement("span");
           pill.className = "nt-tag-pill";
           pill.textContent = `#${tag}`;
+          if (tagQuery && tag.toLowerCase().includes(tagQuery)) {
+            pill.classList.add("is-tag-matched");
+          }
           tagContainer.append(pill);
         });
         info.append(tagContainer);

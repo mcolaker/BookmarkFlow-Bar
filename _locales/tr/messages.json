@@ -504,5 +504,23 @@
   "actionTitleSnoozed": { "message": "BookmarkFlow Bar bu sekmede gizlendi (Açmak için tıklayın veya Alt+Shift+H)" },
   "clearText": { "message": "Metni temizle" },
   "openInIncognitoWindow": { "message": "Gizli pencerede aç" },
-  "addressCopiedToast": { "message": "✓ Adres panoya kopyalandı" }
+  "addressCopiedToast": { "message": "✓ Adres panoya kopyalandı" },
+  "openAllInTabs": { "message": "Tümünü sekmelerde aç" },
+  "openAll": { "message": "Tümünü aç" },
+  "openAllConfirm": {
+    "message": "Aynı anda $COUNT$ sekme açılsın mı? Bu işlem tarayıcı performansını etkileyebilir.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "openAllSuccessToast": {
+    "message": "✓ $COUNT$ sekme arka planda açıldı",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  }
 }

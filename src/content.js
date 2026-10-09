@@ -1957,6 +1957,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
+    if (action === "open-folder-all-tabs") {
+      openContextFolderAllInTabs();
+      return;
+    }
+
     if (action === "open-bookmark-incognito") {
       openContextBookmarkInIncognito();
       return;
@@ -3476,6 +3481,83 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
   }
 
+  function highlightMatchingTagPills(container, query) {
+    if (!container) return;
+    const tagQuery = (query || "").trim().toLowerCase().replace(/^#/, "");
+    const pills = container.querySelectorAll(".bf-tag-pill");
+    pills.forEach((pill) => {
+      if (!tagQuery) {
+        pill.classList.remove("is-tag-matched");
+        return;
+      }
+      const rawText = (pill.textContent || "").trim().toLowerCase().replace(/^#/, "");
+      const isMatched = rawText.includes(tagQuery);
+      pill.classList.toggle("is-tag-matched", isMatched);
+    });
+  }
+
+  function openFolderBookmarksInTabs(folder, menuElement) {
+    if (!folder) return;
+    const entries = getFolderMenuEntries(folder);
+    let targetUrls = [];
+
+    const filterInput = menuElement?.querySelector(".bf-menu-filter");
+    if (filterInput && filterInput.value.trim() && menuElement) {
+      const visibleItems = Array.from(menuElement.querySelectorAll(".bf-result:not([hidden])"));
+      targetUrls = visibleItems
+        .map((el) => el.href)
+        .filter((url) => typeof url === "string" && isSafeBookmarkUrl(url));
+    } else {
+      targetUrls = entries
+        .map((entry) => entry.url)
+        .filter((url) => typeof url === "string" && isSafeBookmarkUrl(url));
+    }
+
+    if (targetUrls.length === 0) {
+      return;
+    }
+
+    if (targetUrls.length > 15) {
+      const confirmed = window.confirm(
+        t("openAllConfirm", [String(targetUrls.length)]) ||
+        `Open ${targetUrls.length} tabs at once? This may affect browser performance.`
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    if (hasExtensionContext()) {
+      try {
+        chrome.runtime.sendMessage(
+          { type: "BF_OPEN_BACKGROUND_TABS", urls: targetUrls },
+          (response) => {
+            if (chrome.runtime.lastError || !response?.ok) {
+              return;
+            }
+            const count = response.count || targetUrls.length;
+            showContentToastNotification(
+              t("openAllSuccessToast", [String(count)]) || `✓ Opened ${count} tabs in background`
+            );
+          }
+        );
+      } catch {
+        targetUrls.forEach((url) => window.open(url, "_blank", "noopener,noreferrer"));
+      }
+    } else {
+      targetUrls.forEach((url) => window.open(url, "_blank", "noopener,noreferrer"));
+    }
+
+    closeFolderMenu();
+  }
+
+  function openContextFolderAllInTabs() {
+    if (!contextMenuState?.nodeId) return;
+    const folder = findNodeById(getBookmarkTreeRoot(), contextMenuState.nodeId);
+    if (!folder) return;
+    openFolderBookmarksInTabs(folder, null);
+  }
+
   function openFolderMenu(folderId, anchor) {
     const menu = shadow.querySelector(".bf-menu");
     const folder = findNodeById(getBookmarkTreeRoot(), folderId);
@@ -3508,12 +3590,30 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     headerInfo.append(headerIcon, headerTitle);
 
+    const headerActions = document.createElement("div");
+    headerActions.className = "bf-menu-header-actions";
+
     const headerCount = document.createElement("span");
     headerCount.className = "bf-menu-header-count";
     headerCount.textContent = `${entries.length}`;
     headerCount.title = `${entries.length} ${t("bookmarks") || "bookmarks"}`;
+    headerActions.append(headerCount);
 
-    header.append(headerInfo, headerCount);
+    if (entries.length > 0) {
+      const openAllBtn = document.createElement("button");
+      openAllBtn.type = "button";
+      openAllBtn.className = "bf-menu-open-all-btn";
+      openAllBtn.title = t("openAllInTabs") || "Open all in tabs";
+      openAllBtn.setAttribute("aria-label", t("openAllInTabs") || "Open all in tabs");
+      openAllBtn.textContent = `↗ ${t("openAll") || "Open all"}`;
+      openAllBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openFolderBookmarksInTabs(folder, menu);
+      });
+      headerActions.append(openAllBtn);
+    }
+
+    header.append(headerInfo, headerActions);
     menu.append(header);
 
     let filterInput = null;
@@ -3538,7 +3638,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       menu.append(filterWrap);
 
       const updateFilter = () => {
-        const query = filterInput.value.trim().toLowerCase();
+        const rawQuery = filterInput.value.trim();
+        const query = rawQuery.toLowerCase();
+        const isTagQuery = query.startsWith("#");
+        const tagFilter = isTagQuery ? query.slice(1).trim() : query;
         filterClearBtn.hidden = !filterInput.value;
         let matchCount = 0;
         const results = menu.querySelectorAll(".bf-result");
@@ -3547,16 +3650,40 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
           const rawTitle = titleEl?.dataset.rawTitle || titleEl?.textContent || "";
           const title = rawTitle.toLowerCase();
           const url = (el.href || "").toLowerCase();
-          const tags = Array.from(el.querySelectorAll(".bf-tag-pill")).map((p) => p.textContent.toLowerCase()).join(" ");
-          const matches = !query || title.includes(query) || url.includes(query) || tags.includes(query);
+          const tagPills = Array.from(el.querySelectorAll(".bf-tag-pill"));
+          const tags = tagPills.map((p) => p.textContent.toLowerCase()).join(" ");
+
+          let matches = false;
+          if (!query) {
+            matches = true;
+          } else if (isTagQuery) {
+            matches = !tagFilter || tagPills.some((p) => {
+              const cleanTag = (p.textContent || "").replace(/^#/, "").trim().toLowerCase();
+              return cleanTag.includes(tagFilter);
+            });
+          } else {
+            matches = title.includes(query) || url.includes(query) || tags.includes(query);
+          }
+
           el.hidden = !matches;
           if (matches) {
             matchCount++;
             if (titleEl) {
               highlightMatchingText(titleEl, rawTitle, query);
             }
-          } else if (titleEl) {
-            highlightMatchingText(titleEl, rawTitle, "");
+            if (tagFilter) {
+              tagPills.forEach((p) => {
+                const cleanTag = (p.textContent || "").replace(/^#/, "").trim().toLowerCase();
+                p.classList.toggle("is-tag-matched", cleanTag.includes(tagFilter));
+              });
+            } else {
+              tagPills.forEach((p) => p.classList.remove("is-tag-matched"));
+            }
+          } else {
+            if (titleEl) {
+              highlightMatchingText(titleEl, rawTitle, "");
+            }
+            tagPills.forEach((p) => p.classList.remove("is-tag-matched"));
           }
         });
         const emptyFilter = menu.querySelector(".bf-menu-filter-empty");
@@ -3881,6 +4008,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       );
     } else {
       menu.append(
+        createContextMenuButton("open-folder-all-tabs", t("openAllInTabs")),
         createContextMenuButton("add-bookmark-to-folder", t("addBookmarkToFolder")),
         createContextMenuButton("create-child-folder", t("createChildFolder")),
         createContextMenuButton("rename-bookmark", t("renameFolder")),
@@ -4013,6 +4141,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
           if (titleEl) {
             highlightMatchingText(titleEl, titleEl.dataset.rawTitle || titleEl.textContent || "", query);
           }
+          highlightMatchingTagPills(link, query);
         }
         panel.append(link);
       });
@@ -4471,6 +4600,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         if (titleEl) {
           highlightMatchingText(titleEl, titleEl.dataset.rawTitle || titleEl.textContent || "", query);
         }
+        highlightMatchingTagPills(link, query);
       }
       list.append(link);
     });

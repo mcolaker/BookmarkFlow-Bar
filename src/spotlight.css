@@ -356,6 +356,13 @@
     background: Highlight !important;
     color: HighlightText !important;
   }
+
+  .bf-tag-pill.is-tag-matched {
+    forced-color-adjust: none;
+    background: Highlight !important;
+    color: HighlightText !important;
+    border-color: Highlight !important;
+  }
 }
 
 /* Spotlight Eşleşen Karakter Vurgusu (BF-UX-037) */
@@ -365,4 +372,13 @@
   font-weight: 600;
   border-radius: 2px;
   padding: 0 2px;
+}
+
+/* Spotlight Eşleşen Etiket Hapı Vurgusu (BF-UX-040) */
+.bf-tag-pill.is-tag-matched {
+  background: var(--bf-spotlight-accent, var(--bf-theme-accent, #22d3ee));
+  color: #0b1120;
+  border-color: var(--bf-spotlight-accent, var(--bf-theme-accent, #22d3ee));
+  box-shadow: 0 0 8px var(--bf-spotlight-glow, rgba(34, 211, 238, 0.45));
+  font-weight: 700;
 }

@@ -1155,6 +1155,44 @@
   line-height: 1.2;
 }
 
+.bf-menu-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bf-menu-open-all-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--bf-theme-text-muted, #8f98a8);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+  user-select: none;
+}
+
+.bf-menu-open-all-btn:hover {
+  background: var(--bf-theme-accent-subtle, rgba(242, 201, 76, 0.15));
+  border-color: var(--bf-theme-accent, #f2c94c);
+  color: var(--bf-theme-accent, #f2c94c);
+  transform: translateY(-0.5px);
+}
+
+.bf-menu-open-all-btn:active {
+  transform: translateY(0.5px);
+}
+
+.bf-menu-open-all-btn:focus-visible {
+  outline: 2px solid var(--bf-theme-accent, #f2c94c);
+  outline-offset: 1px;
+}
+
 .bf-menu-filter-wrap {
   position: sticky;
   top: -8px;
@@ -1330,6 +1368,15 @@
   border: 1px solid var(--bf-theme-accent-glow);
   letter-spacing: 0.02em;
   user-select: none;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.bf-tag-pill.is-tag-matched {
+  background: var(--bf-theme-accent, #f2c94c);
+  color: #12151b;
+  border-color: var(--bf-theme-accent, #f2c94c);
+  box-shadow: 0 0 8px var(--bf-theme-accent-glow, rgba(242, 201, 76, 0.45));
+  font-weight: 700;
 }
 
 .bf-command {
@@ -2164,5 +2211,24 @@
   .bf-highlight {
     background: Highlight;
     color: HighlightText;
+  }
+
+  .bf-menu-open-all-btn {
+    border: 1px solid ButtonBorder;
+    color: ButtonText;
+  }
+
+  .bf-menu-open-all-btn:hover,
+  .bf-menu-open-all-btn:focus-visible {
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+  }
+
+  .bf-tag-pill.is-tag-matched {
+    forced-color-adjust: none;
+    background: Highlight !important;
+    color: HighlightText !important;
+    border-color: Highlight !important;
   }
 }

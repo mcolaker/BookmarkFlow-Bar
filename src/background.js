@@ -294,6 +294,21 @@ function routeMessage(message, sender) {
       .catch((err) => ({ ok: false, error: err?.message || String(err) }));
   }
 
+  if (message?.type === "BF_OPEN_BACKGROUND_TABS") {
+    const rawUrls = Array.isArray(message?.urls) ? message.urls : [];
+    const validUrls = rawUrls.filter((url) => typeof url === "string" && isSafeBookmarkUrl(url));
+    if (validUrls.length === 0) {
+      return Promise.resolve({ ok: false, error: "No valid URLs to open" });
+    }
+    const promises = validUrls.map((url) =>
+      chrome.tabs.create({ url, active: false }).catch(() => null)
+    );
+    return Promise.all(promises).then((results) => {
+      const openedCount = results.filter(Boolean).length;
+      return { ok: true, count: openedCount };
+    });
+  }
+
   if (message?.type === MESSAGE_OPEN_SETTINGS || message?.type === "OPEN_SETTINGS_REQUESTED") {
     const hash = typeof message?.hash === "string" && message.hash ? `#${message.hash.replace(/^#/, "")}` : "";
     const pageUrl = chrome.runtime.getURL(`src/bookmark-maintenance.html${hash}`);
