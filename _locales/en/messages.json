@@ -528,5 +528,17 @@
   "filterChipFolders": { "message": "Folders" },
   "filterChipTags": { "message": "Tags" },
   "filterChipReadingList": { "message": "Reading List" },
-  "filterChipsAria": { "message": "Search filter categories" }
+  "filterChipsAria": { "message": "Search filter categories" },
+  "sortModeDefault": { "message": "Default" },
+  "sortModeAz": { "message": "A-Z" },
+  "sortModeNewest": { "message": "Newest" },
+  "sortModeFrequent": { "message": "Most Frequent" },
+  "sortModeCycleTooltip": {
+    "message": "Sort: $MODE$ (click to change)",
+    "placeholders": {
+      "mode": {
+        "content": "$1"
+      }
+    }
+  }
 }

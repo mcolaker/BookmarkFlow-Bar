@@ -1193,6 +1193,41 @@
   outline-offset: 1px;
 }
 
+.bf-menu-sort-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--bf-theme-text-muted, #8f98a8);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+  user-select: none;
+}
+
+.bf-menu-sort-btn:hover {
+  background: var(--bf-theme-accent-subtle, rgba(242, 201, 76, 0.15));
+  border-color: var(--bf-theme-accent, #f2c94c);
+  color: var(--bf-theme-accent, #f2c94c);
+  transform: translateY(-0.5px);
+}
+
+.bf-menu-sort-btn:active {
+  transform: translateY(0.5px);
+}
+
+.bf-menu-sort-btn:focus-visible {
+  outline: 2px solid var(--bf-theme-accent, #f2c94c);
+  outline-offset: 1px;
+}
+
 .bf-menu-add-btn {
   appearance: none;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -2297,6 +2332,18 @@
 
   .bf-menu-open-all-btn:hover,
   .bf-menu-open-all-btn:focus-visible {
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+  }
+
+  .bf-menu-sort-btn {
+    border: 1px solid ButtonBorder;
+    color: ButtonText;
+  }
+
+  .bf-menu-sort-btn:hover,
+  .bf-menu-sort-btn:focus-visible {
     background: Highlight;
     color: HighlightText;
     border-color: Highlight;

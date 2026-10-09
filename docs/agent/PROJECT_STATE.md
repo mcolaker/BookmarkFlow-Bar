@@ -22,7 +22,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 142/142 PASS (%100 yeşil).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 143/143 PASS (%100 yeşil).
 - **Kural Uyumluluk ve Bağlam Bütçe Kapısı**: `AGENT_RULE_COMPLIANCE_BENCHMARK.md` ve `scripts/validate-governance.mjs` (Context ceiling budget <20 KB) devrede.
 - **Canlı Konsol Hata Bekçisi**: `scripts/live-console-guard.mjs` (`npm run guard:console`) ile Port 9222 CDP eklenti konsol ve istisna izleme aktif.
 - **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog, raw-key, MV3 deprecation ve yönetişim sözleşmeleri temiz).
@@ -66,6 +66,7 @@ v0.3.1 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak et
 29. **Spotlight ve Yeni Sekme Arama Sonuçlarında Etiket Hapı Canlı Eşleşme Vurgusu (BF-UX-040)**: Spotlight paletinde (`Alt+Shift+K`), sayfa içi arama paneli sonuçlarında ve Yeni Sekme canlı arama kartlarında etiket içeren aramalarda eşleşen etiket haplarının (`.bf-tag-pill.is-tag-matched`, `.nt-tag-pill.is-tag-matched`) dinamik tema rengi, parlama efekti ve Windows Yüksek Kontrast modu (`forced-colors: active`) desteğiyle kullanıcıya canlı gösterilmesi.
 30. **Açılır Klasör Menüsünde "Yeni Alt Klasör Oluştur" / "Buraya Yer İmi Ekle" Başlık Hızlı Eylemleri (BF-UX-041)**: Açılır klasör menüsü başlığına eklenen kompakt `+` mikro butonu (`.bf-menu-add-btn`) ve tıklandığında açılan mikro menü (`.bf-menu-add-popover`); kullanıcının o klasörün içine doğrudan yer imi ekleme diyaloğunu (`openAddBookmarkDialog`, hedef `parentId` otomatik atanmış) veya yeni alt klasör oluşturma istemini (`createFolderFromPrompt`) tek tıkla açabilmesi; tam klavye dolaşımı (`Escape`, `ArrowDown`/`ArrowUp`) ve Windows Yüksek Kontrast desteği.
 31. **Spotlight ve Yeni Sekme Arama Sonuçlarında Akıllı Süzme Sekmeleri / Filtre Çipleri (BF-UX-042)**: Spotlight arama paletine (`Alt+Shift+K`) ve New Tab arama alanına arama kutusunun hemen altına eklenen kompakt, yatay kaydırılabilir minik filtre çipleri ("Tümü", "Klasörler", "Etiketler", "Okuma Listesi"); arama sorgusu girilirken veya boştayken tek tıkla hedef veri tipini izole etme desteği; tam klavye erişilebilirliği (`role="tablist"` / `role="tab"`), tam TR/EN yerelleştirme paritesi ve Windows Yüksek Kontrast modu (`forced-colors: active`) uyumluluğu.
+32. **Açılır Klasör Menüsünde "Son Eklenenler" / "Sık Kullanılanlar" Akıllı Sıralama Desteği (BF-UX-043)**: Açılır klasör menüsü başlığına eklenen kompakt sıralama mikro butonu (`.bf-menu-sort-btn`); alfabetik sıranın ("A-Z") yanı sıra yer imi oluşturulma zaman damgasına göre en son eklenenleri ("En Yeni" / `dateAdded`) ve yerel kullanım istatistiklerine göre en çok ziyaret edilenleri ("Sık Kullanılan" / `recordBookmarkVisit`) tek tıkla dinamik olarak listeleyebilme; döngüsel mod geçişi ("Varsayılan" -> "A-Z" -> "En Yeni" -> "Sık Kullanılan"), aktif filtreleme ve arama vurgusuyla tam senkronizasyon, tam TR/EN dil paritesi ve Windows Yüksek Kontrast modu (`forced-colors: active`) uyumluluğu.
 
 ---
 
