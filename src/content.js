@@ -71,6 +71,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let isExpanded = false;
   let commandQuery = "";
   let commandActiveIndex = 0;
+  let commandFilterCategory = "all";
+  let cachedReadingList = [];
   let isSnoozed = false;
   let stylesReady = false;
   let panelPosition = null;
@@ -916,6 +918,34 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     } catch {}
   }
 
+  async function refreshReadingListCache() {
+    if (!hasExtensionContext()) return;
+    try {
+      const res = await sendMessage({ type: "BF_GET_READING_LIST" });
+      if (res?.ok && Array.isArray(res.readingList)) {
+        cachedReadingList = res.readingList;
+      }
+    } catch {
+      cachedReadingList = [];
+    }
+  }
+
+  function collectAllFolders(node, path = "", list = []) {
+    if (!node) return list;
+    if (Array.isArray(node.children)) {
+      if (node.id && node.id !== "0") {
+        const isBar = node.id === appState?.bookmarkBar?.id;
+        const tTitle = isBar ? (t("bookmarksBar") || "Yer İmleri Çubuğu") : (node.title || t("folder"));
+        const currentPath = path ? `${path} / ${tTitle}` : tTitle;
+        list.push({ id: node.id, title: tTitle, path: currentPath, isBar });
+        for (const child of node.children) {
+          collectAllFolders(child, currentPath, list);
+        }
+      }
+    }
+    return list;
+  }
+
   function render() {
     const settings = appState.settings;
     const bookmarkBar = appState.bookmarkBar || { children: [] };
@@ -1010,6 +1040,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
             <button type="button" class="bf-command-inline-save" data-bf-action="inline-save-search" hidden title="${escapeAttribute(t("quickSaveBookmark"))}" aria-label="${escapeAttribute(t("quickSaveBookmark"))}">⭐ ${escapeHtml(t("save"))}</button>
             <div class="bf-intent-badge" hidden aria-hidden="true"></div>
             <button class="bf-command-close" type="button" data-bf-action="close-search" title="${escapeAttribute(t("close"))}" aria-label="${escapeAttribute(t("close"))}">×</button>
+          </div>
+          <div class="bf-command-chips" role="tablist" aria-label="${escapeAttribute(t("filterChipsAria"))}">
+            <button type="button" class="bf-filter-chip is-active" data-chip="all" role="tab" aria-selected="true">${escapeHtml(t("filterChipAll"))}</button>
+            <button type="button" class="bf-filter-chip" data-chip="folders" role="tab" aria-selected="false">📁 ${escapeHtml(t("filterChipFolders"))}</button>
+            <button type="button" class="bf-filter-chip" data-chip="tags" role="tab" aria-selected="false">🏷️ ${escapeHtml(t("filterChipTags"))}</button>
+            <button type="button" class="bf-filter-chip" data-chip="reading_list" role="tab" aria-selected="false">📖 ${escapeHtml(t("filterChipReadingList"))}</button>
           </div>
           <div class="bf-command-list" id="bf-command-list" role="listbox" aria-label="${escapeAttribute(t("bookmarkSearch"))}"></div>
         </div>
@@ -1166,6 +1202,21 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const actionButton = targetElement.closest("[data-bf-action]");
       if (actionButton) {
         handleAction(actionButton.dataset.bfAction);
+        return;
+      }
+
+      const filterChip = targetElement.closest(".bf-filter-chip");
+      if (filterChip) {
+        event.preventDefault();
+        commandFilterCategory = filterChip.dataset.chip || "all";
+        app.querySelectorAll(".bf-command-chips .bf-filter-chip").forEach((chip) => {
+          const isActive = chip === filterChip;
+          chip.classList.toggle("is-active", isActive);
+          chip.setAttribute("aria-selected", isActive ? "true" : "false");
+        });
+        commandActiveIndex = 0;
+        renderCommandResults(app);
+        app.querySelector(".bf-command-input")?.focus();
         return;
       }
 
@@ -4219,6 +4270,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function openCommandPalette() {
+    refreshReadingListCache().catch(() => {});
     const command = shadow?.querySelector(".bf-command");
     const input = shadow?.querySelector(".bf-command-input");
     if (!command || !input) {
@@ -4253,6 +4305,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   function closeCommandPalette({ restoreFocus = true } = {}) {
     closeContentFolderPickerMenu();
     updateCommandIntentBadge(shadow?.querySelector(".bf-app"), null);
+    commandFilterCategory = "all";
+    shadow?.querySelectorAll(".bf-command-chips .bf-filter-chip")?.forEach((chip) => {
+      const isAll = chip.dataset.chip === "all";
+      chip.classList.toggle("is-active", isAll);
+      chip.setAttribute("aria-selected", isAll ? "true" : "false");
+    });
     const inlineSaveBtn = shadow?.querySelector(".bf-command-inline-save");
     if (inlineSaveBtn) {
       if (commandInlineSaveLeaveTimeout) {
@@ -4436,7 +4494,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     list.replaceChildren();
 
     const query = normalizeText(commandQuery);
-    if (!query && shouldHideEmptyCommandSuggestions()) {
+    if (!query && shouldHideEmptyCommandSuggestions() && commandFilterCategory === "all") {
       commandActiveIndex = -1;
       app?.querySelector(".bf-command-input")?.removeAttribute("aria-activedescendant");
       const empty = document.createElement("div");
@@ -4446,15 +4504,88 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       return;
     }
 
-    const entries = getAllBookmarkEntries()
-      .filter((entry) => {
-        if (!query) {
-          return true;
-        }
+    let entries = [];
 
-        return matchesBookmarkSearch(entry, query);
-      })
-      .slice(0, query ? 40 : 14);
+    if (commandFilterCategory === "folders") {
+      const allBarFolders = collectAllFolders(appState?.bookmarkBar);
+      if (query) {
+        const matchedFolders = allBarFolders.filter(f => normalizeText(f.title).includes(query) || normalizeText(f.path).includes(query));
+        matchedFolders.forEach(f => {
+          entries.push({
+            id: `bf-folder-${f.id}`,
+            title: `📁 ${f.title}`,
+            path: f.path,
+            icon: "📁",
+            isQuickAction: true,
+            handler: () => {
+              closeCommandPalette();
+              const folderNode = findNodeById(treeRoot, f.id);
+              if (folderNode) {
+                openFolderMenu(folderNode, shadow?.querySelector(`.bf-folder-btn[data-node-id="${f.id}"]`) || shadow?.querySelector(".bf-bar"));
+              }
+            }
+          });
+        });
+        const matchedBookmarks = getAllBookmarkEntries().filter(entry => entry.path && (normalizeText(entry.path).includes(query) || matchesBookmarkSearch(entry, query)));
+        entries.push(...matchedBookmarks.slice(0, 30));
+      } else {
+        allBarFolders.forEach(f => {
+          entries.push({
+            id: `bf-folder-${f.id}`,
+            title: `📁 ${f.title}`,
+            path: f.path,
+            icon: "📁",
+            isQuickAction: true,
+            handler: () => {
+              closeCommandPalette();
+              const folderNode = findNodeById(treeRoot, f.id);
+              if (folderNode) {
+                openFolderMenu(folderNode, shadow?.querySelector(`.bf-folder-btn[data-node-id="${f.id}"]`) || shadow?.querySelector(".bf-bar"));
+              }
+            }
+          });
+        });
+      }
+    } else if (commandFilterCategory === "tags") {
+      const allEntries = getAllBookmarkEntries();
+      if (query) {
+        entries = allEntries.filter(entry => {
+          const itemTags = resolveItemTags(entry, bookmarkTagsMap);
+          if (!itemTags.length) return false;
+          return matchesTagFilter(query, itemTags, entry, getTextLocale()) || matchesBookmarkSearch(entry, query);
+        }).slice(0, 40);
+      } else {
+        entries = allEntries.filter(entry => {
+          const itemTags = resolveItemTags(entry, bookmarkTagsMap);
+          return itemTags.length > 0;
+        }).slice(0, 40);
+      }
+    } else if (commandFilterCategory === "reading_list") {
+      const listItems = Array.isArray(cachedReadingList) ? cachedReadingList : [];
+      const filtered = query
+        ? listItems.filter(item => normalizeText(item.title || "").includes(query) || normalizeText(item.url || "").includes(query))
+        : listItems;
+      entries = filtered.slice(0, 40).map((item, idx) => ({
+        id: `bf-reading-${item.id || idx}`,
+        title: item.title || item.url,
+        url: item.url,
+        path: t("readingList") || "Reading List",
+        icon: "📖",
+        isQuickAction: true,
+        handler: () => {
+          window.location.href = item.url;
+        }
+      }));
+    } else {
+      entries = getAllBookmarkEntries()
+        .filter((entry) => {
+          if (!query) {
+            return true;
+          }
+
+          return matchesBookmarkSearch(entry, query);
+        })
+        .slice(0, query ? 40 : 14);
 
     if (intentResult && intentResult.intent === "folder") {
       let folderNode = null;
@@ -4649,8 +4780,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         }
       });
     }
+  }
 
-    if (!entries.length) {
+  if (!entries.length) {
       commandActiveIndex = -1;
       app?.querySelector(".bf-command-input")?.removeAttribute("aria-activedescendant");
       const empty = document.createElement("div");
