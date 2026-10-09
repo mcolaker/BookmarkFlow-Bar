@@ -1710,6 +1710,15 @@ body[data-bg="custom"] {
   border: 1px solid var(--nt-theme-accent-glow);
   letter-spacing: 0.02em;
   user-select: none;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.nt-tag-pill.is-tag-matched {
+  background: var(--nt-theme-accent, #6366f1);
+  color: #ffffff;
+  border-color: var(--nt-theme-accent, #6366f1);
+  box-shadow: 0 0 8px var(--nt-theme-accent-glow, rgba(99, 102, 241, 0.45));
+  font-weight: 700;
 }
 
 .nt-reading-drawer {
@@ -2230,5 +2239,12 @@ body[data-bg="custom"] {
     forced-color-adjust: none;
     background: Highlight !important;
     color: HighlightText !important;
+  }
+
+  .nt-tag-pill.is-tag-matched {
+    forced-color-adjust: none;
+    background: Highlight !important;
+    color: HighlightText !important;
+    border-color: Highlight !important;
   }
 }

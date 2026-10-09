@@ -1738,3 +1738,69 @@ test("spotlight command palette and new tab search substring highlight contract 
   assert.match(newtabCss, /\.nt-highlight,\s*\.bf-highlight\s*\{[^}]*color:\s*var\(--nt-theme-accent/u, "newtab.css must style .nt-highlight with theme accent");
   assert.match(newtabCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.nt-highlight,\s*\.bf-highlight\s*\{[^}]*background:\s*Highlight/u, "newtab.css must style highlight in forced-colors mode");
 });
+
+test("folder menu live filter smart tag filtering and pill glow contract (BF-UX-038)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+
+  // Tag filter logic in updateFilter
+  assert.match(contentJs, /isTagQuery\s*=\s*query\.startsWith\(["']#["']\)/u, "updateFilter must detect #tag query prefix");
+  assert.match(contentJs, /tagPills\.some\([\s\S]*?cleanTag[\s\S]*?includes\(tagFilter\)\)/u, "updateFilter must filter items by matched tag when isTagQuery is true");
+  assert.match(contentJs, /p\.classList\.toggle\(["']is-tag-matched["'],\s*cleanTag\.includes\(tagFilter\)\)/u, "updateFilter must toggle is-tag-matched on tag pills");
+
+  // CSS styling for matched tag pill
+  assert.match(contentCss, /\.bf-tag-pill\.is-tag-matched\s*\{[^}]*background:\s*var\(--bf-theme-accent/u, "content.css must style .is-tag-matched with theme accent");
+  assert.match(contentCss, /\.bf-tag-pill\.is-tag-matched\s*\{[^}]*box-shadow:\s*0 0 8px/u, "content.css must add glow box-shadow to .is-tag-matched");
+  assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-tag-pill\.is-tag-matched/u, "content.css must support forced-colors for .is-tag-matched");
+});
+
+test("folder menu and context menu open all in tabs batch action contract (BF-UX-039)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  // Locales
+  assert.ok(enLocales.openAllInTabs, "en messages must have openAllInTabs");
+  assert.ok(trLocales.openAllInTabs, "tr messages must have openAllInTabs");
+  assert.ok(enLocales.openAllConfirm, "en messages must have openAllConfirm");
+  assert.ok(trLocales.openAllConfirm, "tr messages must have openAllConfirm");
+  assert.ok(enLocales.openAllSuccessToast, "en messages must have openAllSuccessToast");
+  assert.ok(trLocales.openAllSuccessToast, "tr messages must have openAllSuccessToast");
+
+  // Background handler
+  assert.match(backgroundJs, /message\?\.type\s*===\s*["']BF_OPEN_BACKGROUND_TABS["']/u, "background.js must handle BF_OPEN_BACKGROUND_TABS");
+  assert.match(backgroundJs, /chrome\.tabs\.create\(\{\s*url,\s*active:\s*false\s*\}\)/u, "background.js must open tabs with active: false");
+
+  // Content.js header button and context menu
+  assert.match(contentJs, /openFolderBookmarksInTabs\s*\(/u, "content.js must define openFolderBookmarksInTabs helper");
+  assert.match(contentJs, /openAllBtn\.className\s*=\s*["']bf-menu-open-all-btn["']/u, "openFolderMenu must create .bf-menu-open-all-btn");
+  assert.match(contentJs, /open-folder-all-tabs/u, "context menu must support open-folder-all-tabs action");
+  assert.match(contentJs, /targetUrls\.length\s*>\s*15[\s\S]*?openAllConfirm/u, "openFolderBookmarksInTabs must confirm when opening more than 15 tabs");
+
+  // CSS styling
+  assert.match(contentCss, /\.bf-menu-open-all-btn\s*\{/u, "content.css must define .bf-menu-open-all-btn");
+  assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-menu-open-all-btn/u, "content.css must define forced-colors for .bf-menu-open-all-btn");
+});
+
+test("spotlight and new tab search results tag pill match highlight contract (BF-UX-040)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const spotlightCss = readFileSync(path.join(root, "src/spotlight.css"), "utf8");
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+
+  // Content.js highlightMatchingTagPills
+  assert.match(contentJs, /function highlightMatchingTagPills\s*\(/u, "content.js must define highlightMatchingTagPills helper");
+  assert.match(contentJs, /renderSearchResults[\s\S]*?highlightMatchingTagPills\(link,\s*query\)/u, "renderSearchResults must call highlightMatchingTagPills");
+  assert.match(contentJs, /renderCommandResults[\s\S]*?highlightMatchingTagPills\(link,\s*query\)/u, "renderCommandResults must call highlightMatchingTagPills");
+
+  // Spotlight.css tag pill highlight
+  assert.match(spotlightCss, /\.bf-tag-pill\.is-tag-matched\s*\{[^}]*background:\s*var\(--bf-spotlight-accent/u, "spotlight.css must style .bf-tag-pill.is-tag-matched with spotlight accent");
+  assert.match(spotlightCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-tag-pill\.is-tag-matched/u, "spotlight.css must style .bf-tag-pill.is-tag-matched in forced-colors mode");
+
+  // Newtab.js & newtab.css tag pill highlight
+  assert.match(newtabJs, /tagQuery\s*&&[\s\S]*?tag\.toLowerCase\(\)\.includes\(tagQuery\)[\s\S]*?is-tag-matched/u, "newtab.js renderSearchResults must add is-tag-matched for matching tags");
+  assert.match(newtabCss, /\.nt-tag-pill\.is-tag-matched\s*\{[^}]*background:\s*var\(--nt-theme-accent/u, "newtab.css must style .nt-tag-pill.is-tag-matched with theme accent");
+  assert.match(newtabCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.nt-tag-pill\.is-tag-matched/u, "newtab.css must style .nt-tag-pill.is-tag-matched in forced-colors mode");
+});

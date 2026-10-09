@@ -860,3 +860,29 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Sonraki adım: Yok; Spotlight ve New Tab arama yüzeylerinde alt dizgi vurgulama paritesi eksiksiz sağlanmıştır.
 - Son güncelleme: 2026-10-08.
 
+## BF-UX-038 - Açılır Menü Canlı Filtresinde Akıllı Etiket (#tag) ile Hızlı Süzme Desteği
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Açılır klasör menüsündeki canlı filtre girdisinde yalnızca başlık ve URL üzerinden arama yapılıyor, yer imlerine atanmış yerel akıllı etiketler (#tag) filtrelenemiyordu; ayrıca eşleşen etiketler görsel olarak belirginleştirilmiyordu. (1) `src/content.js` içerisinde `updateFilter` fonksiyonu sorgu `#` ile başladığında veya etiket arandığında yer iminin `tagPills` listesini tarayacak şekilde güçlendirildi; (2) Eşleşen etiket haplarına dinamik olarak `.is-tag-matched` sınıfı eklendi; (3) `src/content.css` içerisine `.bf-tag-pill.is-tag-matched` stili (--bf-theme-accent, box-shadow parlama efekti) ve `@media (forced-colors: active)` yüksek kontrast uyumluluğu eklendi; (4) `scripts/ui-behavior-contract.test.mjs` içerisine `BF-UX-038` sözleşme testi eklenerek fail-closed doğrulandı.
+- Kabul kriteri: `#tag` sorgularında yalnızca ilgili etiketi taşıyan yer imleri listelenir; eşleşen etiket hapı tema rengi ve parlama efektiyle vurgulanır; normal aramalarda hem başlık hem etiket eşleşmesi desteklenir; TR/EN dil paritesi %100 korunur; `BF-UX-038` sözleşme testi ve tüm testler yeşil geçer; `validate:all` temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 140/140 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; açılır klasör menüsünde akıllı etiket canlı süzme ve parlama efekti başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-09.
+
+## BF-UX-039 - Klasör Menüsünde ve Sağ Tık Menüsünde "Tümünü Sekmelerde Aç" Toplu Eylemi
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcıların bir klasördeki tüm yer imlerini tek tek tıklamak zorunda kalmadan arka planda tek hamlede sekmeler halinde açabilme imkanı yoktu. (1) `_locales/en` ve `_locales/tr` içerisine `openAllInTabs`, `openAll`, `openAllConfirm` ($COUNT$ parametreli) ve `openAllSuccessToast` ($COUNT$ parametreli) anahtarları eklendi; (2) `src/background.js` içine `BF_OPEN_BACKGROUND_TABS` mesaj işleyicisi entegre edildi (`chrome.tabs.create({ url, active: false })`); (3) `src/content.js` içerisinde `openFolderBookmarksInTabs` ve `openContextFolderAllInTabs` fonksiyonları tanımlandı; (4) Açılır klasör menüsü başlığına (`.bf-menu-header-actions`) kompakt "↗ Tümünü Aç" butonu (`.bf-menu-open-all-btn`) yerleştirildi; (5) Klasör sağ tık menüsüne `open-folder-all-tabs` eylemi eklendi; (6) 15'ten fazla sekme açılırken aşırı bellek tüketimini ve kilitlenmeyi önlemek amacıyla tarayıcı performans onay kapısı (`window.confirm`) ve açılış sonrası anlık yeşil toast bildirimi sağlandı; (7) `src/content.css` içine buton stilleri ve forced-colors kuralları işlendi.
+- Kabul kriteri: "↗ Tümünü Aç" butonu ve sağ tık "Tümünü sekmelerde aç" menü öğesi çalışır; klasördeki veya filtrelenmiş geçerli yer imleri arka planda açılır; >15 sekme için onay penceresi sorulur; açılış sonrası toast bildirimi gösterilir; TR/EN paritesi %100 korunur; `BF-UX-039` sözleşme testi geçer; `validate:all` temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 140/140 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; klasör başlığı ve bağlam menüsü toplu sekme açma mimarisi başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-09.
+
+## BF-UX-040 - Spotlight ve Yeni Sekme Arama Sonuçlarında Etiket Hapı Canlı Eşleşme Vurgusu
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Spotlight paletinde (`Alt+Shift+K`), sayfa içi arama paneli sonuçlarında (`.bf-results`) ve Yeni Sekme canlı arama kartlarında (`.nt-search-item`) arama yapılırken eşleşen yer imi kartlarındaki etiket hapları normal renkte kalıyor ve arama sonucunun hangi etiket eşleşmesiyle geldiği görsel olarak kullanıcıya anında hissettirilemiyordu. (1) `src/content.js` içerisinde `highlightMatchingTagPills(container, query)` fonksiyonu geliştirilerek `renderSearchResults` ve `renderCommandResults` içine bağlandı; (2) `src/newtab.js` içerisinde `renderSearchResults` döngüsünde `currentSearchQuery` ile örtüşen etiketlere `.is-tag-matched` sınıfı eklendi; (3) `src/spotlight.css` ve `src/newtab.css` içerisine tema belirteçlerine duyarlı (`--bf-spotlight-accent`, `--nt-theme-accent`) `.is-tag-matched` parlama stilleri ve Windows Yüksek Kontrast modu (`@media (forced-colors: active)`) kuralları eklendi; (4) `scripts/ui-behavior-contract.test.mjs` içerisine `BF-UX-040` sözleşme testi eklenerek fail-closed doğrulandı.
+- Kabul kriteri: Spotlight ve New Tab arama sonuçlarında arama terimiyle eşleşen etiket hapları `.is-tag-matched` alarak parıldar; hem `#tag` hem düz kelime aramalarında etiket eşleşmesi canlı vurgulanır; yüksek kontrast modunda sistem `Highlight` renkleriyle uyumlu çalışır; `BF-UX-040` sözleşme testi ve tüm 140 test geçer; `validate:all` temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 140/140 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; Spotlight ve New Tab arama yüzeylerinde etiket hapı canlı eşleşme vurgusu eksiksiz sağlanmıştır.
+- Son güncelleme: 2026-10-09.
