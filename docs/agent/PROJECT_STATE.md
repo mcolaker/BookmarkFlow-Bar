@@ -22,7 +22,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 140/140 PASS (%100 yeşil).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 141/141 PASS (%100 yeşil).
 - **Kural Uyumluluk ve Bağlam Bütçe Kapısı**: `AGENT_RULE_COMPLIANCE_BENCHMARK.md` ve `scripts/validate-governance.mjs` (Context ceiling budget <20 KB) devrede.
 - **Canlı Konsol Hata Bekçisi**: `scripts/live-console-guard.mjs` (`npm run guard:console`) ile Port 9222 CDP eklenti konsol ve istisna izleme aktif.
 - **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog, raw-key, MV3 deprecation ve yönetişim sözleşmeleri temiz).
@@ -64,6 +64,7 @@ v0.3.1 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak et
 27. **Açılır Menü Canlı Filtresinde Akıllı Etiket (#tag) ile Hızlı Süzme Desteği (BF-UX-038)**: Klasör menüsü canlı filtresinde kullanıcı `#` ile başlayan bir sorgu yazdığında yer imi etiketlerinde anında süzme yapılması ve eşleşen etiket haplarının (`.bf-tag-pill.is-tag-matched`) canlı tema vurgusu ve parlama efektiyle (`box-shadow`, `--bf-theme-accent`) belirginleştirilmesi.
 28. **Klasör Menüsünde ve Sağ Tık Menüsünde "Tümünü Sekmelerde Aç" Toplu Eylemi (BF-UX-039)**: Açılır klasör menüsü başlığına eklenen kompakt "↗ Tümünü Aç" butonu (`.bf-menu-open-all-btn`) ve klasör sağ tık menüsündeki "Tümünü sekmelerde aç" (`open-folder-all-tabs`) seçeneği; klasördeki geçerli yer imlerinin `BF_OPEN_BACKGROUND_TABS` mesajıyla arka planda tek hamlede açılması; >15 sekme için tarayıcı performans onay kapısı (`openAllConfirm`) ve anlık yeşil toast bildirimi (`openAllSuccessToast`).
 29. **Spotlight ve Yeni Sekme Arama Sonuçlarında Etiket Hapı Canlı Eşleşme Vurgusu (BF-UX-040)**: Spotlight paletinde (`Alt+Shift+K`), sayfa içi arama paneli sonuçlarında ve Yeni Sekme canlı arama kartlarında etiket içeren aramalarda eşleşen etiket haplarının (`.bf-tag-pill.is-tag-matched`, `.nt-tag-pill.is-tag-matched`) dinamik tema rengi, parlama efekti ve Windows Yüksek Kontrast modu (`forced-colors: active`) desteğiyle kullanıcıya canlı gösterilmesi.
+30. **Açılır Klasör Menüsünde "Yeni Alt Klasör Oluştur" / "Buraya Yer İmi Ekle" Başlık Hızlı Eylemleri (BF-UX-041)**: Açılır klasör menüsü başlığına eklenen kompakt `+` mikro butonu (`.bf-menu-add-btn`) ve tıklandığında açılan mikro menü (`.bf-menu-add-popover`); kullanıcının o klasörün içine doğrudan yer imi ekleme diyaloğunu (`openAddBookmarkDialog`, hedef `parentId` otomatik atanmış) veya yeni alt klasör oluşturma istemini (`createFolderFromPrompt`) tek tıkla açabilmesi; tam klavye dolaşımı (`Escape`, `ArrowDown`/`ArrowUp`) ve Windows Yüksek Kontrast desteği.
 
 ---
 

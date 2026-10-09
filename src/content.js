@@ -3613,8 +3613,76 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       headerActions.append(openAllBtn);
     }
 
+    const addBtn = document.createElement("button");
+    addBtn.type = "button";
+    addBtn.className = "bf-menu-add-btn";
+    addBtn.textContent = "+";
+    addBtn.title = t("addBookmarkOrFolder") || "Add bookmark or folder";
+    addBtn.setAttribute("aria-label", t("addBookmarkOrFolder") || "Add bookmark or folder");
+    addBtn.setAttribute("aria-haspopup", "true");
+    addBtn.setAttribute("aria-expanded", "false");
+    headerActions.append(addBtn);
+
     header.append(headerInfo, headerActions);
     menu.append(header);
+
+    const addPopover = document.createElement("div");
+    addPopover.className = "bf-menu-add-popover";
+    addPopover.hidden = true;
+
+    const addBookmarkItem = document.createElement("button");
+    addBookmarkItem.type = "button";
+    addBookmarkItem.className = "bf-menu-add-item";
+    addBookmarkItem.textContent = `⭐ ${t("addBookmarkToFolder") || "Add bookmark here"}`;
+    addBookmarkItem.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeFolderMenu();
+      openAddBookmarkDialog(lastFolderAnchor, { parentId: folder.id });
+    });
+
+    const addChildFolderItem = document.createElement("button");
+    addChildFolderItem.type = "button";
+    addChildFolderItem.className = "bf-menu-add-item";
+    addChildFolderItem.textContent = `📁 ${t("createChildFolder") || "Create child folder"}`;
+    addChildFolderItem.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeFolderMenu();
+      createFolderFromPrompt(folder.id);
+    });
+
+    addPopover.append(addBookmarkItem, addChildFolderItem);
+
+    addBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = !addPopover.hidden;
+      addPopover.hidden = isOpen;
+      addBtn.setAttribute("aria-expanded", String(!isOpen));
+      if (!isOpen) {
+        try {
+          addBookmarkItem.focus();
+        } catch {}
+      }
+    });
+
+    addPopover.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        e.preventDefault();
+        addPopover.hidden = true;
+        addBtn.setAttribute("aria-expanded", "false");
+        try {
+          addBtn.focus();
+        } catch {}
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        addChildFolderItem.focus();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        addBookmarkItem.focus();
+      }
+    });
+
+    menu.append(addPopover);
 
     let filterInput = null;
     if (entries.length >= 15) {

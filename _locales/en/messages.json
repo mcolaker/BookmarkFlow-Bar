@@ -522,5 +522,6 @@
         "content": "$1"
       }
     }
-  }
+  },
+  "addBookmarkOrFolder": { "message": "Add bookmark or folder" }
 }
