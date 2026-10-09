@@ -1874,3 +1874,41 @@ test("spotlight and new tab search smart filter chips contract (BF-UX-042)", () 
   assert.match(newtabCss, /\.nt-filter-chip\.is-active\s*\{/u, "newtab.css must style active .nt-filter-chip");
   assert.match(newtabCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.nt-filter-chip/u, "newtab.css must support forced-colors for .nt-filter-chip");
 });
+
+test("folder menu sort modes contract (BF-UX-043)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  // 1. Locales
+  assert.ok(enLocales.sortModeDefault, "en messages must have sortModeDefault");
+  assert.ok(trLocales.sortModeDefault, "tr messages must have sortModeDefault");
+  assert.ok(enLocales.sortModeAz, "en messages must have sortModeAz");
+  assert.ok(trLocales.sortModeAz, "tr messages must have sortModeAz");
+  assert.ok(enLocales.sortModeNewest, "en messages must have sortModeNewest");
+  assert.ok(trLocales.sortModeNewest, "tr messages must have sortModeNewest");
+  assert.ok(enLocales.sortModeFrequent, "en messages must have sortModeFrequent");
+  assert.ok(trLocales.sortModeFrequent, "tr messages must have sortModeFrequent");
+  assert.ok(enLocales.sortModeCycleTooltip, "en messages must have sortModeCycleTooltip");
+  assert.ok(trLocales.sortModeCycleTooltip, "tr messages must have sortModeCycleTooltip");
+
+  // 2. Sort button and sorting logic in content.js
+  assert.match(contentJs, /bf-menu-sort-btn/u, "content.js must create .bf-menu-sort-btn element");
+  assert.match(contentJs, /BOOKMARK_VISITS_STORAGE_KEY/u, "content.js must define BOOKMARK_VISITS_STORAGE_KEY");
+  assert.match(contentJs, /function recordBookmarkVisit\(/u, "content.js must define recordBookmarkVisit");
+  assert.match(contentJs, /folderSortMode\s*===\s*["']az["']/u, "content.js must support az sort mode");
+  assert.match(contentJs, /folderSortMode\s*===\s*["']newest["']/u, "content.js must support newest sort mode");
+  assert.match(contentJs, /folderSortMode\s*===\s*["']frequent["']/u, "content.js must support frequent sort mode");
+  assert.match(contentJs, /function applySorting\(\)/u, "content.js must define applySorting function");
+  assert.match(contentJs, /dateAdded:\s*node\.dateAdded\s*\|\|\s*0/u, "content.js flattenBookmarks must pass dateAdded");
+
+  // 3. CSS styles and forced-colors in content.css
+  assert.match(contentCss, /\.bf-menu-sort-btn\s*\{/u, "content.css must style .bf-menu-sort-btn");
+  assert.match(contentCss, /\.bf-menu-sort-btn:hover/u, "content.css must style .bf-menu-sort-btn:hover");
+  assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-menu-sort-btn/u, "content.css must support forced-colors for .bf-menu-sort-btn");
+
+  // 4. newtab.js consistency
+  assert.match(newtabJs, /dateAdded:\s*node\.dateAdded\s*\|\|\s*0/u, "newtab.js flattenBookmarks must pass dateAdded");
+});

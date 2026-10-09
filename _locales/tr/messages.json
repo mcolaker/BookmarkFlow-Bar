@@ -528,5 +528,17 @@
   "filterChipFolders": { "message": "Klasörler" },
   "filterChipTags": { "message": "Etiketler" },
   "filterChipReadingList": { "message": "Okuma Listesi" },
-  "filterChipsAria": { "message": "Arama filtre kategorileri" }
+  "filterChipsAria": { "message": "Arama filtre kategorileri" },
+  "sortModeDefault": { "message": "Varsayılan" },
+  "sortModeAz": { "message": "A-Z" },
+  "sortModeNewest": { "message": "En Yeni" },
+  "sortModeFrequent": { "message": "Sık Kullanılan" },
+  "sortModeCycleTooltip": {
+    "message": "Sıralama: $MODE$ (değiştirmek için tıkla)",
+    "placeholders": {
+      "mode": {
+        "content": "$1"
+      }
+    }
+  }
 }

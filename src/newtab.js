@@ -3305,7 +3305,8 @@ function flattenBookmarks(nodes, path, parentId = "") {
         title: node.title || getHostname(node.url),
         url: node.url,
         path,
-        parentId
+        parentId,
+        dateAdded: node.dateAdded || 0
       }];
     }
 

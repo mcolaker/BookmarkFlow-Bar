@@ -26,6 +26,7 @@
   const FOLDER_MENU_GAP = 16;
   const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
   const LAST_USED_FOLDER_STORAGE_KEY = "bfLastUsedFolderId";
+  const BOOKMARK_VISITS_STORAGE_KEY = "bfBookmarkVisits";
   const MESSAGE_GET_CONSENT_STATUS = "BF_GET_CONSENT_STATUS";
   const MESSAGE_GET_STATE = "BF_GET_STATE";
   const MESSAGE_GET_PAGE_INFO = "BF_GET_PAGE_INFO";
@@ -78,6 +79,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let panelPosition = null;
   let dragState = null;
   let bookmarkTagsMap = {};
+  let bookmarkVisitsMap = {};
+  let saveVisitsTimer = null;
   let bookmarkDragState = null;
   let contextMenuState = null;
   let suppressNextClick = false;
@@ -121,6 +124,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         loadPanelPosition(),
         loadPinnedFolderIds(),
         loadBookmarkTags(),
+        loadBookmarkVisits(),
         hasExtensionContext() ? chrome.storage.local.get("bfFirstRunTooltipSeen") : Promise.resolve({}),
         loadLastUsedFolderId()
       ]);
@@ -503,6 +507,32 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
   }
 
+  async function loadBookmarkVisits() {
+    try {
+      const localState = await chrome.storage.local.get(BOOKMARK_VISITS_STORAGE_KEY);
+      if (localState && typeof localState[BOOKMARK_VISITS_STORAGE_KEY] === "object" && localState[BOOKMARK_VISITS_STORAGE_KEY]) {
+        bookmarkVisitsMap = { ...localState[BOOKMARK_VISITS_STORAGE_KEY] };
+      }
+      return bookmarkVisitsMap;
+    } catch (error) {
+      handleExtensionContextError(error);
+      bookmarkVisitsMap = {};
+      return {};
+    }
+  }
+
+  function recordBookmarkVisit(nodeId) {
+    if (!nodeId) return;
+    bookmarkVisitsMap[nodeId] = (bookmarkVisitsMap[nodeId] || 0) + 1;
+    if (!hasExtensionContext()) return;
+    clearTimeout(saveVisitsTimer);
+    saveVisitsTimer = setTimeout(() => {
+      try {
+        chrome.storage.local.set({ [BOOKMARK_VISITS_STORAGE_KEY]: bookmarkVisitsMap }).catch(() => {});
+      } catch {}
+    }, 400);
+  }
+
   function handleStorageChanged(changes, areaName) {
     if (areaName !== "local") {
       return;
@@ -517,6 +547,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (BOOKMARK_TAGS_STORAGE_KEY in changes) {
       bookmarkTagsMap = normalizeAllBookmarkTags(changes[BOOKMARK_TAGS_STORAGE_KEY].newValue);
       renderFromState();
+    }
+
+    if (BOOKMARK_VISITS_STORAGE_KEY in changes) {
+      const val = changes[BOOKMARK_VISITS_STORAGE_KEY].newValue;
+      if (val && typeof val === "object") {
+        bookmarkVisitsMap = { ...val };
+      }
     }
 
     if (FOLDER_RAIL_PINNED_STORAGE_KEY in changes) {
@@ -3372,6 +3409,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     favicon.src = faviconUrl(node.url);
 
     link.append(favicon, createTitle(node.title || getHostname(node.url)));
+    link.addEventListener("click", () => {
+      recordBookmarkVisit(node.id);
+    });
+    link.addEventListener("auxclick", (e) => {
+      if (e.button === 1) {
+        recordBookmarkVisit(node.id);
+      }
+    });
     return link;
   }
 
@@ -3664,6 +3709,109 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       headerActions.append(openAllBtn);
     }
 
+    let folderSortMode = "default";
+    const originalEntries = [...entries];
+
+    function getSortedEntries() {
+      const locale = getTextLocale();
+      const list = [...originalEntries];
+      if (folderSortMode === "az") {
+        list.sort((a, b) => (a.title || "").localeCompare(b.title || "", locale, { sensitivity: "base", numeric: true }));
+      } else if (folderSortMode === "newest") {
+        list.sort((a, b) => {
+          const dateA = a.dateAdded || 0;
+          const dateB = b.dateAdded || 0;
+          if (dateB !== dateA) {
+            return dateB - dateA;
+          }
+          return (a.title || "").localeCompare(b.title || "", locale, { sensitivity: "base", numeric: true });
+        });
+      } else if (folderSortMode === "frequent") {
+        list.sort((a, b) => {
+          const visitsA = bookmarkVisitsMap[a.id] || 0;
+          const visitsB = bookmarkVisitsMap[b.id] || 0;
+          if (visitsB !== visitsA) {
+            return visitsB - visitsA;
+          }
+          const dateA = a.dateAdded || 0;
+          const dateB = b.dateAdded || 0;
+          if (dateB !== dateA) {
+            return dateB - dateA;
+          }
+          return (a.title || "").localeCompare(b.title || "", locale, { sensitivity: "base", numeric: true });
+        });
+      }
+      return list;
+    }
+
+    let updateFilter = null;
+
+    function applySorting() {
+      const sorted = getSortedEntries();
+      const existingResults = new Map();
+      menu.querySelectorAll(".bf-result").forEach((el) => {
+        existingResults.set(el.dataset.nodeId, el);
+      });
+      const emptyFilter = menu.querySelector(".bf-menu-filter-empty");
+      sorted.slice(0, 120).forEach((entry) => {
+        let el = existingResults.get(entry.id);
+        if (!el) {
+          el = createFolderMenuLink(entry);
+        }
+        if (emptyFilter) {
+          menu.insertBefore(el, emptyFilter);
+        } else {
+          menu.append(el);
+        }
+      });
+      if (typeof updateFilter === "function") {
+        updateFilter();
+      }
+    }
+
+    if (entries.length >= 2) {
+      const SORT_MODES = ["default", "az", "newest", "frequent"];
+      const sortBtn = document.createElement("button");
+      sortBtn.type = "button";
+      sortBtn.className = "bf-menu-sort-btn";
+      sortBtn.dataset.sortMode = folderSortMode;
+
+      const updateSortBtnDisplay = () => {
+        sortBtn.dataset.sortMode = folderSortMode;
+        let label = "";
+        let modeName = "";
+        if (folderSortMode === "az") {
+          label = "🔤 A-Z";
+          modeName = t("sortModeAz") || "A-Z";
+        } else if (folderSortMode === "newest") {
+          label = `🕒 ${t("sortModeNewest") || "Yeni"}`;
+          modeName = t("sortModeNewest") || "En Yeni";
+        } else if (folderSortMode === "frequent") {
+          label = `🔥 ${t("sortModeFrequent") || "Sık"}`;
+          modeName = t("sortModeFrequent") || "Sık Kullanılan";
+        } else {
+          label = `↕ ${t("sortModeDefault") || "Varsayılan"}`;
+          modeName = t("sortModeDefault") || "Varsayılan";
+        }
+        sortBtn.textContent = label;
+        const titleText = t("sortModeCycleTooltip", modeName) || `Sıralama: ${modeName} (değiştirmek için tıkla)`;
+        sortBtn.title = titleText;
+        sortBtn.setAttribute("aria-label", titleText);
+      };
+
+      updateSortBtnDisplay();
+
+      sortBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const currentIdx = SORT_MODES.indexOf(folderSortMode);
+        folderSortMode = SORT_MODES[(currentIdx + 1) % SORT_MODES.length];
+        updateSortBtnDisplay();
+        applySorting();
+      });
+
+      headerActions.append(sortBtn);
+    }
+
     const addBtn = document.createElement("button");
     addBtn.type = "button";
     addBtn.className = "bf-menu-add-btn";
@@ -3733,6 +3881,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       }
     });
 
+    menu.addEventListener("click", (e) => {
+      if (!addPopover.hidden && !addPopover.contains(e.target) && e.target !== addBtn) {
+        addPopover.hidden = true;
+        addBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+
     menu.append(addPopover);
 
     let filterInput = null;
@@ -3756,7 +3911,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       filterWrap.append(filterInput, filterClearBtn);
       menu.append(filterWrap);
 
-      const updateFilter = () => {
+      updateFilter = () => {
         const rawQuery = filterInput.value.trim();
         const query = rawQuery.toLowerCase();
         const isTagQuery = query.startsWith("#");
@@ -4830,10 +4985,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const link = createResultLink(entry);
     markFolderMenuItem(link, entry);
     link.addEventListener("click", () => {
+      recordBookmarkVisit(entry.id);
       closeFolderMenu();
     });
     link.addEventListener("auxclick", (event) => {
       if (event.button === 1 && entry.url) {
+        recordBookmarkVisit(entry.id);
         event.preventDefault();
         event.stopPropagation();
         if (hasExtensionContext()) {
@@ -5221,6 +5378,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     link.append(favicon, copy);
+    link.addEventListener("click", () => {
+      recordBookmarkVisit(entry.id);
+    });
     return link;
   }
 
@@ -5236,7 +5396,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
           title: node.title || getHostname(node.url),
           url: node.url,
           path,
-          parentId
+          parentId,
+          dateAdded: node.dateAdded || 0
         }];
       }
 
