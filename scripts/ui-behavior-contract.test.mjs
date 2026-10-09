@@ -1804,3 +1804,27 @@ test("spotlight and new tab search results tag pill match highlight contract (BF
   assert.match(newtabCss, /\.nt-tag-pill\.is-tag-matched\s*\{[^}]*background:\s*var\(--nt-theme-accent/u, "newtab.css must style .nt-tag-pill.is-tag-matched with theme accent");
   assert.match(newtabCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.nt-tag-pill\.is-tag-matched/u, "newtab.css must style .nt-tag-pill.is-tag-matched in forced-colors mode");
 });
+
+test("folder menu header quick add bookmark and child folder popover contract (BF-UX-041)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  // Locales
+  assert.ok(enLocales.addBookmarkOrFolder, "en messages must have addBookmarkOrFolder");
+  assert.ok(trLocales.addBookmarkOrFolder, "tr messages must have addBookmarkOrFolder");
+
+  // Content.js header button and popover
+  assert.match(contentJs, /addBtn\.className\s*=\s*["']bf-menu-add-btn["']/u, "openFolderMenu must create .bf-menu-add-btn");
+  assert.match(contentJs, /addPopover\.className\s*=\s*["']bf-menu-add-popover["']/u, "openFolderMenu must create .bf-menu-add-popover");
+  assert.match(contentJs, /openAddBookmarkDialog\(lastFolderAnchor,\s*\{\s*parentId:\s*folder\.id\s*\}\)/u, "addBookmarkItem must open dialog with target folder id");
+  assert.match(contentJs, /createFolderFromPrompt\(folder\.id\)/u, "addChildFolderItem must prompt create child folder with folder id");
+  assert.match(contentJs, /e\.key\s*===\s*["']Escape["'][\s\S]*?addPopover\.hidden\s*=\s*true/u, "addPopover must close on Escape key");
+
+  // CSS styling
+  assert.match(contentCss, /\.bf-menu-add-btn\s*\{/u, "content.css must define .bf-menu-add-btn");
+  assert.match(contentCss, /\.bf-menu-add-popover\s*\{/u, "content.css must define .bf-menu-add-popover");
+  assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-menu-add-btn/u, "content.css must define forced-colors for .bf-menu-add-btn");
+  assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-menu-add-popover/u, "content.css must define forced-colors for .bf-menu-add-popover");
+});
