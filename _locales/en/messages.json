@@ -523,5 +523,10 @@
       }
     }
   },
-  "addBookmarkOrFolder": { "message": "Add bookmark or folder" }
+  "addBookmarkOrFolder": { "message": "Add bookmark or folder" },
+  "filterChipAll": { "message": "All" },
+  "filterChipFolders": { "message": "Folders" },
+  "filterChipTags": { "message": "Tags" },
+  "filterChipReadingList": { "message": "Reading List" },
+  "filterChipsAria": { "message": "Search filter categories" }
 }

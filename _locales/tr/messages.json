@@ -523,5 +523,10 @@
       }
     }
   },
-  "addBookmarkOrFolder": { "message": "Yer imi veya klasör ekle" }
+  "addBookmarkOrFolder": { "message": "Yer imi veya klasör ekle" },
+  "filterChipAll": { "message": "Tümü" },
+  "filterChipFolders": { "message": "Klasörler" },
+  "filterChipTags": { "message": "Etiketler" },
+  "filterChipReadingList": { "message": "Okuma Listesi" },
+  "filterChipsAria": { "message": "Arama filtre kategorileri" }
 }

@@ -62,6 +62,7 @@ const elements = {
   shortcutsWrap: document.getElementById("shortcutsWrap"),
   shortcutsGrid: document.getElementById("shortcutsGrid"),
   searchResults: document.getElementById("searchResults"),
+  searchChips: document.getElementById("searchChips"),
   saveOpenTabs: document.getElementById("saveOpenTabs"),
   readingListBtn: document.getElementById("readingListBtn"),
   readingDrawer: document.getElementById("readingDrawer"),
@@ -83,6 +84,8 @@ let addDialogReturnFocus = null;
 let searchActiveIndex = -1;
 let currentSearchResults = [];
 let currentSearchQuery = "";
+let newtabFilterCategory = "all";
+let cachedReadingList = [];
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === "local" && DATA_CONSENT_STORAGE_KEY in changes) {
@@ -120,6 +123,23 @@ async function init() {
   elements.searchForm.addEventListener("submit", handleSearchSubmit);
   elements.searchInput.addEventListener("input", handleSearchInput);
   elements.searchInput.addEventListener("keydown", handleSearchKeydown);
+  elements.searchChips?.addEventListener("click", (e) => {
+    const chip = e.target.closest(".nt-filter-chip");
+    if (!chip) return;
+    newtabFilterCategory = chip.dataset.chip || "all";
+    elements.searchChips.querySelectorAll(".nt-filter-chip").forEach((c) => {
+      const isActive = c === chip;
+      c.classList.toggle("is-active", isActive);
+      c.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    handleSearchInput();
+    elements.searchInput.focus();
+  });
+  sendMessage({ type: "BF_GET_READING_LIST" }).then((res) => {
+    if (res?.ok && Array.isArray(res.readingList)) {
+      cachedReadingList = res.readingList;
+    }
+  }).catch(() => {});
   elements.searchInlineSaveBtn?.addEventListener("click", async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -362,6 +382,7 @@ function closeReadingDrawer() {
 async function loadAndRenderReadingList() {
   const response = await sendMessage({ type: "BF_GET_READING_LIST" });
   const list = response?.readingList || [];
+  cachedReadingList = list;
   elements.readingListContainer.innerHTML = "";
 
   if (!list.length) {
@@ -841,7 +862,7 @@ function handleSearchInput() {
   const query = elements.searchInput.value.trim();
   elements.searchInput.setCustomValidity("");
 
-  if (!query) {
+  if (!query && newtabFilterCategory === "all") {
     hideSearchResults();
     return;
   }
@@ -856,152 +877,232 @@ function handleSearchInput() {
 
   const allBookmarks = getSearchIndex();
   const textLocale = getTextLocale();
-  const matchedBookmarks = [];
+  let results = [];
 
-  for (let i = 0; i < allBookmarks.length; i += 1) {
-    const b = allBookmarks[i];
-    if (matchesTagFilter(query, b.tags, b, textLocale)) {
-      matchedBookmarks.push(b);
-      if (matchedBookmarks.length >= 8) {
-        break;
-      }
-    }
-  }
-
-  const results = matchedBookmarks.map((b) => ({
-    type: "bookmark",
-    id: b.id,
-    title: b.title,
-    url: b.url,
-    path: b.path
-  }));
-
-  if (intentResult && intentResult.intent === "folder") {
-    let folderNode = null;
-    if (intentResult.folderId) {
-      folderNode = findNodeById(getBookmarkTreeRoot(), intentResult.folderId);
-    } else if (intentResult.folderQuery) {
-      const qLower = intentResult.folderQuery.toLowerCase();
-      const matched = allFolders.find(f => (f.title || "").toLowerCase().includes(qLower));
-      if (matched) {
-        folderNode = findNodeById(getBookmarkTreeRoot(), matched.id);
-      }
-    }
-    if (folderNode && Array.isArray(folderNode.children)) {
-      const folderBookmarks = folderNode.children
-        .filter(c => c.url)
-        .slice(0, 8)
-        .map(b => ({
+  if (newtabFilterCategory === "folders") {
+    if (query) {
+      const qLower = query.toLocaleLowerCase(textLocale);
+      const matchedFolders = allFolders.filter(f => (f.title || "").toLocaleLowerCase(textLocale).includes(qLower) || (f.path || "").toLocaleLowerCase(textLocale).includes(qLower));
+      matchedFolders.forEach(f => {
+        results.push({
+          type: "folder",
+          folderId: f.id,
+          title: `📁 ${f.title}`,
+          path: f.path,
+          icon: "📁"
+        });
+      });
+      const matchedBookmarks = allBookmarks.filter(b => (b.path || "").toLocaleLowerCase(textLocale).includes(qLower) || matchesTagFilter(query, b.tags, b, textLocale));
+      matchedBookmarks.slice(0, 20).forEach(b => {
+        results.push({
           type: "bookmark",
           id: b.id,
           title: b.title,
           url: b.url,
-          path: folderNode.title
-        }));
-      results.unshift(...folderBookmarks);
+          path: b.path
+        });
+      });
+    } else {
+      allFolders.forEach(f => {
+        results.push({
+          type: "folder",
+          folderId: f.id,
+          title: `📁 ${f.title}`,
+          path: f.path,
+          icon: "📁"
+        });
+      });
     }
-  }
-
-  if (intentResult && intentResult.intent === "open_tab" && intentResult.tabQuery) {
-    results.unshift({
-      type: "action",
-      action: "switchToTab",
-      title: `${t("intentTabMode") || "Tab Switch"}: ${intentResult.tabQuery}`,
-      desc: t("openInBrowserDesc") || "Switch to matching open tab",
-      icon: "🗂️",
-      tabQuery: intentResult.tabQuery
-    });
-  }
-
-  const directTarget = resolveDirectNavigationTarget(query);
-  if (directTarget) {
-    const existingBookmark = findExistingBookmarkByUrl(directTarget);
-    let existingNotice = "";
-    if (existingBookmark?.title) {
-      const barNode = appState?.bookmarkBar;
-      let folderTitle = "";
-      if (existingBookmark.parentId === barNode?.id) {
-        folderTitle = t("bookmarksBar") || "Yer İmleri Çubuğu";
-      } else if (existingBookmark.parentId) {
-        const allFolders = collectAllFolders(barNode);
-        folderTitle = allFolders.find(f => f.id === existingBookmark.parentId)?.title || "";
-      }
-      existingNotice = folderTitle
-        ? ` • ${t("existingBookmarkWithFolderNotice", [existingBookmark.title, folderTitle]) || `Zaten yer imlerinde: ${existingBookmark.title} (${folderTitle} içinde)`}`
-        : ` • ${t("existingBookmarkNotice", existingBookmark.title) || `Zaten yer imlerinde: ${existingBookmark.title}`}`;
+  } else if (newtabFilterCategory === "tags") {
+    const tagged = allBookmarks.filter(b => Array.isArray(b.tags) && b.tags.length > 0);
+    if (query) {
+      const matched = tagged.filter(b => matchesTagFilter(query, b.tags, b, textLocale));
+      results = matched.slice(0, 30).map(b => ({
+        type: "bookmark",
+        id: b.id,
+        title: b.title,
+        url: b.url,
+        path: b.path
+      }));
+    } else {
+      results = tagged.slice(0, 30).map(b => ({
+        type: "bookmark",
+        id: b.id,
+        title: b.title,
+        url: b.url,
+        path: b.path
+      }));
     }
-    results.unshift({
-      type: "action",
-      action: "captureUrlToBookmark",
-      title: `${t("addBookmarkToTarget")}: ${directTarget}`,
-      desc: `${t("addBookmarkToTargetDesc")}${existingNotice}`,
-      icon: existingBookmark ? "✏️" : "⭐",
-      targetUrl: directTarget,
-      existingBookmark
-    });
-    results.splice(1, 0, {
-      type: "action",
-      action: "openDirectUrl",
-      title: `${t("openInBrowser")}: ${directTarget}`,
-      desc: t("openInBrowserDesc"),
-      icon: "🌐",
-      targetUrl: directTarget
-    });
-  }
-
-  const isHealthQuery = /^(health|sa[gğ]l[iı]k|k[iı]r[iı]k|dead|broken|duplicate|m[uü]kerrer|bak[iı]m|maintenance|#health)/i.test(query.toLowerCase());
-  if (isHealthQuery) {
-    results.unshift({
-      type: "action",
-      action: "openHealthInspector",
-      title: t("quickActionOpenHealth"),
-      desc: t("quickActionOpenHealthDesc"),
-      icon: "🩺",
-      url: "src/bookmark-maintenance.html#health"
-    });
-  }
-
-  const isSaveTabsQuery = /^(stash|tabs|sekmeler|sakla|save tabs|#stash|#tabs)/i.test(query.toLowerCase());
-  if (isSaveTabsQuery) {
-    results.unshift({
-      type: "action",
-      action: "saveOpenTabs",
-      title: t("quickActionSaveTabs"),
-      desc: t("quickActionSaveTabsDesc"),
-      icon: "📥"
-    });
-  }
-
-  const isReadingQuery = /^(read|oku|later|reading|liste|#reading|#later)/i.test(query.toLowerCase());
-  if (isReadingQuery) {
-    results.unshift({
-      type: "action",
-      action: "openReadingList",
-      title: t("quickActionReadingList"),
-      desc: t("quickActionReadingListDesc"),
+  } else if (newtabFilterCategory === "reading_list") {
+    const listItems = Array.isArray(cachedReadingList) ? cachedReadingList : [];
+    const qLower = query.toLocaleLowerCase(textLocale);
+    const filtered = query
+      ? listItems.filter(item => (item.title || "").toLocaleLowerCase(textLocale).includes(qLower) || (item.url || "").toLocaleLowerCase(textLocale).includes(qLower))
+      : listItems;
+    results = filtered.slice(0, 30).map(item => ({
+      type: "bookmark",
+      id: `reading-${item.id || item.url}`,
+      title: item.title || item.url,
+      url: item.url,
+      path: t("readingList") || "Reading List",
       icon: "📖"
-    });
-  }
+    }));
+  } else {
+    const matchedBookmarks = [];
 
-  const isBackupQuery = /^(backup|yedek|export|restore|#backup)/i.test(query.toLowerCase());
-  if (isBackupQuery) {
-    results.unshift({
-      type: "action",
-      action: "exportBackup",
-      title: t("quickActionBackup"),
-      desc: t("quickActionBackupDesc"),
-      icon: "💾"
-    });
-  }
+    for (let i = 0; i < allBookmarks.length; i += 1) {
+      const b = allBookmarks[i];
+      if (matchesTagFilter(query, b.tags, b, textLocale)) {
+        matchedBookmarks.push(b);
+        if (matchedBookmarks.length >= 8) {
+          break;
+        }
+      }
+    }
 
-  results.push({
-    type: "webSearch",
-    title: `${t("webSearch") || "Web Search"}: "${query}"`,
-    url: query
-  });
+    results = matchedBookmarks.map((b) => ({
+      type: "bookmark",
+      id: b.id,
+      title: b.title,
+      url: b.url,
+      path: b.path
+    }));
+
+    if (intentResult && intentResult.intent === "folder") {
+      let folderNode = null;
+      if (intentResult.folderId) {
+        folderNode = findNodeById(getBookmarkTreeRoot(), intentResult.folderId);
+      } else if (intentResult.folderQuery) {
+        const qLower = intentResult.folderQuery.toLowerCase();
+        const matched = allFolders.find(f => (f.title || "").toLowerCase().includes(qLower));
+        if (matched) {
+          folderNode = findNodeById(getBookmarkTreeRoot(), matched.id);
+        }
+      }
+      if (folderNode && Array.isArray(folderNode.children)) {
+        const folderBookmarks = folderNode.children
+          .filter(c => c.url)
+          .slice(0, 8)
+          .map(b => ({
+            type: "bookmark",
+            id: b.id,
+            title: b.title,
+            url: b.url,
+            path: folderNode.title
+          }));
+        results.unshift(...folderBookmarks);
+      }
+    }
+
+    if (intentResult && intentResult.intent === "open_tab" && intentResult.tabQuery) {
+      results.unshift({
+        type: "action",
+        action: "switchToTab",
+        title: `${t("intentTabMode") || "Tab Switch"}: ${intentResult.tabQuery}`,
+        desc: t("openInBrowserDesc") || "Switch to matching open tab",
+        icon: "🗂️",
+        tabQuery: intentResult.tabQuery
+      });
+    }
+
+    const directTarget = resolveDirectNavigationTarget(query);
+    if (directTarget) {
+      const existingBookmark = findExistingBookmarkByUrl(directTarget);
+      let existingNotice = "";
+      if (existingBookmark?.title) {
+        const barNode = appState?.bookmarkBar;
+        let folderTitle = "";
+        if (existingBookmark.parentId === barNode?.id) {
+          folderTitle = t("bookmarksBar") || "Yer İmleri Çubuğu";
+        } else if (existingBookmark.parentId) {
+          const allFolders = collectAllFolders(barNode);
+          folderTitle = allFolders.find(f => f.id === existingBookmark.parentId)?.title || "";
+        }
+        existingNotice = folderTitle
+          ? ` • ${t("existingBookmarkWithFolderNotice", [existingBookmark.title, folderTitle]) || `Zaten yer imlerinde: ${existingBookmark.title} (${folderTitle} içinde)`}`
+          : ` • ${t("existingBookmarkNotice", existingBookmark.title) || `Zaten yer imlerinde: ${existingBookmark.title}`}`;
+      }
+      results.unshift({
+        type: "action",
+        action: "captureUrlToBookmark",
+        title: `${t("addBookmarkToTarget")}: ${directTarget}`,
+        desc: `${t("addBookmarkToTargetDesc")}${existingNotice}`,
+        icon: existingBookmark ? "✏️" : "⭐",
+        targetUrl: directTarget,
+        existingBookmark
+      });
+      results.splice(1, 0, {
+        type: "action",
+        action: "openDirectUrl",
+        title: `${t("openInBrowser")}: ${directTarget}`,
+        desc: t("openInBrowserDesc"),
+        icon: "🌐",
+        targetUrl: directTarget
+      });
+    }
+
+    const isHealthQuery = /^(health|sa[gğ]l[iı]k|k[iı]r[iı]k|dead|broken|duplicate|m[uü]kerrer|bak[iı]m|maintenance|#health)/i.test(query.toLowerCase());
+    if (isHealthQuery) {
+      results.unshift({
+        type: "action",
+        action: "openHealthInspector",
+        title: t("quickActionOpenHealth"),
+        desc: t("quickActionOpenHealthDesc"),
+        icon: "🩺",
+        url: "src/bookmark-maintenance.html#health"
+      });
+    }
+
+    const isSaveTabsQuery = /^(stash|tabs|sekmeler|sakla|save tabs|#stash|#tabs)/i.test(query.toLowerCase());
+    if (isSaveTabsQuery) {
+      results.unshift({
+        type: "action",
+        action: "saveOpenTabs",
+        title: t("quickActionSaveTabs"),
+        desc: t("quickActionSaveTabsDesc"),
+        icon: "📥"
+      });
+    }
+
+    const isReadingQuery = /^(read|oku|later|reading|liste|#reading|#later)/i.test(query.toLowerCase());
+    if (isReadingQuery) {
+      results.unshift({
+        type: "action",
+        action: "openReadingList",
+        title: t("quickActionReadingList"),
+        desc: t("quickActionReadingListDesc"),
+        icon: "📖"
+      });
+    }
+
+    const isBackupQuery = /^(backup|yedek|export|restore|#backup)/i.test(query.toLowerCase());
+    if (isBackupQuery) {
+      results.unshift({
+        type: "action",
+        action: "exportBackup",
+        title: t("quickActionBackup"),
+        desc: t("quickActionBackupDesc"),
+        icon: "💾"
+      });
+    }
+
+    if (query) {
+      results.push({
+        type: "webSearch",
+        title: `${t("webSearch") || "Web Search"}: "${query}"`,
+        url: query
+      });
+    }
+  }
 
   currentSearchResults = results;
   searchActiveIndex = 0;
+  if (!results.length) {
+    hideSearchResults();
+    return;
+  }
+  elements.searchResults.hidden = false;
+  elements.searchInput.setAttribute("aria-expanded", "true");
   renderSearchResults();
 }
 
@@ -1107,18 +1208,29 @@ function renderSearchResults() {
     if (item.type === "action") {
       card.href = "#";
       iconBox.textContent = item.icon || "⚡";
+    } else if (item.type === "folder") {
+      card.href = "#";
+      iconBox.textContent = item.icon || "📁";
+      card.addEventListener("click", (e) => {
+        e.preventDefault();
+        openSearchResult(item, e);
+      });
     } else if (item.type === "bookmark") {
       card.href = item.url;
-      const favicon = document.createElement("img");
-      favicon.src = faviconUrl(item.url);
-      favicon.alt = "";
-      favicon.loading = "lazy";
-      favicon.referrerPolicy = "no-referrer";
-      favicon.addEventListener("error", () => {
-        favicon.remove();
-        iconBox.textContent = (item.title || "B").charAt(0).toUpperCase();
-      });
-      iconBox.append(favicon);
+      if (item.icon) {
+        iconBox.textContent = item.icon;
+      } else {
+        const favicon = document.createElement("img");
+        favicon.src = faviconUrl(item.url);
+        favicon.alt = "";
+        favicon.loading = "lazy";
+        favicon.referrerPolicy = "no-referrer";
+        favicon.addEventListener("error", () => {
+          favicon.remove();
+          iconBox.textContent = (item.title || "B").charAt(0).toUpperCase();
+        });
+        iconBox.append(favicon);
+      }
     } else {
       card.href = "#";
       iconBox.textContent = "🔍";
@@ -1299,6 +1411,15 @@ function renderSearchResults() {
 
 async function openSearchResult(item, event) {
   const isNewTab = event.ctrlKey || event.metaKey;
+
+  if (item.type === "folder" && item.folderId) {
+    hideSearchResults();
+    const folderNode = findNodeById(getBookmarkTreeRoot(), item.folderId);
+    if (folderNode) {
+      openFolderMenu(folderNode, document.querySelector(`.nt-folder-btn[data-node-id="${item.folderId}"]`) || elements.searchInput);
+    }
+    return;
+  }
 
   if (item.type === "action") {
     hideSearchResults();

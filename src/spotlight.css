@@ -363,6 +363,17 @@
     color: HighlightText !important;
     border-color: Highlight !important;
   }
+
+  .bf-filter-chip {
+    border: 1px solid ButtonText !important;
+    color: ButtonText !important;
+  }
+
+  .bf-filter-chip.is-active {
+    background: Highlight !important;
+    color: HighlightText !important;
+    border: 2px solid Highlight !important;
+  }
 }
 
 /* Spotlight Eşleşen Karakter Vurgusu (BF-UX-037) */
@@ -381,4 +392,60 @@
   border-color: var(--bf-spotlight-accent, var(--bf-theme-accent, #22d3ee));
   box-shadow: 0 0 8px var(--bf-spotlight-glow, rgba(34, 211, 238, 0.45));
   font-weight: 700;
+}
+
+/* Spotlight Süzme Çipleri (BF-UX-042) */
+.bf-command-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--bf-spotlight-header-border, #303743);
+  background: rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
+}
+
+.bf-command-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.bf-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--bf-spotlight-text-muted, #a2acbb);
+  background: var(--bf-token-bg-surface, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--bf-spotlight-panel-border, rgba(255, 255, 255, 0.12));
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.bf-filter-chip:hover {
+  color: var(--bf-spotlight-text-primary, #eef1f6);
+  border-color: var(--bf-spotlight-accent, #22d3ee);
+  background: var(--bf-spotlight-subtle, rgba(34, 211, 238, 0.12));
+}
+
+.bf-filter-chip:focus-visible {
+  outline: 2px solid var(--bf-spotlight-accent, #22d3ee);
+  outline-offset: 2px;
+}
+
+.bf-filter-chip.is-active {
+  color: var(--bf-spotlight-contrast, #000000);
+  background: var(--bf-spotlight-accent, #22d3ee);
+  border-color: var(--bf-spotlight-accent, #22d3ee);
+  font-weight: 600;
+  box-shadow: 0 0 8px var(--bf-spotlight-glow, rgba(34, 211, 238, 0.42));
 }

@@ -1828,3 +1828,49 @@ test("folder menu header quick add bookmark and child folder popover contract (B
   assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-menu-add-btn/u, "content.css must define forced-colors for .bf-menu-add-btn");
   assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-menu-add-popover/u, "content.css must define forced-colors for .bf-menu-add-popover");
 });
+
+test("spotlight and new tab search smart filter chips contract (BF-UX-042)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const spotlightCss = readFileSync(path.join(root, "src/spotlight.css"), "utf8");
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  // 1. Locales
+  assert.ok(enLocales.filterChipAll, "en messages must have filterChipAll");
+  assert.ok(trLocales.filterChipAll, "tr messages must have filterChipAll");
+  assert.ok(enLocales.filterChipFolders, "en messages must have filterChipFolders");
+  assert.ok(trLocales.filterChipFolders, "tr messages must have filterChipFolders");
+  assert.ok(enLocales.filterChipTags, "en messages must have filterChipTags");
+  assert.ok(trLocales.filterChipTags, "tr messages must have filterChipTags");
+  assert.ok(enLocales.filterChipReadingList, "en messages must have filterChipReadingList");
+  assert.ok(trLocales.filterChipReadingList, "tr messages must have filterChipReadingList");
+
+  // 2. Spotlight command palette filter chips in content.js and spotlight.css
+  assert.match(contentJs, /class="bf-command-chips"/u, "content.js must create .bf-command-chips container");
+  assert.match(contentJs, /data-chip="folders"/u, "content.js must render folders chip");
+  assert.match(contentJs, /data-chip="tags"/u, "content.js must render tags chip");
+  assert.match(contentJs, /data-chip="reading_list"/u, "content.js must render reading_list chip");
+  assert.match(contentJs, /commandFilterCategory\s*===\s*["']folders["']/u, "renderCommandResults must handle folders category");
+  assert.match(contentJs, /commandFilterCategory\s*===\s*["']tags["']/u, "renderCommandResults must handle tags category");
+  assert.match(contentJs, /commandFilterCategory\s*===\s*["']reading_list["']/u, "renderCommandResults must handle reading_list category");
+  assert.match(spotlightCss, /\.bf-command-chips\s*\{/u, "spotlight.css must style .bf-command-chips");
+  assert.match(spotlightCss, /\.bf-filter-chip\s*\{/u, "spotlight.css must style .bf-filter-chip");
+  assert.match(spotlightCss, /\.bf-filter-chip\.is-active\s*\{/u, "spotlight.css must style active .bf-filter-chip");
+  assert.match(spotlightCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-filter-chip/u, "spotlight.css must support forced-colors for .bf-filter-chip");
+
+  // 3. New Tab search filter chips in newtab.html, newtab.js, and newtab.css
+  assert.match(newtabHtml, /id="searchChips"/u, "newtab.html must contain searchChips container");
+  assert.match(newtabHtml, /data-chip="folders"/u, "newtab.html must contain folders chip");
+  assert.match(newtabHtml, /data-chip="tags"/u, "newtab.html must contain tags chip");
+  assert.match(newtabHtml, /data-chip="reading_list"/u, "newtab.html must contain reading_list chip");
+  assert.match(newtabJs, /newtabFilterCategory\s*===\s*["']folders["']/u, "newtab.js must handle folders category");
+  assert.match(newtabJs, /newtabFilterCategory\s*===\s*["']tags["']/u, "newtab.js must handle tags category");
+  assert.match(newtabJs, /newtabFilterCategory\s*===\s*["']reading_list["']/u, "newtab.js must handle reading_list category");
+  assert.match(newtabCss, /\.nt-search-chips\s*\{/u, "newtab.css must style .nt-search-chips");
+  assert.match(newtabCss, /\.nt-filter-chip\s*\{/u, "newtab.css must style .nt-filter-chip");
+  assert.match(newtabCss, /\.nt-filter-chip\.is-active\s*\{/u, "newtab.css must style active .nt-filter-chip");
+  assert.match(newtabCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.nt-filter-chip/u, "newtab.css must support forced-colors for .nt-filter-chip");
+});

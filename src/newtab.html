@@ -59,6 +59,12 @@
           <div class="nt-intent-badge" id="searchIntentBadge" hidden aria-hidden="true"></div>
           <button type="submit" data-i18n="search">Search</button>
         </div>
+        <div class="nt-search-chips" id="searchChips" role="tablist" aria-label="Search filter categories" data-i18n-aria-label="filterChipsAria">
+          <button type="button" class="nt-filter-chip is-active" data-chip="all" role="tab" aria-selected="true" data-i18n="filterChipAll">All</button>
+          <button type="button" class="nt-filter-chip" data-chip="folders" role="tab" aria-selected="false">📁 <span data-i18n="filterChipFolders">Folders</span></button>
+          <button type="button" class="nt-filter-chip" data-chip="tags" role="tab" aria-selected="false">🏷️ <span data-i18n="filterChipTags">Tags</span></button>
+          <button type="button" class="nt-filter-chip" data-chip="reading_list" role="tab" aria-selected="false">📖 <span data-i18n="filterChipReadingList">Reading List</span></button>
+        </div>
         <div class="nt-search-results" id="searchResults" role="listbox" aria-label="Search suggestions" hidden></div>
       </form>
       <nav class="nt-shortcuts-wrap" id="shortcutsWrap" aria-label="Shortcuts" data-i18n-aria-label="quickShortcuts" hidden>
