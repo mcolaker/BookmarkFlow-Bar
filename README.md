@@ -14,24 +14,24 @@
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
   <img alt="Firefox Add-ons Ready" src="https://img.shields.io/badge/Firefox-Add--ons%20Ready-FF7139?logo=firefoxbrowser&logoColor=white">
   <img alt="Microsoft Edge Compatible" src="https://img.shields.io/badge/Edge-Compatible-0078D7?logo=microsoftedge&logoColor=white">
-  <img alt="Source version 0.3.1" src="https://img.shields.io/badge/source-0.3.1-F2C94C">
+  <img alt="Source version 0.4.0" src="https://img.shields.io/badge/source-0.4.0-F2C94C">
   <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
 
 <p align="center">
   <strong><a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf">Install from Chrome Web Store</a></strong> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.1/bookmarkflow-bar-0.3.1.zip">Chrome ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.1/bookmarkflow-bar-0.3.1-firefox.zip">Firefox ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.1/bookmarkflow-bar-0.3.1-edge.zip">Edge ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.1/bookmarkflow-bar-0.3.1.zip.sha256">Verify SHA-256</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.0/bookmarkflow-bar-0.4.0.zip">Chrome ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.0/bookmarkflow-bar-0.4.0-firefox.zip">Firefox ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.0/bookmarkflow-bar-0.4.0-edge.zip">Edge ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.0/bookmarkflow-bar-0.4.0.zip.sha256">Verify SHA-256</a> ·
   <a href="#install-from-source">Installation guide</a> ·
   <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Product website</a> ·
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/discussions">Join Discussions</a>
 </p>
 
 <p align="center">
-  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.3.1 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
+  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.4.0 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
 </p>
 
 > [!NOTE]
@@ -54,6 +54,11 @@
 
 Chrome's native bookmarks bar is intentionally simple, but it cannot become a true multi-row workspace. BookmarkFlow adds a compact interface on top of regular web pages and replaces the new-tab page with a focused bookmark dashboard—without moving your bookmarks into a separate service.
 
+- **Smart filter chips & W3C tablist keyboard navigation.** Compact, horizontal scrollable filter chips ("All", "Folders", "Tags", "Reading List") in Spotlight (`Alt+Shift+K`) and New Tab search for instant category isolation with seamless arrow-key (`ArrowLeft`/`ArrowRight`), `Home`/`End`, and `Enter`/`Space` roving navigation.
+- **Smart folder sorting & persistent preferences.** Dynamically sort crowded folders by "A-Z", "Newest", or "Frequently Used" with local bookmark visit tracking, and automatically remember your preferred sort order per folder across sessions.
+- **Enhanced folder menu header & quick actions.** Clean `.bf-menu-header` with folder icon, counter, and header actions: instant `[+ Bookmark/Folder]` creation and `[↗ Open All]` in background tabs with confirmation threshold.
+- **Live substring search & matching character highlights.** Real-time filtering in crowded folder menus with instant clear (`×`) button, safe `<mark>` substring highlighting across folder items, Spotlight, and New Tab cards.
+- **Folder menu context menu & background tab opening.** Right-click any folder item to open in incognito or copy URL with toast confirmation, or middle-click (`auxclick`) to open in a background tab without dismissing the menu.
 - **Instant search link capture & smart routing badges.** Type or paste any link into search to capture it into bookmarks with one-click folder chips. The zero-latency local intent engine instantly recognizes URLs, commands, tags, folders, and tabs with color-coded live pill badges.
 - **Universal undo, inline actions & progress feedback.** Undo any bookmark action or accidental search clearance instantly via `Ctrl+Z` or interactive toast buttons with visual progress bars. Quick `[⭐ Save]` and `[✏️ Edit]` inline actions with `Ctrl+S` hotkeys.
 - **Full bar concealment & screen-edge restore.** Hide the in-page bar completely with `Alt+Shift+H` leaving zero residual pixels. Hover near the extreme right edge to reveal a 3px minimalist edge peek strip, or restore instantly with single-click popup controls.

@@ -2,6 +2,9 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-10] — v0.4.0 Sürüm Yayını ve Dağıtım Sözleşmesi (BF-REL-014 / Karar 38)
+- **v0.4.0 Sürüm Yayın Hazırlığı ve Dağıtımı**: BF-UX-030..046 arası 17 büyük özellik ve yönetişim geliştirmesini kapsayan `0.4.0` sürümü; `manifest.json` ve `package.json` sürümlerinin yükseltilmesi, `CHANGELOG.md` Keep a Changelog güncellenmesi, `README.md` sürüm rozetleri ve vitrin açıklamaları, mağaza metinleri, exact annotated `v0.4.0` Git etiketi ve Chromium/Firefox/Edge paketlemesi ile yayına hazırlandı.
+
 ## [2026-10-10] — JaponiGo Çekirdek Sinerjisi: Kalıcı Proaktif Backlog, Dış Duyuru Jargon Yasağı, Eklenti Kalite Dörtgeni, Hızlı Shadow DOM Denetleyicisi ve Tablist Çip Dolaşımı (Kararlar 32-36)
 - **Kalıcı Proaktif Backlog Defteri ve Otomatik Tahliye Kapısı (BF-GOV-024 / Karar 32)**: JaponiGo'nun Karar #31/32 bellek disiplini benimsendi; `docs/agent/PROJECT_STATE.md` içerisinde `## Aktif Proaktif Backlog` tablosu kuruldu. Kodlanan işler defterden anında tahliye edilir (`Eviction Gate`), öneri öncesinde kod tabanı taranarak mükerrer öneriler engellenir (`Pre-Proposal Verification Gate`).
 - **Kullanıcı Odaklı Dış Dil Standardı ve İç Teknik Jargon Yasağı (BF-GOV-025 / Karar 33)**: JaponiGo Karar #37 güncellemesi benimsendi; `AGENTS.md` P0-16 ve `release_distribution.md` altına kural işlendi. Chrome Web Store sürüm notları, X ve LinkedIn lansman paylaşımlarında son kullanıcıya dönük değerler ("Işık hızında klavye dolaşımı", "Göz yormayan okyanus ışıltısı") esas alındı; iç yazılımsal bugfix jargonu (`DOM insertBefore`, `Shadow DOM focus trap`, `event stopImmediatePropagation` vb.) kamuya açık duyurularda kesinlikle yasaklandı.
