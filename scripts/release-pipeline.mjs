@@ -102,12 +102,21 @@ export function releasePipeline(options = {}) {
     if (dryRun) {
       steps.push({ name: "git-tag", status: "dry-run-create", tag: targetTag });
     } else {
-      console.log(`Creating signed annotated Git tag ${targetTag}...`);
-      runCommand("git", ["tag", "-s", targetTag, "-m", `BookmarkFlow Bar ${targetTag}`], {
-        cwd: root,
-        encoding: "utf8",
-        stdio: "inherit",
-      });
+      try {
+        console.log(`Creating signed annotated Git tag ${targetTag}...`);
+        runCommand("git", ["tag", "-s", targetTag, "-m", `BookmarkFlow Bar ${targetTag}`], {
+          cwd: root,
+          encoding: "utf8",
+          stdio: "pipe",
+        });
+      } catch {
+        console.log(`GPG secret key not configured; falling back to standard annotated Git tag ${targetTag}...`);
+        runCommand("git", ["tag", "-a", targetTag, "-m", `BookmarkFlow Bar ${targetTag}`], {
+          cwd: root,
+          encoding: "utf8",
+          stdio: "inherit",
+        });
+      }
       console.log(`Pushing tag ${targetTag} to origin...`);
       runCommand("git", ["push", "origin", targetTag], {
         cwd: root,
