@@ -2,7 +2,7 @@
 
 Son güncelleme: 2026-10-10
 Aktif Sürüm: `0.4.0`
-Aktif Dal: `release/v0.4.0` (Hedef Sürüm: `v0.4.0`)
+Aktif Dal: `main` (Sürüm: `v0.4.0`)
 
 ---
 
