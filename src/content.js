@@ -1079,10 +1079,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
             <button class="bf-command-close" type="button" data-bf-action="close-search" title="${escapeAttribute(t("close"))}" aria-label="${escapeAttribute(t("close"))}">×</button>
           </div>
           <div class="bf-command-chips" role="tablist" aria-label="${escapeAttribute(t("filterChipsAria"))}">
-            <button type="button" class="bf-filter-chip is-active" data-chip="all" role="tab" aria-selected="true">${escapeHtml(t("filterChipAll"))}</button>
-            <button type="button" class="bf-filter-chip" data-chip="folders" role="tab" aria-selected="false">📁 ${escapeHtml(t("filterChipFolders"))}</button>
-            <button type="button" class="bf-filter-chip" data-chip="tags" role="tab" aria-selected="false">🏷️ ${escapeHtml(t("filterChipTags"))}</button>
-            <button type="button" class="bf-filter-chip" data-chip="reading_list" role="tab" aria-selected="false">📖 ${escapeHtml(t("filterChipReadingList"))}</button>
+            <button type="button" class="bf-filter-chip is-active" data-chip="all" role="tab" aria-selected="true" tabindex="0">${escapeHtml(t("filterChipAll"))}</button>
+            <button type="button" class="bf-filter-chip" data-chip="folders" role="tab" aria-selected="false" tabindex="-1">📁 ${escapeHtml(t("filterChipFolders"))}</button>
+            <button type="button" class="bf-filter-chip" data-chip="tags" role="tab" aria-selected="false" tabindex="-1">🏷️ ${escapeHtml(t("filterChipTags"))}</button>
+            <button type="button" class="bf-filter-chip" data-chip="reading_list" role="tab" aria-selected="false" tabindex="-1">📖 ${escapeHtml(t("filterChipReadingList"))}</button>
           </div>
           <div class="bf-command-list" id="bf-command-list" role="listbox" aria-label="${escapeAttribute(t("bookmarkSearch"))}"></div>
         </div>
@@ -1250,6 +1250,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
           const isActive = chip === filterChip;
           chip.classList.toggle("is-active", isActive);
           chip.setAttribute("aria-selected", isActive ? "true" : "false");
+          chip.setAttribute("tabindex", isActive ? "0" : "-1");
         });
         commandActiveIndex = 0;
         renderCommandResults(app);
@@ -1268,6 +1269,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       searchQuery = event.target.value.trim();
       renderSearchResults(app);
     }));
+
+    const commandChips = app.querySelector(".bf-command-chips");
+    commandChips?.addEventListener("keydown", createSafeEventHandler(handleCommandChipsKeydown));
 
     const commandInput = app.querySelector(".bf-command-input");
     commandInput?.addEventListener("input", createSafeEventHandler((event) => {
@@ -4465,6 +4469,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const isAll = chip.dataset.chip === "all";
       chip.classList.toggle("is-active", isAll);
       chip.setAttribute("aria-selected", isAll ? "true" : "false");
+      chip.setAttribute("tabindex", isAll ? "0" : "-1");
     });
     const inlineSaveBtn = shadow?.querySelector(".bf-command-inline-save");
     if (inlineSaveBtn) {
@@ -5024,6 +5029,75 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       });
     });
     return link;
+  }
+
+  function handleCommandChipsKeydown(event) {
+    const currentChip = event.target?.closest(".bf-filter-chip");
+    if (!currentChip) {
+      return;
+    }
+
+    const chips = Array.from(shadow?.querySelectorAll(".bf-command-chips .bf-filter-chip") || []);
+    if (!chips.length) {
+      return;
+    }
+
+    const currentIndex = chips.indexOf(currentChip);
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      const nextIndex = (currentIndex + 1) % chips.length;
+      chips[nextIndex]?.focus();
+      chips.forEach((c, idx) => c.setAttribute("tabindex", idx === nextIndex ? "0" : "-1"));
+      return;
+    }
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      const prevIndex = (currentIndex - 1 + chips.length) % chips.length;
+      chips[prevIndex]?.focus();
+      chips.forEach((c, idx) => c.setAttribute("tabindex", idx === prevIndex ? "0" : "-1"));
+      return;
+    }
+
+    if (event.key === "Home") {
+      event.preventDefault();
+      chips[0]?.focus();
+      chips.forEach((c, idx) => c.setAttribute("tabindex", idx === 0 ? "0" : "-1"));
+      return;
+    }
+
+    if (event.key === "End") {
+      event.preventDefault();
+      const lastIndex = chips.length - 1;
+      chips[lastIndex]?.focus();
+      chips.forEach((c, idx) => c.setAttribute("tabindex", idx === lastIndex ? "0" : "-1"));
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      currentChip.click();
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      shadow?.querySelector(".bf-command-input")?.focus();
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      moveCommandSelection(1);
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeCommandPalette();
+      return;
+    }
   }
 
   function handleCommandKeydown(event) {

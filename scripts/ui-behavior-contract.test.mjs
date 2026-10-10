@@ -1912,3 +1912,29 @@ test("folder menu sort modes contract (BF-UX-043)", () => {
   // 4. newtab.js consistency
   assert.match(newtabJs, /dateAdded:\s*node\.dateAdded\s*\|\|\s*0/u, "newtab.js flattenBookmarks must pass dateAdded");
 });
+
+test("spotlight and new tab filter chips W3C tablist keyboard navigation contract (BF-UX-045)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+
+  // 1. Content script spotlight filter chips keyboard navigation
+  assert.match(contentJs, /function handleCommandChipsKeydown\s*\(/u, "content.js must define handleCommandChipsKeydown");
+  assert.match(contentJs, /commandChips\?\.addEventListener\("keydown",\s*createSafeEventHandler\(handleCommandChipsKeydown\)\)/u, "content.js must bind keydown on commandChips");
+  assert.match(contentJs, /event\.key\s*===\s*["']ArrowRight["']/u, "handleCommandChipsKeydown must handle ArrowRight");
+  assert.match(contentJs, /event\.key\s*===\s*["']ArrowLeft["']/u, "handleCommandChipsKeydown must handle ArrowLeft");
+  assert.match(contentJs, /event\.key\s*===\s*["']Home["']/u, "handleCommandChipsKeydown must handle Home");
+  assert.match(contentJs, /event\.key\s*===\s*["']End["']/u, "handleCommandChipsKeydown must handle End");
+  assert.match(contentJs, /tabindex="0"/u, "content.js initial HTML must assign tabindex=0 to active chip");
+  assert.match(contentJs, /tabindex="-1"/u, "content.js initial HTML must assign tabindex=-1 to inactive chips");
+
+  // 2. New Tab search filter chips keyboard navigation
+  assert.match(newtabJs, /function handleSearchChipsKeydown\s*\(/u, "newtab.js must define handleSearchChipsKeydown");
+  assert.match(newtabJs, /elements\.searchChips\?\.addEventListener\("keydown",\s*handleSearchChipsKeydown\)/u, "newtab.js must bind keydown on searchChips");
+  assert.match(newtabJs, /event\.key\s*===\s*["']ArrowRight["']/u, "handleSearchChipsKeydown must handle ArrowRight");
+  assert.match(newtabJs, /event\.key\s*===\s*["']ArrowLeft["']/u, "handleSearchChipsKeydown must handle ArrowLeft");
+  assert.match(newtabJs, /event\.key\s*===\s*["']Home["']/u, "handleSearchChipsKeydown must handle Home");
+  assert.match(newtabJs, /event\.key\s*===\s*["']End["']/u, "handleSearchChipsKeydown must handle End");
+  assert.match(newtabHtml, /tabindex="0"/u, "newtab.html must assign tabindex=0 to active chip");
+  assert.match(newtabHtml, /tabindex="-1"/u, "newtab.html must assign tabindex=-1 to inactive chips");
+});
