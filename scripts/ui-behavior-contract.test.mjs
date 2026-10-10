@@ -1938,3 +1938,25 @@ test("spotlight and new tab filter chips W3C tablist keyboard navigation contrac
   assert.match(newtabHtml, /tabindex="0"/u, "newtab.html must assign tabindex=0 to active chip");
   assert.match(newtabHtml, /tabindex="-1"/u, "newtab.html must assign tabindex=-1 to inactive chips");
 });
+
+test("folder menu persistent sort preferences contract (BF-UX-046)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+
+  // 1. Storage key and constant declaration
+  assert.match(contentJs, /FOLDER_SORT_MODES_STORAGE_KEY\s*=\s*["']bfFolderSortModes["']/u, "content.js must define FOLDER_SORT_MODES_STORAGE_KEY");
+  assert.match(contentJs, /FOLDER_SORT_MODES\s*=\s*\[["']default["'],\s*["']az["'],\s*["']newest["'],\s*["']frequent["']\]/u, "content.js must define FOLDER_SORT_MODES array");
+
+  // 2. Storage helper functions
+  assert.match(contentJs, /function normalizeFolderSortModes\s*\(/u, "content.js must define normalizeFolderSortModes");
+  assert.match(contentJs, /async function loadFolderSortModes\s*\(/u, "content.js must define loadFolderSortModes");
+  assert.match(contentJs, /function saveFolderSortMode\s*\(/u, "content.js must define saveFolderSortMode");
+
+  // 3. Storage changed listener and init
+  assert.match(contentJs, /FOLDER_SORT_MODES_STORAGE_KEY in changes/u, "handleStorageChanged must handle FOLDER_SORT_MODES_STORAGE_KEY");
+  assert.match(contentJs, /loadFolderSortModes\(\)/u, "init() Promise.all must load folder sort modes");
+
+  // 4. openFolderMenu integration and pre-sorted rendering
+  assert.match(contentJs, /folderSortModesMap\[folder\.id\]/u, "openFolderMenu must read folder-specific sort preference");
+  assert.match(contentJs, /saveFolderSortMode\(folder\.id,\s*folderSortMode\)/u, "sortBtn click listener must persist folderSortMode");
+  assert.match(contentJs, /const initialSorted = getSortedEntries\(\)/u, "openFolderMenu must render initial items pre-sorted");
+});

@@ -22,7 +22,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 149/149 PASS (%100 yeşil).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 150/150 PASS (%100 yeşil).
 - **Kural Uyumluluk ve Bağlam Bütçe Kapısı**: `AGENT_RULE_COMPLIANCE_BENCHMARK.md` ve `scripts/validate-governance.mjs` (Context ceiling budget <20 KB) devrede.
 - **Canlı Konsol Hata Bekçisi**: `scripts/live-console-guard.mjs` (`npm run guard:console`) ile Port 9222 CDP eklenti konsol ve istisna izleme aktif.
 - **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog, raw-key, MV3 deprecation ve yönetişim sözleşmeleri temiz).
@@ -72,6 +72,7 @@ v0.3.1 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak et
 35. **Eklenti Kusursuz Kalite Dörtgeni ve Clef/Decision-1 Çift Hakem Mimarisi (BF-QA-006 / Karar 34)**: Eklenti UI ve davranış doğrulamaları için 4 bağımsız denetim boyutu tescillendi: (1) Gören Göz (Gemini Agentic Video / `qa:motion`), (2) Düşünen Hakem (Cloudflare Clef & Microsoft Decision-1 çift hakem / failover via `clef` MCP), (3) Standartlar & MV3 Hakemi (`test:mv3` & WAI-ARIA), (4) Tasarım ve Estetik Hakemi (Google Stitch & Global Design Tokens).
 36. **Kapalı Shadow DOM Hızlı Ağaç Denetleyicisi (BF-QA-007 / Karar 35)**: Kapalı Shadow DOM (`mode: "closed"`) arayüzünü, ARIA rollerini, odak tuzaklarını, metinleri ve durumları <200ms içinde sıfır görsel token tüketerek çıkaran ve denetleyen `scripts/inspect-extension-dom.mjs` (`npm run inspect:dom`) CLI aracı ve sözleşme testleri devreye alındı.
 37. **Spotlight ve Yeni Sekme Filtre Çiplerinde W3C Tablist Klavye Dolaşımı (BF-UX-045 / Karar 36)**: Spotlight paleti (`.bf-filter-chip`) ve New Tab arama ekranında (`.nt-filter-chip`) W3C Tabs/Tablist klavye erişilebilirlik modeli tamamlandı; `ArrowLeft`/`ArrowRight` ile yatay döngüsel dolaşım, `Home` ile ilk çipe, `End` ile son çipe atlama, `Enter`/`Space` ile anında filtre aktivasyonu, `ArrowUp` ile arama kutusuna ve `ArrowDown` ile sonuç listesine odak aktarımı; roving `tabindex="0"` ve `tabindex="-1"` yönetimi tescillendi.
+38. **Açılır Klasör Menüsünde Akıllı Sıralama Tercihinin Kalıcı Olarak Saklanması (BF-UX-046 / Karar 37)**: Açılır klasör menüsünde seçilen akıllı sıralama modunun (`default`, `az`, `newest`, `frequent`) `chrome.storage.local` üzerinde `bfFolderSortModes` anahtarıyla hatırlanması; menü her açıldığında sıralama modunu yeniden seçme sürtünmesinin sıfırlanması ve linklerin anında sıralı render edilmesi tescillendi.
 
 ---
 
@@ -88,6 +89,6 @@ Aşağıdaki liste, önceki oturumlarda önerilmiş ancak henüz uygulanmamış 
 
 | ID | Öncelik | Öneri Başlığı | Açıklama ve Olası Yan Etki | Durum |
 |---|---|---|---|---|
-| **BF-UX-046** | HIGH | Klasör Sıralama Tercihinin Kalıcı Olarak Saklanması | Klasörde seçilen sıralama modunun (`newest`, `frequent` vb.) `chrome.storage.local` üzerinde klasör bazında saklanması. (Ufak bir depolama anahtarı ekler; her menü açılışında tekrar sıralama butonuna basma sürtünmesini sıfırlar). | BEKLİYOR |
 | **BF-UX-047** | HIGH | Sıralama Değişiminde Ekran Okuyucu Canlı Duyurusu (ARIA Live) | Sıralama modu döngüsel değiştiğinde menü içindeki `.sr-only` `aria-live="polite"` alanından aktif modun ("Alfabetik", "En Yeni" vb.) seslendirilmesi. (Menü DOM'una 1 adet gizli düğüm ekler; görme engelli erişilebilirliğini en üst seviyeye taşır). | BEKLİYOR |
 | **BF-UX-048** | HIGH | Açılır Menü Yer İmlerinde Ziyaret Sayaç Rozeti Gösterimi | "Sık Kullanılanlar" modunda listelenen yer imlerinin sağ tarafında ziyaret sayısını gösteren kompakt mikro rozet (`.bf-visit-badge`). (Menü satırına 20px mikro badge ekler; sık kullanılanların neden en üstte olduğunu görselleştirir). | BEKLİYOR |
+| **BF-UX-049** | HIGH | Klasör Menüsü Sıralama Modunu Tek Tıkla Sıfırlama / Sağ Tık Eylemi | Sıralama butonuna sağ tıklandığında veya Shift+Tık yapıldığında modu doğrudan "Varsayılan"a sıfırlayabilme desteği. (Buton tıklama dinleyicisine Shift/contextmenu kontrolü ekler; 4 mod arasında tekrar tekrar tıklama sürtünmesini azaltır). | BEKLİYOR |
