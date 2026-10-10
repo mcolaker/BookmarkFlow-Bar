@@ -131,10 +131,12 @@ async function init() {
       const isActive = c === chip;
       c.classList.toggle("is-active", isActive);
       c.setAttribute("aria-selected", isActive ? "true" : "false");
+      c.setAttribute("tabindex", isActive ? "0" : "-1");
     });
     handleSearchInput();
     elements.searchInput.focus();
   });
+  elements.searchChips?.addEventListener("keydown", handleSearchChipsKeydown);
   sendMessage({ type: "BF_GET_READING_LIST" }).then((res) => {
     if (res?.ok && Array.isArray(res.readingList)) {
       cachedReadingList = res.readingList;
@@ -1104,6 +1106,79 @@ function handleSearchInput() {
   elements.searchResults.hidden = false;
   elements.searchInput.setAttribute("aria-expanded", "true");
   renderSearchResults();
+}
+
+function handleSearchChipsKeydown(event) {
+  const currentChip = event.target?.closest(".nt-filter-chip");
+  if (!currentChip) {
+    return;
+  }
+
+  const chips = Array.from(elements.searchChips?.querySelectorAll(".nt-filter-chip") || []);
+  if (!chips.length) {
+    return;
+  }
+
+  const currentIndex = chips.indexOf(currentChip);
+
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    const nextIndex = (currentIndex + 1) % chips.length;
+    chips[nextIndex]?.focus();
+    chips.forEach((c, idx) => c.setAttribute("tabindex", idx === nextIndex ? "0" : "-1"));
+    return;
+  }
+
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    const prevIndex = (currentIndex - 1 + chips.length) % chips.length;
+    chips[prevIndex]?.focus();
+    chips.forEach((c, idx) => c.setAttribute("tabindex", idx === prevIndex ? "0" : "-1"));
+    return;
+  }
+
+  if (event.key === "Home") {
+    event.preventDefault();
+    chips[0]?.focus();
+    chips.forEach((c, idx) => c.setAttribute("tabindex", idx === 0 ? "0" : "-1"));
+    return;
+  }
+
+  if (event.key === "End") {
+    event.preventDefault();
+    const lastIndex = chips.length - 1;
+    chips[lastIndex]?.focus();
+    chips.forEach((c, idx) => c.setAttribute("tabindex", idx === lastIndex ? "0" : "-1"));
+    return;
+  }
+
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    currentChip.click();
+    return;
+  }
+
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+    elements.searchInput?.focus();
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    if (currentSearchResults.length && !elements.searchResults.hidden) {
+      moveSearchSelection(1);
+    } else {
+      elements.searchInput?.focus();
+    }
+    return;
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    elements.searchInput?.focus();
+    return;
+  }
 }
 
 function handleSearchKeydown(event) {

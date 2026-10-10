@@ -913,3 +913,48 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 143/143 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
 - Sonraki adım: Yok; açılır klasör menüsünde akıllı sıralama desteği başarıyla devreye alınmıştır.
 - Son güncelleme: 2026-10-09.
+
+## BF-GOV-024 - Kalıcı Proaktif Backlog Defteri ve Otomatik Tahliye Kapısını Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Önceki oturumlarda kullanıcıya sunulan CRITICAL ve HIGH proaktif öneriler yalnızca geçici sohbet bağlamında tutulduğundan, uzun oturumlarda ve bağlam sıkışmalarında açık öneriler unutulma veya mükerrer önerilme riski taşıyordu. (1) JaponiGo'nun Karar #31 ve #32 mimarisi projeye uyarlanarak `docs/agent/PROJECT_STATE.md` içerisine kanonik `## 5. Aktif Proaktif Backlog (Bekleyen CRITICAL/HIGH Öneriler)` tablosu kuruldu; (2) Tamamlanan/kodlanan işlerin defterden derhal düşürülmesi kuralı (`Eviction Gate`) işletildi; (3) Kullanıcıya herhangi bir öneri sunulmadan önce kod tabanında mevcut olup olmadığını sessizce doğrulayan `Pre-Proposal Verification Gate` standardı `AGENTS.md` P0-10 kuralına işlendi; (4) `DECISION_INDEX.md` Karar 32 ve `RULE_CHANGELOG.md` güncellendi.
+- Kabul kriteri: `PROJECT_STATE.md` Bölüm 5 altında bekleyen açık öneriler tablosu yer alır; kodlanan maddeler anında tahliye edilir; öneri sunulmadan önce kod tabanı doğrulanır; `AGENTS.md` P0-10 kuralı güncellenir; yönetişim sözleşmesi doğrulanır.
+- Doğrulama kapısı: `node scripts/validate-governance.mjs` geçer; `node scripts/validate-backlog.mjs` temizdir; `npm test` başarılıdır; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; kalıcı proaktif backlog defteri ve otomatik tahliye kapısı devreye alınmıştır.
+- Son güncelleme: 2026-10-10.
+
+## BF-GOV-025 - Dış Duyurularda ve Mağaza Açıklamalarında Kullanıcı Odaklı Dil & İç Teknik Jargon Yasağını Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Sürüm duyurularında (X/LinkedIn) ve Chrome Web Store bültenlerinde zaman zaman son kullanıcının ilgisini çekmeyen "DOM insertBefore reordering", "Shadow DOM focus trap", "event stopImmediatePropagation" gibi derin yazılımsal jargonlar yer alabiliyordu. (1) JaponiGo'nun Karar #37 standardı projeye kazandırılarak `AGENTS.md` P0-16 ve `docs/agent-playbooks/release_distribution.md` güncellendi; (2) Sosyal medya ve mağaza güncellemelerinde iç kodlama jargonu yasaklandı; (3) Son kullanıcıya dönük değerler ("Işık hızında klavye dolaşımı", "Göz yormayan okyanus ışıltısı") merkez kurala bağlandı; (4) `DECISION_INDEX.md` Karar 33 tescillendi.
+- Kabul kriteri: `AGENTS.md` P0-16 ve `release_distribution.md` dosyalarında iç teknik jargon yasağı ve kullanıcı odaklı dil ilkesi tanımlanır; sosyal medya şablonları bu ilkeye göre güncellenir; yönetişim sözleşmesi temiz geçer.
+- Doğrulama kapısı: `node scripts/validate-governance.mjs` geçer; `node scripts/validate-backlog.mjs` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; dış duyurularda kullanıcı odaklı ilham verici dil güvencesi sağlanmıştır.
+- Son güncelleme: 2026-10-10.
+
+## BF-QA-006 - Eklenti Kusursuz Kalite Dörtgeni ve Clef / Decision-1 Çift Hakem Mimarisini Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Web eklentisi yüzeylerinin (Sayfa İçi Çubuk, Spotlight, New Tab) doğrulanmasında animasyon, durum geçişleri, erişilebilirlik ve estetik boyutlarının bağımsız hakemlerle tescil edilmesi gerekiyordu. (1) JaponiGo'nun Kalite Dörtgeni ve Karar #71 çift hakem mimarisi BookmarkFlow Bar'a uyarlandı; (2) 1. Gören Göz (Gemini Agentic Video & Playwright `npm run qa:motion`), 2. Düşünen Hakem (Cloudflare Clef & Microsoft Decision-1 via `clef` MCP), 3. Standartlar & MV3 Hakemi (`npm run test:mv3` & WAI-ARIA), 4. Tasarım & Estetik Hakemi (Google Stitch & Global Design Tokens); (3) `AGENTS.md` P0-19, P0-20-A.8 ve `docs/agent-playbooks/ui_accessibility.md` güncellendi; (4) `DECISION_INDEX.md` Karar 34 eklendi.
+- Kabul kriteri: 4 hakemli Kalite Dörtgeni kurallarda ve erişilebilirlik kılavuzunda tanımlanır; Clef ve Decision-1 çift hakem failover desteği işletilir; yönetişim ve sözleşme testleri yeşil geçer.
+- Doğrulama kapısı: `node scripts/validate-governance.mjs` geçer; `node scripts/validate-backlog.mjs` temizdir; `npm test` başarılıdır; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; Eklenti Kusursuz Kalite Dörtgeni ve çift hakem mimarisi devreye alınmıştır.
+- Son güncelleme: 2026-10-10.
+
+## BF-QA-007 - Kapalı Shadow DOM Hızlı Ağaç Denetleyicisini Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Eklentinin sayfa içi çubuğu kapalı Shadow DOM (`mode: "closed"`) içinde çalıştığından, görsel ekran görüntüsü veya video kaydı almadan önce Shadow DOM içindeki bileşenleri, ARIA rollerini, odak tuzaklarını ve etiket yapılarını hızlıca doğrulamak için hafif bir denetleyici gerekiyordu. (1) `scripts/inspect-extension-dom.mjs` CLI aracı oluşturuldu; <200ms sürede sıfır görsel token harcayarak Shadow DOM ağacını JSON/tablo formatında döker; (2) `scripts/inspect-extension-dom.test.mjs` birim testleri yazılarak fail-closed doğrulandı; (3) `package.json` içerisine `"inspect:dom": "node scripts/inspect-extension-dom.mjs"` script'i eklendi; (4) `DECISION_INDEX.md` Karar 35 tescillendi.
+- Kabul kriteri: `scripts/inspect-extension-dom.mjs` kapalı Shadow DOM elemanlarını, ARIA rollerini ve durumları <200ms içinde çıkarır; testleri geçer; `npm run inspect:dom` çalışır; `DECISION_INDEX.md` güncellenir.
+- Doğrulama kapısı: `node --test scripts/inspect-extension-dom.test.mjs` geçer; `npm test` başarılıdır (149/149 test); `node scripts/validate-backlog.mjs` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; kapalı Shadow DOM hızlı ağaç denetleyicisi başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-10.
+
+## BF-UX-045 - Spotlight ve Yeni Sekme Filtre Çiplerinde W3C Tablist Klavye Dolaşımını Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Spotlight (`Alt+Shift+K`) ve New Tab arama alanındaki filtre çipleri (`.bf-filter-chip`, `.nt-filter-chip`) fareyle tıklanabilirken klavye kullanıcıları için W3C Tablist dolaşım standardı (`ArrowLeft`/`ArrowRight`/`Home`/`End`) ve roving tabindex desteği eksikti. (1) `src/content.js` içerisinde Spotlight paleti için `handleCommandChipsKeydown` fonksiyonu ve `tabindex="0"` / `tabindex="-1"` roving yönetimi kodlandı; (2) `ArrowLeft`/`ArrowRight` ile yatay döngüsel geçiş, `Home` ile ilk çipe, `End` ile son çipe atlama; `Enter`/`Space` ile filtre seçimi; `ArrowUp` ile arama kutusuna ve `ArrowDown` ile sonuç listesine akıcı odak aktarımı sağlandı; (3) `src/newtab.html` ve `src/newtab.js` içerisine New Tab arama filtre çipleri için `handleSearchChipsKeydown` ve aynı roving klavye deseni uyarlandı; (4) `scripts/ui-behavior-contract.test.mjs` içerisine `BF-UX-045` sözleşme testi eklenerek test sayısı 149'a çıkarıldı; (5) `DECISION_INDEX.md` Karar 36 tescillendi.
+- Kabul kriteri: Spotlight ve New Tab filtre çiplerinde `ArrowLeft`/`ArrowRight` ile çipler arası dolaşılır; `Home`/`End` uçlara atlar; `Enter`/`Space` seçimi aktif eder; `ArrowUp`/`ArrowDown` arama kutusu ve liste ile odak köprüsü kurar; roving `tabindex="0"` ve `-1` korunur; `BF-UX-045` sözleşme testi ve tüm 149 test geçer; `validate:all` temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 149/149 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; Spotlight ve Yeni Sekme filtre çiplerinde W3C Tablist klavye dolaşımı eksiksiz sağlanmıştır.
+- Son güncelleme: 2026-10-10.

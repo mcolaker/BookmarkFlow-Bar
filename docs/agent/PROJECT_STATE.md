@@ -1,6 +1,6 @@
 # PROJECT_STATE.md — BookmarkFlow Bar Canlı Proje Durumu
 
-Son güncelleme: 2026-10-08
+Son güncelleme: 2026-10-10
 Aktif Sürüm: `0.3.1`
 Aktif Dal: `main` (Sürüm: `v0.3.1`)
 
@@ -22,7 +22,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ## 2. Test ve Kalite Durumu
 
-- **Birim ve Sözleşme Testleri**: `npm test` -> 143/143 PASS (%100 yeşil).
+- **Birim ve Sözleşme Testleri**: `npm test` -> 149/149 PASS (%100 yeşil).
 - **Kural Uyumluluk ve Bağlam Bütçe Kapısı**: `AGENT_RULE_COMPLIANCE_BENCHMARK.md` ve `scripts/validate-governance.mjs` (Context ceiling budget <20 KB) devrede.
 - **Canlı Konsol Hata Bekçisi**: `scripts/live-console-guard.mjs` (`npm run guard:console`) ile Port 9222 CDP eklenti konsol ve istisna izleme aktif.
 - **Statik ve Açık Kaynak Doğrulama**: `npm run validate:all` -> PASS (Açık kaynak lisans, DCO, public tree, manifest, backlog, raw-key, MV3 deprecation ve yönetişim sözleşmeleri temiz).
@@ -67,6 +67,11 @@ v0.3.1 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak et
 30. **Açılır Klasör Menüsünde "Yeni Alt Klasör Oluştur" / "Buraya Yer İmi Ekle" Başlık Hızlı Eylemleri (BF-UX-041)**: Açılır klasör menüsü başlığına eklenen kompakt `+` mikro butonu (`.bf-menu-add-btn`) ve tıklandığında açılan mikro menü (`.bf-menu-add-popover`); kullanıcının o klasörün içine doğrudan yer imi ekleme diyaloğunu (`openAddBookmarkDialog`, hedef `parentId` otomatik atanmış) veya yeni alt klasör oluşturma istemini (`createFolderFromPrompt`) tek tıkla açabilmesi; tam klavye dolaşımı (`Escape`, `ArrowDown`/`ArrowUp`) ve Windows Yüksek Kontrast desteği.
 31. **Spotlight ve Yeni Sekme Arama Sonuçlarında Akıllı Süzme Sekmeleri / Filtre Çipleri (BF-UX-042)**: Spotlight arama paletine (`Alt+Shift+K`) ve New Tab arama alanına arama kutusunun hemen altına eklenen kompakt, yatay kaydırılabilir minik filtre çipleri ("Tümü", "Klasörler", "Etiketler", "Okuma Listesi"); arama sorgusu girilirken veya boştayken tek tıkla hedef veri tipini izole etme desteği; tam klavye erişilebilirliği (`role="tablist"` / `role="tab"`), tam TR/EN yerelleştirme paritesi ve Windows Yüksek Kontrast modu (`forced-colors: active`) uyumluluğu.
 32. **Açılır Klasör Menüsünde "Son Eklenenler" / "Sık Kullanılanlar" Akıllı Sıralama Desteği (BF-UX-043)**: Açılır klasör menüsü başlığına eklenen kompakt sıralama mikro butonu (`.bf-menu-sort-btn`); alfabetik sıranın ("A-Z") yanı sıra yer imi oluşturulma zaman damgasına göre en son eklenenleri ("En Yeni" / `dateAdded`) ve yerel kullanım istatistiklerine göre en çok ziyaret edilenleri ("Sık Kullanılan" / `recordBookmarkVisit`) tek tıkla dinamik olarak listeleyebilme; döngüsel mod geçişi ("Varsayılan" -> "A-Z" -> "En Yeni" -> "Sık Kullanılan"), aktif filtreleme ve arama vurgusuyla tam senkronizasyon, tam TR/EN dil paritesi ve Windows Yüksek Kontrast modu (`forced-colors: active`) uyumluluğu.
+33. **Kalıcı Proaktif Backlog Defteri ve Otomatik Tahliye Kapısı (BF-GOV-024 / Karar 32)**: JaponiGo'nun kanıtlanmış hafıza disiplini benimsenerek `docs/agent/PROJECT_STATE.md` içerisinde kanonik `## Aktif Proaktif Backlog` defteri kuruldu; kodlanan/commit edilen işler defterden anında tahliye edilir (`Eviction Gate`), öneri öncesinde kod tabanı taranarak mükerrer öneriler fail-closed engellenir (`Pre-Proposal Verification Gate`).
+34. **Kullanıcı Odaklı Dış Dil Standardı ve İç Teknik Jargon Yasağı (BF-GOV-025 / Karar 33)**: P0-16 kuralına JaponiGo Karar #37 prensibi entegre edildi; Chrome Web Store sürüm notlarında, X ve LinkedIn lansman paylaşımlarında son kullanıcıya dönük değerler ("Işık hızında klavye dolaşımı", "Göz yormayan okyanus ışıltısı") öne çıkarıldı; iç yazılımsal bugfix jargonu (`DOM insertBefore`, `Shadow DOM focus trap`, `event stopImmediatePropagation` vb.) kamuya açık duyurularda kesin olarak yasaklandı.
+35. **Eklenti Kusursuz Kalite Dörtgeni ve Clef/Decision-1 Çift Hakem Mimarisi (BF-QA-006 / Karar 34)**: Eklenti UI ve davranış doğrulamaları için 4 bağımsız denetim boyutu tescillendi: (1) Gören Göz (Gemini Agentic Video / `qa:motion`), (2) Düşünen Hakem (Cloudflare Clef & Microsoft Decision-1 çift hakem / failover via `clef` MCP), (3) Standartlar & MV3 Hakemi (`test:mv3` & WAI-ARIA), (4) Tasarım ve Estetik Hakemi (Google Stitch & Global Design Tokens).
+36. **Kapalı Shadow DOM Hızlı Ağaç Denetleyicisi (BF-QA-007 / Karar 35)**: Kapalı Shadow DOM (`mode: "closed"`) arayüzünü, ARIA rollerini, odak tuzaklarını, metinleri ve durumları <200ms içinde sıfır görsel token tüketerek çıkaran ve denetleyen `scripts/inspect-extension-dom.mjs` (`npm run inspect:dom`) CLI aracı ve sözleşme testleri devreye alındı.
+37. **Spotlight ve Yeni Sekme Filtre Çiplerinde W3C Tablist Klavye Dolaşımı (BF-UX-045 / Karar 36)**: Spotlight paleti (`.bf-filter-chip`) ve New Tab arama ekranında (`.nt-filter-chip`) W3C Tabs/Tablist klavye erişilebilirlik modeli tamamlandı; `ArrowLeft`/`ArrowRight` ile yatay döngüsel dolaşım, `Home` ile ilk çipe, `End` ile son çipe atlama, `Enter`/`Space` ile anında filtre aktivasyonu, `ArrowUp` ile arama kutusuna ve `ArrowDown` ile sonuç listesine odak aktarımı; roving `tabindex="0"` ve `tabindex="-1"` yönetimi tescillendi.
 
 ---
 
@@ -74,3 +79,15 @@ v0.3.1 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak et
 
 - **Chrome Omnibox Bildirimi**: Chrome adres çubuğundan `bf <url>` ile ekleme yapıldığında sayfa DOM'una erişilemediği için aktif sekmeye hafif runtime mesajı iletimi ilerleyen fazda genişletilebilir.
 - **Masaüstü Companion Kurulumu**: Windows Companion kullanıcı tarafından `tools/windows-companion/install-companion.ps1` ile tek seferlik kayıt gerektirir.
+
+---
+
+## 5. Aktif Proaktif Backlog (Bekleyen CRITICAL/HIGH Öneriler)
+
+Aşağıdaki liste, önceki oturumlarda önerilmiş ancak henüz uygulanmamış olan açık/bekleyen proaktif önerilerin kanonik defteridir (BF-GOV-024). Kodlanan ve test edilen maddeler bu defterden anında tahliye edilir (`Eviction Gate`).
+
+| ID | Öncelik | Öneri Başlığı | Açıklama ve Olası Yan Etki | Durum |
+|---|---|---|---|---|
+| **BF-UX-046** | HIGH | Klasör Sıralama Tercihinin Kalıcı Olarak Saklanması | Klasörde seçilen sıralama modunun (`newest`, `frequent` vb.) `chrome.storage.local` üzerinde klasör bazında saklanması. (Ufak bir depolama anahtarı ekler; her menü açılışında tekrar sıralama butonuna basma sürtünmesini sıfırlar). | BEKLİYOR |
+| **BF-UX-047** | HIGH | Sıralama Değişiminde Ekran Okuyucu Canlı Duyurusu (ARIA Live) | Sıralama modu döngüsel değiştiğinde menü içindeki `.sr-only` `aria-live="polite"` alanından aktif modun ("Alfabetik", "En Yeni" vb.) seslendirilmesi. (Menü DOM'una 1 adet gizli düğüm ekler; görme engelli erişilebilirliğini en üst seviyeye taşır). | BEKLİYOR |
+| **BF-UX-048** | HIGH | Açılır Menü Yer İmlerinde Ziyaret Sayaç Rozeti Gösterimi | "Sık Kullanılanlar" modunda listelenen yer imlerinin sağ tarafında ziyaret sayısını gösteren kompakt mikro rozet (`.bf-visit-badge`). (Menü satırına 20px mikro badge ekler; sık kullanılanların neden en üstte olduğunu görselleştirir). | BEKLİYOR |

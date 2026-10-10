@@ -78,19 +78,19 @@ Bu kılavuz, BookmarkFlow Bar kullanıcı arayüzü, tasarım sistemi, erişileb
 
 ---
 
-## 6. Eklenti Kusursuz Kalite Dörtgeni (Extension Quality Quadrumvirate - Karar 31)
+## 6. Eklenti Kusursuz Kalite Dörtgeni (Web Extension Quality Quadrumvirate - Karar 31 & Karar 34 - BF-QA-006)
 
 Eklenti arayüzlerinde (Sayfa İçi Çubuk, Spotlight Paleti, Yeni Sekme Paneli, Popup ve Ayarlar) yapılan görsel veya etkileşimli değişikliklerde yalnızca kodun derlenmesi veya sözleşme testlerinin geçmesi nihai yeterlilik sayılamaz. Tam kalite onayı için aşağıdaki 4 hakemli denetim çemberi uygulanır:
 
-1. **Görsel & Hareket Hakemi (Visual & Motion Arbiter)**:
+1. **Gören Göz (Görsel & Hareket Hakemi - Visual & Motion Arbiter)**:
    - **Araçlar**: Playwright + Gemini Agentic Video (`npm run qa:motion`) + `scripts/validate-media-qa.mjs`.
-   - **Kapsam**: Sayfa içi çubuk (`Alt+Shift+B`), Spotlight (`Alt+Shift+K`) ve New Tab geçişlerinde 60 FPS akıcılık, yay fiziği, sıfır jank ve sıfır layout taşması denetimi.
-2. **Sayfa İzolasyonu ve Shadow DOM Hakemi (Shadow DOM & Isolation Arbiter)**:
-   - **Araçlar**: Chrome DevTools MCP (`evaluate_script`, `get_computed_styles`) + `tests/content-contract.test.mjs`.
-   - **Kapsam**: Sayfa içi çubuğun kapalı Shadow DOM (`attachShadow({ mode: "closed" })`) sızıntısızlığı, barındırıcı sayfanın CSS değişkenlerinden veya global sıfırlamalarından etkilenmeme garantisi.
-3. **Erişilebilirlik ve Kontrast Hakemi (A11y & Contrast Arbiter)**:
-   - **Araçlar**: `a11y-debugging` MCP + WCAG 2.1 AA kuralları + klavye odak halkaları (`:focus-visible`).
-   - **Kapsam**: Minimum 4.5:1 kontrast oranı, tüm modal ve arama kartlarında çift yönlü döngüsel odak tuzağı (`focus trap`), `Escape` ile deterministik kapanma ve ekran okuyucu semantikleri (`role="status"`, `aria-live="polite"`).
-4. **Yerel Gizlilik ve Manifest V3 Hakemi (Zero-Cloud & MV3 Arbiter)**:
-   - **Araçlar**: `node scripts/mv3-api-audit.test.mjs` + `node scripts/verify-public-tree.mjs` + CSP denetimi.
-   - **Kapsam**: Sıfır harici ağ isteği, sıfır eval / new Function, Service Worker DOM bağımsızlığı ve %100 yerel depolama (`chrome.storage.local`) veri bütünlüğü.
+   - **Kapsam**: Sayfa içi çubuk (`Alt+Shift+B`), Spotlight (`Alt+Shift+K`) ve New Tab geçişlerinde 60 FPS akıcılık, yay fiziği, sıfır jank ve sıfır layout taşması denetimi. Jank şüphesinde kullanıcı komutu beklemeden otonom tetiklenir (P0-19).
+2. **Düşünen Hakem (Shadow DOM & Karar Hakemi - State & Arbiter)**:
+   - **Araçlar**: Cloudflare Clef & Microsoft Decision-1 çift hakem ve failover (`clef` MCP / OpenRouter Decisions API) + `scripts/inspect-extension-dom.mjs` (`npm run inspect:dom` - BF-QA-007).
+   - **Kapsam**: Sayfa içi çubuğun kapalı Shadow DOM (`attachShadow({ mode: "closed" })`) sızıntısızlığı, barındırıcı sayfanın CSS değişkenlerinden veya global sıfırlamalarından etkilenmeme garantisi, modal durum geçişlerinin (<50ms) sıfır-token tescili.
+3. **Standartlar & MV3 Hakemi (A11y, W3C Tablist & Zero-Deprecation Arbiter)**:
+   - **Araçlar**: `npm run test:mv3` + `scripts/ui-behavior-contract.test.mjs` + WCAG 2.1 AA kuralları + W3C WAI-ARIA Tablist deseni.
+   - **Kapsam**: Çiplerde yatay klavye dolaşımı (`ArrowLeft`/`ArrowRight`/`Home`/`End`) ve roving tabindex (`tabindex="0"` ve `-1`), çift yönlü döngüsel odak tuzağı (`focus trap`), `Escape` ile deterministik kapanma, ekran okuyucu semantikleri (`role="status"`, `aria-live="polite"`), eski MV2 senkron metotlarının bulunmaması.
+4. **Tasarım ve Estetik Hakemi (Design Tokens & High Contrast Arbiter)**:
+   - **Araçlar**: Google Stitch (`stitch` MCP) + Global Design Tokens (`src/content.css`, `spotlight.css`, `newtab.css`).
+   - **Kapsam**: Glassmorphic zeminler, 5 resmi tema (`sakura`, `ocean`, `emerald`, `obsidian`, `turquoise`), minimum 4.5:1 / 7:1 kontrast oranı ve Windows Yüksek Kontrast modu (`forced-colors: active`) sistem renk uyumu (`ButtonBorder`, `Highlight`).

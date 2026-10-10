@@ -24,6 +24,7 @@
     "release:full": "node scripts/release-pipeline.mjs",
     "pilot:chrome": "node scripts/live-chrome-pilot.mjs",
     "guard:console": "node scripts/live-console-guard.mjs",
+    "inspect:dom": "node scripts/inspect-extension-dom.mjs",
     "validate:all": "node scripts/validate-open-source.mjs && node --test scripts/*.test.mjs && node scripts/validate-project.mjs && node scripts/verify-public-tree.mjs && node scripts/validate-backlog.mjs && node scripts/validate-governance.mjs && node scripts/validate-media-qa.mjs --offline"
   }
 }
