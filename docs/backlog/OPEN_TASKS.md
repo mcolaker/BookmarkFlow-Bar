@@ -967,3 +967,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 150/150 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
 - Sonraki adım: Yok; açılır klasör menüsünde akıllı sıralama tercihi kalıcı saklama mimarisi başarıyla devreye alınmıştır.
 - Son güncelleme: 2026-10-10.
+
+## BF-REL-014 - v0.4.0 Sürümünü Hazırla, Çapraz Tarayıcı Paketlerini Üret, GitHub Release ve Chrome Web Store Dağıtımını Gerçekleştir
+
+- Öncelik ve durum: P1, IN_PROGRESS.
+- Kök neden ve kanıt: Kullanıcı 2026-10-10 tarihinde BF-UX-030..046 arası 17 adet UX, kalite ve yönetişim yeniliğini içeren yeni sürümün hem GitHub hem de Chrome Web Store üzerinde yayımlanmasını istedi. Manifest ve package.json sürümleri 0.4.0'a yükseltildi; CHANGELOG.md dosyasına v0.4.0 bölümü eklendi; README.md indirme bağlantıları, sürüm rozetleri ve vitrin açıklamaları güncellendi; store/listing-en.md ve listing-tr.md mağaza öne çıkan özellikleri güncellendi.
+- Kabul kriteri: Güncel değişiklikler manifest 0.4.0 ile exact annotated v0.4.0 tag'ine, doğrulanmış GitHub Release ZIP/checksum varlıklarına (Chromium, Firefox, Edge) ve aynı sürümün Chrome Web Store dağıtım paketine taşınır; kaynak, paket ve mağaza sürümü birbiriyle eşleşir; tüm test ve doğrulama kapıları geçer.
+- Doğrulama kapısı: npm run validate:all ve npm test (150/150) temiz geçer; git diff --check sıfır hatadır; release:full ile v0.4.0 GitHub Release ve çapraz tarayıcı paketleri yayımlanır; dist/bookmarkflow-bar-0.4.0.zip Chrome Web Store'a yüklenmeye hazır sunulur.
+- Sonraki adım: PR aç, CI'ı bekle, main dalına birleştir ve release:full ile yayını tamamla.
+- Son güncelleme: 2026-10-10.

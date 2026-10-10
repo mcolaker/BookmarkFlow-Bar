@@ -16,6 +16,12 @@ Normal web sayfalarına özelleştirilebilir, çok satırlı bir yer imi çubuğ
 
 ÖNE ÇIKAN ÖZELLİKLER
 
+• Akıllı süzme çipleri (Tümü, Klasörler, Etiketler, Okuma Listesi) ve akıcı klavye dolaşımı
+• Dinamik klasör sıralama (A-Z, En Yeni, En Sık Kullanılan) ve kalıcı tercih hafızası
+• Modern klasör menüsü başlığı: Tek tıkla "Yer İmi/Klasör Ekle" ve "↗ Tümünü Sekmelerde Aç"
+• Kalabalık klasörlerde canlı arama, anlık karakter vurgusu ve hızlı temizleme (×) butonu
+• Orta tıkla arka planda hızlı sekme açma ve sağ tıkla gizli pencere eylemleri
+• 5 büyüleyici koyu tema (Altın Obsidyen, Saf OLED Siyah, Zümrüt Matrisi, Siber İndigo, Turkuaz Işıltı)
 • Arama çubuğundan doğrudan bağlantı yakalama ve tek tıkla klasör çipleri (aramadan ayrılmadan kayıt)
 • Canlı akıllı rozetlere sahip sıfır gecikmeli yerel niyet yönlendirme motoru (URL, komut, etiket, klasör, sekme)
 • Sayfa içi çubuğu tam gizleme (Alt+Shift+H), ekran kenarı minimalist geri getirme tutamacı ve araç çubuğu rozetleri
@@ -26,7 +32,6 @@ Normal web sayfalarına özelleştirilebilir, çok satırlı bir yer imi çubuğ
 • Yer imleri, ayarlar, etiketler ve okuma listesi için çevrimdışı JSON yedekleme ve geri yükleme
 • Sıfır-bulut akıllı otomatik etiketleme (#tag) ve Spotlight etiket filtreleme
 • Yeni Sekme sayfasında yerleşik çevrimdışı okuma listesi çekmecesi
-• 4 özel obsidian koyu tema (Gold Obsidian, OLED Siyah, Zümrüt Matrisi, Siber İndigo)
 • Sıfır telemetrili yerel Yer İmi Sağlık ve Kırık Bağlantı Denetleyicisi
 • Klavye ile döngüsel gezinilebilen Spotlight / Raycast tarzı gerçek zamanlı arama paleti
 • Dijital saat, selamlama ve Hızlı Kısayollar ızgarası içeren odaklanmış Yeni Sekme

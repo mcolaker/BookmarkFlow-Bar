@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-10-10
+
+### Added
+
+- Add In-Page Folder Menu Dynamic Row Height & Header Component (BF-UX-030): Replaced rigid 35px fixed row heights with dynamic flex layout (`min-height: 38px`, `height: auto`), preventing text and tag overlap across items, while introducing an accessible `.bf-menu-header` featuring folder icon, folder name, and live item counter.
+- Add In-Page Folder Menu Keyboard Navigation & Focus Loop (BF-UX-031): Enabled full W3C keyboard navigation across popup folder menus (`ArrowDown`/`ArrowUp` navigation, `Enter` to open link, `Tab`/`Shift+Tab` cycling, and `Escape` restoring focus to originating folder button).
+- Add In-Page Folder Menu Live Substring Search & Spring Motion (BF-UX-032): Automatically surfaced an accessible 28px search input (`.bf-menu-filter`) in folders with 15+ bookmarks, providing instant filtering, live count indicator, and smooth `cubic-bezier(0.16, 1, 0.3, 1)` spring entrance physics.
+- Add Folder Menu Quick Clear Action (BF-UX-033): Added an accessible `×` clear button (`.bf-menu-filter-clear`) in the live filter input to instantly reset search queries and return focus to the input box.
+- Add Folder Menu Context Menu Actions (BF-UX-034): Right-clicking any bookmark in the folder menu opens an instant BookmarkFlow context menu with "Open in Incognito Window" (`BF_OPEN_INCOGNITO`) and "Copy URL" with green toast feedback.
+- Add Folder Menu Middle-Click Background Tab Support (BF-UX-035): Middle-clicking (auxclick) any folder menu bookmark opens the link in a background tab (`BF_OPEN_BACKGROUND_TAB`) without closing the menu, enabling rapid tab opening.
+- Add Substring Matching Highlight in Folder Filter (BF-UX-036): Highlighted query characters in bookmark titles using safe DOM `<mark class="bf-highlight">` with theme accent glow and high-contrast support.
+- Add Search Palette Substring Matching Highlight Parity (BF-UX-037): Extended substring matching highlight to Spotlight (`Alt+Shift+K`), floating bar search results, and New Tab live search cards with locale-aware case mapping and non-overlapping range merging.
+- Add Folder Menu Smart Tag (#tag) Filter (BF-UX-038): Typing `#` in the folder filter instantly matches and isolates tag pills (`.bf-tag-pill.is-tag-matched`) with glowing accent borders.
+- Add Open All in Tabs Action (BF-UX-039): Added a compact "↗ Open All" action in folder menu headers (`.bf-menu-open-all-btn`) and folder right-click menus (`open-folder-all-tabs`) to open all links in background tabs with confirmation threshold for >15 tabs.
+- Add Tag Pill Live Match Glow in Search Results (BF-UX-040): Visual match glow and accent styling for `#tag` pills across Spotlight, search drawer, and New Tab cards.
+- Add Folder Menu Quick Add Bookmark and Create Folder Actions (BF-UX-041): Compact `+` micro button in folder menu headers opening a popover to quickly add bookmarks or create subfolders inside the current folder.
+- Add Smart Filter Chips in Spotlight & New Tab (BF-UX-042): Compact, horizontal scrollable filter chips ("All", "Folders", "Tags", "Reading List") directly below search inputs for instant data type isolation.
+- Add Smart Sorting Modes in Folder Menus (BF-UX-043): Compact sort button cycling through "Default", "A-Z", "Newest", and "Frequently Used" with local visit tracking (`recordBookmarkVisit`).
+- Add W3C Tablist Keyboard Navigation for Filter Chips (BF-UX-045): Full arrow key (`ArrowLeft`/`ArrowRight`), `Home`/`End`, and `Enter`/`Space` keyboard navigation across filter chips in Spotlight and New Tab.
+- Add Persistent Folder Sort Preferences (BF-UX-046): Persist folder sort modes in `chrome.storage.local` (`bfFolderSortModes`) per folder, restoring preferred sort order instantly on reopen.
+- Add Terminal-First GitHub CLI Mandate & Automation (BF-GOV-016..019): Autonomous terminal workflows for PR creation, CI monitoring, auto-merge, and release pipeline orchestration (`release:full`).
+- Add Manifest V3 API Compliance & Zero-Deprecation Gate (BF-QA-005): Fail-closed MV3 contract tests (`npm run test:mv3`) guaranteeing zero legacy MV2 sync APIs and pure Service Worker compliance.
+- Add Web Extension Quality Quadrumvirate & Autonomous DevTools (BF-QA-006, BF-GOV-022): 4-pillar quality framework (Agentic Motion, Clef/Decision-1 dual arbiter, MV3/WAI-ARIA, Design Tokens) and autonomous DevTools inspection authority.
+- Add Fast Shadow DOM Tree Inspector (BF-QA-007): Lightweight CLI tool (`npm run inspect:dom`) inspecting closed Shadow DOM hierarchy, ARIA roles, and state in <200ms.
+- Add User-Centric Inspiring Copy Mandate & Internal Jargon Prohibition (BF-GOV-025): Strict ban on internal bugfix/DOM jargon in public announcements and store listings, prioritizing user-centric values.
+- Add Persistent Proactive Backlog & Eviction Gate (BF-GOV-024): Durable backlog tracking in `PROJECT_STATE.md` with automatic eviction upon completion and pre-proposal verification gate.
+
 ## [0.3.1] — 2026-09-30
 
 ### Added

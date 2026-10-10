@@ -1,8 +1,8 @@
 # PROJECT_STATE.md — BookmarkFlow Bar Canlı Proje Durumu
 
 Son güncelleme: 2026-10-10
-Aktif Sürüm: `0.3.1`
-Aktif Dal: `main` (Sürüm: `v0.3.1`)
+Aktif Sürüm: `0.4.0`
+Aktif Dal: `release/v0.4.0` (Hedef Sürüm: `v0.4.0`)
 
 ---
 
@@ -31,9 +31,9 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ---
 
-## 3. v0.3.1 Sürümü ile Yayına Alınan Özellikler (Turkuaz Işıltı & Okyanus Atmosferi)
+## 3. v0.4.0 Sürümü ile Yayına Alınan Özellikler (Akıllı Süzme, Kalıcı Sıralama & Yönetişim Mimarisi)
 
-v0.3.1 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak etiketlenmiş ve Chrome Web Store üzerinde Google incelemesinden geçerek resmen canlıya alınmıştır:
+v0.4.0 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak etiketlenmiş ve Chrome Web Store için hazırlanmıştır:
 
 1. **Turkuaz Işıltı Teması (Turquoise Glow - BF-UX-024)**: Yüksek kontrastlı canlı turkuaz vurgular (`#22d3ee`), derin okyanus zeminleri (`#061318`, `#0a1a20`) ve buz-turkuaz metin tonları (`#ecfeff`) ile 5. resmi tema; ayarlar ve popup üzerinden anında geçiş, tam TR/EN yerelleştirme paritesi.
 2. **Turkuaz Uçurum Yeni Sekme Duvar Kağıdı & Klasör Işıltısı (BF-UX-025)**: Yeni Sekme başlangıç sayfası için derin okyanus degrade arka planı (`turquoise-abyss`) ve varsayılan nötr klasör ikonları için turkuaz mikro ışıltı.

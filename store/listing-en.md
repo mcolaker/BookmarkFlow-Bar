@@ -16,6 +16,12 @@ Add a customizable multi-row bookmark bar to ordinary web pages, search your boo
 
 HIGHLIGHTS
 
+• Smart filter chips (All, Folders, Tags, Reading List) with fluent arrow navigation
+• Dynamic folder sorting (A-Z, Newest, Most Visited) with persistent local memory
+• Modern folder menu header with instant "+ Bookmark/Folder" and "↗ Open All" actions
+• Instant folder search with live character highlights and quick clear (×) button
+• Middle-click rapid background tab opening and right-click incognito actions
+• 5 curated dark themes (Gold Obsidian, OLED Black, Emerald Matrix, Cyber Indigo, Turquoise Glow)
 • Direct search link capture & one-click folder chips (save without leaving search)
 • Zero-latency local intent routing engine with live smart badges (URL, command, tag, folder, tab)
 • Full bar concealment (Alt+Shift+H), screen-edge peek restore strip & toolbar snooze badges
@@ -26,7 +32,6 @@ HIGHLIGHTS
 • Offline JSON backup & restore for bookmarks, settings, tags, and reading list
 • Zero-cloud smart auto-tagging (#tag) and Spotlight tag filtering
 • Offline reading list drawer right inside your New Tab page
-• 4 curated obsidian dark themes (Gold Obsidian, OLED Black, Emerald Matrix, Cyber Indigo)
 • Bookmark Health & Dead Link Inspector with zero-telemetry local auditing
 • Spotlight / Raycast style real-time search palette with cyclic arrow navigation
 • Focused New Tab with digital clock, contextual greetings, and Quick Shortcuts
