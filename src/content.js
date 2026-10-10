@@ -27,6 +27,8 @@
   const FOLDER_RAIL_PINNED_STORAGE_KEY = "bfFolderRailPinnedIds";
   const LAST_USED_FOLDER_STORAGE_KEY = "bfLastUsedFolderId";
   const BOOKMARK_VISITS_STORAGE_KEY = "bfBookmarkVisits";
+  const FOLDER_SORT_MODES_STORAGE_KEY = "bfFolderSortModes";
+  const FOLDER_SORT_MODES = ["default", "az", "newest", "frequent"];
   const MESSAGE_GET_CONSENT_STATUS = "BF_GET_CONSENT_STATUS";
   const MESSAGE_GET_STATE = "BF_GET_STATE";
   const MESSAGE_GET_PAGE_INFO = "BF_GET_PAGE_INFO";
@@ -80,6 +82,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let dragState = null;
   let bookmarkTagsMap = {};
   let bookmarkVisitsMap = {};
+  let folderSortModesMap = {};
   let saveVisitsTimer = null;
   let bookmarkDragState = null;
   let contextMenuState = null;
@@ -125,6 +128,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         loadPinnedFolderIds(),
         loadBookmarkTags(),
         loadBookmarkVisits(),
+        loadFolderSortModes(),
         hasExtensionContext() ? chrome.storage.local.get("bfFirstRunTooltipSeen") : Promise.resolve({}),
         loadLastUsedFolderId()
       ]);
@@ -533,6 +537,44 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }, 400);
   }
 
+  function normalizeFolderSortModes(raw) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+      return {};
+    }
+    const clean = {};
+    for (const [key, val] of Object.entries(raw)) {
+      if (typeof key === "string" && typeof val === "string" && FOLDER_SORT_MODES.includes(val)) {
+        clean[key] = val;
+      }
+    }
+    return clean;
+  }
+
+  async function loadFolderSortModes() {
+    if (!hasExtensionContext()) {
+      return {};
+    }
+    try {
+      const localState = await chrome.storage.local.get(FOLDER_SORT_MODES_STORAGE_KEY);
+      folderSortModesMap = normalizeFolderSortModes(localState[FOLDER_SORT_MODES_STORAGE_KEY]);
+      return folderSortModesMap;
+    } catch (error) {
+      handleExtensionContextError(error);
+      folderSortModesMap = {};
+      return {};
+    }
+  }
+
+  function saveFolderSortMode(folderId, sortMode) {
+    if (!folderId || !FOLDER_SORT_MODES.includes(sortMode)) return;
+    folderSortModesMap[folderId] = sortMode;
+    folderSortModesMap["_last"] = sortMode;
+    if (!hasExtensionContext()) return;
+    try {
+      chrome.storage.local.set({ [FOLDER_SORT_MODES_STORAGE_KEY]: folderSortModesMap }).catch(() => {});
+    } catch {}
+  }
+
   function handleStorageChanged(changes, areaName) {
     if (areaName !== "local") {
       return;
@@ -554,6 +596,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       if (val && typeof val === "object") {
         bookmarkVisitsMap = { ...val };
       }
+    }
+
+    if (FOLDER_SORT_MODES_STORAGE_KEY in changes) {
+      folderSortModesMap = normalizeFolderSortModes(changes[FOLDER_SORT_MODES_STORAGE_KEY].newValue);
     }
 
     if (FOLDER_RAIL_PINNED_STORAGE_KEY in changes) {
@@ -3713,7 +3759,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       headerActions.append(openAllBtn);
     }
 
-    let folderSortMode = "default";
+    let folderSortMode = (folder?.id && folderSortModesMap[folder.id]) || folderSortModesMap["_global"] || "default";
+    if (!FOLDER_SORT_MODES.includes(folderSortMode)) {
+      folderSortMode = "default";
+    }
     const originalEntries = [...entries];
 
     function getSortedEntries() {
@@ -3807,8 +3856,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
       sortBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        const currentIdx = SORT_MODES.indexOf(folderSortMode);
-        folderSortMode = SORT_MODES[(currentIdx + 1) % SORT_MODES.length];
+        const currentIdx = FOLDER_SORT_MODES.indexOf(folderSortMode);
+        folderSortMode = FOLDER_SORT_MODES[(currentIdx + 1) % FOLDER_SORT_MODES.length];
+        if (folder?.id) {
+          saveFolderSortMode(folder.id, folderSortMode);
+        }
         updateSortBtnDisplay();
         applySorting();
       });
@@ -3988,7 +4040,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       empty.textContent = t("noBookmarksInFolder");
       menu.append(empty);
     } else {
-      entries.slice(0, 120).forEach((entry) => {
+      const initialSorted = getSortedEntries();
+      initialSorted.slice(0, 120).forEach((entry) => {
         menu.append(createFolderMenuLink(entry));
       });
 

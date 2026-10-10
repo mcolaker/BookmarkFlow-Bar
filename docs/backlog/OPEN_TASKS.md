@@ -958,3 +958,12 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 149/149 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
 - Sonraki adım: Yok; Spotlight ve Yeni Sekme filtre çiplerinde W3C Tablist klavye dolaşımı eksiksiz sağlanmıştır.
 - Son güncelleme: 2026-10-10.
+
+## BF-UX-046 - Açılır Klasör Menüsünde Akıllı Sıralama Tercihinin Kalıcı Olarak Saklanmasını Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Açılır klasör menüsünde seçilen akıllı sıralama modu (A-Z, En Yeni, Sık Kullanılan) menü kapatıldığında veya sayfa yenilendiğinde sıfırlanıyor ve kalıcı olarak hatırlanmıyordu; bu durum kalabalık klasörleri sık kullanan kullanıcılarda her seferinde sıralama modunu tekrar seçme sürtünmesine yol açıyordu. (1) `src/content.js` içerisinde `FOLDER_SORT_MODES_STORAGE_KEY` ("bfFolderSortModes") ve `FOLDER_SORT_MODES` sabitleri tanımlandı; (2) `normalizeFolderSortModes`, `loadFolderSortModes` ve `saveFolderSortMode` depolama yardımcıları kodlandı; (3) `init()` fonksiyonundaki `Promise.all` zincirine `loadFolderSortModes()` entegre edildi; (4) `handleStorageChanged` içine `FOLDER_SORT_MODES_STORAGE_KEY` dinleyicisi eklendi; (5) `openFolderMenu` açılırken `folderSortModesMap[folder.id]` veya `_global` üzerinden kayıtlı tercih yüklendi; (6) Menü açılışında linklerin `getSortedEntries()` ile doğrudan sıralı render edilmesi sağlandı; (7) Sıralama butonu tıklandığında yeni mod `saveFolderSortMode(folder.id, folderSortMode)` ile `chrome.storage.local` üzerine yazıldı; (8) `scripts/ui-behavior-contract.test.mjs` içerisine `BF-UX-046` sözleşme testi eklenerek test sayısı 150'ye çıkarıldı; (9) `DECISION_INDEX.md` Karar 37 tescillendi.
+- Kabul kriteri: Seçilen sıralama modu klasör bazında `chrome.storage.local` üzerinde saklanır; menü açıldığında son tercih edilen sıralamayla açılır; linkler doğrudan sıralı dizilir; `BF-UX-046` sözleşme testi ve tüm 150 test geçer; `validate:all` temizdir.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; 150/150 birim ve sözleşme testi başarılı (`npm test`); `node scripts/validate-backlog.mjs` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
+- Sonraki adım: Yok; açılır klasör menüsünde akıllı sıralama tercihi kalıcı saklama mimarisi başarıyla devreye alınmıştır.
+- Son güncelleme: 2026-10-10.
