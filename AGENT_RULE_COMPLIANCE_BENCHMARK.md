@@ -43,7 +43,9 @@ Every item below must pass without exception:
 - [ ] Unrun checks reported as remaining risk, never claimed as pass without evidence (P0-8).
 - [ ] Zero End-User AI Invariant (AI/LLM/yapay zeka terms strictly banned in UI) is identified (P0-13).
 - [ ] Apache 2.0 & DCO 1.1 signed commits are identified (P0-14, P0-21).
+- [ ] Global English announcement, dual-link mandate, and Mandatory Visual Media Invariant (visual/video card strictly required, never text-only/link-card) are identified (P0-16).
 - [ ] Terminal-first GitHub CLI mandate is identified (P0-17).
+- [ ] User's Live Chrome profile and Auto-Allow Daemon invariant are identified (P0-22).
 - [ ] In-page bar Shadow DOM bug routes to `docs/agent-playbooks/browser_extension.md` or `ui_accessibility.md`.
 - [ ] MV3 deprecation / Service Worker task routes to `docs/agent-playbooks/browser_extension.md`.
 - [ ] The agent does not recursively inspect the whole repository.
