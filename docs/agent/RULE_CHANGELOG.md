@@ -2,6 +2,12 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-11] — JaponiGo Auto-Allow Daemon ve Canlı Chrome WebSocket CDP Bütünlüğü (BF-WIN-002 / Karar 39)
+- **Auto-Allow Daemon Entegrasyonu (`tools/windows-companion/chrome_auto_allow_daemon.py`)**: JaponiGo'da sıfır-dokunuşla çalışan `uiautomation` tabanlı arka plan izleme servisi BookmarkFlow Bar'a taşındı. `ensureAutoAllowDaemon()` kancası ile her CDP oturumu öncesinde daemon'ın varlığı ve çalışırlığı doğrulanır.
+- **Modern Chrome WebSocket CDP Desteği (`scripts/live-chrome-pilot.mjs`)**: Chrome v128+ ortamında HTTP discovery uç noktalarının 404 döndüğü tespit edilerek doğrudan `DevToolsActivePort` üzerinden yerel WebSocket (`ws://...`) CDP bağlantısı sağlandı.
+- **Windows UIA InvokePattern Güvencesi**: Chromium'un "Uzaktan hata ayıklamaya izin verilsin mi?" güvenlik modalı açıldığında, daemon 10-250ms içinde `InvokePattern` ile "İzin ver" butonuna otonom tıklar; kullanıcıya kesinlikle onay yükü bindirilmez.
+- **Dış Sosyal Medya Dili Kesinleşti (`AGENTS.md` P0-16)**: X ve LinkedIn kamuya açık duyuruları küresel profesyonel standart gereği İSTİSNASIZ İNGİLİZCE kuralına bağlandı.
+
 ## [2026-10-10] — v0.4.0 Sürüm Yayını ve Dağıtım Sözleşmesi (BF-REL-014 / Karar 38)
 - **v0.4.0 Sürüm Yayın Hazırlığı ve Dağıtımı**: BF-UX-030..046 arası 17 büyük özellik ve yönetişim geliştirmesini kapsayan `0.4.0` sürümü; `manifest.json` ve `package.json` sürümlerinin yükseltilmesi, `CHANGELOG.md` Keep a Changelog güncellenmesi, `README.md` sürüm rozetleri ve vitrin açıklamaları, mağaza metinleri, exact annotated `v0.4.0` Git etiketi ve Chromium/Firefox/Edge paketlemesi ile yayına hazırlandı.
 

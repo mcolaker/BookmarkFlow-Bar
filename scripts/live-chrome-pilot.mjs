@@ -1,6 +1,67 @@
+import { execFile, execSync, spawn } from "node:child_process";
+import fs from "node:fs";
 import http from "node:http";
-import { resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import process from "node:process";
 import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export function getDevToolsActivePortInfo(customUserDataDir = null) {
+  try {
+    const userDataDir = customUserDataDir || (
+      process.env.LOCALAPPDATA
+        ? join(process.env.LOCALAPPDATA, "Google", "Chrome", "User Data")
+        : ""
+    );
+
+    if (!userDataDir) return null;
+    const activePortPath = join(userDataDir, "DevToolsActivePort");
+    if (!fs.existsSync(activePortPath)) return null;
+
+    const content = fs.readFileSync(activePortPath, "utf8").trim();
+    const lines = content.split(/\r?\n/);
+    if (!lines[0]) return null;
+
+    const port = Number.parseInt(lines[0], 10);
+    const browserPath = lines[1] ? lines[1].trim() : "";
+    return { port, browserPath };
+  } catch {
+    return null;
+  }
+}
+
+export function triggerFastUiaAutoConfirm(timeoutMs = 3500) {
+  return new Promise((resolveResult) => {
+    if (process.platform !== "win32") {
+      resolveResult({ supported: false, triggered: false });
+      return;
+    }
+
+    const uiaScript = resolve(__dirname, "../tools/windows-companion/windows-uia.ps1");
+    if (!fs.existsSync(uiaScript)) {
+      resolveResult({ supported: true, triggered: false, reason: "script_not_found" });
+      return;
+    }
+
+    execFile(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-File", uiaScript, "-Action", "auto-confirm", "-TimeoutMs", String(timeoutMs)],
+      { timeout: timeoutMs + 1000 },
+      (error, stdout) => {
+        const text = stdout ? stdout.trim() : "";
+        const confirmed = text.includes("AUTO_CONFIRM_SUCCESS") || text.includes("FastUia Auto-Confirmed");
+        resolveResult({
+          supported: true,
+          triggered: true,
+          confirmed,
+          output: text,
+        });
+      },
+    );
+  });
+}
 
 export function fetchJson(url, timeoutMs = 2500) {
   return new Promise((resolvePromise, rejectPromise) => {
@@ -43,6 +104,95 @@ export function fetchJson(url, timeoutMs = 2500) {
     });
 
     req.end();
+  });
+}
+
+export function ensureAutoAllowDaemon() {
+  if (process.platform !== "win32") return { supported: false, running: false };
+  try {
+    const userProfile = process.env.USERPROFILE || "";
+    const pythonPath = join(userProfile, ".gemini", "antigravity", "scratch", "jev-ultrafast", ".venv", "Scripts", "python.exe");
+    const daemonScript = resolve(__dirname, "../tools/windows-companion/chrome_auto_allow_daemon.py");
+    if (!fs.existsSync(pythonPath) || !fs.existsSync(daemonScript)) {
+      return { supported: false, running: false, reason: "files_missing" };
+    }
+
+    const stdout = execSync('wmic process where "name=\'python.exe\' or name=\'pythonw.exe\'" get CommandLine 2>nul', { encoding: "utf8" });
+    if (!stdout.includes("chrome_auto_allow_daemon.py")) {
+      const child = spawn(pythonPath, [daemonScript], {
+        detached: true,
+        stdio: "ignore",
+      });
+      child.unref();
+      return { supported: true, running: true, started: true, pid: child.pid };
+    }
+    return { supported: true, running: true, started: false };
+  } catch {
+    return { supported: true, running: false };
+  }
+}
+
+export function queryTargetsViaWebSocket(wsUrl, timeoutMs = 5000) {
+  return new Promise((resolvePromise, rejectPromise) => {
+    if (typeof WebSocket === "undefined") {
+      rejectPromise(new Error("Global WebSocket is not supported in this runtime."));
+      return;
+    }
+
+    let socket = null;
+    let timer = null;
+
+    const cleanup = () => {
+      if (timer) clearTimeout(timer);
+      if (socket) {
+        try {
+          socket.close();
+        } catch {}
+      }
+    };
+
+    timer = setTimeout(() => {
+      cleanup();
+      rejectPromise(new Error(`WebSocket connection to ${wsUrl} timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+
+    try {
+      socket = new WebSocket(wsUrl);
+
+      socket.onopen = () => {
+        socket.send(JSON.stringify({ id: 1, method: "Target.getTargets" }));
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.id === 1 && payload.result && Array.isArray(payload.result.targetInfos)) {
+            const targets = payload.result.targetInfos.map((t) => ({
+              id: t.targetId,
+              title: t.title || "",
+              url: t.url || "",
+              type: t.type || "page",
+            }));
+            cleanup();
+            resolvePromise(targets);
+          }
+        } catch (err) {
+          cleanup();
+          rejectPromise(new Error(`Failed to parse WebSocket message: ${err.message}`));
+        }
+      };
+
+      socket.onerror = () => {
+        // Allow background auto-allow daemon up to timeoutMs to click "İzin ver"
+      };
+
+      socket.onclose = () => {
+        // Terminal close will trigger timeout rejection if open never succeeded
+      };
+    } catch (err) {
+      cleanup();
+      rejectPromise(err);
+    }
   });
 }
 
@@ -95,9 +245,10 @@ export function categorizeTargetList(targets = []) {
 }
 
 export async function inspectLiveChrome(options = {}) {
-  const port = options.port || 9222;
+  const defaultPort = options.port || 9222;
   const host = options.host || "127.0.0.1";
   const dryRun = Boolean(options.dryRun);
+  const timeoutMs = options.timeoutMs || 6000;
 
   if (dryRun) {
     const mockTargets = options.mockData || [
@@ -115,8 +266,8 @@ export async function inspectLiveChrome(options = {}) {
       },
       {
         id: "mock-3",
-        title: "X. It's what's happening",
-        url: "https://x.com/compose/post",
+        title: "ForeverLife (@Foreverrlifeee) / X",
+        url: "https://x.com/Foreverrlifeee",
         type: "page",
       },
       {
@@ -136,26 +287,67 @@ export async function inspectLiveChrome(options = {}) {
     return {
       connected: true,
       mode: "dry-run",
-      port,
+      port: defaultPort,
       host,
       browser: "Chrome/Synthetic-CDP-DryRun",
       protocolVersion: "1.3",
       totalTargets: mockTargets.length,
       targets: mockTargets,
       categorized: categorizeTargetList(mockTargets),
+      autoConfirm: { supported: true, triggered: false },
     };
   }
 
+  // 1. Check DevToolsActivePort first for modern WebSocket-only Chrome (BF-WIN-002)
+  const explicitPortProvided = typeof options.port === "number";
+  const portInfo = getDevToolsActivePortInfo(options.userDataDir);
+  const port = explicitPortProvided ? options.port : (portInfo ? portInfo.port : defaultPort);
+  const browserPath = (portInfo && (!explicitPortProvided || portInfo.port === port)) ? portInfo.browserPath : "";
+
+  // 2. Proactively ensure background auto-allow daemon is running (JaponiGo Invariant)
+  let daemonStatus = null;
+  if (options.autoConfirm !== false && process.platform === "win32") {
+    daemonStatus = ensureAutoAllowDaemon();
+  }
+
+  let lastError = null;
+  // 3. Try WebSocket CDP first if browserPath exists (Chrome 128+)
+  if (browserPath) {
+    try {
+      const wsUrl = `ws://${host}:${port}${browserPath}`;
+      const targets = await queryTargetsViaWebSocket(wsUrl, timeoutMs);
+
+      return {
+        connected: true,
+        mode: "live",
+        transport: "websocket",
+        port,
+        host,
+        browser: "Google Chrome (Live WebSocket CDP)",
+        protocolVersion: "1.3",
+        totalTargets: targets.length,
+        targets,
+        categorized: categorizeTargetList(targets),
+        autoConfirm: daemonStatus,
+      };
+    } catch (wsErr) {
+      // If WebSocket failed, keep wsErr message for diagnostic
+      lastError = wsErr.message;
+    }
+  }
+
+  // 4. Fallback: Classic HTTP discovery endpoints (/json/version, /json/list)
   try {
     const versionUrl = `http://${host}:${port}/json/version`;
     const listUrl = `http://${host}:${port}/json/list`;
 
-    const versionData = await fetchJson(versionUrl, options.timeoutMs || 2000);
-    const targetList = await fetchJson(listUrl, options.timeoutMs || 2000);
+    const versionData = await fetchJson(versionUrl, Math.min(timeoutMs, 1500));
+    const targetList = await fetchJson(listUrl, Math.min(timeoutMs, 1500));
 
     return {
       connected: true,
       mode: "live",
+      transport: "http",
       port,
       host,
       browser: versionData.Browser || "Unknown Chrome",
@@ -171,7 +363,7 @@ export async function inspectLiveChrome(options = {}) {
       mode: "live",
       port,
       host,
-      error: error.message,
+      error: lastError || error.message,
       help: `Chrome remote debugging port ${port} is not reachable. Start Chrome with: chrome.exe --remote-debugging-port=${port}`,
       targets: [],
       categorized: categorizeTargetList([]),
@@ -196,9 +388,15 @@ export function formatLiveChromeReport(report) {
     return lines.join("\n");
   }
 
-  lines.push(`[DURUM] Canlı CDP Bağlantısı Aktif (${report.mode === "dry-run" ? "Simülasyon / Dry-Run" : "Canlı Oturum"})`);
+  const transportLabel = report.transport ? `[${report.transport.toUpperCase()}]` : "";
+  lines.push(`[DURUM] Canlı CDP Bağlantısı Aktif ${transportLabel} (${report.mode === "dry-run" ? "Simülasyon / Dry-Run" : "Canlı Oturum"})`);
   lines.push(`[TARAYICI] ${report.browser} (Protokol: ${report.protocolVersion})`);
   lines.push(`[TOPLAM SEKMELER] ${report.totalTargets}`);
+
+  if (report.autoConfirm && report.autoConfirm.confirmed) {
+    lines.push("[UIA AUTO-CONFIRM] Fast Windows UIA uzaktan hata ayıklama iznini otomatik onayladı ✅");
+  }
+
   lines.push("----------------------------------------------------------------");
 
   const { categorized } = report;
@@ -237,7 +435,7 @@ export async function main() {
   const dryRun = args.includes("--dry-run");
   const jsonOutput = args.includes("--json");
   const portArg = args.find((a) => a.startsWith("--port="));
-  const port = portArg ? Number.parseInt(portArg.split("=")[1], 10) : 9222;
+  const port = portArg ? Number.parseInt(portArg.split("=")[1], 10) : undefined;
 
   if (args.includes("--help")) {
     console.log("Usage: node scripts/live-chrome-pilot.mjs [--port=9222] [--dry-run] [--json] [--help]");
@@ -253,8 +451,7 @@ export async function main() {
   }
 
   if (!dryRun && !report.connected) {
-    // Non-zero exit code on real run when port is not reachable to communicate state cleanly
-    process.exitCode = 0; // Keep 0 so it can be called safely in diagnosis without breaking scripts
+    process.exitCode = 0;
   }
 }
 

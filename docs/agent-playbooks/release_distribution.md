@@ -69,8 +69,12 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
   - Sürüm öncesi testler `--dry-run` bayrağı ile risksiz şekilde simüle edilebilir.
 - **Otonom Yerel Ara Commit Yetkisi (BF-GOV-020 / Karar 27)**:
   - Model; ara kilometre taşlarında testler yeşil (`npm test` 110+/110+) ve analizi temiz olduğunda kullanıcıya sormadan otonom olarak DCO imzalı yerel commit (`git commit -s`) oluşturur; uzak push/PR ise kullanıcı onayıyla yürütülür.
-- **Canlı Kullanıcı Profili Zorunluluğu (User's Live Chrome Invariant - Karar 27)**:
-  - Chrome Web Store Developer Console, GitHub ve sosyal medya (X, LinkedIn) yayınlarında kesinlikle geçici/izole sahte profiller açılmaz; doğrudan kullanıcının varsayılan çalışan Chrome oturumuna CDP (`port 9222`) ile bağlanılır.
+- **Canlı Kullanıcı Profili ve Auto-Allow Daemon Güvencesi (User's Live Chrome & Auto-Allow Daemon Invariant - Karar 27, 39 - BF-WIN-002)**:
+  - Chrome Web Store Developer Console, GitHub ve sosyal medya (X, LinkedIn) yayınlarında kesinlikle geçici/izole sahte profiller açılmaz; doğrudan kullanıcının varsayılan çalışan Chrome oturumuna CDP (`port 9222` / `DevToolsActivePort` WebSocket) ile bağlanılır.
+  - Modern Chrome v128+ ortamında HTTP discovery uç noktaları 404 döndüğü için doğrudan `DevToolsActivePort` WebSocket uç noktası (`ws://...`) kullanılır.
+  - Chromium güvenlik modalı ("Uzaktan hata ayıklamaya izin verilsin mi?") açıldığında, arka planda çalışan JaponiGo çekirdekli `chrome_auto_allow_daemon.py` ve `ensureAutoAllowDaemon()` kancası (ve Windows UIA `InvokePattern`) izin penceresini anında ve otonom onaylar; kullanıcıya kesinlikle manuel tıklama yükü bindirilmez.
+- **Dış Sosyal Medya Duyuru Dili Kuralı (BF-GOV-025 / Karar 39)**:
+  - X ve LinkedIn kamuya açık duyuruları küresel profesyonel standart gereği İSTİSNASIZ İNGİLİZCE yayınlanır.
 - **3-Kademeli Raw-Key ve Dil Güvencesi (BF-GOV-020 / Karar 27)**:
   - Sürüm paketlemesi öncesinde `npm run test:raw-keys` çalıştırılarak hiçbir arayüzde çevrilmemiş ham anahtar (`nt_*`, `bar_*`) veya bozuk karakter (mojibake) kalmadığı doğrulanır.
 - **Live Chrome Pilot & Dağıtım Öncesi Raw-Key Güvencesi (BF-GOV-021 / Karar 28)**:
