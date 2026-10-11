@@ -193,9 +193,70 @@ export async function prepareLinkedInPost() {
   console.log("Found LinkedIn target:", liTarget.title, liTarget.targetId);
   const { sessionId } = await client.send("Target.attachToTarget", { targetId: liTarget.targetId, flatten: true });
 
-  console.log("Navigating to LinkedIn compose URL...");
-  await client.send("Page.navigate", { url: "https://www.linkedin.com/feed/?shareActive=true" }, sessionId);
-  await new Promise((r) => setTimeout(r, 4000));
+  console.log("Navigating to LinkedIn feed...");
+  await client.send("Page.navigate", { url: "https://www.linkedin.com/feed/" }, sessionId);
+  await new Promise((r) => setTimeout(r, 5000));
+
+  const imagePath = path.resolve("output/social-v0.4.0/bookmarkflow-v0.4.0-linkedin-card.png");
+  if (fs.existsSync(imagePath)) {
+    console.log("Clicking Fotoğraf button on feed to trigger image upload...");
+    await client.send("Runtime.evaluate", {
+      expression: `(() => {
+        const p = Array.from(document.querySelectorAll('p')).find(el => el.innerText.trim() === 'Fotoğraf');
+        const btn = p ? p.closest('div[role="button"]') || p.parentElement : null;
+        if (btn) btn.click();
+      })()`
+    }, sessionId);
+    await new Promise((r) => setTimeout(r, 2000));
+
+    console.log("Setting image file via CDP DOM.setFileInputFiles...");
+    try {
+      const doc = await client.send("DOM.getDocument", {}, sessionId);
+      const fileInputNode = await client.send("DOM.querySelector", {
+        nodeId: doc.root.nodeId,
+        selector: 'input[type="file"]',
+      }, sessionId);
+
+      if (fileInputNode.nodeId > 0) {
+        await client.send("DOM.setFileInputFiles", {
+          files: [imagePath],
+          nodeId: fileInputNode.nodeId,
+        }, sessionId);
+        await client.send("Runtime.evaluate", {
+          expression: `(() => {
+            const input = document.querySelector('input[type="file"]');
+            if (input) {
+              input.dispatchEvent(new Event('input', { bubbles: true }));
+              input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          })()`
+        }, sessionId);
+        console.log("Image set via DOM.setFileInputFiles!");
+        await new Promise((r) => setTimeout(r, 3000));
+      }
+    } catch (fileErr) {
+      console.log("Error with DOM.setFileInputFiles:", fileErr.message);
+    }
+
+    // Click Next / İleri button
+    const nextBtnRes = await client.send("Runtime.evaluate", {
+      expression: `(() => {
+        const nextBtn = Array.from(document.querySelectorAll('button')).find(b => {
+          const t = b.innerText.trim().toLowerCase();
+          return t === 'ileri' || t === 'bitti' || t === 'next' || t === 'done';
+        });
+        if (nextBtn) {
+          nextBtn.click();
+          return { clicked: true, text: nextBtn.innerText.trim() };
+        }
+        return { clicked: false };
+      })()`,
+      returnByValue: true,
+    }, sessionId);
+
+    console.log("Next/Done button result:", nextBtnRes.result.value);
+    await new Promise((r) => setTimeout(r, 3000));
+  }
 
   const postText = `Browse at the speed of thought. 🌊⚡
 
@@ -214,7 +275,7 @@ Get it now:
 
 #Chrome #Productivity #OpenSource #WebDevelopment #SoftwareEngineering`;
 
-  // 1. Focus editor and insert text (TipTap ProseMirror)
+  // Focus editor and insert text
   console.log("Focusing editor in LinkedIn modal...");
   const editorFocusResult = await client.send("Runtime.evaluate", {
     expression: `(() => {
@@ -234,10 +295,10 @@ Get it now:
   if (editorFocusResult.result.value && editorFocusResult.result.value.success) {
     console.log("Inserting text into LinkedIn editor...");
     await client.send("Input.insertText", { text: postText }, sessionId);
-    await new Promise((r) => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 2000));
   }
 
-  // 2. Click Yayınla / Post
+  // Click Yayınla / Post
   console.log("Looking for LinkedIn 'Post' / 'Yayınla' button...");
   for (let i = 0; i < 10; i++) {
     const postBtnResult = await client.send("Runtime.evaluate", {
@@ -257,7 +318,7 @@ Get it now:
 
     console.log(`Post check ${i + 1}:`, postBtnResult.result.value);
     if (postBtnResult.result.value && postBtnResult.result.value.clicked) {
-      console.log("🚀 LinkedIn post button clicked successfully!");
+      console.log("🚀 LinkedIn post button clicked successfully with image card!");
       break;
     }
     await new Promise((r) => setTimeout(r, 1000));

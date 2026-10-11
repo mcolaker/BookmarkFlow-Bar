@@ -2,6 +2,11 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-11] — Zorunlu Görsel ve Video Tanıtım Kartı Standardı (BF-GOV-026 / Karar 40)
+- **Mandatory Visual Media Invariant (`AGENTS.md` P0-16)**: Sosyal medya (X, LinkedIn) lansman paylaşımlarında yalnızca metin veya otomatik link önizlemesi (OG card) ile paylaşım yapılması KESİNLİKLE YASAKLANDI.
+- **Fiili Dosya İliştirme ve Önizleme Güvencesi**: Her paylaşımda hazırlanan özel tanıtım görsel kartı (X 1200x675, LinkedIn 1200x627) veya tanıtım videosu gönderiye dosya olarak fiilen iliştirilmeli, görselin modal/editör içindeki önizlemesi CDP ekran görüntüsüyle doğrulanmalıdır.
+- **LinkedIn Canlı Akış Tescili**: Kullanıcının canlı profilinde (`https://www.linkedin.com/in/mcolaker/recent-activity/all/`) BookmarkFlow Bar v0.4.0 lansman gönderisi hazırlanan 1200x627 görsel vitrin kartıyla başarıyla yayınlandı ve ekran görüntüsüyle tescillendi.
+
 ## [2026-10-11] — JaponiGo Auto-Allow Daemon, Canlı Chrome WebSocket CDP & Otonom Sosyal Medya Lansmanı (BF-WIN-002 / Karar 39)
 - **Auto-Allow Daemon Entegrasyonu (`tools/windows-companion/chrome_auto_allow_daemon.py`)**: JaponiGo'da sıfır-dokunuşla çalışan `uiautomation` tabanlı arka plan izleme servisi BookmarkFlow Bar'a taşındı. `ensureAutoAllowDaemon()` kancası ile her CDP oturumu öncesinde daemon'ın varlığı ve çalışırlığı doğrulanır.
 - **Modern Chrome WebSocket CDP Desteği (`scripts/live-chrome-pilot.mjs`)**: Chrome v128+ ortamında HTTP discovery uç noktalarının 404 döndüğü tespit edilerek doğrudan `DevToolsActivePort` üzerinden yerel WebSocket (`ws://...`) CDP bağlantısı sağlandı.

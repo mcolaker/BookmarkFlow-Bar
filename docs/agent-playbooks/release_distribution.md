@@ -29,6 +29,10 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
   - X (Twitter) Lansman Görseli: 1200x675 piksel.
   - LinkedIn Lansman Görseli: 1200x627 piksel.
   - Koyu lacivert/altın (`#0b0f19` / `#f2c94c`) renk dili, sentetik yer imi verileri, temiz tipografi.
+- **Zorunlu Tanıtım Görseli / Video Kartı Standardı (Mandatory Visual Media Invariant - Karar 40 - BF-GOV-026)**:
+  - Sosyal medya paylaşımlarında (X, LinkedIn) yalnızca metin veya otomatik link önizlemesi (OG card) ile paylaşım yapılması KESİNLİKLE YASAKTIR.
+  - Her paylaşımda hazırlanan özel tanıtım görsel kartı (X 1200x675, LinkedIn 1200x627) veya video tanıtımı gönderiye dosya olarak fiilen iliştirilmeli, görselin modal/editör içindeki önizlemesi CDP ekran görüntüsüyle doğrulandıktan sonra yayınlanmalıdır.
+  - Asla link kartına (sarı/varsayılan CWS önizlemesi) güvenilerek görselsiz gönderi atılamaz.
 - **Lansman Metinleri & Çift Bağlantı Standardı**:
   - Kullanıcıya kopyalanıp paylaşılabilecek veya otonom yayınlanacak X duyuru metni, LinkedIn bülteni ve iki dilli (Türkçe & İngilizce) Chrome Web Store sürüm notları hazır bir paket olarak sunulur.
   - **Çift Bağlantı Zorunluluğu (Dual-Link Mandate)**: X (Twitter) ve sosyal medya duyurularında hem resmi **Chrome Web Store** bağlantısı (`https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf`) hem de **GitHub Sürüm/Release** bağlantısı istisnasız birlikte bulunmalıdır.
@@ -80,7 +84,7 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
 - **Otomatik Sosyal Medya Lansmanı ve Yayınlama Orkestrasyonu (`npm run publish:social` - BF-GOV-025)**:
   - `npm run publish:social` (`scripts/publish-social.mjs`) komutu ile hem X (Twitter) hem LinkedIn lansman gönderileri kullanıcının canlı Chrome oturumu üzerinden sıfır manuel müdahaleyle otonom yayınlanır.
   - X (Twitter) Yayını: `https://x.com/compose/post` adresine yönlenir, metin ve `output/social-vX.Y.Z/bookmarkflow-vX.Y.Z-x-card.png` kart görseli eklenerek gönderi butonuna basılır.
-  - LinkedIn Yayını: `https://www.linkedin.com/feed/?shareActive=true` adresine yönlenir, modern `.tiptap.ProseMirror` editörüne İngilizce duyuru metni girilir ve onaylanarak feed'e aktarılır.
+  - LinkedIn Yayını: `https://www.linkedin.com/feed/` adresinde "Fotoğraf" tetikleyicisi açılarak CDP `DOM.setFileInputFiles` ile hazırlanan `bookmarkflow-vX.Y.Z-linkedin-card.png` (1200x627) kartı editöre iliştirilir, "İleri" ile onaylanır, ardından `.tiptap.ProseMirror` alanına İngilizce duyuru metni girilerek yayınlanır. Görsel iliştirilmeden kesinlikle yayınlanamaz.
   - Gerektiğinde tek platform hedeflenebilir: `node scripts/publish-social.mjs x` veya `node scripts/publish-social.mjs linkedin`.
 - **Live Chrome Pilot & Dağıtım Öncesi Raw-Key Güvencesi (BF-GOV-021 / Karar 28)**:
   - `npm run pilot:chrome` (`scripts/live-chrome-pilot.mjs`) ile kullanıcının port 9222 üzerindeki canlı tarayıcı oturumu denetlenerek Chrome Web Store konsolu, GitHub ve sosyal medya hazırlığı taranır.
