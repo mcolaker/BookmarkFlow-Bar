@@ -2,10 +2,11 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
-## [2026-10-11] — JaponiGo Auto-Allow Daemon ve Canlı Chrome WebSocket CDP Bütünlüğü (BF-WIN-002 / Karar 39)
+## [2026-10-11] — JaponiGo Auto-Allow Daemon, Canlı Chrome WebSocket CDP & Otonom Sosyal Medya Lansmanı (BF-WIN-002 / Karar 39)
 - **Auto-Allow Daemon Entegrasyonu (`tools/windows-companion/chrome_auto_allow_daemon.py`)**: JaponiGo'da sıfır-dokunuşla çalışan `uiautomation` tabanlı arka plan izleme servisi BookmarkFlow Bar'a taşındı. `ensureAutoAllowDaemon()` kancası ile her CDP oturumu öncesinde daemon'ın varlığı ve çalışırlığı doğrulanır.
 - **Modern Chrome WebSocket CDP Desteği (`scripts/live-chrome-pilot.mjs`)**: Chrome v128+ ortamında HTTP discovery uç noktalarının 404 döndüğü tespit edilerek doğrudan `DevToolsActivePort` üzerinden yerel WebSocket (`ws://...`) CDP bağlantısı sağlandı.
 - **Windows UIA InvokePattern Güvencesi**: Chromium'un "Uzaktan hata ayıklamaya izin verilsin mi?" güvenlik modalı açıldığında, daemon 10-250ms içinde `InvokePattern` ile "İzin ver" butonuna otonom tıklar; kullanıcıya kesinlikle onay yükü bindirilmez.
+- **Otonom Sosyal Medya Yayınlama Orkestrasyonu (`npm run publish:social`, `scripts/publish-social.mjs`)**: X (Twitter) ve LinkedIn platformlarında sürüm tanıtım kartı ve İngilizce lansman metnini kullanıcının canlı tarayıcısı üzerinden otonom yayınlayan CLI orkestrasyonu geliştirildi; LinkedIn'in modern `.tiptap.ProseMirror` editörü ve feed tetikleyicisi tescillendi.
 - **Dış Sosyal Medya Dili Kesinleşti (`AGENTS.md` P0-16)**: X ve LinkedIn kamuya açık duyuruları küresel profesyonel standart gereği İSTİSNASIZ İNGİLİZCE kuralına bağlandı.
 
 ## [2026-10-10] — v0.4.0 Sürüm Yayını ve Dağıtım Sözleşmesi (BF-REL-014 / Karar 38)

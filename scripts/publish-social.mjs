@@ -75,11 +75,9 @@ export async function prepareXPost() {
   console.log("Found X target:", xTarget.title, xTarget.targetId);
   const { sessionId } = await client.send("Target.attachToTarget", { targetId: xTarget.targetId, flatten: true });
 
-  // Navigate to compose tweet
   console.log("Navigating to https://x.com/compose/post...");
   await client.send("Page.navigate", { url: "https://x.com/compose/post" }, sessionId);
 
-  // Wait for compose dialog to appear
   console.log("Waiting for compose box...");
   await new Promise((r) => setTimeout(r, 4000));
 
@@ -98,7 +96,6 @@ GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.0
   const imagePath = path.resolve("output/social-v0.4.0/bookmarkflow-v0.4.0-x-card.png");
   console.log("Image path:", imagePath);
 
-  // 1. Insert text via DOM Document.execCommand or Input.insertText
   const evalResult = await client.send("Runtime.evaluate", {
     expression: `(() => {
       const editor = document.querySelector('[data-testid="tweetTextarea_0"]') || document.querySelector('div[contenteditable="true"]');
@@ -117,7 +114,6 @@ GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.0
     await new Promise((r) => setTimeout(r, 1000));
   }
 
-  // 2. Set file input for image upload
   if (fs.existsSync(imagePath)) {
     console.log("Uploading card image via CDP DOM.setFileInputFiles...");
     try {
@@ -142,7 +138,6 @@ GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.0
     }
   }
 
-  // 3. Wait for image upload to complete and button to enable
   console.log("Waiting for media upload to finish and Post button to enable...");
   let clicked = false;
   for (let i = 0; i < 15; i++) {
@@ -189,37 +184,22 @@ export async function prepareLinkedInPost() {
   let liTarget = targetInfos.find((t) => t.type === "page" && t.url.includes("linkedin.com"));
   if (!liTarget) {
     console.log("Creating LinkedIn target...");
-    const created = await client.send("Target.createTarget", { url: "https://www.linkedin.com/feed/" });
+    const created = await client.send("Target.createTarget", { url: "https://www.linkedin.com/feed/?shareActive=true" });
     await new Promise((r) => setTimeout(r, 4000));
     const updated = await client.send("Target.getTargets");
-    liTarget = updated.targetInfos.find((t) => t.targetId === created.targetId) || { targetId: created.targetId, title: "LinkedIn", url: "https://www.linkedin.com/feed/" };
+    liTarget = updated.targetInfos.find((t) => t.targetId === created.targetId) || { targetId: created.targetId, title: "LinkedIn", url: "https://www.linkedin.com/feed/?shareActive=true" };
   }
 
   console.log("Found LinkedIn target:", liTarget.title, liTarget.targetId);
   const { sessionId } = await client.send("Target.attachToTarget", { targetId: liTarget.targetId, flatten: true });
 
-  console.log("Clicking 'Start a post' trigger...");
-  const triggerResult = await client.send("Runtime.evaluate", {
-    expression: `(() => {
-      const btn = document.querySelector('.share-box-feed-entry__trigger') ||
-                  document.querySelector('button[aria-label*="gönderi"]') ||
-                  document.querySelector('button[aria-label*="post"]') ||
-                  Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('Gönderi başlat') || b.textContent.includes('Start a post'));
-      if (btn) {
-        btn.click();
-        return { success: true };
-      }
-      return { success: false, reason: "button_not_found" };
-    })()`,
-    returnByValue: true,
-  }, sessionId);
-
-  console.log("Trigger click result:", triggerResult.result.value);
-  await new Promise((r) => setTimeout(r, 3000));
+  console.log("Navigating to LinkedIn compose URL...");
+  await client.send("Page.navigate", { url: "https://www.linkedin.com/feed/?shareActive=true" }, sessionId);
+  await new Promise((r) => setTimeout(r, 4000));
 
   const postText = `Browse at the speed of thought. 🌊⚡
 
-We are excited to announce the release of BookmarkFlow Bar 0.4.0!
+We are excited to announce BookmarkFlow Bar 0.4.0!
 
 Designed for high-productivity workflows, BookmarkFlow Bar helps you find and organize your bookmarks instantly without breaking your focus:
 
@@ -234,15 +214,12 @@ Get it now:
 
 #Chrome #Productivity #OpenSource #WebDevelopment #SoftwareEngineering`;
 
-  const imagePath = path.resolve("output/social-v0.4.0/bookmarkflow-v0.4.0-linkedin-card.png");
-  console.log("Image path:", imagePath);
-
-  // 1. Focus editor and insert text
+  // 1. Focus editor and insert text (TipTap ProseMirror)
   console.log("Focusing editor in LinkedIn modal...");
   const editorFocusResult = await client.send("Runtime.evaluate", {
     expression: `(() => {
-      const editor = document.querySelector('.ql-editor') ||
-                    document.querySelector('div[contenteditable="true"][role="textbox"]') ||
+      const editor = document.querySelector('.tiptap.ProseMirror') ||
+                    document.querySelector('.ql-editor') ||
                     document.querySelector('div[contenteditable="true"]');
       if (editor) {
         editor.focus();
@@ -260,61 +237,18 @@ Get it now:
     await new Promise((r) => setTimeout(r, 1500));
   }
 
-  // 2. Attach Image
-  if (fs.existsSync(imagePath)) {
-    console.log("Uploading card image to LinkedIn...");
-    try {
-      const doc = await client.send("DOM.getDocument", {}, sessionId);
-      const fileInputNode = await client.send("DOM.querySelector", {
-        nodeId: doc.root.nodeId,
-        selector: 'input[type="file"]',
-      }, sessionId);
-
-      if (fileInputNode.nodeId > 0) {
-        await client.send("DOM.setFileInputFiles", {
-          files: [imagePath],
-          nodeId: fileInputNode.nodeId,
-        }, sessionId);
-        console.log("LinkedIn image attached!");
-        await new Promise((r) => setTimeout(r, 4000));
-
-        // Click Next/Done on image modal if it appears
-        console.log("Checking for image modal 'Next'/'Done' button...");
-        await client.send("Runtime.evaluate", {
-          expression: `(() => {
-            const nextBtn = Array.from(document.querySelectorAll('button')).find(b => {
-              const txt = b.textContent.trim().toLowerCase();
-              return txt === 'ileri' || txt === 'bitti' || txt === 'next' || txt === 'done';
-            });
-            if (nextBtn) {
-              nextBtn.click();
-              return { clicked: true, text: nextBtn.textContent.trim() };
-            }
-            return { clicked: false };
-          })()`,
-          returnByValue: true,
-        }, sessionId);
-
-        await new Promise((r) => setTimeout(r, 3000));
-      }
-    } catch (imgErr) {
-      console.log("Error attaching LinkedIn image:", imgErr.message);
-    }
-  }
-
-  // 3. Post button
+  // 2. Click Yayınla / Post
   console.log("Looking for LinkedIn 'Post' / 'Yayınla' button...");
   for (let i = 0; i < 10; i++) {
     const postBtnResult = await client.send("Runtime.evaluate", {
       expression: `(() => {
-        const btn = document.querySelector('.share-actions__primary-action') ||
-                    Array.from(document.querySelectorAll('button')).find(b => {
-                      const txt = b.textContent.trim().toLowerCase();
-                      return (txt === 'yayınla' || txt === 'paylaş' || txt === 'post') && !b.disabled && b.getAttribute('aria-disabled') !== 'true';
-                    });
+        const btn = Array.from(document.querySelectorAll('button')).find(b => {
+          const txt = b.innerText.trim().toLowerCase();
+          return (txt === 'yayınla' || txt === 'paylaş' || txt === 'post') && !b.disabled && b.getAttribute('aria-disabled') !== 'true';
+        });
         if (btn) {
           btn.click();
-          return { clicked: true, text: btn.textContent.trim() };
+          return { clicked: true, text: btn.innerText.trim() };
         }
         return { clicked: false };
       })()`,
@@ -341,7 +275,6 @@ if (process.argv[1] && process.argv[1].endsWith("publish-social.mjs")) {
   } else if (platform === "linkedin") {
     prepareLinkedInPost().catch(console.error);
   } else {
-    // default: run linkedin since x was already completed
     prepareLinkedInPost().catch(console.error);
   }
 }
