@@ -16,6 +16,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { evaluateLayoutIntegrity } from "./inspect-visual-boxes.mjs";
 
 const execFileAsync = promisify(execFile);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -90,7 +91,8 @@ function parseCliArgs() {
     outputPath: "",
     artifactDir: "",
     artifactTrace: false,
-    autonomous: false
+    autonomous: false,
+    boxQa: false,
   };
 
   for (const arg of args) {
@@ -110,8 +112,11 @@ function parseCliArgs() {
       options.keepVideo = true;
     } else if (arg === "--dry-run") {
       options.dryRun = true;
+    } else if (arg === "--box-qa" || arg === "--bounding-boxes") {
+      options.boxQa = true;
     } else if (arg === "--autonomous" || arg === "--auto") {
       options.autonomous = true;
+      options.boxQa = true;
     }
   }
 
@@ -252,6 +257,43 @@ async function recordMotionVideo(options) {
       if (extensionId) {
         await page.goto(`chrome-extension://${extensionId}/src/newtab.html`);
         await page.waitForTimeout(1200);
+      }
+    }
+
+    if (options.boxQa) {
+      try {
+        const boxes = await page.evaluate(() => {
+          const results = [];
+          const host = document.querySelector("#bookmarkflow-bar-host");
+          if (host && host.shadowRoot) {
+            const bar = host.shadowRoot.querySelector(".bf-bar-container") || host.shadowRoot.querySelector(".bf-floating-bar");
+            if (bar) {
+              const r = bar.getBoundingClientRect();
+              results.push({ id: "floating-bar", role: "navigation", x: r.x, y: r.y, width: r.width, height: r.height });
+            }
+          }
+          const spotlight = document.querySelector("#bf-spotlight-modal") || document.querySelector(".bf-spotlight-card");
+          if (spotlight) {
+            const r = spotlight.getBoundingClientRect();
+            results.push({ id: "spotlight-modal", role: "dialog", x: r.x, y: r.y, width: r.width, height: r.height });
+          }
+          const chips = Array.from(document.querySelectorAll(".bf-filter-chip, .nt-filter-chip"));
+          chips.forEach((c, idx) => {
+            const r = c.getBoundingClientRect();
+            results.push({ id: `filter-chip-${idx}`, role: "tab", x: r.x, y: r.y, width: r.width, height: r.height });
+          });
+          return results;
+        });
+
+        if (boxes.length > 0) {
+          const layoutEval = evaluateLayoutIntegrity(boxes, { viewport });
+          console.log(`[BF-QA-008 BoundingBox] Denetlenen Bounding Box: ${boxes.length}, Durum: ${layoutEval.valid ? "PASS" : "FAIL"}`);
+          if (!layoutEval.valid) {
+            console.warn(`[BF-QA-008 BoundingBox UYARI]:`, layoutEval.issues);
+          }
+        }
+      } catch (boxErr) {
+        console.warn(`[BF-QA-008 BoundingBox Hata]: ${boxErr?.message || boxErr}`);
       }
     }
 

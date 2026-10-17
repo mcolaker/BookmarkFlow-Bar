@@ -2,6 +2,11 @@
 
 Bu dosya, BookmarkFlow Bar projesinin `AGENTS.md` işletim çekirdeği ve yönetişim kurallarında yapılan tüm kalıcı değişiklikleri kayıt altında tutar.
 
+## [2026-10-17] — Bounding-Box Destekli Görsel Regresyon Hakemliği, Sosyal Medya Görsel Lint Kapısı ve Runtime/Dev-Time İzolasyon Sözleşmesi (BF-QA-008, BF-GOV-027 / Karar 41)
+- **Bounding-Box Destekli Görsel Regresyon Hakemi (`scripts/inspect-visual-boxes.mjs`, `npm run inspect:boxes`, BF-QA-008)**: Jev 1.14 ve Clef vizyon/kutulama mimarisinden ilham alınarak, eklenti arayüz elemanlarının (`.bf-bar-container`, `.bf-spotlight-modal`, `.bf-filter-chip`, `.bf-toast`) sınırlayıcı kutularını (x, y, width, height) piksel düzeyinde denetleyen, viewport sınır taşmalarını ve istenmeyen eleman çakışmalarını yakalayan otonom görsel hakem aracı, Playwright `--box-qa` entegrasyonu ve sözleşme testleri (`scripts/visual-boxes-contract.test.mjs`) sisteme dahil edildi.
+- **Sosyal Medya Görsel Ön-Kontrol Kapısı (`assertSocialCardVisualQuality`, BF-GOV-027)**: `scripts/publish-social.mjs` içine, paylaşılacak lansman görselinin en-boy oranını (X 16:9 / LinkedIn 1.91:1), minimum çözünürlüğünü ve binary bütünlüğünü fail-closed doğrulayan görsel lint kapısı ve sözleşme testi (`scripts/publish-social.test.mjs`) entegre edildi.
+- **Runtime vs. Dev-Time İzolasyon Sözleşmesi (`AGENTS.md` P0-1, P0-19, P0-20)**: Eklenti son kullanıcı çalışma zamanının (client runtime: content script, background, popup, newtab, spotlight) %100 yerel ve sıfır-bulut kaldığı; harici multimodal, vizyon kutulama ve LLM hakemlik araçlarının yalnızca geliştirme/CI (dev-time) aşamasında çalışabileceği kural sözleşmesinde kesin çizgilerle tescillendi.
+
 ## [2026-10-11] — Zorunlu Görsel ve Video Tanıtım Kartı Standardı (BF-GOV-026 / Karar 40)
 - **Mandatory Visual Media Invariant (`AGENTS.md` P0-16)**: Sosyal medya (X, LinkedIn) lansman paylaşımlarında yalnızca metin veya otomatik link önizlemesi (OG card) ile paylaşım yapılması KESİNLİKLE YASAKLANDI.
 - **Fiili Dosya İliştirme ve Önizleme Güvencesi**: Her paylaşımda hazırlanan özel tanıtım görsel kartı (X 1200x675, LinkedIn 1200x627) veya tanıtım videosu gönderiye dosya olarak fiilen iliştirilmeli, görselin modal/editör içindeki önizlemesi CDP ekran görüntüsüyle doğrulanmalıdır.

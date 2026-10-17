@@ -33,6 +33,9 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
   - Sosyal medya paylaşımlarında (X, LinkedIn) yalnızca metin veya otomatik link önizlemesi (OG card) ile paylaşım yapılması KESİNLİKLE YASAKTIR.
   - Her paylaşımda hazırlanan özel tanıtım görsel kartı (X 1200x675, LinkedIn 1200x627) veya video tanıtımı gönderiye dosya olarak fiilen iliştirilmeli, görselin modal/editör içindeki önizlemesi CDP ekran görüntüsüyle doğrulandıktan sonra yayınlanmalıdır.
   - Asla link kartına (sarı/varsayılan CWS önizlemesi) güvenilerek görselsiz gönderi atılamaz.
+- **Sosyal Medya Medya Kartı Ön-Kontrol Kapısı (Pre-Publish Visual Lint - Karar 41 - BF-GOV-027)**:
+  - Paylaşım öncesinde `scripts/publish-social.mjs` içerisindeki `assertSocialCardVisualQuality(imagePath, platform)` fonksiyonu çalıştırılır.
+  - X kartları için 16:9 (~1.777) en-boy oranı, LinkedIn kartları için 1.91:1 (~1.913) en-boy oranı, asgari çözünürlük (min 600x300, standart 1200x675 / 1200x627 veya 4x Retina 4800px) ve geçerli PNG dosya yapısı fail-closed doğrulanır; hatalı veya orantısız görseller yayınlanamaz.
 - **Lansman Metinleri & Çift Bağlantı Standardı**:
   - Kullanıcıya kopyalanıp paylaşılabilecek veya otonom yayınlanacak X duyuru metni, LinkedIn bülteni ve iki dilli (Türkçe & İngilizce) Chrome Web Store sürüm notları hazır bir paket olarak sunulur.
   - **Çift Bağlantı Zorunluluğu (Dual-Link Mandate)**: X (Twitter) ve sosyal medya duyurularında hem resmi **Chrome Web Store** bağlantısı (`https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf`) hem de **GitHub Sürüm/Release** bağlantısı istisnasız birlikte bulunmalıdır.

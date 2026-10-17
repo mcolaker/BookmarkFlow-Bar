@@ -2,6 +2,71 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
+export function parsePngDimensions(buffer) {
+  if (!Buffer.isBuffer(buffer) || buffer.length < 24) {
+    throw new Error("Invalid buffer: not enough bytes for PNG header");
+  }
+  const pngSig = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  for (let i = 0; i < 8; i++) {
+    if (buffer[i] !== pngSig[i]) {
+      throw new Error("Invalid PNG signature");
+    }
+  }
+  const chunkType = buffer.toString("ascii", 12, 16);
+  if (chunkType !== "IHDR") {
+    throw new Error(`Expected IHDR chunk at offset 12, got: ${chunkType}`);
+  }
+  const width = buffer.readUInt32BE(16);
+  const height = buffer.readUInt32BE(20);
+  const bitDepth = buffer[24];
+  const colorType = buffer[25];
+
+  return { width, height, bitDepth, colorType, aspectRatio: width / height };
+}
+
+export function assertSocialCardVisualQuality(imagePath, targetPlatform) {
+  if (!imagePath || !fs.existsSync(imagePath)) {
+    throw new Error(`Social media card file does not exist: ${imagePath}`);
+  }
+
+  const stat = fs.statSync(imagePath);
+  if (stat.size < 10 * 1024) {
+    throw new Error(`Social media card file is suspiciously small (${stat.size} bytes < 10KB): ${imagePath}`);
+  }
+  if (stat.size > 15 * 1024 * 1024) {
+    throw new Error(`Social media card file exceeds 15MB upload limit (${stat.size} bytes): ${imagePath}`);
+  }
+
+  const buffer = fs.readFileSync(imagePath);
+  const { width, height, aspectRatio } = parsePngDimensions(buffer);
+
+  const platform = String(targetPlatform || "x").toLowerCase();
+  if (platform === "x" || platform === "twitter") {
+    if (width < 600 || height < 300) {
+      throw new Error(`X promo card resolution too low: ${width}x${height}px (minimum 600x300)`);
+    }
+    if (aspectRatio < 1.70 || aspectRatio > 1.85) {
+      throw new Error(`X promo card must follow ~16:9 aspect ratio (~1.777), got ${aspectRatio.toFixed(3)} (${width}x${height})`);
+    }
+  } else if (platform === "linkedin") {
+    if (width < 600 || height < 300) {
+      throw new Error(`LinkedIn promo card resolution too low: ${width}x${height}px (minimum 600x300)`);
+    }
+    if (aspectRatio < 1.85 || aspectRatio > 1.96) {
+      throw new Error(`LinkedIn promo card must follow ~1.91:1 aspect ratio (~1.913), got ${aspectRatio.toFixed(3)} (${width}x${height})`);
+    }
+  }
+
+  return {
+    valid: true,
+    platform,
+    width,
+    height,
+    aspectRatio: Math.round(aspectRatio * 1000) / 1000,
+    sizeBytes: stat.size,
+  };
+}
+
 export async function getActiveChromeWsUrl() {
   const activePortFile = path.join(
     process.env.LOCALAPPDATA,
@@ -95,6 +160,8 @@ GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.0
 
   const imagePath = path.resolve("output/social-v0.4.0/bookmarkflow-v0.4.0-x-card.png");
   console.log("Image path:", imagePath);
+  const visualLint = assertSocialCardVisualQuality(imagePath, "x");
+  console.log("[Pre-Publish Visual Lint] X Promo Card Verified:", visualLint);
 
   const evalResult = await client.send("Runtime.evaluate", {
     expression: `(() => {
@@ -198,6 +265,8 @@ export async function prepareLinkedInPost() {
   await new Promise((r) => setTimeout(r, 5000));
 
   const imagePath = path.resolve("output/social-v0.4.0/bookmarkflow-v0.4.0-linkedin-card.png");
+  const visualLint = assertSocialCardVisualQuality(imagePath, "linkedin");
+  console.log("[Pre-Publish Visual Lint] LinkedIn Promo Card Verified:", visualLint);
   if (fs.existsSync(imagePath)) {
     console.log("Clicking Fotoğraf button on feed to trigger image upload...");
     await client.send("Runtime.evaluate", {
