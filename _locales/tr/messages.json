@@ -540,5 +540,13 @@
         "content": "$1"
       }
     }
+  },
+  "sortModeAnnounce": {
+    "message": "Sıralama düzeni: $MODE$",
+    "placeholders": {
+      "mode": {
+        "content": "$1"
+      }
+    }
   }
 }

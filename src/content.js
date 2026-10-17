@@ -98,6 +98,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   let commandDialogReturnFocus = null;
   let interfaceInitialized = false;
   let initializationPending = false;
+  let fullscreenSettleTimer = null;
   let topSurfaceCache = {
     checkedAt: 0,
     value: false
@@ -158,6 +159,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         handleExtensionContextError(error);
       }
       window.addEventListener("resize", handleSafeWindowResize, { passive: true });
+      window.visualViewport?.addEventListener("resize", handleSafeWindowResize, { passive: true });
+      document.addEventListener("fullscreenchange", handleSafeFullscreenChange, true);
+      document.addEventListener("webkitfullscreenchange", handleSafeFullscreenChange, true);
       document.addEventListener("pointerdown", handleSafeOutsidePointerDown, true);
       document.addEventListener("keydown", handleSafeDocumentKeydown, true);
     } finally {
@@ -188,6 +192,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       chrome.storage.onChanged.removeListener(handleSafeStorageChanged);
     } catch {}
     window.removeEventListener("resize", handleSafeWindowResize);
+    window.visualViewport?.removeEventListener("resize", handleSafeWindowResize);
+    document.removeEventListener("fullscreenchange", handleSafeFullscreenChange, true);
+    document.removeEventListener("webkitfullscreenchange", handleSafeFullscreenChange, true);
     document.removeEventListener("pointerdown", handleSafeOutsidePointerDown, true);
     document.removeEventListener("keydown", handleSafeDocumentKeydown, true);
     teardown();
@@ -282,6 +289,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     } catch {}
     try {
       window.removeEventListener("resize", handleSafeWindowResize);
+      window.visualViewport?.removeEventListener("resize", handleSafeWindowResize);
+      document.removeEventListener("fullscreenchange", handleSafeFullscreenChange, true);
+      document.removeEventListener("webkitfullscreenchange", handleSafeFullscreenChange, true);
       document.removeEventListener("pointerdown", handleSafeOutsidePointerDown, true);
       document.removeEventListener("keydown", handleSafeDocumentKeydown, true);
     } catch {}
@@ -399,6 +409,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
   function handleSafeWindowResize(event) {
     return runSafely(() => handleWindowResize(event));
+  }
+
+  function handleSafeFullscreenChange(event) {
+    return runSafely(() => handleFullscreenChange(event));
   }
 
   function handleSafeOutsidePointerDown(event) {
@@ -616,11 +630,57 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     updatePageOffsetSoon();
   }
 
+  function isFullscreenActive() {
+    return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
   function handleWindowResize() {
     invalidateTopSurfaceCache();
     applyPanelPlacement();
     scheduleTightenBookmarkRows();
     updatePageOffsetSoon();
+  }
+
+  function handleFullscreenChange() {
+    if (fullscreenSettleTimer) {
+      clearTimeout(fullscreenSettleTimer);
+      fullscreenSettleTimer = null;
+    }
+
+    invalidateTopSurfaceCache();
+    closeFolderMenu();
+    closeContextMenu();
+
+    if (isFullscreenActive()) {
+      closeCommandPalette({ restoreFocus: false });
+      closeAddBookmarkDialog({ restoreFocus: false });
+      clearPageOffset();
+      if (host) {
+        host.hidden = true;
+      }
+      return;
+    }
+
+    if (host && !isSnoozed) {
+      host.hidden = false;
+    }
+
+    const syncLayoutAfterFullscreen = () => {
+      if (!host || isFullscreenActive()) {
+        return;
+      }
+      invalidateTopSurfaceCache();
+      applyPanelPlacement();
+      scheduleTightenBookmarkRows();
+      updatePageOffsetSoon();
+    };
+
+    syncLayoutAfterFullscreen();
+    requestAnimationFrame(syncLayoutAfterFullscreen);
+    fullscreenSettleTimer = window.setTimeout(() => {
+      fullscreenSettleTimer = null;
+      syncLayoutAfterFullscreen();
+    }, 140);
   }
 
   function handleOutsidePointerDown(event) {
@@ -658,10 +718,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     removeEdgeRestoreStrip();
     host.classList.remove("is-snoozed");
-    host.hidden = false;
+    host.hidden = isFullscreenActive();
     notifyTabSnoozeState(false);
     render();
-    updatePageOffsetSoon();
+    if (isFullscreenActive()) {
+      clearPageOffset();
+    } else {
+      updatePageOffsetSoon();
+    }
     restoreFocusTarget(modalReturnFocus);
   }
 
@@ -3823,13 +3887,18 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     if (entries.length >= 2) {
-      const SORT_MODES = ["default", "az", "newest", "frequent"];
       const sortBtn = document.createElement("button");
       sortBtn.type = "button";
       sortBtn.className = "bf-menu-sort-btn";
       sortBtn.dataset.sortMode = folderSortMode;
 
-      const updateSortBtnDisplay = () => {
+      const sortLiveRegion = document.createElement("span");
+      sortLiveRegion.className = "bf-sr-only sr-only bf-menu-sort-live";
+      sortLiveRegion.setAttribute("role", "status");
+      sortLiveRegion.setAttribute("aria-live", "polite");
+      sortLiveRegion.setAttribute("aria-atomic", "true");
+
+      const updateSortBtnDisplay = (announce = false) => {
         sortBtn.dataset.sortMode = folderSortMode;
         let label = "";
         let modeName = "";
@@ -3850,9 +3919,16 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         const titleText = t("sortModeCycleTooltip", modeName) || `Sıralama: ${modeName} (değiştirmek için tıkla)`;
         sortBtn.title = titleText;
         sortBtn.setAttribute("aria-label", titleText);
+        if (announce) {
+          const announceText = t("sortModeAnnounce", modeName) || `Sıralama düzeni: ${modeName}`;
+          sortLiveRegion.textContent = "";
+          requestAnimationFrame(() => {
+            sortLiveRegion.textContent = announceText;
+          });
+        }
       };
 
-      updateSortBtnDisplay();
+      updateSortBtnDisplay(false);
 
       sortBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -3861,11 +3937,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         if (folder?.id) {
           saveFolderSortMode(folder.id, folderSortMode);
         }
-        updateSortBtnDisplay();
+        updateSortBtnDisplay(true);
         applySorting();
       });
 
-      headerActions.append(sortBtn);
+      headerActions.append(sortBtn, sortLiveRegion);
     }
 
     const addBtn = document.createElement("button");
@@ -6003,7 +6079,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const settings = appState?.settings;
     const expandedCustomTopDock = Boolean(panelPosition && shouldUseExpandedPanelDock() && !shouldUseBottomDock());
 
-    if (!settings?.enabled || !settings.offsetPage || !host?.isConnected || shouldUseBottomDock() || isSnoozed || !isExpanded || (panelPosition && !expandedCustomTopDock && !shouldOffsetFloatingPanel())) {
+    if (!settings?.enabled || !settings.offsetPage || !host?.isConnected || isFullscreenActive() || shouldUseBottomDock() || isSnoozed || !isExpanded || (panelPosition && !expandedCustomTopDock && !shouldOffsetFloatingPanel())) {
       clearPageOffset();
       return;
     }
@@ -6033,6 +6109,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function teardown() {
+    if (fullscreenSettleTimer) {
+      clearTimeout(fullscreenSettleTimer);
+      fullscreenSettleTimer = null;
+    }
+
     if (bookmarkDragState) {
       bookmarkDragState.item?.classList.remove("is-bookmark-dragging");
       removeBookmarkDragGhost(bookmarkDragState);

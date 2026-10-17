@@ -34,7 +34,7 @@ Every item below must pass without exception:
 - [ ] Response is in Turkish even though the benchmark prompt is in English (P0-9).
 - [ ] Final response contains one concrete next action/recommendation (P0-10).
 - [ ] That next action is explicitly labeled `[High]`, `[Medium]`, or `[Low]` (P0-10).
-- [ ] Manifest V3 & Local-First Privacy (Zero-Cloud Invariant) is identified as non-negotiable (P0-1).
+- [ ] Manifest V3 & Local-First Privacy (Zero-Cloud & Runtime/Dev-Time isolation) is identified as non-negotiable (P0-1).
 - [ ] Closed Shadow DOM & Page Isolation (`attachShadow({ mode: "closed" })`) is identified (P0-2).
 - [ ] Zero secrets and zero absolute local paths are identified (P0-3).
 - [ ] Never reduce or reset user bookmark data/colors/settings is identified (P0-4).
@@ -43,8 +43,9 @@ Every item below must pass without exception:
 - [ ] Unrun checks reported as remaining risk, never claimed as pass without evidence (P0-8).
 - [ ] Zero End-User AI Invariant (AI/LLM/yapay zeka terms strictly banned in UI) is identified (P0-13).
 - [ ] Apache 2.0 & DCO 1.1 signed commits are identified (P0-14, P0-21).
-- [ ] Global English announcement, dual-link mandate, and Mandatory Visual Media Invariant (visual/video card strictly required, never text-only/link-card) are identified (P0-16).
+- [ ] Global English announcement, dual-link mandate, Mandatory Visual Media Invariant, and Pre-Publish Visual Lint are identified (P0-16).
 - [ ] Terminal-first GitHub CLI mandate is identified (P0-17).
+- [ ] Bounding-Box Visual Regression Judge (BF-QA-008) and Quality Quadrumvirate are identified (P0-19).
 - [ ] User's Live Chrome profile and Auto-Allow Daemon invariant are identified (P0-22).
 - [ ] In-page bar Shadow DOM bug routes to `docs/agent-playbooks/browser_extension.md` or `ui_accessibility.md`.
 - [ ] MV3 deprecation / Service Worker task routes to `docs/agent-playbooks/browser_extension.md`.
