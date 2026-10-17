@@ -3887,13 +3887,18 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     if (entries.length >= 2) {
-      const SORT_MODES = ["default", "az", "newest", "frequent"];
       const sortBtn = document.createElement("button");
       sortBtn.type = "button";
       sortBtn.className = "bf-menu-sort-btn";
       sortBtn.dataset.sortMode = folderSortMode;
 
-      const updateSortBtnDisplay = () => {
+      const sortLiveRegion = document.createElement("span");
+      sortLiveRegion.className = "bf-sr-only sr-only bf-menu-sort-live";
+      sortLiveRegion.setAttribute("role", "status");
+      sortLiveRegion.setAttribute("aria-live", "polite");
+      sortLiveRegion.setAttribute("aria-atomic", "true");
+
+      const updateSortBtnDisplay = (announce = false) => {
         sortBtn.dataset.sortMode = folderSortMode;
         let label = "";
         let modeName = "";
@@ -3914,9 +3919,16 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         const titleText = t("sortModeCycleTooltip", modeName) || `Sıralama: ${modeName} (değiştirmek için tıkla)`;
         sortBtn.title = titleText;
         sortBtn.setAttribute("aria-label", titleText);
+        if (announce) {
+          const announceText = t("sortModeAnnounce", modeName) || `Sıralama düzeni: ${modeName}`;
+          sortLiveRegion.textContent = "";
+          requestAnimationFrame(() => {
+            sortLiveRegion.textContent = announceText;
+          });
+        }
       };
 
-      updateSortBtnDisplay();
+      updateSortBtnDisplay(false);
 
       sortBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -3925,11 +3937,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         if (folder?.id) {
           saveFolderSortMode(folder.id, folderSortMode);
         }
-        updateSortBtnDisplay();
+        updateSortBtnDisplay(true);
         applySorting();
       });
 
-      headerActions.append(sortBtn);
+      headerActions.append(sortBtn, sortLiveRegion);
     }
 
     const addBtn = document.createElement("button");

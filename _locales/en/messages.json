@@ -540,5 +540,13 @@
         "content": "$1"
       }
     }
+  },
+  "sortModeAnnounce": {
+    "message": "Sorted by: $MODE$",
+    "placeholders": {
+      "mode": {
+        "content": "$1"
+      }
+    }
   }
 }

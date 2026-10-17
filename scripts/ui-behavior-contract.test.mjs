@@ -1989,3 +1989,24 @@ test("fullscreen state transition, visualViewport resize, and native NewTabFoote
   assert.match(newtabCss, /--nt-native-footer-safe-offset:\s*44px/u, "newtab.css must define --nt-native-footer-safe-offset for Chromium/Brave NewTabFooterView");
   assert.match(newtabCss, /\.nt-quick-tips\s*\{[\s\S]*?bottom:\s*var\(--nt-native-footer-safe-offset,\s*44px\)/u, "newtab.css .nt-quick-tips must clear native NewTabFooterView");
 });
+
+test("folder menu sort mode change screen reader ARIA live announcement contract (BF-UX-047)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  // 1. TR/EN locale parity for sortModeAnnounce
+  assert.ok(enLocales.sortModeAnnounce?.message, "en messages must have sortModeAnnounce");
+  assert.ok(trLocales.sortModeAnnounce?.message, "tr messages must have sortModeAnnounce");
+
+  // 2. ARIA live polite region and announcement trigger in content.js
+  assert.match(contentJs, /bf-sr-only sr-only bf-menu-sort-live/u, "content.js must create .bf-menu-sort-live screen reader region");
+  assert.match(contentJs, /sortLiveRegion\.setAttribute\("aria-live",\s*"polite"\)/u, "sortLiveRegion must use aria-live=polite");
+  assert.match(contentJs, /sortLiveRegion\.setAttribute\("aria-atomic",\s*"true"\)/u, "sortLiveRegion must use aria-atomic=true");
+  assert.match(contentJs, /t\("sortModeAnnounce",\s*modeName\)/u, "updateSortBtnDisplay must format sortModeAnnounce");
+  assert.match(contentJs, /updateSortBtnDisplay\(true\)/u, "sortBtn click must trigger live announcement");
+
+  // 3. Visually hidden utility class in content.css
+  assert.match(contentCss, /\.bf-sr-only,\s*\.sr-only\s*\{/u, "content.css must define .bf-sr-only, .sr-only");
+});
