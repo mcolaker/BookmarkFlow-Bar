@@ -13,6 +13,7 @@
 
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
+import { randomUUID } from "node:crypto";
 
 /**
  * Standardize visual bounding box representation.
@@ -219,27 +220,252 @@ export function formatJevBoxPrompt(boxes, question = "Are UI elements properly l
   };
 }
 
+/**
+ * Converts Jev 1.14 normalized [0..1] bounding box to viewport pixel coordinates.
+ * @param {{ top: number, bottom: number, left: number, right: number }} jevBox
+ * @param {{ width: number, height: number }} [viewport]
+ * @param {string} [id]
+ * @param {string} [role]
+ * @returns {BoundingBox}
+ */
+export function denormalizeJevBox(jevBox, viewport = { width: 1280, height: 800 }, id = "jev-detected-box", role = "detected") {
+  if (!jevBox || typeof jevBox !== "object") {
+    throw new TypeError("jevBox must be a valid object");
+  }
+
+  const left = Math.max(0, Math.min(1, Number(jevBox.left ?? 0)));
+  const right = Math.max(left, Math.min(1, Number(jevBox.right ?? 1)));
+  const top = Math.max(0, Math.min(1, Number(jevBox.top ?? 0)));
+  const bottom = Math.max(top, Math.min(1, Number(jevBox.bottom ?? 1)));
+
+  const x = Math.round(left * viewport.width * 100) / 100;
+  const y = Math.round(top * viewport.height * 100) / 100;
+  const width = Math.round((right - left) * viewport.width * 100) / 100;
+  const height = Math.round((bottom - top) * viewport.height * 100) / 100;
+
+  return normalizeBoundingBox({
+    id,
+    role,
+    x,
+    y,
+    width,
+    height,
+    visible: width > 0 && height > 0,
+  });
+}
+
+/**
+ * Builds standard JEV 1.14 multimodal payload with raw image assets and questions.
+ */
+export function buildJevMultimodalPayload({
+  imageBase64,
+  imageFormat = "png",
+  target = "UI element",
+  state = "",
+  verifyVisibility = true,
+  assetUuid,
+}) {
+  const uuid = assetUuid || randomUUID();
+  const cleanBase64 = String(imageBase64).replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, "");
+  const stateWithRef = state
+    ? `${state}\n[Image Asset: ${uuid}]`
+    : `Inspect UI elements in [Image Asset: ${uuid}]`;
+
+  const questions = {
+    target_box: {
+      type: "box",
+      instructions: `Locate ${target} in \`${uuid}\``,
+    },
+  };
+
+  if (verifyVisibility) {
+    questions.is_visible = {
+      type: "noul",
+      instructions: `Is ${target} clearly visible in \`${uuid}\`?`,
+      criteria: {
+        true: "Target element is visible and rendered.",
+        false: "Target element is hidden, clipped, or absent.",
+      },
+    };
+  }
+
+  return {
+    headers: {
+      "Content-Type": "application/json",
+      "TypeSafe-Danger-Zone-Images": "true",
+    },
+    payload: {
+      model: "~typesafe/jev-latest",
+      state: stateWithRef,
+      assets: {
+        [uuid]: {
+          type: "image",
+          format: imageFormat,
+          data_base64: cleanBase64,
+        },
+      },
+      questions,
+    },
+    assetUuid: uuid,
+  };
+}
+
+/**
+ * Resolves API key for Jev / OpenRouter decisions during development.
+ */
+export function resolveApiKey() {
+  if (process.env.OPENROUTER_API_KEY && process.env.OPENROUTER_API_KEY.trim()) {
+    return process.env.OPENROUTER_API_KEY.trim();
+  }
+  if (process.env.TYPESAFE_API_KEY && process.env.TYPESAFE_API_KEY.trim()) {
+    return process.env.TYPESAFE_API_KEY.trim();
+  }
+  const candidates = [
+    resolve(process.cwd(), ".env"),
+    resolve(process.cwd(), "../JaponiGo/.env"),
+  ];
+  for (const c of candidates) {
+    if (existsSync(c)) {
+      const content = readFileSync(c, "utf8");
+      const match = content.match(/^(?:OPENROUTER_API_KEY|TYPESAFE_API_KEY)=["']?([^"'\r\n]+)/m);
+      if (match && match[1]) return match[1].trim();
+    }
+  }
+  return null;
+}
+
+/**
+ * Evaluates a visual screenshot using Jev 1.14 box primitive (multimodal judge).
+ */
+export async function evaluateVisualScreenshotWithJev({
+  imagePath,
+  imageBase64,
+  imageFormat = "png",
+  target = "UI element",
+  viewport = { width: 1280, height: 800 },
+  apiKey,
+  endpoint = "https://openrouter.ai/api/alpha/decisions",
+  fetchFn = globalThis.fetch,
+}) {
+  let base64Data = imageBase64;
+  let fmt = imageFormat;
+
+  if (imagePath && existsSync(imagePath)) {
+    const buf = readFileSync(imagePath);
+    base64Data = buf.toString("base64");
+    if (imagePath.endsWith(".jpg") || imagePath.endsWith(".jpeg")) fmt = "jpg";
+    else fmt = "png";
+  }
+
+  if (!base64Data) {
+    throw new Error("Missing image input (imagePath or imageBase64 required)");
+  }
+
+  const { headers, payload, assetUuid } = buildJevMultimodalPayload({
+    imageBase64: base64Data,
+    imageFormat: fmt,
+    target,
+  });
+
+  const resolvedKey = apiKey || resolveApiKey();
+  if (!resolvedKey) {
+    return {
+      success: false,
+      skipped: true,
+      reason: "Missing API key for live multimodal JEV judge",
+      target,
+      assetUuid,
+    };
+  }
+
+  const res = await fetchFn(endpoint, {
+    method: "POST",
+    headers: {
+      ...headers,
+      Authorization: `Bearer ${resolvedKey}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`JEV multimodal judge call failed (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const rawBox = data?.answers?.target_box?.box || null;
+  const confidence = data?.answers?.target_box?.confidence ?? 0;
+  const isVisibleProb = data?.answers?.is_visible?.noul;
+  const pixelBox = rawBox ? denormalizeJevBox(rawBox, viewport, target) : null;
+
+  return {
+    success: true,
+    model: data?.model || "typesafe/jev-1.14-20261014",
+    provider: data?.provider || "TypeSafe",
+    target,
+    rawBox,
+    pixelBox,
+    confidence,
+    visible: typeof isVisibleProb === "number" ? isVisibleProb >= 0.5 : true,
+    visibilityProbability: isVisibleProb,
+  };
+}
+
 // Direct CLI invocation
 if (process.argv[1] && process.argv[1].endsWith("inspect-visual-boxes.mjs")) {
   console.log("================================================================");
   console.log("  BookmarkFlow Bar Visual Bounding-Box Judge (BF-QA-008)");
   console.log("================================================================");
 
-  // Baseline standard components test
-  const sampleBoxes = [
-    { id: "floating-bar", role: "navigation", x: 1220, y: 100, width: 56, height: 600 },
-    { id: "spotlight-modal", role: "dialog", x: 340, y: 150, width: 600, height: 420 },
-    { id: "filter-chip-all", role: "tab", parentId: "spotlight-modal", x: 360, y: 220, width: 64, height: 28 },
-    { id: "filter-chip-folders", role: "tab", parentId: "spotlight-modal", x: 432, y: 220, width: 84, height: 28 },
-    { id: "toast-container", role: "status", x: 490, y: 720, width: 300, height: 44 },
-  ];
+  const args = process.argv.slice(2);
+  const screenshotIdx = args.findIndex((a) => a === "--screenshot" || a === "--image");
+  const targetIdx = args.findIndex((a) => a === "--target");
 
-  const result = evaluateLayoutIntegrity(sampleBoxes);
-  console.log(`Boxes analyzed: ${result.totalBoxes}`);
-  console.log(`Status: ${result.valid ? "PASS" : "FAIL"}`);
-  console.log(result.summary);
-  if (!result.valid) {
-    console.error("Issues found:", JSON.stringify(result.issues, null, 2));
-    process.exit(1);
+  if (screenshotIdx !== -1 && args[screenshotIdx + 1]) {
+    const imgPath = resolve(process.cwd(), args[screenshotIdx + 1]);
+    const target = targetIdx !== -1 && args[targetIdx + 1] ? args[targetIdx + 1] : "floating navigation bar";
+    const apiKey = process.env.OPENROUTER_API_KEY || process.env.TYPESAFE_API_KEY;
+
+    console.log(`[Multimodal QA] Evaluating screenshot: ${imgPath}`);
+    console.log(`[Multimodal QA] Visual target: "${target}"`);
+
+    evaluateVisualScreenshotWithJev({
+      imagePath: imgPath,
+      target,
+      apiKey,
+    })
+      .then((res) => {
+        if (res.skipped) {
+          console.log(`[Multimodal QA] Live multimodal call skipped: ${res.reason}`);
+          process.exit(0);
+        }
+        console.log(`[Multimodal QA] Model: ${res.model} (${res.provider})`);
+        console.log(`[Multimodal QA] Detected Box:`, res.rawBox);
+        console.log(`[Multimodal QA] Pixel Box:`, res.pixelBox);
+        console.log(`[Multimodal QA] Visible: ${res.visible} (p=${res.visibilityProbability})`);
+        console.log(`[Multimodal QA] Confidence: ${res.confidence}`);
+      })
+      .catch((err) => {
+        console.error("[Multimodal QA] Error:", err.message);
+        process.exit(1);
+      });
+  } else {
+    // Baseline standard components test
+    const sampleBoxes = [
+      { id: "floating-bar", role: "navigation", x: 1220, y: 100, width: 56, height: 600 },
+      { id: "spotlight-modal", role: "dialog", x: 340, y: 150, width: 600, height: 420 },
+      { id: "filter-chip-all", role: "tab", parentId: "spotlight-modal", x: 360, y: 220, width: 64, height: 28 },
+      { id: "filter-chip-folders", role: "tab", parentId: "spotlight-modal", x: 432, y: 220, width: 84, height: 28 },
+      { id: "toast-container", role: "status", x: 490, y: 720, width: 300, height: 44 },
+    ];
+
+    const result = evaluateLayoutIntegrity(sampleBoxes);
+    console.log(`Boxes analyzed: ${result.totalBoxes}`);
+    console.log(`Status: ${result.valid ? "PASS" : "FAIL"}`);
+    console.log(result.summary);
+    if (!result.valid) {
+      console.error("Issues found:", JSON.stringify(result.issues, null, 2));
+      process.exit(1);
+    }
   }
 }

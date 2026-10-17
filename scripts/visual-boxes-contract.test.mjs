@@ -6,6 +6,9 @@ import {
   computeBoxIntersection,
   evaluateLayoutIntegrity,
   formatJevBoxPrompt,
+  denormalizeJevBox,
+  buildJevMultimodalPayload,
+  evaluateVisualScreenshotWithJev,
 } from "./inspect-visual-boxes.mjs";
 
 test("normalizeBoundingBox correctly normalizes standard coordinates and calculates right/bottom", () => {
@@ -103,4 +106,89 @@ test("formatJevBoxPrompt generates valid type-safe evaluation state for multimod
   assert.equal(parsed.elementCount, 2);
   assert.equal(parsed.boxes[0].label, "bar");
   assert.deepEqual(parsed.boxes[0].coords, [0, 0, 50, 600]);
+});
+
+test("denormalizeJevBox converts normalized 0..1 bounding box to pixel coordinates", () => {
+  const jevBox = { top: 0.1, bottom: 0.7, left: 0.2, right: 0.5 };
+  const viewport = { width: 1000, height: 500 };
+  const pixelBox = denormalizeJevBox(jevBox, viewport, "menu-popover", "menu");
+
+  assert.equal(pixelBox.id, "menu-popover");
+  assert.equal(pixelBox.role, "menu");
+  assert.equal(pixelBox.x, 200); // 0.2 * 1000
+  assert.equal(pixelBox.y, 50);  // 0.1 * 500
+  assert.equal(pixelBox.width, 300); // (0.5 - 0.2) * 1000
+  assert.equal(pixelBox.height, 300); // (0.7 - 0.1) * 500
+  assert.equal(pixelBox.right, 500);
+  assert.equal(pixelBox.bottom, 350);
+  assert.equal(pixelBox.visible, true);
+});
+
+test("buildJevMultimodalPayload sets up assets, box/noul questions, and danger zone headers", () => {
+  const payloadData = buildJevMultimodalPayload({
+    imageBase64: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB",
+    target: "spotlight search chip",
+    assetUuid: "11111111-2222-3333-4444-555555555555",
+  });
+
+  assert.equal(payloadData.headers["TypeSafe-Danger-Zone-Images"], "true");
+  assert.equal(payloadData.payload.model, "~typesafe/jev-latest");
+  assert.ok(payloadData.payload.state.includes("11111111-2222-3333-4444-555555555555"));
+
+  const asset = payloadData.payload.assets["11111111-2222-3333-4444-555555555555"];
+  assert.ok(asset);
+  assert.equal(asset.type, "image");
+  assert.equal(asset.format, "png");
+  assert.equal(asset.data_base64, "iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB");
+
+  assert.equal(payloadData.payload.questions.target_box.type, "box");
+  assert.ok(payloadData.payload.questions.target_box.instructions.includes("spotlight search chip"));
+  assert.equal(payloadData.payload.questions.is_visible.type, "noul");
+});
+
+test("evaluateVisualScreenshotWithJev parses simulated API response accurately", async () => {
+  const mockFetch = async () => ({
+    ok: true,
+    json: async () => ({
+      model: "typesafe/jev-1.14-20261014",
+      provider: "openrouter",
+      answers: {
+        target_box: {
+          type: "box",
+          box: { top: 0.2, bottom: 0.6, left: 0.1, right: 0.4 },
+          confidence: 0.92,
+        },
+        is_visible: {
+          type: "noul",
+          noul: 0.95,
+        },
+      },
+    }),
+  });
+
+  const res = await evaluateVisualScreenshotWithJev({
+    imageBase64: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB",
+    target: "floating-bar",
+    viewport: { width: 1000, height: 1000 },
+    apiKey: "test-key-mock",
+    fetchFn: mockFetch,
+  });
+
+  assert.equal(res.success, true);
+  assert.equal(res.model, "typesafe/jev-1.14-20261014");
+  assert.equal(res.confidence, 0.92);
+  assert.equal(res.visible, true);
+  assert.equal(res.visibilityProbability, 0.95);
+  assert.deepEqual(res.pixelBox, {
+    id: "floating-bar",
+    role: "detected",
+    parentId: "",
+    x: 100,
+    y: 200,
+    width: 300,
+    height: 400,
+    right: 400,
+    bottom: 600,
+    visible: true,
+  });
 });
