@@ -209,6 +209,9 @@ async function init() {
   elements.bookmarkBar.addEventListener("contextmenu", handleBookmarkContextMenu);
   elements.bookmarkBar.addEventListener("dragstart", preventNativeBookmarkDrag);
   window.addEventListener("resize", handleWindowResize, { passive: true });
+  window.visualViewport?.addEventListener("resize", handleWindowResize, { passive: true });
+  document.addEventListener("fullscreenchange", handleWindowResize, true);
+  document.addEventListener("webkitfullscreenchange", handleWindowResize, true);
   document.addEventListener("keydown", handleKeydown);
   document.addEventListener("click", handleDocumentClick);
 
@@ -301,6 +304,10 @@ async function saveBookmarkTags(nodeId, tags) {
 function handleWindowResize() {
   const settings = normalizeSettings(appState?.settings);
   scheduleTightenBookmarkRows(settings.streamerMode ? 1 : settings.rows);
+  if (activeFolderId) {
+    restoreActiveFolderMenu(activeFolderId);
+  }
+  closeContextMenu();
 }
 
 async function applyBackgroundSettings() {

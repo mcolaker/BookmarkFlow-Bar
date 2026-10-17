@@ -1960,3 +1960,32 @@ test("folder menu persistent sort preferences contract (BF-UX-046)", () => {
   assert.match(contentJs, /saveFolderSortMode\(folder\.id,\s*folderSortMode\)/u, "sortBtn click listener must persist folderSortMode");
   assert.match(contentJs, /const initialSorted = getSortedEntries\(\)/u, "openFolderMenu must render initial items pre-sorted");
 });
+
+test("fullscreen state transition, visualViewport resize, and native NewTabFooter clearance contract (BF-UX-050)", () => {
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+
+  // 1. Content script fullscreen and visualViewport event registration & cleanup
+  assert.match(contentJs, /function isFullscreenActive\s*\(/u, "content.js must define isFullscreenActive");
+  assert.match(contentJs, /function handleFullscreenChange\s*\(/u, "content.js must define handleFullscreenChange");
+  assert.match(contentJs, /function handleSafeFullscreenChange\s*\(/u, "content.js must define handleSafeFullscreenChange");
+  assert.match(contentJs, /document\.addEventListener\("fullscreenchange",\s*handleSafeFullscreenChange,\s*true\)/u, "content.js must listen to fullscreenchange");
+  assert.match(contentJs, /document\.addEventListener\("webkitfullscreenchange",\s*handleSafeFullscreenChange,\s*true\)/u, "content.js must listen to webkitfullscreenchange");
+  assert.match(contentJs, /window\.visualViewport\?\.addEventListener\("resize",\s*handleSafeWindowResize,\s*\{\s*passive:\s*true\s*\}\)/u, "content.js must listen to visualViewport resize");
+  assert.match(contentJs, /document\.removeEventListener\("fullscreenchange",\s*handleSafeFullscreenChange,\s*true\)/u, "content.js must clean up fullscreenchange listener");
+
+  // 2. Content script fullscreen hide & multi-frame exit settle
+  const fullscreenHandler = extractFunction(contentJs, "handleFullscreenChange");
+  assert.match(fullscreenHandler, /isFullscreenActive\(\)/u, "handleFullscreenChange must check isFullscreenActive()");
+  assert.match(fullscreenHandler, /host\.hidden\s*=\s*true/u, "handleFullscreenChange must hide host during active fullscreen");
+  assert.match(fullscreenHandler, /clearPageOffset\(\)/u, "handleFullscreenChange must clear page offset during active fullscreen");
+  assert.match(fullscreenHandler, /requestAnimationFrame\(syncLayoutAfterFullscreen\)/u, "handleFullscreenChange must resync layout on next animation frame after fullscreen exit");
+  assert.match(fullscreenHandler, /fullscreenSettleTimer\s*=\s*window\.setTimeout\(/u, "handleFullscreenChange must schedule a settle timer after OS fullscreen transition");
+
+  // 3. New Tab fullscreen & visualViewport listeners and native footer safe offset
+  assert.match(newtabJs, /window\.visualViewport\?\.addEventListener\("resize",\s*handleWindowResize,\s*\{\s*passive:\s*true\s*\}\)/u, "newtab.js must listen to visualViewport resize");
+  assert.match(newtabJs, /document\.addEventListener\("fullscreenchange",\s*handleWindowResize,\s*true\)/u, "newtab.js must listen to fullscreenchange");
+  assert.match(newtabCss, /--nt-native-footer-safe-offset:\s*44px/u, "newtab.css must define --nt-native-footer-safe-offset for Chromium/Brave NewTabFooterView");
+  assert.match(newtabCss, /\.nt-quick-tips\s*\{[\s\S]*?bottom:\s*var\(--nt-native-footer-safe-offset,\s*44px\)/u, "newtab.css .nt-quick-tips must clear native NewTabFooterView");
+});

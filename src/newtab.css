@@ -21,6 +21,7 @@
   --nt-theme-palette-bg: var(--bf-token-bg-palette, #11151e);
   --nt-theme-palette-border: #232b38;
   --nt-theme-palette-hover: var(--bf-token-bg-palette-hover, #2b3547);
+  --nt-native-footer-safe-offset: 44px;
   color-scheme: dark;
   font-family: var(--bf-token-font-family, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   background: var(--nt-theme-bg);
@@ -1066,7 +1067,7 @@ body[data-bg="custom"] {
   align-items: center;
   justify-content: center;
   min-height: calc(100vh - 76px);
-  padding: 40px 20px 60px;
+  padding: 40px 20px calc(48px + var(--nt-native-footer-safe-offset, 44px));
   gap: 32px;
 }
 
@@ -1880,7 +1881,7 @@ body[data-bg="custom"] {
 .nt-quick-tips {
   position: fixed;
   right: 24px;
-  bottom: 24px;
+  bottom: var(--nt-native-footer-safe-offset, 44px);
   width: 320px;
   max-width: calc(100vw - 48px);
   background: var(--nt-theme-card-bg);
