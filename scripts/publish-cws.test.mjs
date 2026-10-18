@@ -4,16 +4,27 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {
-  CWS_DASHBOARD_URL,
-  CWS_EDIT_URL,
-  CWS_PACKAGE_URL,
+  CWS_BASE_URL,
   assertReleaseZipExists,
   checkGitHubReleasePublished,
   getManifestVersion,
   parseCwsArgs,
   parseCwsStatusFromText,
   publishToChromeWebStore,
+  resolveCwsUrls,
 } from "./publish-cws.mjs";
+
+test("resolveCwsUrls derives dynamic developer console routes without hardcoded account UUIDs", () => {
+  const baseRoutes = resolveCwsUrls("https://chrome.google.com/webstore/devconsole", "");
+  assert.equal(baseRoutes.hasAccountSegment, false);
+  assert.equal(baseRoutes.dashboardUrl, CWS_BASE_URL);
+
+  const syntheticAccount = "00000000-0000-0000-0000-000000000000";
+  const resolved = resolveCwsUrls(`${CWS_BASE_URL}/${syntheticAccount}/iaikobkolclhhpcogacjkenijlfaibpf/edit`, "");
+  assert.equal(resolved.hasAccountSegment, true);
+  assert.equal(resolved.dashboardUrl, `${CWS_BASE_URL}/${syntheticAccount}`);
+  assert.equal(resolved.packageUrl, `${CWS_BASE_URL}/${syntheticAccount}/iaikobkolclhhpcogacjkenijlfaibpf/edit/package`);
+});
 
 test("getManifestVersion reads active semantic version from manifest.json", () => {
   const version = getManifestVersion();
@@ -126,7 +137,7 @@ test("parseCwsStatusFromText detects reauth, pending_review, published, draft, a
   const pendingRes = parseCwsStatusFromText(
     "BookmarkFlow Bar\n18 Eki 2026\nSürüm 0.4.1 — İncelenmeyi bekliyor\nYayımlandı\nSürüm 0.4.0",
     "0.4.1",
-    CWS_DASHBOARD_URL
+    CWS_BASE_URL
   );
   assert.equal(pendingRes.reauthRequired, false);
   assert.equal(pendingRes.isPendingReview, true);
@@ -135,7 +146,7 @@ test("parseCwsStatusFromText detects reauth, pending_review, published, draft, a
   const draftRes = parseCwsStatusFromText(
     "Paket\nTaslak\nSürüm 0.4.2\n18 Eki 2026\nYayımlandı\nSürüm 0.4.1",
     "0.4.2",
-    CWS_PACKAGE_URL
+    `${CWS_BASE_URL}/iaikobkolclhhpcogacjkenijlfaibpf/edit/package`
   );
   assert.equal(draftRes.isDraft, true);
   assert.equal(draftRes.status, "draft");
@@ -143,7 +154,7 @@ test("parseCwsStatusFromText detects reauth, pending_review, published, draft, a
   const publishedRes = parseCwsStatusFromText(
     "Paket\nYayımlandı\nSürüm 0.4.1\n18 Eki 2026",
     "0.4.1",
-    CWS_PACKAGE_URL
+    `${CWS_BASE_URL}/iaikobkolclhhpcogacjkenijlfaibpf/edit/package`
   );
   assert.equal(publishedRes.isPublished, true);
   assert.equal(publishedRes.status, "published");
@@ -151,7 +162,7 @@ test("parseCwsStatusFromText detects reauth, pending_review, published, draft, a
   const missingRes = parseCwsStatusFromText(
     "BookmarkFlow Bar\nSürüm 0.4.0 — Yayımlandı",
     "0.4.1",
-    CWS_EDIT_URL
+    `${CWS_BASE_URL}/iaikobkolclhhpcogacjkenijlfaibpf/edit`
   );
   assert.equal(missingRes.versionFound, false);
   assert.equal(missingRes.status, "not_found");
