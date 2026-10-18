@@ -2,6 +2,65 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { ensureAutoAllowDaemon, triggerFastUiaAutoConfirm } from "./live-chrome-pilot.mjs";
+import {
+  checkGitHubReleasePublished,
+  getManifestVersion,
+  verifyCwsReleaseStatus,
+} from "./publish-cws.mjs";
+
+export function parseSocialArgs(args = []) {
+  const options = {
+    platform: "all",
+    version: null,
+    dryRun: false,
+    checkGateOnly: false,
+    skipReleaseGate: false,
+  };
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "x" || arg === "twitter" || arg === "linkedin" || arg === "all") {
+      options.platform = arg === "twitter" ? "x" : arg;
+    } else if (arg === "--dry-run") {
+      options.dryRun = true;
+    } else if (arg === "--check-gate") {
+      options.checkGateOnly = true;
+    } else if (arg === "--skip-release-gate") {
+      options.skipReleaseGate = true;
+    } else if (arg === "--version" && i + 1 < args.length) {
+      options.version = args[++i].replace(/^v/u, "");
+    } else if (/^v?\d+\.\d+\.\d+$/u.test(arg)) {
+      options.version = arg.replace(/^v/u, "");
+    }
+  }
+
+  return options;
+}
+
+export async function assertPreSocialReleaseGate(version = getManifestVersion(), options = {}) {
+  const cleanVersion = String(version || "").replace(/^v/u, "").trim();
+  if (!/^\d+\.\d+\.\d+$/u.test(cleanVersion)) {
+    throw new Error(`[Pre-Social Release Gate] Invalid semantic version: "${version}"`);
+  }
+
+  const ghStatus = checkGitHubReleasePublished(cleanVersion, options);
+  const verifyCwsFn = options.verifyCwsFn || verifyCwsReleaseStatus;
+  const cwsStatus = await verifyCwsFn(cleanVersion, options);
+
+  if (!cwsStatus || !cwsStatus.ok) {
+    const currentStatus = cwsStatus?.status || "unknown";
+    throw new Error(
+      `[Pre-Social Release Gate Blocked] Chrome Web Store release v${cleanVersion} is not submitted or published yet (status: ${currentStatus}). Run 'npm run publish:cws' and complete CWS submission before announcing on X or LinkedIn.`
+    );
+  }
+
+  return {
+    valid: true,
+    version: cleanVersion,
+    github: ghStatus,
+    cws: cwsStatus,
+  };
+}
 
 export function parsePngDimensions(buffer) {
   if (!Buffer.isBuffer(buffer) || buffer.length < 24) {
@@ -125,7 +184,23 @@ export class CdpClient {
   }
 }
 
-export async function prepareXPost() {
+export async function prepareXPost(options = {}) {
+  const version = (options.version || getManifestVersion()).replace(/^v/u, "").trim();
+  let gateResult = null;
+  if (!options.skipReleaseGate) {
+    gateResult = await assertPreSocialReleaseGate(version, options);
+    console.log(`[Pre-Social Release Gate] Verified v${version} on GitHub (${gateResult.github.tag}) & CWS (${gateResult.cws.status})`);
+  }
+
+  const imagePath = path.resolve(`output/social-v${version}/bookmarkflow-v${version}-x-card.png`);
+  console.log("Image path:", imagePath);
+  const visualLint = assertSocialCardVisualQuality(imagePath, "x");
+  console.log("[Pre-Publish Visual Lint] X Promo Card Verified:", visualLint);
+
+  if (options.dryRun) {
+    return { dryRun: true, platform: "x", version, gateResult, visualLint };
+  }
+
   const wsUrl = await getActiveChromeWsUrl();
   console.log("Connecting to:", wsUrl);
   const client = new CdpClient(wsUrl);
@@ -151,20 +226,16 @@ export async function prepareXPost() {
 
   const postText = `Browse without interruption. 🎬⚡
 
-BookmarkFlow Bar v0.4.1 is live!
+BookmarkFlow Bar v${version} is live!
 • Fullscreen auto-hide & layout sync
 • Adaptive New Tab footer safe-area
 • Voice-guided smart folder sorting
 
 Chrome: https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf
-GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.1
+GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v${version}
 
 #Chrome #Productivity`;
 
-  const imagePath = path.resolve("output/social-v0.4.1/bookmarkflow-v0.4.1-x-card.png");
-  console.log("Image path:", imagePath);
-  const visualLint = assertSocialCardVisualQuality(imagePath, "x");
-  console.log("[Pre-Publish Visual Lint] X Promo Card Verified:", visualLint);
 
   const evalResult = await client.send("Runtime.evaluate", {
     expression: `(() => {
@@ -243,7 +314,22 @@ GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.1
   console.log("Finished prepareXPost!");
 }
 
-export async function prepareLinkedInPost() {
+export async function prepareLinkedInPost(options = {}) {
+  const version = (options.version || getManifestVersion()).replace(/^v/u, "").trim();
+  let gateResult = null;
+  if (!options.skipReleaseGate) {
+    gateResult = await assertPreSocialReleaseGate(version, options);
+    console.log(`[Pre-Social Release Gate] Verified v${version} on GitHub (${gateResult.github.tag}) & CWS (${gateResult.cws.status})`);
+  }
+
+  const imagePath = path.resolve(`output/social-v${version}/bookmarkflow-v${version}-linkedin-card.png`);
+  const visualLint = assertSocialCardVisualQuality(imagePath, "linkedin");
+  console.log("[Pre-Publish Visual Lint] LinkedIn Promo Card Verified:", visualLint);
+
+  if (options.dryRun) {
+    return { dryRun: true, platform: "linkedin", version, gateResult, visualLint };
+  }
+
   const wsUrl = await getActiveChromeWsUrl();
   console.log("Connecting to:", wsUrl);
   const client = new CdpClient(wsUrl);
@@ -269,10 +355,6 @@ export async function prepareLinkedInPost() {
   } else {
     console.log("Already on LinkedIn feed, skipping full reload...");
   }
-
-  const imagePath = path.resolve("output/social-v0.4.1/bookmarkflow-v0.4.1-linkedin-card.png");
-  const visualLint = assertSocialCardVisualQuality(imagePath, "linkedin");
-  console.log("[Pre-Publish Visual Lint] LinkedIn Promo Card Verified:", visualLint);
 
   if (fs.existsSync(imagePath)) {
     // Check if image is already staged in the open dialog (1/1)
@@ -394,9 +476,9 @@ export async function prepareLinkedInPost() {
 
   const postText = `Browse without interruption. 🎬⚡
 
-We are thrilled to introduce BookmarkFlow Bar v0.4.1!
+We are thrilled to introduce BookmarkFlow Bar v${version}!
 
-Built for focused daily workflows, v0.4.1 refines how your bookmark workspace adapts to fullscreen media, modern browser layouts, and assistive technologies:
+Built for focused daily workflows, v${version} refines how your bookmark workspace adapts to fullscreen media, modern browser layouts, and assistive technologies:
 
 🎬 Uninterrupted Fullscreen Focus: Automatically conceals the floating bar and open menus when watching fullscreen videos, gaming, or presenting, and seamlessly restores your exact layout when you exit
 🛡️ Adaptive New Tab Safe-Area: Intelligently reserves a 44px bottom safe zone so your bookmark cards and quick actions never overlap with native browser customize footers on Chromium and Brave
@@ -405,7 +487,7 @@ Built for focused daily workflows, v0.4.1 refines how your bookmark workspace ad
 
 Get it now:
 🌐 Chrome Web Store: https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf
-📦 GitHub Release: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.1
+📦 GitHub Release: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v${version}
 
 #Chrome #Productivity #OpenSource #WebDevelopment #Accessibility #SoftwareEngineering`;
 
@@ -478,15 +560,23 @@ Get it now:
 }
 
 if (process.argv[1] && process.argv[1].endsWith("publish-social.mjs")) {
-  const platform = process.argv[2] || "all";
-  if (platform === "x") {
-    prepareXPost().catch(console.error);
-  } else if (platform === "linkedin") {
-    prepareLinkedInPost().catch(console.error);
-  } else {
-    (async () => {
-      await prepareXPost();
-      await prepareLinkedInPost();
-    })().catch(console.error);
-  }
+  const cliOptions = parseSocialArgs(process.argv.slice(2));
+  (async () => {
+    if (cliOptions.checkGateOnly) {
+      const gate = await assertPreSocialReleaseGate(cliOptions.version || getManifestVersion(), cliOptions);
+      console.log("[Pre-Social Release Gate Verified]", JSON.stringify(gate, null, 2));
+      return;
+    }
+    if (cliOptions.platform === "x") {
+      await prepareXPost(cliOptions);
+    } else if (cliOptions.platform === "linkedin") {
+      await prepareLinkedInPost(cliOptions);
+    } else {
+      await prepareXPost(cliOptions);
+      await prepareLinkedInPost(cliOptions);
+    }
+  })().catch((err) => {
+    console.error(err.message || err);
+    process.exitCode = 1;
+  });
 }

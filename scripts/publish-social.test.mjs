@@ -2,7 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { parsePngDimensions, assertSocialCardVisualQuality } from "./publish-social.mjs";
+import {
+  assertPreSocialReleaseGate,
+  assertSocialCardVisualQuality,
+  parsePngDimensions,
+  parseSocialArgs,
+} from "./publish-social.mjs";
 
 test("parsePngDimensions parses standard PNG header and dimensions correctly", () => {
   // Construct a minimal valid PNG buffer (8 bytes signature + 4 bytes length + 4 bytes IHDR + 13 bytes data)
@@ -66,5 +71,60 @@ test("assertSocialCardVisualQuality fails closed on missing files or wrong aspec
   assert.throws(
     () => assertSocialCardVisualQuality("non_existent_card.png", "x"),
     /Social media card file does not exist/
+  );
+});
+
+test("parseSocialArgs parses platform, version, dry-run, and gate flags", () => {
+  const parsed = parseSocialArgs(["linkedin", "--version", "v0.4.1", "--dry-run", "--check-gate"]);
+  assert.equal(parsed.platform, "linkedin");
+  assert.equal(parsed.version, "0.4.1");
+  assert.equal(parsed.dryRun, true);
+  assert.equal(parsed.checkGateOnly, true);
+});
+
+test("assertPreSocialReleaseGate passes when both GitHub Release and CWS submission are verified", async () => {
+  const mockRunGh = () =>
+    JSON.stringify({
+      tagName: "v0.4.1",
+      isDraft: false,
+      url: "https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.1",
+      assets: [{ name: "bookmarkflow-bar-0.4.1.zip" }],
+    });
+  const mockVerifyCws = async (ver) => ({
+    ok: true,
+    version: ver,
+    status: "pending_review",
+  });
+
+  const gate = await assertPreSocialReleaseGate("v0.4.1", {
+    runCommand: mockRunGh,
+    verifyCwsFn: mockVerifyCws,
+  });
+  assert.equal(gate.valid, true);
+  assert.equal(gate.version, "0.4.1");
+  assert.equal(gate.github.published, true);
+  assert.equal(gate.cws.status, "pending_review");
+});
+
+test("assertPreSocialReleaseGate fails closed when CWS release is still draft or not submitted", async () => {
+  const mockRunGh = () =>
+    JSON.stringify({
+      tagName: "v0.4.1",
+      isDraft: false,
+      assets: [{ name: "bookmarkflow-bar-0.4.1.zip" }],
+    });
+  const mockVerifyCwsNotReady = async (ver) => ({
+    ok: false,
+    version: ver,
+    status: "draft",
+  });
+
+  await assert.rejects(
+    () =>
+      assertPreSocialReleaseGate("0.4.1", {
+        runCommand: mockRunGh,
+        verifyCwsFn: mockVerifyCwsNotReady,
+      }),
+    /\[Pre-Social Release Gate Blocked\].*status: draft/
   );
 });
