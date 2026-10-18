@@ -203,17 +203,31 @@ public class FastUia {
             var wins = GetWindows();
             foreach (var w in wins) {
                 string title = w.Value ?? "";
-                if (title.IndexOf("Uzaktan", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    title.IndexOf("Remote", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    title.IndexOf("Debugging", StringComparison.OrdinalIgnoreCase) >= 0) {
-                    
+                bool isChromeOrDebugWin = title.IndexOf("Chrome", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                          title.IndexOf("Uzaktan", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                          title.IndexOf("Remote", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                          title.IndexOf("Debugging", StringComparison.OrdinalIgnoreCase) >= 0;
+                if (isChromeOrDebugWin) {
                     var elements = DumpTree(w.Key);
+                    bool hasDebugPrompt = title.IndexOf("Uzaktan", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                          title.IndexOf("Remote", StringComparison.OrdinalIgnoreCase) >= 0;
+                    if (!hasDebugPrompt) {
+                        foreach (var checkEl in elements) {
+                            string n = checkEl.Name ?? "";
+                            if (n.IndexOf("Uzaktan hata ayıklama", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                n.IndexOf("remote debugging", StringComparison.OrdinalIgnoreCase) >= 0) {
+                                hasDebugPrompt = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!hasDebugPrompt) continue;
+
                     foreach (var el in elements) {
                         if (el.ControlType.Equals("Button", StringComparison.OrdinalIgnoreCase)) {
-                            string name = el.Name ?? "";
-                            if (name.IndexOf("ver", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                name.IndexOf("zin", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                name.IndexOf("Allow", StringComparison.OrdinalIgnoreCase) >= 0) {
+                            string name = (el.Name ?? "").Trim();
+                            if (name.Equals("İzin ver", StringComparison.OrdinalIgnoreCase) ||
+                                name.Equals("Allow", StringComparison.OrdinalIgnoreCase)) {
                                 
                                 if (ClickElement(w.Key, "", el.Index)) {
                                     Console.WriteLine("FastUia Auto-Confirmed Chrome dialog with button [" + el.Index + "] " + el.Name);

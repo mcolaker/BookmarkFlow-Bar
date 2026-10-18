@@ -111,22 +111,46 @@ export function ensureAutoAllowDaemon() {
   if (process.platform !== "win32") return { supported: false, running: false };
   try {
     const userProfile = process.env.USERPROFILE || "";
-    const pythonPath = join(userProfile, ".gemini", "antigravity", "scratch", "jev-ultrafast", ".venv", "Scripts", "python.exe");
+    const pythonWPath = join(userProfile, ".gemini", "antigravity", "scratch", "jev-ultrafast", ".venv", "Scripts", "pythonw.exe");
+    const pythonExePath = join(userProfile, ".gemini", "antigravity", "scratch", "jev-ultrafast", ".venv", "Scripts", "python.exe");
+    const pythonPath = fs.existsSync(pythonWPath) ? pythonWPath : pythonExePath;
     const daemonScript = resolve(__dirname, "../tools/windows-companion/chrome_auto_allow_daemon.py");
     if (!fs.existsSync(pythonPath) || !fs.existsSync(daemonScript)) {
       return { supported: false, running: false, reason: "files_missing" };
     }
 
-    const stdout = execSync('wmic process where "name=\'python.exe\' or name=\'pythonw.exe\'" get CommandLine 2>nul', { encoding: "utf8" });
-    if (!stdout.includes("chrome_auto_allow_daemon.py")) {
-      const child = spawn(pythonPath, [daemonScript], {
-        detached: true,
-        stdio: "ignore",
-      });
-      child.unref();
-      return { supported: true, running: true, started: true, pid: child.pid };
+    try {
+      const psScript = [
+        "$ existing = Get-CimInstance Win32_Process -Filter \"Name='python.exe' OR Name='pythonw.exe'\" | Where-Object { $_.CommandLine -like '*chrome_auto_allow_daemon.py*' } | Select-Object -First 1;",
+        "if ($existing) { Write-Output ('RUNNING:' + $existing.ProcessId) } else {",
+        `  $cmd = '"${pythonPath}" "${daemonScript}"';`,
+        "  $res = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $cmd };",
+        "  Write-Output ('STARTED:' + $res.ProcessId)",
+        "}",
+      ].join(" ").replace("$ existing", "$existing");
+
+      const stdout = execSync(
+        `powershell.exe -NoProfile -NonInteractive -Command "${psScript.replace(/"/g, '\\"')}"`,
+        { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 4000, windowsHide: true },
+      ).trim();
+
+      if (stdout.startsWith("RUNNING:")) {
+        return { supported: true, running: true, started: false, pid: Number.parseInt(stdout.split(":")[1], 10) };
+      }
+      if (stdout.startsWith("STARTED:")) {
+        return { supported: true, running: true, started: true, pid: Number.parseInt(stdout.split(":")[1], 10) };
+      }
+    } catch {
+      // Fallback to direct detached spawn if WMI is restricted
     }
-    return { supported: true, running: true, started: false };
+
+    const child = spawn(pythonPath, [daemonScript], {
+      detached: true,
+      stdio: "ignore",
+      windowsHide: true,
+    });
+    child.unref();
+    return { supported: true, running: true, started: true, pid: child.pid };
   } catch {
     return { supported: true, running: false };
   }
@@ -138,6 +162,9 @@ export function queryTargetsViaWebSocket(wsUrl, timeoutMs = 5000) {
       rejectPromise(new Error("Global WebSocket is not supported in this runtime."));
       return;
     }
+
+    ensureAutoAllowDaemon();
+    triggerFastUiaAutoConfirm(Math.min(timeoutMs, 4500)).catch(() => null);
 
     let socket = null;
     let timer = null;
