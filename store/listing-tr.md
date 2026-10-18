@@ -16,8 +16,10 @@ Normal web sayfalarına özelleştirilebilir, çok satırlı bir yer imi çubuğ
 
 ÖNE ÇIKAN ÖZELLİKLER
 
+• Kesintisiz tam ekran odak modu (video ve oyunlarda otomatik gizlenir, çıkışta yerleşimi korur)
+• Chromium ve Brave yerleşik alt çubuğuyla çakışmayı önleyen 44px Yeni Sekme güvenli alanı
 • Akıllı süzme çipleri (Tümü, Klasörler, Etiketler, Okuma Listesi) ve akıcı klavye dolaşımı
-• Dinamik klasör sıralama (A-Z, En Yeni, En Sık Kullanılan) ve kalıcı tercih hafızası
+• Dinamik klasör sıralama (A-Z, En Yeni, En Sık Kullanılan), kalıcı hafıza ve ekran okuyucu sesli duyurusu
 • Modern klasör menüsü başlığı: Tek tıkla "Yer İmi/Klasör Ekle" ve "↗ Tümünü Sekmelerde Aç"
 • Kalabalık klasörlerde canlı arama, anlık karakter vurgusu ve hızlı temizleme (×) butonu
 • Orta tıkla arka planda hızlı sekme açma ve sağ tıkla gizli pencere eylemleri

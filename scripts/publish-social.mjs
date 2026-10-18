@@ -146,19 +146,19 @@ export async function prepareXPost() {
   console.log("Waiting for compose box...");
   await new Promise((r) => setTimeout(r, 4000));
 
-  const postText = `Browse at the speed of thought. 🌊⚡
+  const postText = `Browse without interruption. 🎬⚡
 
-BookmarkFlow Bar 0.4.0 is live!
-• Smart folder sorting (Newest, Frequent)
-• Spotlight search filter chips
-• Turquoise Glow dark theme
+BookmarkFlow Bar v0.4.1 is live!
+• Fullscreen auto-hide & layout sync
+• Adaptive New Tab footer safe-area
+• Voice-guided smart folder sorting
 
 Chrome: https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf
-GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.0
+GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.1
 
 #Chrome #Productivity`;
 
-  const imagePath = path.resolve("output/social-v0.4.0/bookmarkflow-v0.4.0-x-card.png");
+  const imagePath = path.resolve("output/social-v0.4.1/bookmarkflow-v0.4.1-x-card.png");
   console.log("Image path:", imagePath);
   const visualLint = assertSocialCardVisualQuality(imagePath, "x");
   console.log("[Pre-Publish Visual Lint] X Promo Card Verified:", visualLint);
@@ -264,7 +264,7 @@ export async function prepareLinkedInPost() {
   await client.send("Page.navigate", { url: "https://www.linkedin.com/feed/" }, sessionId);
   await new Promise((r) => setTimeout(r, 5000));
 
-  const imagePath = path.resolve("output/social-v0.4.0/bookmarkflow-v0.4.0-linkedin-card.png");
+  const imagePath = path.resolve("output/social-v0.4.1/bookmarkflow-v0.4.1-linkedin-card.png");
   const visualLint = assertSocialCardVisualQuality(imagePath, "linkedin");
   console.log("[Pre-Publish Visual Lint] LinkedIn Promo Card Verified:", visualLint);
   if (fs.existsSync(imagePath)) {
@@ -327,22 +327,22 @@ export async function prepareLinkedInPost() {
     await new Promise((r) => setTimeout(r, 3000));
   }
 
-  const postText = `Browse at the speed of thought. 🌊⚡
+  const postText = `Browse without interruption. 🎬⚡
 
-We are excited to announce BookmarkFlow Bar 0.4.0!
+We are thrilled to introduce BookmarkFlow Bar v0.4.1!
 
-Designed for high-productivity workflows, BookmarkFlow Bar helps you find and organize your bookmarks instantly without breaking your focus:
+Built for focused daily workflows, v0.4.1 refines how your bookmark workspace adapts to fullscreen media, modern browser layouts, and assistive technologies:
 
-✨ Smart Folder Sorting: Auto-prioritize your most relevant and frequently visited links
-⚡ Instant Spotlight Filter Chips: Narrow down searches by folder or tag in milliseconds
-🎨 Turquoise Glow Theme: Sleek, high-contrast dark aesthetic built for modern desktops
+🎬 Uninterrupted Fullscreen Focus: Automatically conceals the floating bar and open menus when watching fullscreen videos, gaming, or presenting, and seamlessly restores your exact layout when you exit
+🛡️ Adaptive New Tab Safe-Area: Intelligently reserves a 44px bottom safe zone so your bookmark cards and quick actions never overlap with native browser customize footers on Chromium and Brave
+🔊 Voice-Guided Smart Sorting: Screen readers now politely announce your active folder sort order ("Default", "A-Z", "Newest", "Frequently Used") as you cycle through modes
 🔒 100% Local & Privacy-First: Zero cloud tracking, everything stays in your browser
 
 Get it now:
 🌐 Chrome Web Store: https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf
-📦 GitHub Release: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.0
+📦 GitHub Release: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.1
 
-#Chrome #Productivity #OpenSource #WebDevelopment #SoftwareEngineering`;
+#Chrome #Productivity #OpenSource #WebDevelopment #Accessibility #SoftwareEngineering`;
 
   // Focus editor and insert text
   console.log("Focusing editor in LinkedIn modal...");
@@ -405,6 +405,9 @@ if (process.argv[1] && process.argv[1].endsWith("publish-social.mjs")) {
   } else if (platform === "linkedin") {
     prepareLinkedInPost().catch(console.error);
   } else {
-    prepareLinkedInPost().catch(console.error);
+    (async () => {
+      await prepareXPost();
+      await prepareLinkedInPost();
+    })().catch(console.error);
   }
 }

@@ -1,8 +1,8 @@
 # PROJECT_STATE.md — BookmarkFlow Bar Canlı Proje Durumu
 
-Son güncelleme: 2026-10-10
-Aktif Sürüm: `0.4.0`
-Aktif Dal: `main` (Sürüm: `v0.4.0`)
+Son güncelleme: 2026-10-18
+Aktif Sürüm: `0.4.1`
+Aktif Dal: `main` (Sürüm: `v0.4.1`)
 
 ---
 
@@ -12,7 +12,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 | Platform / Bileşen | Mimari / Teknoloji | Durum / Doğrulama |
 |---|---|---|
-| **Google Chrome / Chromium** | Manifest V3, Service Worker, Closed Shadow DOM | Canlı & Tam Uyumlu (`v0.3.1` Chrome Web Store'da yayında) |
+| **Google Chrome / Chromium** | Manifest V3, Service Worker, Closed Shadow DOM | Canlı & Tam Uyumlu (`v0.4.1` paketi hazır, CWS yayında) |
 | **Mozilla Firefox** | Gecko MV3 (`scripts/package-cross-browser.mjs`) | Doğrulandı (Zip derleme & SHA-256) |
 | **Microsoft Edge** | Chromium MV3 uyumlu paket | Doğrulandı (Zip derleme & SHA-256) |
 | **Windows Desktop Companion** | Node.js Native Messaging Host, Win32 `RegisterHotKey`, UIA | Doğrulandı (IPC testleri yeşil) |
@@ -31,9 +31,9 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 ---
 
-## 3. v0.4.0 Sürümü ile Yayına Alınan Özellikler (Akıllı Süzme, Kalıcı Sıralama & Yönetişim Mimarisi)
+## 3. v0.4.1 Sürümü ile Yayına Alınan Özellikler (Tam Ekran Odak Koruması, Sesli Akıllı Sıralama & Jev 1.14 Multimodal QA)
 
-v0.4.0 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak etiketlenmiş ve Chrome Web Store için hazırlanmıştır:
+v0.4.1 sürümü başarıyla derlenmiş, test edilmiş, GitHub Release olarak etiketlenmiş ve Chrome Web Store için hazırlanmıştır:
 
 1. **Turkuaz Işıltı Teması (Turquoise Glow - BF-UX-024)**: Yüksek kontrastlı canlı turkuaz vurgular (`#22d3ee`), derin okyanus zeminleri (`#061318`, `#0a1a20`) ve buz-turkuaz metin tonları (`#ecfeff`) ile 5. resmi tema; ayarlar ve popup üzerinden anında geçiş, tam TR/EN yerelleştirme paritesi.
 2. **Turkuaz Uçurum Yeni Sekme Duvar Kağıdı & Klasör Işıltısı (BF-UX-025)**: Yeni Sekme başlangıç sayfası için derin okyanus degrade arka planı (`turquoise-abyss`) ve varsayılan nötr klasör ikonları için turkuaz mikro ışıltı.

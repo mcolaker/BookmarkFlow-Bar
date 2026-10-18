@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-10-18
+
+### Added
+
+- Add Fullscreen Transition Guard, `visualViewport` Sync & New Tab Native Footer Safe-Area (BF-UX-050): Automatically conceals the in-page floating bar, folder menus, and modals upon entering fullscreen mode (`fullscreenchange` / `webkitfullscreenchange`), clears page header offsets (`clearPageOffset`), and performs multi-stage layout resynchronization (`syncLayoutAfterFullscreen` with `requestAnimationFrame` + `140ms` settlement and `visualViewport` resize observer) when exiting fullscreen to prevent bottom-edge coordinate drift. Additionally introduces `--nt-native-footer-safe-offset: 44px` on the New Tab page to prevent overlap with Chromium 138+ and Brave's native `NewTabFooterView` (`#ntp-footer`).
+- Add Folder Menu Sort Mode ARIA Live Screen Reader Announcement (BF-UX-047): Cycling through folder sort modes ("Default", "A-Z", "Newest", "Frequently Used") announces the newly active sort order via a polite live region (`.bf-menu-sort-live`, `role="status"`, `aria-live="polite"`, `aria-atomic="true"`) with full English and Turkish localization parity (`sortModeAnnounce`).
+- Add Bounding-Box Visual Regression Arbiter & Live Raw Screenshot Jev 1.14 Multimodal QA (BF-QA-008, BF-QA-009): Introduced `scripts/inspect-visual-boxes.mjs` (`npm run inspect:boxes`) and `scripts/visual-boxes-contract.test.mjs` to inspect UI bounding-box geometry, viewport containment, minimum touch targets, and raw PNG/JPG pixel coordinates via TypeSafe Jev 1.14 (`assets` + `TypeSafe-Danger-Zone-Images: true`) strictly in dev-time QA.
+- Add Social Media Card Pre-Publish Visual Lint Gate & Runtime/Dev-Time Isolation Contract (BF-GOV-027, Decision 41): Added `assertSocialCardVisualQuality` in `scripts/publish-social.mjs` to verify aspect ratio (X 16:9, LinkedIn 1.91:1), minimum resolution, and PNG header integrity prior to social publishing, and codified the strict client runtime zero-cloud vs. dev-time QA isolation boundary.
+
 ## [0.4.0] — 2026-10-10
 
 ### Added
