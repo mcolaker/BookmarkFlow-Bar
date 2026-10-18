@@ -60,7 +60,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     isSensitiveHost,
     areBookmarkUrlsEqual,
     normalizeHost,
-    PANEL_POSITION_STORAGE_KEY
+    PANEL_POSITION_STORAGE_KEY,
+    isMobileBookmarksFolder,
+    selectMobileBookmarksNode,
+    getMobileFolderDisplayTitle,
+    collectFoldersWithMobileBridge
   } = BookmarkFlowConfig;
   const { getLanguage, t } = BookmarkFlowI18n;
 
@@ -1078,19 +1082,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function collectAllFolders(node, path = "", list = []) {
-    if (!node) return list;
-    if (Array.isArray(node.children)) {
-      if (node.id && node.id !== "0") {
-        const isBar = node.id === appState?.bookmarkBar?.id;
-        const tTitle = isBar ? (t("bookmarksBar") || "Yer İmleri Çubuğu") : (node.title || t("folder"));
-        const currentPath = path ? `${path} / ${tTitle}` : tTitle;
-        list.push({ id: node.id, title: tTitle, path: currentPath, isBar });
-        for (const child of node.children) {
-          collectAllFolders(child, currentPath, list);
-        }
-      }
-    }
-    return list;
+    const mobileNode = !path && node?.id === appState?.bookmarkBar?.id
+      ? (appState?.mobileBookmarks || selectMobileBookmarksNode(getBookmarkTreeRoot()))
+      : null;
+    return collectFoldersWithMobileBridge(node, mobileNode, path, list);
   }
 
   function render() {
@@ -1244,23 +1239,19 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const folders = [];
     const seenTitles = new Set();
     const appendFolder = (node) => {
-      if (!node || node.url) {
-        return;
-      }
-
-      const titleKey = normalizeFolderTitle(node.title);
-      if (!titleKey || seenTitles.has(titleKey)) {
-        return;
-      }
-
+      if (!node || node.url) return;
+      const rawTitle = node.title || (isMobileBookmarksFolder(node) ? getMobileFolderDisplayTitle(node) : "");
+      const titleKey = normalizeFolderTitle(rawTitle);
+      if (!titleKey || seenTitles.has(titleKey)) return;
       seenTitles.add(titleKey);
       folders.push(node);
     };
 
-    pinnedFolderIds.forEach((folderId) => {
-      appendFolder(findNodeById(getBookmarkTreeRoot(), folderId));
-    });
+    pinnedFolderIds.forEach((folderId) => appendFolder(findNodeById(getBookmarkTreeRoot(), folderId)));
     (appState?.folderRailFolders || []).forEach(appendFolder);
+    if (appState?.mobileBookmarks && (appState.mobileBookmarks.children || []).length > 0) {
+      appendFolder(appState.mobileBookmarks);
+    }
     (bookmarkBarChildren || []).filter((node) => !node.url).forEach(appendFolder);
     return folders;
   }
@@ -2609,29 +2600,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     select.replaceChildren();
 
     const barNode = appState?.bookmarkBar;
-    const folders = [];
-    const walk = (node, path = "") => {
-      if (!node) return;
-      if (Array.isArray(node.children)) {
-        const isRootBar = node.id === appState?.bookmarkBar?.id;
-        const title = node.title || (isRootBar ? (t("bookmarksBar") || "Bookmarks Bar") : "");
-        const currentPath = path ? (title ? `${path} / ${title}` : path) : title;
-        if (node.id && node.id !== "0") {
-          folders.push({
-            id: node.id,
-            title: title || (t("bookmarksBar") || "Bookmarks Bar"),
-            path: currentPath,
-            isBar: isRootBar
-          });
-        }
-        for (const child of node.children) {
-          if (Array.isArray(child.children)) {
-            walk(child, currentPath);
-          }
-        }
-      }
-    };
-    walk(barNode);
+    const folders = collectAllFolders(barNode);
 
     if (!folders.length && barNode?.id) {
       folders.push({
@@ -2647,7 +2616,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     folders.forEach((f) => {
       const option = document.createElement("option");
       option.value = f.id;
-      option.textContent = f.isBar ? `⭐ ${f.title}` : `📁 ${f.path || f.title}`;
+      option.textContent = f.isBar ? `⭐ ${f.title}` : (f.isMobile ? `📱 ${f.title}` : `📁 ${f.path || f.title}`);
       if (f.id === effectiveSelected) {
         option.selected = true;
       }
@@ -2673,8 +2642,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     const barFolder = folders.find(f => f.isBar);
+    const mobileFolder = folders.find(f => f.isMobile);
     const otherFolders = folders.filter(f => !f.isBar);
     const prioritized = [];
+
+    if (mobileFolder) {
+      prioritized.push(mobileFolder);
+    }
 
     if (Array.isArray(pinnedFolderIds)) {
       for (const pid of pinnedFolderIds) {
@@ -2704,15 +2678,21 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     chipsContainer.hidden = false;
     const select = dialog.querySelector(".bf-add-select");
+    const statusEl = dialog.querySelector(".bf-add-status");
 
     chipCandidates.forEach((f) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "bf-folder-chip" + (f.id === currentSelectedId ? " is-active" : "");
+      btn.className = "bf-folder-chip" + (f.id === currentSelectedId ? " is-active" : "") + (f.isMobile ? " is-mobile-chip" : "");
       btn.setAttribute("aria-pressed", f.id === currentSelectedId ? "true" : "false");
       btn.dataset.folderId = f.id;
-      btn.title = f.path || f.title;
-      btn.textContent = f.isBar ? `⭐ ${t("bookmarksBar") || "Bar"}` : `📁 ${f.title}`;
+      if (f.isMobile) {
+        btn.dataset.mobileSync = "true";
+      }
+      btn.title = f.isMobile ? (t("mobileSyncTooltip") || f.title) : (f.path || f.title);
+      btn.textContent = f.isBar
+        ? `⭐ ${t("bookmarksBar") || "Bar"}`
+        : (f.isMobile ? `📱 ${t("mobileBookmarksShort") || f.title}` : `📁 ${f.title}`);
 
       btn.addEventListener("click", () => {
         if (select) {
@@ -2722,6 +2702,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         lastUsedFolderId = f.id;
         if (hasExtensionContext()) {
           chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: f.id }).catch(() => {});
+        }
+        if (statusEl && f.isMobile) {
+          statusEl.textContent = t("mobileSyncSelectedHint") || "";
+        } else if (statusEl && statusEl.textContent === (t("mobileSyncSelectedHint") || "")) {
+          statusEl.textContent = "";
         }
         updateContentFolderChipsActive(dialog, f.id);
       });
@@ -3476,19 +3461,22 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function createFolderRailItem(node) {
+    const isMobile = isMobileBookmarksFolder(node);
+    const displayTitle = isMobile ? getMobileFolderDisplayTitle(node) : (node.title || t("folder"));
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "bf-folder-rail-item";
+    button.className = "bf-folder-rail-item" + (isMobile ? " is-mobile-folder" : "");
     button.dataset.folderId = node.id;
     button.dataset.nodeId = node.id;
+    if (isMobile) button.dataset.mobileSync = "true";
     button.draggable = false;
     if (node.parentId === appState?.bookmarkBar?.id) {
       markTopLevelItem(button, node.id);
     }
-    button.title = node.title || t("folder");
+    button.title = isMobile ? (t("mobileSyncTooltip") || displayTitle) : displayTitle;
     button.classList.toggle("is-active", activeFolderId === node.id);
     applyFolderColor(button, node.id);
-    button.append(createFolderIcon(), createTitle(node.title || t("folder")));
+    button.append(createFolderIcon(), createTitle(displayTitle));
     return button;
   }
 
@@ -3783,6 +3771,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const railOnRight = Boolean(anchor.closest(".folder-rail-right"));
     menu.classList.toggle("is-rail-right", railOnRight);
 
+    const isMobileFolder = isMobileBookmarksFolder(folder);
     const header = document.createElement("div");
     header.className = "bf-menu-header";
 
@@ -3791,12 +3780,12 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     const headerIcon = document.createElement("span");
     headerIcon.className = "bf-menu-header-icon";
-    headerIcon.textContent = "📁";
+    headerIcon.textContent = isMobileFolder ? "📱" : "📁";
     headerIcon.setAttribute("aria-hidden", "true");
 
     const headerTitle = document.createElement("span");
     headerTitle.className = "bf-menu-header-title";
-    headerTitle.textContent = folder.title || t("folder") || "Folder";
+    headerTitle.textContent = isMobileFolder ? getMobileFolderDisplayTitle(folder) : (folder.title || t("folder") || "Folder");
 
     headerInfo.append(headerIcon, headerTitle);
 
@@ -3956,6 +3945,13 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     header.append(headerInfo, headerActions);
     menu.append(header);
+    if (isMobileFolder) {
+      const syncBanner = document.createElement("div");
+      syncBanner.className = "bf-mobile-sync-banner";
+      syncBanner.setAttribute("role", "note");
+      syncBanner.textContent = `📱 ${t("mobileSyncBannerText")}`;
+      menu.append(syncBanner);
+    }
 
     const addPopover = document.createElement("div");
     addPopover.className = "bf-menu-add-popover";
@@ -4113,7 +4109,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (!entries.length) {
       const empty = document.createElement("div");
       empty.className = "bf-empty";
-      empty.textContent = t("noBookmarksInFolder");
+      empty.textContent = isMobileFolder ? (t("mobileBookmarksEmptyHint") || t("noBookmarksInFolder")) : t("noBookmarksInFolder");
       menu.append(empty);
     } else {
       const initialSorted = getSortedEntries();

@@ -2391,4 +2391,29 @@
     background: Highlight;
     color: HighlightText;
   }
+
+  .bf-mobile-sync-banner,
+  .bf-folder-rail-item.is-mobile-folder,
+  .bf-folder-chip.is-mobile-chip {
+    border: 1px solid ButtonBorder !important;
+  }
+}
+
+.bf-mobile-sync-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  margin: 0 0 6px;
+  border-radius: 7px;
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  color: #e0f2fe;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.bf-folder-rail-item.is-mobile-folder,
+.bf-folder-chip.is-mobile-chip {
+  border-color: rgba(34, 211, 238, 0.42);
 }

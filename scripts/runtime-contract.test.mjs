@@ -85,6 +85,51 @@ test("bookmark bar selection falls back to the first local bar", async () => {
   assert.equal(state.bookmarkBar.id, "local-first");
 });
 
+test("mobile bookmarks folder (folderType: 'mobile') is bridged into state, folder rail, and target folder list (BF-UX-051)", async () => {
+  const tree = {
+    id: "0",
+    title: "",
+    children: [
+      {
+        id: "account-bar",
+        title: "Bookmarks bar",
+        folderType: "bookmarks-bar",
+        syncing: true,
+        children: [folder("work-folder", "Work", "account-bar", true)]
+      },
+      {
+        id: "mobile-root",
+        title: "Mobile bookmarks",
+        folderType: "mobile",
+        parentId: "0",
+        syncing: true,
+        children: [
+          bookmark("phone-link-1", "Saved from Phone", "https://phone.example/article", "mobile-root", true)
+        ]
+      }
+    ]
+  };
+  const runtime = createRuntime({ tree });
+  const state = plain(await runtime.context.getState());
+
+  assert.ok(state.mobileBookmarks, "getState() must expose mobileBookmarks root node");
+  assert.equal(state.mobileBookmarks.id, "mobile-root");
+  assert.equal(state.mobileBookmarks.folderType, "mobile");
+  assert.ok(
+    state.folderRailFolders.some((entry) => entry.id === "mobile-root"),
+    "Non-empty Mobile Bookmarks folder must automatically appear in folderRailFolders"
+  );
+
+  // Also verify creating a bookmark directly inside Mobile Bookmarks from PC
+  const createdRes = plain(await runtime.context.createBookmark({
+    title: "Send to Phone",
+    url: "https://pc-to-phone.example",
+    parentId: "mobile-root"
+  }));
+  assert.equal(runtime.calls.created.at(-1).parentId, "mobile-root");
+  assert.ok(createdRes.createdId);
+});
+
 test("background folder matching follows the active English or Turkish locale", () => {
   const english = createRuntime({ tree: emptyTree(), language: "en-US" });
   const turkish = createRuntime({ tree: emptyTree(), language: "tr-TR" });

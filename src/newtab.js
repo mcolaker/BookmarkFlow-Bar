@@ -11,7 +11,11 @@ const {
   matchesTagFilter,
   areBookmarkUrlsEqual,
   isSafeBookmarkUrl,
-  normalizeSettings
+  normalizeSettings,
+  isMobileBookmarksFolder,
+  selectMobileBookmarksNode,
+  getMobileFolderDisplayTitle,
+  collectFoldersWithMobileBridge
 } = BookmarkFlowConfig;
 const { getLanguage, t } = BookmarkFlowI18n;
 
@@ -589,23 +593,19 @@ function getRenderedFolderRailFolders(bookmarkBarChildren) {
   const folders = [];
   const seenTitles = new Set();
   const appendFolder = (node) => {
-    if (!node || node.url) {
-      return;
-    }
-
-    const titleKey = normalizeFolderTitle(node.title);
-    if (!titleKey || seenTitles.has(titleKey)) {
-      return;
-    }
-
+    if (!node || node.url) return;
+    const rawTitle = node.title || (isMobileBookmarksFolder(node) ? getMobileFolderDisplayTitle(node) : "");
+    const titleKey = normalizeFolderTitle(rawTitle);
+    if (!titleKey || seenTitles.has(titleKey)) return;
     seenTitles.add(titleKey);
     folders.push(node);
   };
 
-  pinnedFolderIds.forEach((folderId) => {
-    appendFolder(findNodeById(getBookmarkTreeRoot(), folderId));
-  });
+  pinnedFolderIds.forEach((folderId) => appendFolder(findNodeById(getBookmarkTreeRoot(), folderId)));
   (appState?.folderRailFolders || []).forEach(appendFolder);
+  if (appState?.mobileBookmarks && (appState.mobileBookmarks.children || []).length > 0) {
+    appendFolder(appState.mobileBookmarks);
+  }
   (bookmarkBarChildren || []).filter((node) => !node.url).forEach(appendFolder);
   return folders;
 }
@@ -1964,27 +1964,10 @@ function collectSearchableBookmarks(node, results = [], path = "", parentId = ""
 }
 
 function collectAllFolders(node, path = "", list = []) {
-  if (!node) return list;
-  const isFolder = Array.isArray(node.children);
-  if (isFolder) {
-    const isRootBar = node.id === appState?.bookmarkBar?.id;
-    const title = node.title || (isRootBar ? (t("bookmarksBar") || "Bookmarks Bar") : "");
-    const currentPath = path ? (title ? `${path} / ${title}` : path) : title;
-    if (node.id && node.id !== "0") {
-      list.push({
-        id: node.id,
-        title: title || (t("bookmarksBar") || "Bookmarks Bar"),
-        path: currentPath,
-        isBar: isRootBar
-      });
-    }
-    for (const child of node.children) {
-      if (Array.isArray(child.children)) {
-        collectAllFolders(child, currentPath, list);
-      }
-    }
-  }
-  return list;
+  const mobileNode = !path && node?.id === appState?.bookmarkBar?.id
+    ? (appState?.mobileBookmarks || selectMobileBookmarksNode(getBookmarkTreeRoot()))
+    : null;
+  return collectFoldersWithMobileBridge(node, mobileNode, path, list);
 }
 
 function populateFolderSelect(selectedParentId = "") {
@@ -2008,7 +1991,7 @@ function populateFolderSelect(selectedParentId = "") {
   folders.forEach((f) => {
     const option = document.createElement("option");
     option.value = f.id;
-    option.textContent = f.isBar ? `⭐ ${f.title}` : `📁 ${f.path || f.title}`;
+    option.textContent = f.isBar ? `⭐ ${f.title}` : (f.isMobile ? `📱 ${f.title}` : `📁 ${f.path || f.title}`);
     if (f.id === effectiveSelected) {
       option.selected = true;
     }
@@ -2028,8 +2011,13 @@ function renderFolderChips(folders, currentSelectedId) {
   }
 
   const barFolder = folders.find(f => f.isBar);
+  const mobileFolder = folders.find(f => f.isMobile);
   const otherFolders = folders.filter(f => !f.isBar);
   const prioritized = [];
+
+  if (mobileFolder) {
+    prioritized.push(mobileFolder);
+  }
 
   if (Array.isArray(pinnedFolderIds)) {
     for (const pid of pinnedFolderIds) {
@@ -2062,17 +2050,27 @@ function renderFolderChips(folders, currentSelectedId) {
   chipCandidates.forEach((f) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "nt-folder-chip" + (f.id === currentSelectedId ? " is-active" : "");
+    btn.className = "nt-folder-chip" + (f.id === currentSelectedId ? " is-active" : "") + (f.isMobile ? " is-mobile-chip" : "");
     btn.setAttribute("aria-pressed", f.id === currentSelectedId ? "true" : "false");
     btn.dataset.folderId = f.id;
-    btn.title = f.path || f.title;
-    btn.textContent = f.isBar ? `⭐ ${t("bookmarksBar") || "Bar"}` : `📁 ${f.title}`;
+    if (f.isMobile) {
+      btn.dataset.mobileSync = "true";
+    }
+    btn.title = f.isMobile ? (t("mobileSyncTooltip") || f.title) : (f.path || f.title);
+    btn.textContent = f.isBar
+      ? `⭐ ${t("bookmarksBar") || "Bar"}`
+      : (f.isMobile ? `📱 ${t("mobileBookmarksShort") || f.title}` : `📁 ${f.title}`);
 
     btn.addEventListener("click", () => {
       elements.addFolderSelect.value = f.id;
       elements.addDialog.dataset.parentId = f.id;
       lastUsedFolderId = f.id;
       chrome.storage.local.set({ [LAST_USED_FOLDER_STORAGE_KEY]: f.id }).catch(() => {});
+      if (elements.addStatus && f.isMobile) {
+        elements.addStatus.textContent = t("mobileSyncSelectedHint") || "";
+      } else if (elements.addStatus && elements.addStatus.textContent === (t("mobileSyncSelectedHint") || "")) {
+        elements.addStatus.textContent = "";
+      }
       updateFolderChipsActive(f.id);
     });
 
@@ -2395,19 +2393,22 @@ function createTopLevelItem(node) {
 }
 
 function createFolderRailItem(node) {
+  const isMobile = isMobileBookmarksFolder(node);
+  const displayTitle = isMobile ? getMobileFolderDisplayTitle(node) : (node.title || t("folder"));
   const button = document.createElement("button");
   button.type = "button";
-  button.className = "nt-folder-rail-item";
+  button.className = "nt-folder-rail-item" + (isMobile ? " is-mobile-folder" : "");
   button.dataset.folderId = node.id;
   button.dataset.nodeId = node.id;
+  if (isMobile) button.dataset.mobileSync = "true";
   if (node.parentId === appState?.bookmarkBar?.id) {
     button.dataset.ntReorderItem = "true";
     button.dataset.ntReorderScope = "top";
   }
-  button.title = node.title || t("folder");
+  button.title = isMobile ? (t("mobileSyncTooltip") || displayTitle) : displayTitle;
   button.classList.toggle("is-active", activeFolderId === node.id);
   applyFolderColor(button, node.id);
-  button.append(createFolderIcon(), createTitle(node.title || t("folder")));
+  button.append(createFolderIcon(), createTitle(displayTitle));
   button.addEventListener("click", (event) => {
     event.stopPropagation();
     toggleFolder(node.id, button).catch(() => {});
@@ -3325,22 +3326,26 @@ async function toggleFolder(folderId, anchor) {
 
 function openFolderMenu(folderId, anchor) {
   const folder = findNodeById(getBookmarkTreeRoot(), folderId);
-  if (!folder) {
-    return;
-  }
+  if (!folder) return;
 
+  const isMobileFolder = isMobileBookmarksFolder(folder);
   const entries = getFolderMenuEntries(folder);
   elements.folderMenu.replaceChildren();
+  if (isMobileFolder) {
+    const syncBanner = document.createElement("div");
+    syncBanner.className = "nt-mobile-sync-banner";
+    syncBanner.setAttribute("role", "note");
+    syncBanner.textContent = `📱 ${t("mobileSyncBannerText")}`;
+    elements.folderMenu.append(syncBanner);
+  }
 
   if (!entries.length) {
     const empty = document.createElement("div");
     empty.className = "nt-empty";
-    empty.textContent = t("noBookmarksInFolder");
+    empty.textContent = isMobileFolder ? (t("mobileBookmarksEmptyHint") || t("noBookmarksInFolder")) : t("noBookmarksInFolder");
     elements.folderMenu.append(empty);
   } else {
-    entries.slice(0, 120).forEach((entry) => {
-      elements.folderMenu.append(createResultLink(entry));
-    });
+    entries.slice(0, 120).forEach((entry) => elements.folderMenu.append(createResultLink(entry)));
   }
 
   const rect = anchor.getBoundingClientRect();
@@ -3540,47 +3545,26 @@ function getBookmarkTreeRoot() {
 }
 
 function findNodeById(node, id) {
-  if (!node) {
-    return null;
-  }
-
-  if (node.id === id) {
-    return node;
-  }
-
+  if (!node) return null;
+  if (node.id === id) return node;
   for (const child of node.children || []) {
     const found = findNodeById(child, id);
-    if (found) {
-      return found;
-    }
+    if (found) return found;
   }
-
   return null;
 }
 
 function findNodeLocation(node, nodeId) {
-  if (!node) {
-    return null;
-  }
-
+  if (!node) return null;
   const children = node.children || [];
   for (let index = 0; index < children.length; index += 1) {
     const child = children[index];
     if (child.id === nodeId) {
-      return {
-        node: child,
-        parent: node,
-        index,
-        siblings: children
-      };
+      return { node: child, parent: node, index, siblings: children };
     }
-
     const found = findNodeLocation(child, nodeId);
-    if (found) {
-      return found;
-    }
+    if (found) return found;
   }
-
   return null;
 }
 

@@ -498,6 +498,84 @@
     };
   }
 
+  function isMobileBookmarksFolder(node) {
+    if (!node || node.url) {
+      return false;
+    }
+    if (node.folderType === "mobile") {
+      return true;
+    }
+    const rawTitle = String(node.title || "").trim();
+    if (
+      (node.parentId === "0" || !node.parentId) &&
+      (node.id === "3" || /^(mobile bookmarks|mobil yer i[şs]aretleri|mobil yer imleri)$/iu.test(rawTitle))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  function selectMobileBookmarksNode(root) {
+    const topLevelFolders = root?.children || [];
+    const mobileNodes = topLevelFolders.filter(isMobileBookmarksFolder);
+    if (!mobileNodes.length) {
+      return null;
+    }
+    return (
+      mobileNodes.find((n) => n.syncing === true && (n.children?.length || 0) > 0) ||
+      mobileNodes.find((n) => (n.children?.length || 0) > 0) ||
+      mobileNodes.find((n) => n.syncing === true) ||
+      mobileNodes[0] ||
+      null
+    );
+  }
+
+  function getMobileFolderDisplayTitle(node) {
+    return (typeof t === "function" && t("mobileBookmarksFolder")) || node?.title || "Mobile Bookmarks";
+  }
+
+  function collectFoldersWithMobileBridge(barNode, mobileNode = null, path = "", list = []) {
+    const walk = (node, currentPrefix = "", rootBarId = "", rootMobileId = "") => {
+      if (!node || !Array.isArray(node.children)) {
+        return;
+      }
+      const isRootBar = Boolean(rootBarId && node.id === rootBarId);
+      const isRootMobile = Boolean((rootMobileId && node.id === rootMobileId) || isMobileBookmarksFolder(node));
+      const fallbackBarTitle = (typeof t === "function" && t("bookmarksBar")) || "Bookmarks Bar";
+      const fallbackFolderTitle = (typeof t === "function" && t("folder")) || "Folder";
+      const resolvedTitle = isRootBar
+        ? fallbackBarTitle
+        : isRootMobile
+          ? getMobileFolderDisplayTitle(node)
+          : (node.title || fallbackFolderTitle);
+      const currentPath = currentPrefix ? `${currentPrefix} / ${resolvedTitle}` : resolvedTitle;
+
+      if (node.id && node.id !== "0" && !list.some((item) => item.id === node.id)) {
+        list.push({
+          id: node.id,
+          title: resolvedTitle,
+          path: currentPath,
+          isBar: isRootBar,
+          isMobile: isRootMobile
+        });
+      }
+
+      for (const child of node.children) {
+        if (Array.isArray(child.children)) {
+          walk(child, currentPath, rootBarId, rootMobileId);
+        }
+      }
+    };
+
+    if (barNode) {
+      walk(barNode, path, path ? "" : (barNode.id || ""), "");
+    }
+    if (!path && mobileNode && mobileNode.id && !list.some((item) => item.id === mobileNode.id)) {
+      walk(mobileNode, "", "", mobileNode.id);
+    }
+    return list;
+  }
+
   globalThis.BookmarkFlowConfig = Object.freeze({
     DEFAULT_SETTINGS,
     LOCAL_SETTINGS_DEFAULTS,
@@ -540,6 +618,10 @@
     READING_LIST_STORAGE_KEY,
     CUSTOM_WALLPAPER_STORAGE_KEY,
     AUTO_TAG_RULES,
-    getAutoTagsForUrl
+    getAutoTagsForUrl,
+    isMobileBookmarksFolder,
+    selectMobileBookmarksNode,
+    getMobileFolderDisplayTitle,
+    collectFoldersWithMobileBridge
   });
 })();
