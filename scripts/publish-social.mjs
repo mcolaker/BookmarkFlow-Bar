@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { ensureAutoAllowDaemon, triggerFastUiaAutoConfirm } from "./live-chrome-pilot.mjs";
 
 export function parsePngDimensions(buffer) {
   if (!Buffer.isBuffer(buffer) || buffer.length < 24) {
@@ -88,6 +89,8 @@ export class CdpClient {
   }
 
   async connect() {
+    ensureAutoAllowDaemon();
+    triggerFastUiaAutoConfirm(5000).catch(() => null);
     return new Promise((resolve, reject) => {
       this.ws = new WebSocket(this.wsUrl);
       this.ws.onopen = () => resolve();
@@ -260,71 +263,133 @@ export async function prepareLinkedInPost() {
   console.log("Found LinkedIn target:", liTarget.title, liTarget.targetId);
   const { sessionId } = await client.send("Target.attachToTarget", { targetId: liTarget.targetId, flatten: true });
 
-  console.log("Navigating to LinkedIn feed...");
-  await client.send("Page.navigate", { url: "https://www.linkedin.com/feed/" }, sessionId);
-  await new Promise((r) => setTimeout(r, 5000));
+  if (!liTarget.url.includes("linkedin.com/feed")) {
+    console.log("Navigating to LinkedIn feed...");
+    await client.send("Page.navigate", { url: "https://www.linkedin.com/feed/" }, sessionId);
+  } else {
+    console.log("Already on LinkedIn feed, skipping full reload...");
+  }
 
   const imagePath = path.resolve("output/social-v0.4.1/bookmarkflow-v0.4.1-linkedin-card.png");
   const visualLint = assertSocialCardVisualQuality(imagePath, "linkedin");
   console.log("[Pre-Publish Visual Lint] LinkedIn Promo Card Verified:", visualLint);
+
   if (fs.existsSync(imagePath)) {
-    console.log("Clicking Fotoğraf button on feed to trigger image upload...");
-    await client.send("Runtime.evaluate", {
+    // Check if image is already staged in the open dialog (1/1)
+    const alreadyStagedRes = await client.send("Runtime.evaluate", {
       expression: `(() => {
-        const p = Array.from(document.querySelectorAll('p')).find(el => el.innerText.trim() === 'Fotoğraf');
-        const btn = p ? p.closest('div[role="button"]') || p.parentElement : null;
-        if (btn) btn.click();
-      })()`
-    }, sessionId);
-    await new Promise((r) => setTimeout(r, 2000));
-
-    console.log("Setting image file via CDP DOM.setFileInputFiles...");
-    try {
-      const doc = await client.send("DOM.getDocument", {}, sessionId);
-      const fileInputNode = await client.send("DOM.querySelector", {
-        nodeId: doc.root.nodeId,
-        selector: 'input[type="file"]',
-      }, sessionId);
-
-      if (fileInputNode.nodeId > 0) {
-        await client.send("DOM.setFileInputFiles", {
-          files: [imagePath],
-          nodeId: fileInputNode.nodeId,
-        }, sessionId);
-        await client.send("Runtime.evaluate", {
-          expression: `(() => {
-            const input = document.querySelector('input[type="file"]');
-            if (input) {
-              input.dispatchEvent(new Event('input', { bubbles: true }));
-              input.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-          })()`
-        }, sessionId);
-        console.log("Image set via DOM.setFileInputFiles!");
-        await new Promise((r) => setTimeout(r, 3000));
-      }
-    } catch (fileErr) {
-      console.log("Error with DOM.setFileInputFiles:", fileErr.message);
-    }
-
-    // Click Next / İleri button
-    const nextBtnRes = await client.send("Runtime.evaluate", {
-      expression: `(() => {
-        const nextBtn = Array.from(document.querySelectorAll('button')).find(b => {
-          const t = b.innerText.trim().toLowerCase();
-          return t === 'ileri' || t === 'bitti' || t === 'next' || t === 'done';
+        const dlg = document.querySelector('dialog[open]') || document.querySelector('dialog');
+        if (!dlg) return false;
+        const nextBtn = Array.from(dlg.querySelectorAll('button')).find(b => {
+          const t = (b.innerText || '').trim().toLocaleLowerCase('tr-TR');
+          return (t === 'ileri' || t === 'next') && !b.disabled && b.getAttribute('aria-disabled') !== 'true';
         });
-        if (nextBtn) {
-          nextBtn.click();
-          return { clicked: true, text: nextBtn.innerText.trim() };
-        }
-        return { clicked: false };
+        return Boolean(nextBtn);
       })()`,
       returnByValue: true,
     }, sessionId);
 
-    console.log("Next/Done button result:", nextBtnRes.result.value);
-    await new Promise((r) => setTimeout(r, 3000));
+    if (alreadyStagedRes.result && alreadyStagedRes.result.value) {
+      console.log("Image is already staged in LinkedIn dialog (1/1), proceeding to click İleri...");
+    } else {
+      console.log("Waiting for Fotoğraf button or file input on LinkedIn feed...");
+      let fileInputObjectId = null;
+
+      for (let attempt = 0; attempt < 15; attempt++) {
+        const checkRes = await client.send("Runtime.evaluate", {
+          expression: `(() => {
+            if (!window.__bfFileClickGuarded) {
+              window.__bfFileClickGuarded = true;
+              const origClick = HTMLInputElement.prototype.click;
+              HTMLInputElement.prototype.click = function(...args) {
+                if (this.type === 'file') return;
+                return origClick.apply(this, args);
+              };
+            }
+            const existingInput = document.querySelector('input[type="file"]');
+            if (existingInput) return { hasInput: true };
+            const p = Array.from(document.querySelectorAll('p, span, button')).find(el => {
+              const t = (el.innerText || '').trim();
+              return t === 'Fotoğraf' || t === 'Photo' || t === 'Medya ekle';
+            });
+            const btn = p ? p.closest('button, div[role="button"]') || p.parentElement : null;
+            if (btn) {
+              btn.click();
+              return { hasInput: false, clickedPhotoBtn: true };
+            }
+            return { hasInput: false, clickedPhotoBtn: false };
+          })()`,
+          returnByValue: true,
+        }, sessionId);
+
+        if (checkRes.result && checkRes.result.value && checkRes.result.value.hasInput) {
+          const inputEval = await client.send("Runtime.evaluate", {
+            expression: `document.querySelector('input[type="file"]')`,
+          }, sessionId);
+          if (inputEval.result && inputEval.result.objectId) {
+            fileInputObjectId = inputEval.result.objectId;
+            break;
+          }
+        }
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+
+      if (fileInputObjectId) {
+        console.log("Setting image file via CDP DOM.setFileInputFiles (objectId)...");
+        try {
+          await client.send("DOM.setFileInputFiles", {
+            files: [imagePath],
+            objectId: fileInputObjectId,
+          }, sessionId);
+          const fileCountRes = await client.send("Runtime.evaluate", {
+            expression: `(() => {
+              const input = document.querySelector('input[type="file"]');
+              if (input) {
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                return input.files ? input.files.length : 0;
+              }
+              return -1;
+            })()`,
+            returnByValue: true,
+          }, sessionId);
+          console.log("Image set via DOM.setFileInputFiles! Files count:", fileCountRes.result?.value);
+        } catch (fileErr) {
+          console.log("Error with DOM.setFileInputFiles:", fileErr.message);
+        }
+      } else {
+        console.log("Could not locate input[type=file] after polling.");
+      }
+    }
+
+    // Poll for Next / İleri button inside modal (<dialog>)
+    for (let i = 0; i < 12; i++) {
+      await new Promise((r) => setTimeout(r, 1000));
+      const nextBtnRes = await client.send("Runtime.evaluate", {
+        expression: `(() => {
+          const root = document.querySelector('dialog[open]') || document.querySelector('dialog') || document;
+          const nextBtn = Array.from(root.querySelectorAll('button')).find(b => {
+            const rect = b.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0 || b.disabled || b.getAttribute('aria-disabled') === 'true') return false;
+            const raw = (b.innerText || '').trim();
+            const t = raw.toLocaleLowerCase('tr-TR');
+            const label = (b.getAttribute('aria-label') || '').trim().toLocaleLowerCase('tr-TR');
+            return raw === 'İleri' || t === 'ileri' || t === 'next' || label === 'ileri' || label === 'next' || b.classList.contains('share-box-footer__primary-btn');
+          });
+          if (nextBtn) {
+            nextBtn.click();
+            return { clicked: true, text: (nextBtn.innerText || '').trim(), ariaLabel: nextBtn.getAttribute('aria-label') };
+          }
+          return { clicked: false };
+        })()`,
+        returnByValue: true,
+      }, sessionId);
+
+      if (nextBtnRes.result.value && nextBtnRes.result.value.clicked) {
+        console.log("Next/Done button result:", nextBtnRes.result.value);
+        break;
+      }
+    }
   }
 
   const postText = `Browse without interruption. 🎬⚡
@@ -344,24 +409,35 @@ Get it now:
 
 #Chrome #Productivity #OpenSource #WebDevelopment #Accessibility #SoftwareEngineering`;
 
-  // Focus editor and insert text
-  console.log("Focusing editor in LinkedIn modal...");
-  const editorFocusResult = await client.send("Runtime.evaluate", {
-    expression: `(() => {
-      const editor = document.querySelector('.tiptap.ProseMirror') ||
-                    document.querySelector('.ql-editor') ||
-                    document.querySelector('div[contenteditable="true"]');
-      if (editor) {
-        editor.focus();
-        return { success: true };
-      }
-      return { success: false };
-    })()`,
-    returnByValue: true,
-  }, sessionId);
+  // Poll for editor and insert text
+  console.log("Waiting for editor in LinkedIn modal...");
+  let editorFocused = false;
+  for (let i = 0; i < 12; i++) {
+    await new Promise((r) => setTimeout(r, 1000));
+    const editorFocusResult = await client.send("Runtime.evaluate", {
+      expression: `(() => {
+        const root = document.querySelector('dialog[open]') || document.querySelector('dialog') || document;
+        const editor = root.querySelector('.tiptap.ProseMirror') ||
+                      root.querySelector('.ql-editor') ||
+                      root.querySelector('div[contenteditable="true"]') ||
+                      document.querySelector('div[contenteditable="true"]');
+        if (editor) {
+          editor.focus();
+          return { success: true, className: editor.className };
+        }
+        return { success: false };
+      })()`,
+      returnByValue: true,
+    }, sessionId);
 
-  console.log("Editor focus result:", editorFocusResult.result.value);
-  if (editorFocusResult.result.value && editorFocusResult.result.value.success) {
+    if (editorFocusResult.result.value && editorFocusResult.result.value.success) {
+      console.log("Editor focus result:", editorFocusResult.result.value);
+      editorFocused = true;
+      break;
+    }
+  }
+
+  if (editorFocused) {
     console.log("Inserting text into LinkedIn editor...");
     await client.send("Input.insertText", { text: postText }, sessionId);
     await new Promise((r) => setTimeout(r, 2000));
@@ -369,16 +445,19 @@ Get it now:
 
   // Click Yayınla / Post
   console.log("Looking for LinkedIn 'Post' / 'Yayınla' button...");
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 12; i++) {
     const postBtnResult = await client.send("Runtime.evaluate", {
       expression: `(() => {
-        const btn = Array.from(document.querySelectorAll('button')).find(b => {
-          const txt = b.innerText.trim().toLowerCase();
-          return (txt === 'yayınla' || txt === 'paylaş' || txt === 'post') && !b.disabled && b.getAttribute('aria-disabled') !== 'true';
+        const root = document.querySelector('dialog[open]') || document.querySelector('dialog') || document;
+        const btn = Array.from(root.querySelectorAll('button')).find(b => {
+          const rect = b.getBoundingClientRect();
+          if (rect.width === 0 || rect.height === 0) return false;
+          const txt = (b.innerText || '').trim().toLocaleLowerCase('tr-TR');
+          return (txt === 'yayınla' || txt === 'paylaş' || txt === 'post' || b.classList.contains('share-actions__primary-action')) && !b.disabled && b.getAttribute('aria-disabled') !== 'true';
         });
         if (btn) {
           btn.click();
-          return { clicked: true, text: btn.innerText.trim() };
+          return { clicked: true, text: (btn.innerText || '').trim() };
         }
         return { clicked: false };
       })()`,
