@@ -16,17 +16,21 @@ Bu kılavuz, BookmarkFlow Bar proje kurallarının, mimari kararlarının ve iş
 
 ---
 
-## 2. Kural Yaşam Döngüsü ve Bağlam Bütçesi (Context Budget)
+## 2. Kural Yaşam Döngüsü ve Bağlam Bütçesi (Context Budget - BF-GOV-028)
 
-- **Operating Kernel Hafifliği**:
-  - `AGENTS.md` bir ansiklopediye dönüşemez; bağlam penceresini (context window) tüketmemek için tok, net ve P0 odaklı tutulur.
-  - Alana özel teknik detaylar ve ayrıntılı kontrol listeleri `docs/agent-playbooks/` altına taşınır.
+- **Operating Kernel & Çalışma Belleği Bütçeleri**:
+  - Kök `AGENTS.md` tavan bütçesi **16.384 bayt (16 KB)** (tercihen ~12 KB) ile sınırlandırılmıştır. Alana özel teknik detaylar ve uzun tetikleyici tabloları `docs/agent-playbooks/` altına taşınır.
+  - Aktif `docs/agent/PROJECT_STATE.md` çalışma belleği **16.384 bayt (16 KB)** altında tutulur. Tamamlanan sürümlerin madde madde uzun geçmişi `docs/agent/history/PROJECT_STATE_HISTORY_2026.md` arşivine aktarılır.
+  - Tüm playbook dosyalarının (`docs/agent-playbooks/*.md`) toplam boyutu **120.000 bayt (120 KB)** tavanını aşamaz ve her playbook kök `AGENTS.md` içindeki Task Router tablosunda referanslanmalıdır.
+- **Mekanik Kalite Kapıları (Mechanical Enforcement First)**:
+  - `.githooks/pre-commit` ve `.githooks/pre-push` kancaları depoda izlenir.
+  - `scripts/check-architecture-guard.mjs` (`npm run guard:arch`), kaynak kodda sessiz `catch {}` bloklarını engeller ve `1.500` satırı aşan dosyalar büyümeye devam ettiğinde modüler ayrıştırma uyarısı üretir.
 - **Kural Değişikliği Prosedürü**:
   - Kalıcı bir kural değiştiğinde veya yeni bir sistem eklendiğinde:
     1. İlgili playbook güncellenir veya yeni playbook oluşturulur.
     2. `docs/agent/RULE_CHANGELOG.md` dosyasına tarihli kayıt eklenir.
     3. Alınan kalıcı karar varsa `docs/agent/DECISION_INDEX.md` içine yeni satır olarak işlenir.
-    4. `node scripts/validate-governance.mjs` çalıştırılarak kural bütünlüğü doğrulanır.
+    4. `node scripts/validate-governance.mjs` çalıştırılarak kural bütünlüğü, BOM-suz UTF-8 kodlaması, bayt bütçeleri ve bayat referans (stale reference) yokluğu doğrulanır.
 
 ---
 

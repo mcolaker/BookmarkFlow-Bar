@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+# Copyright 2026 BookmarkFlow Bar Authors
+# SPDX-License-Identifier: Apache-2.0
+#
+# Pre-commit hook for BookmarkFlow Bar (Tracked in .githooks/pre-commit - BF-GOV-028)
+# Enforces governance context budgets, secret-free public tree, and architecture guard before commit.
+
+echo "Running BookmarkFlow pre-commit quality gates..."
+
+node scripts/validate-governance.mjs || {
+  echo "Pre-commit blocked: governance or context budget violation."
+  exit 1
+}
+
+node scripts/verify-public-tree.mjs || {
+  echo "Pre-commit blocked: secret pattern or blocked path detected in public tree."
+  exit 1
+}
+
+node scripts/check-architecture-guard.mjs --staged || {
+  echo "Pre-commit blocked: architecture guard critical violation."
+  exit 1
+}
+
+echo "Pre-commit quality gates passed."
+exit 0

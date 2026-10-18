@@ -88,7 +88,15 @@ function assertCompleteBinaryInventory() {
     ".bat", ".css", ".editorconfig", ".gitattributes", ".gitignore", ".html", ".js", ".json", ".md", ".mjs",
     ".ps1", ".py", ".sh", ".srt", ".svg", ".ts", ".tsx", ".txt", ".xml", ".yaml", ".yml",
   ]);
-  const extensionlessTextFiles = new Set(["DCO", "NOTICE", ".imgbotconfig", ".githooks/pre-push", "pre-push"]);
+  const extensionlessTextFiles = new Set([
+    "DCO",
+    "NOTICE",
+    ".imgbotconfig",
+    ".githooks/pre-commit",
+    "pre-commit",
+    ".githooks/pre-push",
+    "pre-push",
+  ]);
   const repositoryBinaries = new Set(repositoryFiles.filter((entry) => {
     const fileName = entry.split("/").at(-1);
     const extensionIndex = fileName.lastIndexOf(".");

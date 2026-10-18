@@ -6,13 +6,11 @@ Bu dosya BookmarkFlow Bar projesinin her zaman yürürlükte olan ana işletim �
 
 ## 0. Otorite ve Kalıcı Bellek
 
-- Kök `AGENTS.md` birincil depo kural otoritesidir.
-- Proje deposu kalıcı bellektir; proje için kritik kararlar için asla geçici sohbet belleğine güvenilmez.
+- Kök `AGENTS.md` birincil depo kural otoritesidir; proje deposu kalıcı bellektir (geçici sohbet belleğine güvenilmez).
 - Model kural uyumluluğu ve gerileme önleme standardı `AGENT_RULE_COMPLIANCE_BENCHMARK.md` dosyasında tescillenir.
 - Kalıcı mimari ve ürün kararları `docs/agent/DECISION_INDEX.md` dosyasında kayıt altına alınır.
-- Güncel mimari durum ve aktif sınırlar `docs/agent/PROJECT_STATE.md` dosyasında tutulur.
-- Görev ve durum takibi `docs/backlog/OPEN_TASKS.md` kanonik defterindedir.
-- Yeni sürüme kadar biriken yenilikler `docs/UNRELEASED_CHANGES.md` dosyasında not alınır.
+- Güncel mimari durum, kapsam dışı ilkeler (Non-Goals) ve aktif sınırlar `docs/agent/PROJECT_STATE.md` dosyasında (detaylı arşiv `docs/agent/history/PROJECT_STATE_HISTORY_2026.md` içinde) tutulur.
+- Görev takibi `docs/backlog/OPEN_TASKS.md` defterindedir; yeni sürüme kadar biriken yenilikler `docs/UNRELEASED_CHANGES.md` dosyasında not alınır.
 
 ---
 
@@ -20,41 +18,31 @@ Bu dosya BookmarkFlow Bar projesinin her zaman yürürlükte olan ana işletim �
 
 Geçerli herhangi bir P0 kuralı ihlal edilmişse hiçbir görev tamamlanmış sayılamaz:
 
-1. **Manifest V3 & Yerel-Öncelikli Gizlilik (Zero-Cloud & Runtime/Dev-Time İzolasyon Güvencesi)**: Eklenti tüm işlevlerini yerel olarak yürütür. Hiçbir yer imi, arama sorgusu, etiket veya gezinme verisi harici sunucuya veya uzak API'ye gönderilemez; uzak runtime bağımlılığı kesinlikle yasaktır (Runtime Zero-Cloud). Buna karşılık; otonom geliştirici araçları, MCP ekosistemi, Jev 1.14/Clef görsel hakemliği ve Playwright testleri yalnızca yerel geliştirme ve CI (Dev-Time) katmanında çalışır; son kullanıcı runtime koduna asla sızamaz.
-2. **Kapalı Shadow DOM & Sayfa İzolasyonu**: Sayfa içi kayan çubuk (`src/content.js`) barındırıcı sayfanın global DOM ve CSS ağacından `attachShadow({ mode: "closed" })` ile tam izole edilir; ana sayfanın stilleri çubuğu bozamaz.
-3. **Sıfır Gizli Veri & Sıfır Mutlak Yol**: Kaynak koda, testlere, belgelere veya commit'lere API anahtarı, token, şifre veya mutlak yerel kullanıcı yolları yazılamaz. `node scripts/verify-public-tree.mjs` sıfır hatayla geçmelidir.
-4. **Kullanıcı Verisini Asla Düşürme**: Mevcut yer imleri, klasör renkleri, etiketler, okuma listesi veya kullanıcı ayarları hiçbir güncelleme, geçiş veya hata durumunda sıfırlanamaz, silinemez veya ezilemez.
+1. **Manifest V3 & Yerel-Öncelikli Gizlilik (Zero-Cloud & Runtime/Dev-Time İzolasyonu)**: Eklenti tüm işlevlerini yerel yürütür; hiçbir yer imi, arama sorgusu veya gezinme verisi harici sunucuya gönderilemez (Runtime Zero-Cloud). Otonom geliştirici araçları, MCP ekosistemi, Jev 1.14/Clef hakemliği ve Playwright testleri yalnızca yerel geliştirme ve CI (Dev-Time) katmanında çalışır; son kullanıcı runtime koduna (`src/`) asla sızamaz.
+2. **Kapalı Shadow DOM & Sayfa İzolasyonu**: Sayfa içi kayan çubuk (`src/content.js`) barındırıcı sayfanın global DOM ve CSS ağacından `attachShadow({ mode: "closed" })` ile tam izole edilir.
+3. **Sıfır Gizli Veri & Sıfır Mutlak Yol**: Kaynak koda, testlere, belgelere veya commit'lere API anahtarı, token, şifre, sabit hesap UUID'si veya mutlak yerel kullanıcı yolları yazılamaz (`node scripts/verify-public-tree.mjs`).
+4. **Kullanıcı Verisini Asla Düşürme**: Mevcut yer imleri, klasör renkleri, etiketler, okuma listesi veya kullanıcı ayarları hiçbir güncelleme veya geçişte sıfırlanamaz, silinemez veya ezilemez.
 5. **Kök Nedene Öncelik (Root-Cause First)**: Hata veya beklenmeyen davranışlarda tahmin yürüterek kod değiştirilemez. Önce ilk gerçek hata, loglar ve yeniden üretim adımları incelenir; kök neden somutlaştırılmadan yama yapılamaz.
-6. **Çalışma Ağacına Saygı**: Kullanıcıya ait mevcut değişiklikler korunur. Görev kapsamı dışındaki ilgisiz dosyalar düzeltilemez, biçimlendirilemez veya commit kapsamına alınamaz.
+6. **Çalışma Ağacına Saygı**: Kullanıcıya ait mevcut değişiklikler korunur; görev kapsamı dışındaki ilgisiz dosyalar değiştirilemez.
 7. **Sabit UI Metni Yasağı & Tam TR/EN Dil Paritesi**: Arayüzde hardcoded metin kullanılamaz; `_locales/en` ve `_locales/tr` arasında %100 anahtar paritesi korunur.
 8. **Kanıtsız Doğrulama İddiası Yasağı**: Fiilen çalıştırılmayan hiçbir test veya kontrol "geçti" olarak raporlanamaz; çalıştırılmayan maddeler kalan risk olarak açıkça belirtilir.
-9. **Türkçe Yanıt Kuralı (Turkish Response Invariant)**: Kullanıcı aksini talep etmedikçe kullanıcıya verilen tüm yanıtlar istisnasız Türkçe olmak zorundadır. Kod sembolleri, değişken adları ve commit mesajları İngilizce kalır.
-10. **Kalıcı Proaktif Backlog, Tahliye Kapısı ve Sonraki Adım (Persistent Backlog & Eviction Gate - BF-GOV-024)**: Her nihai yanıt, önem derecesi belirtilmiş tek bir somut sonraki adım (`Sonraki adım — [High|Medium|Low]: ...`) ve sayı sınırı olmaksızın tüm CRITICAL/HIGH proaktif önerileri (olası yan etkileri parantez içinde belirterek) içerir. Öneriler `docs/agent/PROJECT_STATE.md` içindeki kanonik defterde (`## Aktif Proaktif Backlog`) kalıcı tutulur. Kodlanan veya commit edilen maddeler anında defterden tahliye edilir (`Eviction Gate`). Yeni öneri sunulmadan önce kod tabanı sessizce doğrulanarak mevcut özelliklerin mükerrer önerilmesi engellenir (`Pre-Proposal Verification Gate`).
-11. **Bütünsel İkincil İyileştirme Standardı (Proactive Holistic QA)**: Ziyaret edilen veya test edilen her arayüz yüzeyinde sadece birincil göreve bakılmaz; ekrandaki layout taşmaları, font/kontrast kusurları, padding dengesizlikleri, klavye odak halkaları ve kod hijyeni sorunları aynı turda proaktif olarak yerinde onarılır.
-12. **Uçtan Uca Sıfır Hata & Sıfır Teknik Borç (Zero Technical Debt)**: Kod değişikliği yapılan her turda ilgili doğrulama ve linter araçları çalıştırılır; sözdizimi, erişilebilirlik ve tip hataları yerinde sıfırlanır.
-13. **Son Kullanıcı Yapay Zeka / AI Terim Yasağı (Zero End-User AI Invariant)**: Eklenti arayüzünde (UI metinleri, rozetler, tooltip'ler, diyaloglar, mağaza açıklamaları vb.) son kullanıcıya ASLA "yapay zeka", "AI", "LLM" gibi teknik terimler gösterilemez. Kullanıcıya daima "Akıllı Arama", "Akıllı Sıralama", "Otomatik Öneri" gibi doğal ve ürün odaklı ifadeler sunulur.
-14. **Açık Kaynak & DCO 1.1 Bütünlüğü**: Proje Apache License 2.0 koşullarıyla korunur. Her katkı commit'i geçerli bir `Signed-off-by` satırı taşımalıdır (`git commit -s`).
-15. **Sürüm Öncesi Değişiklik Günlüğü (`UNRELEASED_CHANGES.md`)**: Yeni sürüm çıkana kadar yapılan tüm geliştirmeler unreleased olarak not alınır; sürüm istendiğinde notlar doğrudan buradan derlenir.
-16. **Profesyonel Görsel, Çift Bağlantı, Zorunlu Medya ve Dış Dil Standardı (Mandatory Visual Media & Dual-Link Copy Mandate - BF-GOV-025)**: Her sürümde tanıtım görselleri (X 1200x675, LinkedIn 1200x627) hazır sunulur; `README.md` yeni sürüm yetenekleriyle eksiksiz güncellenir. X ve LinkedIn paylaşımlarında istisnasız hem resmi **Chrome Web Store** bağlantısı (`https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf`) hem de **GitHub Sürüm** bağlantısı birlikte yer alır. **Zorunlu Görsel/Video Kartı Kuralı ve Ön-Kontrol Kapısı (Mandatory Visual Media & Pre-Publish Visual Lint - BF-GOV-026 & BF-GOV-027):** Sosyal medya paylaşımlarında yalnızca metin veya otomatik link önizlemesi (OG card) ile paylaşım yapılması KESİNLİKLE YASAKTIR. Her paylaşımda hazırlanan özel tanıtım görsel kartı (X 16:9 / LinkedIn 1.91:1) dosya olarak iliştirilir; yayınlama öncesinde `assertSocialCardVisualQuality` ile en-boy oranı, çözünürlük ve dosya bütünlüğü fail-closed doğrulanır. X paylaşımlarında 280 karakter sınırı (t.co her URL = 23, 2 URL = 46) katı gözetilir. **Dış Duyuru Dili ve İlham Verici Anlatım:** Sosyal medya duyuruları (X, LinkedIn) küresel standart gereği İSTİSNASIZ İNGİLİZCE yayınlanır; son kullanıcıya dönük değerler öne çıkarılır, çekirdek yazılımsal bugfix jargonu kamuya açık duyurularda kesinlikle yasaktır.
-17. **GitHub İşlem Yetkilendirmesi & Terminal-Öncelikli GitHub CLI Standardı (Terminal-First GitHub CLI Mandate - BF-GOV-007 & BF-GOV-016)**: Dal oluşturma, push, PR açma (`gh pr create`), CI durumunu izleme (`gh pr checks --watch`), PR birleştirme (`gh pr merge --auto --merge`) ve sürüm işlemleri tarayıcı açmaya ihtiyaç duymadan doğrudan terminalden resmi GitHub CLI (`gh`) aracılığıyla otonom yürütülür. Tarayıcı tabanlı GitHub etkileşimi tamamen terk edilmiş olup yalnızca görsel/medya doğrulaması gereken durumlarda ikincil kalır. Sürüm etiketi, harici platform duyuruları ve force push açık kullanıcı onayı gerektirir.
-18. **Yerel Niyet ve Akıllı Yönlendirme Motoru (Zero-Latency Intent Engine)**: Arama ve Spotlight paletine girilen girdiler harici ağ isteği olmadan yerel kural motoruyla (`BookmarkIntentRoutingEngine`: URL, komut, etiket, klasör, sekme, arama) anında sınıflandırılır; kullanıcıya ne olacağını canlı gösteren akıllı rozet (`Smart Routing Badge`) sunulur. UI'da son kullanıcıya dönük AI/JEV teknik terimleri kullanılamaz (P0-13 ile tam uyumlu).
-19. **Eklenti Kusursuz Kalite Dörtgeni, Otonom Video İnisiyatifi ve Görsel Kutu Hakemliği (Quality Quadrumvirate, Autonomous Video & Box Judge - BF-QA-004, BF-QA-006, BF-QA-008)**: UI doğrulamalarında 4 bağımsız hakem devrededir: (1) **Gören Göz** (Playwright & Gemini Agentic Video / `npm run qa:motion`: animasyon akıcılığı, 60fps spring fizikleri, sıfır jank denetimi; BF-QA-008 Jev 1.14 / Clef bounding-box geometri ve viewport taşma hakemi); (2) **Düşünen Hakem** (Cloudflare Clef & Microsoft Decision-1 çift hakem ve failover: kapalı Shadow DOM izolasyonu, focus trap, sıralama ve durum geçiş tescili); (3) **Standartlar ve MV3 Hakemi** (`npm run test:mv3`: MV3 API ve WAI-ARIA uyumluluğu); (4) **Tasarım ve Estetik Hakemi** (Google Stitch & Global Design Tokens: glassmorphism, 5 tema uyumu, 4.5:1 kontrast ve `forced-colors: active` estetiği). Sıfır görsel token harcayan hızlı denetimler için `inspect:dom` (BF-QA-007) ve `inspect:boxes` (BF-QA-008) kullanılır.
-20. **Tam Otonom Geliştirici Araçları ve Teftiş İnisiyatifi (Autonomous DevTools, MCP Ecosystem, Web Guidance & Gemini API Authority - Karar 20, 28, 29 - BF-GOV-022)**:
-    - **A. Konu ve Alan Bazlı Otonom Tetikleyiciler (Domain-Specific Triggers)**:
-      1. *Arayüz, Performans ve Kapalı Shadow DOM*: Sayfa içi çubuk kapalı Shadow DOM izolasyonu (`attachShadow({ mode: "closed" })`), CSS layout taşmaları, ARIA/klavye odak halkaları (`:focus-visible`), renk kontrastı (`4.5:1`), bellek sızıntısı ve LCP render profillemede (**Chrome DevTools MCP** & **a11y-debugging**).
-      2. *Manifest V3 ve Tarayıcı API Standartları*: MV3 kuralları, Service Worker yaşam döngüsü, depolama kotaları (`chrome.storage.local`), modern CSS (`:has()`, container queries) ve güvenli DOM manipülasyonunda (**Modern Web Guidance** & **Chrome Extensions**).
-      3. *Resmi Dokümantasyon ve Standartlar*: Chromium kaynak kodu, Chrome Extensions API spesifikasyonları, W3C ve Web API resmi belgelerini aramada (**Google Developer Knowledge** & **Context7**).
-      4. *Multimodal Akıcılık ve Medya Kalitesi*: Animasyon akıcılığı, UI geçiş fiziği (spring curves), sıfır jank denetimi (`npm run qa:motion`) ve tanıtım GIF/videolarının görsel kalite analizinde (**Gemini API** & **Agentic Video Motoru**).
-      5. *Canlı Kullanıcı Oturumu ve Sekme Denetimi*: P0-22 uyarınca kullanıcının port 9222 üzerindeki çalışan Chrome oturumuna bağlanarak Chrome Web Store konsolu, GitHub ve sosyal medya hazırlığını doğrulamada (**Live Chrome Pilot - CDP 9222**).
-      6. *Sürüm Dokümantasyonu ve Raporlama*: Lansman kitleri (`COMMUNITY_LAUNCH_KIT_vX.Y.Z.md`), mağaza tanıtım metinleri ve kullanıcı onaylı yerel sağlık raporu şablonlarında, P0-1 sıfır-bulut kuralı korunarak (**Google Workspace / Docs & Sheets**).
-      7. *Derin Mimari ve Bağımlılık Analizi*: Çok adımlı mimari planlama, refaktör zincirleri, kod bağımlılık grafı ve ADR yönetiminde (**Sequential Thinking** & **Codebase Memory**).
-      8. *Karar Destek, Çift Hakem ve Sıfır Kesinti*: Kritik niyet yönlendirmesi, PR öncesi statik analiz kararları ve yüksek güvenceli kalite kapılarında OpenRouter Decisions API üzerinden çift hakem (`consensus`) ve kesintisiz failover (**Cloudflare Clef & Microsoft Decision-1**).
-    - **B. Kural-Ötesi Tam Model Karar İnisiyatifi (Beyond-Rules Autonomous Model Discretion Mandate)**: Yapay zeka asistanı, yukarıda listelenen konu ve alan sınırlarıyla KISITLI DEĞİLDİR. Projenin kod hijyeni, hızı, güvenliği, mimari sağlamlığı veya hata ayıklaması için yapay zeka modeli kendi teknik yargısıyla (expert autonomous discretion) gerekli veya yararlı gördüğü her an, önceden tanımlanmış kuralların veya listelenen alanların dışında kalsa dahi, istediği MCP aracını kullanıcıya sormadan, onay beklemeden ve anında tam yetkiyle çağırır, çalıştırır ve bulguları projeye proaktif olarak uygular.
-21. **Otonom Ara Kilometre Taşı Commit Yetkisi (Autonomous Local Milestone Commit Authority - Karar 19 & Karar 27)**: Model; testleri yeşil (`npm test`, `validate`) ve statik analizi hatasız olan her mantıksal ara kilometre taşında kullanıcıya sormadan otonom olarak DCO imzalı yerel Git commit'i (`git commit -s`) oluşturur. Uzak repoya `push`, `PR` ve `release` operasyonları ise P0-17 uyarınca kesinlikle kullanıcının kontrolünde ve terminal-first yürütülür.
-22. **İki Kollu Tarayıcı Mimarisi, Canlı Kullanıcı Profili ve Auto-Allow Daemon Güvencesi (User's Live Chrome & Auto-Allow Daemon Invariant - Karar 27, 39 - BF-WIN-002)**: Tarayıcı işlemlerinde: (1) Kamuya açık araştırmalar ve teknik dokümantasyon için sıfır izinli Chrome DevTools MCP kullanılır; (2) Oturum gerektiren işlemler (CWS Console, GitHub PR, X, LinkedIn) için ASLA geçici profil açılmaz, kullanıcının çalışan Chrome penceresine ve profiline CDP (`port 9222` / `DevToolsActivePort` WebSocket) ile bağlanılır (`User's Live Chrome Invariant`). Chromium güvenlik modalı ("Uzaktan hata ayıklamaya izin verilsin mi?") açıldığında, arka planda çalışan JaponiGo çekirdekli `chrome_auto_allow_daemon.py` ve `ensureAutoAllowDaemon()` kancası (ve Windows UIA `InvokePattern`) izin penceresini anında ve otonom onaylar; kullanıcıya kesinlikle manuel tıklama yükü bindirilmez.
-23. **3-Kademeli Dil ve Canlı Arayüz Raw-Key Güvencesi (Three-Tier Localization & Raw-Key Gate - Karar 27)**: Eklenti arayüzlerinde (Sayfa İçi Çubuk, Spotlight, Yeni Sekme, Popup, Ayarlar) ham çeviri anahtarı (`nt_*`, `bar_*`, `quick_*`, `app_*`) veya bozuk metin (mojibake) gösterilmesi kesinlikle yasaktır. (1) Statik anahtar paritesi kuralı; (2) `test:raw-keys` canlı arayüz ve DOM tarama testi; (3) Otomatik yerelleştirme tamamlayıcı kapısı ile %100 parite korunur.
-24. **Manifest V3 API Uyumluluk ve Kullanımdan Kalkma Güvencesi (Manifest V3 API Compliance & Zero-Deprecation Gate - Karar 30 - BF-QA-005)**: Eklenti kod tabanında (`src/`) eski Manifest V2 senkron veya kullanımdan kalkmış (deprecated) API'ler (`chrome.extension.*`, `chrome.browserAction.*`, `chrome.pageAction.*`, `chrome.tabs.executeScript`, `chrome.tabs.insertCSS`, `chrome.runtime.getBackgroundPage`, WebSQL `openDatabase` vb.) ASLA kullanılamaz. Tüm Chrome API çağrıları Manifest V3 resmi standartlarına uygun, `manifest.json` izinleriyle (%100) eşleşen ve Service Worker ortamında DOM globalsiz (`window`/`document` erişimsiz) çalışan yapıda olmalıdır. Bu kural `npm run test:mv3` sözleşme testi, CI iş akışı ve dağıtım paketleme ön kancası (`assertMv3Compliance`) ile fail-closed doğrulanır.
-25. **Sessiz Nihai Yanıt Kapısı (Final Response Gate - Karar 31)**: Model kullanıcıya nihai yanıt göndermeden önce zihninde sessizce şu 5 temel invariant'ı doğrular: (1) İletişim dili istisnasız Türkçe mi? (P0-9); (2) Öncelik etiketi (`[High]`, `[Medium]`, `[Low]`) taşıyan tek bir somut sonraki adım var mı? (P0-10); (3) Kodda, belgelerde veya yanıtta sıfır gizli veri ve sıfır yerel mutlak yol korundu mu? (P0-3); (4) Çalıştırılmayan hiçbir test veya kontrol "geçti" gösterilmedi mi? (P0-8); (5) Geçerli tüm P0 kısıtlamalarına (%100) uyuldu mu? Eksiklik varsa yanıt gönderilmeden önce yerinde düzeltilir.
+9. **Türkçe Yanıt Kuralı (Turkish Response Invariant)**: Kullanıcı aksini talep etmedikçe kullanıcıya verilen tüm yanıtlar istisnasız Türkçe olmak zorundadır. Kod sembolleri ve commit mesajları İngilizce kalır.
+10. **Kalıcı Proaktif Backlog, Tahliye Kapısı ve Sonraki Adım (BF-GOV-024)**: Her nihai yanıt, önem derecesi belirtilmiş tek bir somut sonraki adım (`Sonraki adım — [High|Medium|Low]: ...`) ve sayı sınırı olmaksızın tüm CRITICAL/HIGH proaktif önerileri (olası yan etkileriyle) içerir. Öneriler `docs/agent/PROJECT_STATE.md` içindeki `## Aktif Proaktif Backlog` defterinde tutulur; tamamlanan maddeler anında tahliye edilir (`Eviction Gate`), öneri öncesi kod tabanı doğrulanır (`Pre-Proposal Verification Gate`).
+11. **Bütünsel İkincil İyileştirme Standardı (Proactive Holistic QA)**: Ziyaret edilen her arayüz yüzeyinde sadece birincil göreve bakılmaz; layout taşmaları, kontrast kusurları, padding dengesizlikleri, klavye odak halkaları ve kod hijyeni sorunları aynı turda yerinde onarılır. Ayrıca `inspect-visual-boxes.mjs` içinde `[1C]` tasarım kapısı tetiklenirse Google Stitch + Nano Banana Pro ile arayüz yükseltilir veya `[HIGH]` öneri olarak sunulur (`BF-QA-010`).
+12. **Uçtan Uca Sıfır Hata & Sıfır Teknik Borç**: Kod değişikliği yapılan her turda ilgili doğrulama ve linter araçları çalıştırılır; sözdizimi, erişilebilirlik ve tip hataları yerinde sıfırlanır.
+13. **Son Kullanıcı Yapay Zeka / AI Terim Yasağı (Zero End-User AI Invariant)**: Eklenti arayüzünde ve mağaza açıklamalarında son kullanıcıya ASLA "yapay zeka", "AI", "LLM" gibi teknik terimler gösterilemez; daima "Akıllı Arama", "Akıllı Sıralama", "Otomatik Öneri" gibi doğal ürün ifadeleri kullanılır.
+14. **Açık Kaynak & DCO 1.1 Bütünlüğü**: Proje Apache License 2.0 ile korunur. Her katkı commit'i geçerli bir `Signed-off-by` satırı taşımalıdır (`git commit -s`).
+15. **Sürüm Öncesi Değişiklik Günlüğü (`UNRELEASED_CHANGES.md`)**: Yeni sürüm çıkana kadar yapılan tüm geliştirmeler buraya kaydedilir.
+16. **Profesyonel Görsel, Çift Bağlantı, Zorunlu Medya, Sıra Kapısı ve Dış Dil Standardı (BF-GOV-025, BF-GOV-026, BF-GOV-027, BF-REL-016)**: Sosyal medya paylaşımlarında (X, LinkedIn) hem resmi Chrome Web Store hem GitHub Release bağlantısı birlikte yer alır; yalnızca metin/OG kartı ile paylaşım yasaktır (`assertSocialCardVisualQuality`). Paylaşım öncesinde GitHub Release ve CWS gönderim durumu `assertPreSocialReleaseGate` ile doğrulanır. Dış duyurular İSTİSNASIZ İNGİLİZCE yayınlanır, görsellerdeki UI dili de İngilizce (`en`) olur ve iç bugfix jargonu kullanılmaz (`docs/agent-playbooks/release_distribution.md`).
+17. **GitHub İşlem Yetkilendirmesi & Terminal-Öncelikli GitHub CLI Standardı (BF-GOV-016)**: Dal oluşturma, push, PR açma (`gh pr create`), CI izleme (`gh pr checks --watch`), birleştirme (`gh pr merge --auto --merge`) ve sürüm işlemleri doğrudan terminalden resmi `gh` CLI ile yürütülür. Sürüm etiketi, harici duyuru ve force push açık kullanıcı onayı gerektirir.
+18. **Yerel Niyet ve Akıllı Yönlendirme Motoru (Zero-Latency Intent Engine)**: Arama ve Spotlight girdileri harici ağ isteği olmadan yerel `BookmarkIntentRoutingEngine` ile sınıflandırılır ve `Smart Routing Badge` ile gösterilir.
+19. **Eklenti Kusursuz Kalite Dörtgeni, Otonom Video İnisiyatifi ve 360° Görsel Kutu Hakemliği (BF-QA-004, BF-QA-006, BF-QA-008, BF-QA-010)**: UI doğrulamalarında 4 bağımsız hakem devrededir: (1) **Gören Göz** (`npm run qa:motion` & `inspect-visual-boxes.mjs --360` Jev 1.14 360° multimodal ve kutu hakemi); (2) **Düşünen Hakem** (Cloudflare Clef & Microsoft Decision-1 çift hakem/failover + `npm run inspect:dom`); (3) **Standartlar ve MV3 Hakemi** (`npm run test:mv3` & WAI-ARIA); (4) **Tasarım ve Estetik Hakemi** (Google Stitch + Nano Banana Pro `evaluateProactiveStitchBananaGate` & Global Design Tokens). Detaylar `docs/agent-playbooks/ui_accessibility.md` içindedir.
+20. **Otonom Geliştirici Araçları ve Teftiş İnisiyatifi (Autonomous DevTools, MCP Ecosystem & Beyond-Rules Discretion - Karar 20, 28, 29 - BF-GOV-022)**: Model; Chrome DevTools MCP, Modern Web Guidance, Google Developer Knowledge, Context7, TypeSafe Jev 1.14, Cloudflare Clef, Google Stitch + Nano Banana Pro, Gemini Agentic Video ve Live Chrome Pilot (CDP 9222) araçlarını `docs/agent-playbooks/mcp_plugin_orchestration.md` içindeki zorunlu tetikleme matrisine göre çalıştırır ve kuralların ötesinde teknik olarak gerekli gördüğü her an istediği MCP/yeteneği kullanıcıya sormadan tam otonom yetkiyle devreye alır.
+21. **Otonom Ara Kilometre Taşı Commit Yetkisi (Karar 19 & 27)**: Model; testleri yeşil (`npm test`, `validate`) olan her mantıksal ara kilometre taşında kullanıcıya sormadan DCO imzalı yerel Git commit'i (`git commit -s`) oluşturur.
+22. **İki Kollu Tarayıcı Mimarisi, Canlı Kullanıcı Profili ve Auto-Allow Daemon Güvencesi (Karar 27, 39 - BF-WIN-002)**: Kamuya açık araştırmalar için sıfır izinli DevTools MCP kullanılır; oturum gerektiren işlemler (CWS Console, GitHub, X, LinkedIn) için ASLA geçici profil açılmaz, kullanıcının çalışan Chrome penceresine `DevToolsActivePort` WebSocket (CDP 9222) ile bağlanılır ve izin penceresi `chrome_auto_allow_daemon.py` / `ensureAutoAllowDaemon()` ile otonom onaylanır.
+23. **3-Kademeli Dil ve Canlı Arayüz Raw-Key Güvencesi (Karar 27)**: Eklenti arayüzlerinde ham çeviri anahtarı (`nt_*`, `bar_*`, `quick_*`, `app_*`) veya bozuk metin (mojibake) gösterilmesi yasaktır (`npm run test:raw-keys`).
+24. **Manifest V3 API Uyumluluk ve Kullanımdan Kalkma Güvencesi (Karar 30 - BF-QA-005)**: Kod tabanında (`src/`) eski Manifest V2 senkron veya kullanımdan kalkmış API'ler kullanılamaz; Service Worker ortamında DOM globalsiz çalışılır (`npm run test:mv3` ve `assertMv3Compliance`).
+25. **Sessiz Nihai Yanıt Kapısı (Final Response Gate - Karar 31)**: Yanıt göndermeden önce sessizce şu 5 invariant doğrulanır: (1) Türkçe yanıt (P0-9); (2) Öncelik etiketli (`[High|Medium|Low]`) tek somut sonraki adım (P0-10); (3) Sıfır gizli veri ve sıfır yerel mutlak yol (P0-3); (4) Çalıştırılmayan hiçbir kontrolün "geçti" gösterilmemesi (P0-8); (5) Tüm P0 kurallarına tam uyum.
 
 ---
 
@@ -67,57 +55,43 @@ Geçerli herhangi bir P0 kuralı ihlal edilmişse hiçbir görev tamamlanmış s
 | `BUGFIX` | İlgili kaynak kod + en yakın ilgili alan playbook'u | Chrome DevTools, Context7, Sequential Thinking |
 | `BROWSER_EXTENSION` | `docs/agent-playbooks/browser_extension.md` | Modern Web Guidance, Chrome Extensions, Chrome DevTools |
 | `WINDOWS_COMPANION` | `docs/agent-playbooks/windows_companion.md` | Native Messaging, Live Chrome Pilot (CDP 9222) |
-| `UI_ACCESSIBILITY` | `docs/agent-playbooks/ui_accessibility.md` | a11y-debugging, Modern Web Guidance, Agentic Motion |
+| `UI_ACCESSIBILITY` | `docs/agent-playbooks/ui_accessibility.md` | a11y-debugging, Jev 1.14 360°, Stitch/Banana, Agentic Motion |
+| `MCP_ORCHESTRATION` | `docs/agent-playbooks/mcp_plugin_orchestration.md` | Jev 1.14, Clef/Decision-1, Stitch, Developer Knowledge |
 | `SECURITY_PRIVACY` | `docs/agent-playbooks/security_privacy.md` | Public Tree Scanner, Secret Detection |
-| `RELEASE_DISTRIBUTION` | `docs/agent-playbooks/release_distribution.md` | Live Chrome Pilot (CDP 9222), GitHub CLI, Raw-Key Gate |
-| `RULE_GOVERNANCE` | `docs/agent-playbooks/rule_governance.md` | Codebase Memory, Governance Contract |
+| `RELEASE_DISTRIBUTION` | `docs/agent-playbooks/release_distribution.md` | Live Chrome Pilot (`publish:cws`, `publish:social`), GitHub CLI |
+| `RULE_GOVERNANCE` | `docs/agent-playbooks/rule_governance.md` | Codebase Memory, Governance & Architecture Guard |
 
 ---
 
 ## 3. Asgari Ön İnceleme & Uygulama Sınırları (Minimum Preflight & Implementation Boundaries)
 
 Yeni soyutlama, bileşen veya yardımcı kod yazmadan önce aşağıdaki kontrol zinciri zorunludur:
-1. **Mevcut Yapıyı İncele:** Projede bu işi yapan mevcut bir yardımcı (`utils/`, `src/`) veya servis var mı?
-2. **Deseni Genişlet:** Tekerleği yeniden icat etmek yerine mevcut mimari desenleri genişlet.
-3. **Modern Yerel API Tercihi:** Harici kütüphane eklemek yerine tarayıcının yerel modern web API'lerini (CSS Grid/Flexbox, `Intl`, `crypto.randomUUID`, Native Messaging) kullan.
-4. **Merkezi Otoriteyi Koruma:** Yer imi verisi, senkronizasyon, ayarlar veya tema gibi merkezi veri otoriteleri asla alt UI bileşenlerine kontrolsüzce dağıtılamaz.
+1. **Mevcut Yapıyı İncele & Deseni Genişlet:** Projede bu işi yapan mevcut bir yardımcı (`src/`) var mı kontrol et; tekerleği yeniden icat etme.
+2. **Modern Yerel API Tercihi:** Harici kütüphane yerine yerel modern web API'lerini (CSS Grid/Flexbox, `Intl`, `crypto.randomUUID`, Native Messaging) kullan.
+3. **Merkezi Otoriteyi Koruma:** Yer imi verisi, senkronizasyon, ayarlar veya tema gibi merkezi veri otoriteleri alt bileşenlere kontrolsüzce dağıtılamaz.
+4. **Mimari Bekçi ve Büyük Dosya Disiplini (Architecture Guard - BF-GOV-028):** Kaynak kodda (`src/`, `scripts/`) boş/sessiz `catch {}` blokları kullanılamaz; `1.500` satırı aşan dosyalara dokunulduğunda monolitik büyümeyi önlemek için yeni mantık modüler yardımcılara ayrıştırılır (`node scripts/check-architecture-guard.mjs` ve `.githooks/pre-commit`).
 
 ---
 
 ## 4. Zorunlu Nihai Rapor Şablonu (Mandatory Verbatim Evidence)
 
-Nihai raporda özetleme yapmak, kanıtları gizlemek veya "tüm kontroller temiz geçti" deyip geçmek KESİNLİKLE YASAKTIR. Her nihai yanıtta aşağıdaki bölümler eksiksiz sunulur:
+Nihai raporda özetleme yapmak veya kanıtları gizlemek KESİNLİKLE YASAKTIR. Her nihai yanıtta aşağıdaki bölümler eksiksiz sunulur:
 
 ### Bölüm 1: Canlı Doğrulama ve Konsol Kanıtları (Zorunlu Birebir Ham Çıktılar)
-Aşağıdaki kontroller terminalde fiilen çalıştırılır ve konsolun ürettiği çıktı markdown kod bloğu (` ``` `) içinde ham olarak sunulur:
-1. **Birim ve Sözleşme Test Çıktısı (`npm test`):**
-   - Tüm sözleşme testlerinin geçtiğini gösteren terminal çıktısı eksiksiz yer almalıdır.
-2. **Toplu Proje ve Açık Kaynak Doğrulaması (`npm run validate:all`):**
-   - Açık kaynak, DCO, public tree, manifest, governance, raw-key ve backlog doğrulama çıktısı ham olarak yer almalıdır.
-3. **Satır Sonu ve Boşluk Denetimi (`git diff --check`):**
-   - Sıfır hata çıktısı ham olarak sunulmalıdır.
+Aşağıdaki kontroller terminalde fiilen çalıştırılır ve çıktıları markdown kod bloğu içinde ham olarak sunulur:
+1. **Birim ve Sözleşme Test Çıktısı (`npm test`)**
+2. **Toplu Proje ve Açık Kaynak Doğrulaması (`npm run validate:all`)**
+3. **Satır Sonu ve Boşluk Denetimi (`git diff --check`)**
 
 ### Bölüm 2: İncelenen Canlı Yüzeyler ve İkincil İyileştirmeler (P0-11)
-- Ziyaret edilen/incelenen yüzeylerde (Yeni Sekme, Spotlight, Sayfa İçi Çubuk, Ayarlar vb.) tespit edilen layout, kontrast, padding, klavye odağı ve CSS kusurları ile kodda uygulanan doğrudan onarımlar açıklanır.
-
-### Bölüm 3: Yapılan Değişiklikler ve Dosyalar
-- Değiştirilen dosyalar tıklanabilir `file:///` formatında listelenir ve teknik işler özetlenir.
-
-### Bölüm 4: Proaktif Öneriler (CRITICAL & HIGH)
-- Sayı sınırlaması olmaksızın tüm CRITICAL ve HIGH önem derecesindeki öneriler (olası yan etkileriyle).
-
+### Bölüm 3: Yapılan Değişiklikler ve Dosyalar (Tıklanabilir `file:///` bağlantılarıyla)
+### Bölüm 4: Proaktif Öneriler (CRITICAL & HIGH — Olası yan etkileriyle)
 ### Bölüm 5: Çalıştırılmayan Kontroller ve Kalan Riskler
-
-### Bölüm 6: Zorunlu Son Satır
-- `Sonraki adım — [High|Medium|Low]: <somut tek bir eylem>`.
+### Bölüm 6: Zorunlu Son Satır (`Sonraki adım — [High|Medium|Low]: <somut tek bir eylem>`)
 
 ---
 
 ## 5. Kural ve Bellek Yönetişimi
 
-- **Kural ve Bellek Rafinasyonu (More Precise Over Time, Not Larger by Accumulation):** Kural sistemi zamanla yığılarak bağlamı şişirmemeli; zaman geçtikçe eskiyen kurallar ayıklanmalı, detaylar playbook'lara aktarılmalı ve çekirdek sistem daha keskin, öz ve modüler hale getirilmelidir. Kök `AGENTS.md` dosyasının bağlam tavan bütçesi maksimum 20.480 bayt (20 KB) ile sınırlandırılmıştır (`scripts/validate-governance.mjs`). Modelin kritik kurallara tam uyumu `AGENT_RULE_COMPLIANCE_BENCHMARK.md` ile tescillenir.
-- Proje kurallarında veya mimaride kalıcı değişiklik yapıldığında:
-  1. `docs/agent-playbooks/rule_governance.md` prosedürü işletilir.
-  2. Alınan kalıcı karar `docs/agent/DECISION_INDEX.md` dosyasına eklenir.
-  3. Değişiklik `docs/agent/RULE_CHANGELOG.md` dosyasına kaydedilir.
-  4. `node scripts/validate-governance.mjs` ile kural sözleşmesi doğrulanır.
+- **Kural ve Bellek Rafinasyonu (More Precise Over Time, Not Larger by Accumulation):** Kök `AGENTS.md` tavan bütçesi 16 KB (tercihen ~12–13 KB), `PROJECT_STATE.md` tavan bütçesi 16 KB ile sınırlandırılmıştır (`scripts/validate-governance.mjs`).
+- Kalıcı kural/mimari değişikliklerinde: `docs/agent-playbooks/rule_governance.md` işletilir, karar `docs/agent/DECISION_INDEX.md` ve `docs/agent/RULE_CHANGELOG.md` dosyalarına kaydedilir ve `node scripts/validate-governance.mjs` ile doğrulanır.
