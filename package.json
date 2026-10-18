@@ -23,6 +23,7 @@
     "release:github": "node scripts/release-github-cli.mjs",
     "release:full": "node scripts/release-pipeline.mjs",
     "pilot:chrome": "node scripts/live-chrome-pilot.mjs",
+    "publish:cws": "node scripts/publish-cws.mjs",
     "publish:social": "node scripts/publish-social.mjs",
     "guard:console": "node scripts/live-console-guard.mjs",
     "inspect:dom": "node scripts/inspect-extension-dom.mjs",
