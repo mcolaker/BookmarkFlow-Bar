@@ -16,8 +16,10 @@ Add a customizable multi-row bookmark bar to ordinary web pages, search your boo
 
 HIGHLIGHTS
 
+• Seamless fullscreen focus (auto-hides during video/games and restores exact layout on exit)
+• Adaptive New Tab 44px footer safe-area preventing overlap with Chromium & Brave customize bars
 • Smart filter chips (All, Folders, Tags, Reading List) with fluent arrow navigation
-• Dynamic folder sorting (A-Z, Newest, Most Visited) with persistent local memory
+• Dynamic folder sorting (A-Z, Newest, Most Visited) with persistent memory & voice announcements
 • Modern folder menu header with instant "+ Bookmark/Folder" and "↗ Open All" actions
 • Instant folder search with live character highlights and quick clear (×) button
 • Middle-click rapid background tab opening and right-click incognito actions

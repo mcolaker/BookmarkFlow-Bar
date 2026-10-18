@@ -35,7 +35,9 @@ test("parsePngDimensions rejects invalid signatures or corrupted buffers", () =>
 });
 
 test("assertSocialCardVisualQuality validates X promo card 1200x675 (16:9)", () => {
-  const xCardPath = path.resolve("output/social-v0.4.0/bookmarkflow-v0.4.0-x-card.png");
+  const xCardPath = fs.existsSync(path.resolve("output/social-v0.4.1/bookmarkflow-v0.4.1-x-card.png"))
+    ? path.resolve("output/social-v0.4.1/bookmarkflow-v0.4.1-x-card.png")
+    : path.resolve("output/social-v0.4.0/bookmarkflow-v0.4.0-x-card.png");
   if (fs.existsSync(xCardPath)) {
     const result = assertSocialCardVisualQuality(xCardPath, "x");
     assert.equal(result.valid, true);
@@ -47,7 +49,9 @@ test("assertSocialCardVisualQuality validates X promo card 1200x675 (16:9)", () 
 });
 
 test("assertSocialCardVisualQuality validates LinkedIn promo card 1200x627 (1.91:1)", () => {
-  const liCardPath = path.resolve("output/social-v0.4.0/bookmarkflow-v0.4.0-linkedin-card.png");
+  const liCardPath = fs.existsSync(path.resolve("output/social-v0.4.1/bookmarkflow-v0.4.1-linkedin-card.png"))
+    ? path.resolve("output/social-v0.4.1/bookmarkflow-v0.4.1-linkedin-card.png")
+    : path.resolve("output/social-v0.4.0/bookmarkflow-v0.4.0-linkedin-card.png");
   if (fs.existsSync(liCardPath)) {
     const result = assertSocialCardVisualQuality(liCardPath, "linkedin");
     assert.equal(result.valid, true);

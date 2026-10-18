@@ -14,24 +14,24 @@
   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
   <img alt="Firefox Add-ons Ready" src="https://img.shields.io/badge/Firefox-Add--ons%20Ready-FF7139?logo=firefoxbrowser&logoColor=white">
   <img alt="Microsoft Edge Compatible" src="https://img.shields.io/badge/Edge-Compatible-0078D7?logo=microsoftedge&logoColor=white">
-  <img alt="Source version 0.4.0" src="https://img.shields.io/badge/source-0.4.0-F2C94C">
+  <img alt="Source version 0.4.1" src="https://img.shields.io/badge/source-0.4.1-F2C94C">
   <img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-4C8BF5">
   <img alt="Privacy: local first" src="https://img.shields.io/badge/privacy-local--first-41D17D">
 </p>
 
 <p align="center">
   <strong><a href="https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf">Install from Chrome Web Store</a></strong> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.0/bookmarkflow-bar-0.4.0.zip">Chrome ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.0/bookmarkflow-bar-0.4.0-firefox.zip">Firefox ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.0/bookmarkflow-bar-0.4.0-edge.zip">Edge ZIP</a> ·
-  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.0/bookmarkflow-bar-0.4.0.zip.sha256">Verify SHA-256</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.1/bookmarkflow-bar-0.4.1.zip">Chrome ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.1/bookmarkflow-bar-0.4.1-firefox.zip">Firefox ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.1/bookmarkflow-bar-0.4.1-edge.zip">Edge ZIP</a> ·
+  <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.1/bookmarkflow-bar-0.4.1.zip.sha256">Verify SHA-256</a> ·
   <a href="#install-from-source">Installation guide</a> ·
   <a href="https://mcolaker.github.io/BookmarkFlow-Bar/">Product website</a> ·
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/discussions">Join Discussions</a>
 </p>
 
 <p align="center">
-  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.4.0 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
+  <sub><strong>Project status:</strong> Chrome Web Store listing live · verified v0.4.1 GitHub Release published · <a href="CHANGELOG.md">Changelog</a></sub>
 </p>
 
 > [!NOTE]
@@ -54,8 +54,9 @@
 
 Chrome's native bookmarks bar is intentionally simple, but it cannot become a true multi-row workspace. BookmarkFlow adds a compact interface on top of regular web pages and replaces the new-tab page with a focused bookmark dashboard—without moving your bookmarks into a separate service.
 
+- **Seamless fullscreen focus & adaptive New Tab safe-area.** Automatically conceals the floating bar and open menus during fullscreen video, gaming, or presentations, restoring exact layout coordinates upon exit. Features a dedicated 44px bottom safe-area on the New Tab page to prevent overlap with Chromium 138+ and Brave native footers.
 - **Smart filter chips & W3C tablist keyboard navigation.** Compact, horizontal scrollable filter chips ("All", "Folders", "Tags", "Reading List") in Spotlight (`Alt+Shift+K`) and New Tab search for instant category isolation with seamless arrow-key (`ArrowLeft`/`ArrowRight`), `Home`/`End`, and `Enter`/`Space` roving navigation.
-- **Smart folder sorting & persistent preferences.** Dynamically sort crowded folders by "A-Z", "Newest", or "Frequently Used" with local bookmark visit tracking, and automatically remember your preferred sort order per folder across sessions.
+- **Smart folder sorting, persistent preferences & voice announcements.** Dynamically sort crowded folders by "A-Z", "Newest", or "Frequently Used" with local bookmark visit tracking, persistent per-folder sort memory, and polite `ARIA Live` screen-reader voice announcements.
 - **Enhanced folder menu header & quick actions.** Clean `.bf-menu-header` with folder icon, counter, and header actions: instant `[+ Bookmark/Folder]` creation and `[↗ Open All]` in background tabs with confirmation threshold.
 - **Live substring search & matching character highlights.** Real-time filtering in crowded folder menus with instant clear (`×`) button, safe `<mark>` substring highlighting across folder items, Spotlight, and New Tab cards.
 - **Folder menu context menu & background tab opening.** Right-click any folder item to open in incognito or copy URL with toast confirmation, or middle-click (`auxclick`) to open in a background tab without dismissing the menu.
@@ -125,17 +126,18 @@ Open the bookmark palette with the search button or <kbd>Alt + Shift + K</kbd>. 
 
 ### Curated obsidian dark themes
 
-Personalize your workspace with 4 handcrafted dark palettes:
+Personalize your workspace with 5 handcrafted dark palettes:
 - **Gold Obsidian:** Classic deep navy (`#0b0f19`) with warm gold (`#f2c94c`) accent.
 - **OLED Midnight Black:** True pure black (`#000000`) with high-contrast platinum silver (`#f8fafc`).
 - **Emerald Matrix:** Cyber obsidian (`#061009`) with vivid neon emerald (`#41d17d`).
 - **Cyber Indigo:** Synthwave violet night (`#0a0918`) with electric indigo (`#818cf8`).
+- **Turquoise Glow:** Deep oceanic abyss (`#061318`) with vivid turquoise (`#22d3ee`) accent.
 
 Switch themes from the popup; your selection syncs across the popup, New Tab dashboard, and in-page bar in real time without reloading tabs.
 
 <p align="center">
   <a href="https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.1.43"><img src="https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.1.43/bookmarkflow-v0.1.43-announcement.png" alt="BookmarkFlow Bar v0.1.43 Spotlight search and curated themes showcase" width="960"></a><br>
-  <sub><strong>Visual showcase:</strong> Spotlight keyboard search palette and 4 curated obsidian color themes.</sub>
+  <sub><strong>Visual showcase:</strong> Spotlight keyboard search palette and curated obsidian color themes.</sub>
 </p>
 
 ### Focused New Tab with Quick Shortcuts
@@ -195,13 +197,13 @@ Streamer mode switches bookmark labels to an icon-focused presentation in the ba
 
 ---
 
-### Manual & cross-browser installation (v0.1.45)
+### Manual & cross-browser installation (v0.4.1)
 
 For development, testing, auditing, or reproducible offline installation, download the verified release package for your browser:
 
 #### 🌐 Google Chrome & Chromium (Brave, Vivaldi, Opera)
 
-1. Download [`bookmarkflow-bar-0.2.0.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.2.0/bookmarkflow-bar-0.2.0.zip.sha256).
+1. Download [`bookmarkflow-bar-0.4.1.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.1/bookmarkflow-bar-0.4.1.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.1/bookmarkflow-bar-0.4.1.zip.sha256).
 2. Extract the archive into a folder.
 3. Navigate to `chrome://extensions` in your browser.
 4. Toggle on **Developer mode** in the upper-right corner.
@@ -210,7 +212,7 @@ For development, testing, auditing, or reproducible offline installation, downlo
 
 #### 🦊 Mozilla Firefox (Gecko MV3)
 
-1. Download [`bookmarkflow-bar-0.3.0-firefox.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.0/bookmarkflow-bar-0.3.0-firefox.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.0/bookmarkflow-bar-0.3.0-firefox.zip.sha256).
+1. Download [`bookmarkflow-bar-0.4.1-firefox.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.1/bookmarkflow-bar-0.4.1-firefox.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.1/bookmarkflow-bar-0.4.1-firefox.zip.sha256).
 2. Extract the archive.
 3. Open a new tab and navigate to `about:debugging#/runtime/this-firefox`.
 4. Click **Load Temporary Add-on...**.
@@ -219,7 +221,7 @@ For development, testing, auditing, or reproducible offline installation, downlo
 
 #### 🌊 Microsoft Edge
 
-1. Download [`bookmarkflow-bar-0.3.0-edge.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.0/bookmarkflow-bar-0.3.0-edge.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.3.0/bookmarkflow-bar-0.3.0-edge.zip.sha256).
+1. Download [`bookmarkflow-bar-0.4.1-edge.zip`](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.1/bookmarkflow-bar-0.4.1-edge.zip) and its [SHA-256 checksum](https://github.com/mcolaker/BookmarkFlow-Bar/releases/download/v0.4.1/bookmarkflow-bar-0.4.1-edge.zip.sha256).
 2. Extract the archive into a local folder.
 3. Navigate to `edge://extensions`.
 4. Turn on **Developer mode** in the left sidebar menu.
@@ -305,7 +307,7 @@ node scripts/security-regression.mjs
 
 The backlog, open-source, DCO, project, and public-tree checks are platform-independent. The browser regression check additionally requires a locally installed Chromium-based browser.
 
-Maintainers can create a versioned extension ZIP and SHA-256 checksum from a release tag with `node scripts/package-release.mjs v0.3.0`.
+Maintainers can create a versioned extension ZIP and SHA-256 checksum from a release tag with `node scripts/package-release.mjs v0.4.1`.
 
 ## Browser limitations
 
@@ -322,7 +324,7 @@ If BookmarkFlow improves your daily browsing, choose the route that matches how 
 ### Try it
 
 - **Install BookmarkFlow Bar from its [Chrome Web Store listing](https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf)** for the normal update path.
-- **Download the [verified v0.3.0 source release](https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.3.0)** for audit or development use and follow the [source installation guide](#install-from-source).
+- **Download the [verified v0.4.1 source release](https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.1)** for audit or development use and follow the [source installation guide](#install-from-source).
 - **Read the [product website](https://mcolaker.github.io/BookmarkFlow-Bar/)** and privacy documentation before installing.
 
 ### Support the project

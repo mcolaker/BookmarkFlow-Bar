@@ -1,6 +1,6 @@
 # BookmarkFlow Bar Açık İşler
 
-Son güncelleme: 2026-10-02
+Son güncelleme: 2026-10-18
 
 Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kuralları için [AGENTS.md](../../AGENTS.md) otoritedir.
 
@@ -974,5 +974,41 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Kök neden ve kanıt: Kullanıcı 2026-10-10 tarihinde BF-UX-030..046 arası 17 adet UX, kalite ve yönetişim yeniliğini içeren yeni sürümün hem GitHub hem de Chrome Web Store üzerinde yayımlanmasını istedi. Manifest ve package.json sürümleri 0.4.0'a yükseltildi; CHANGELOG.md dosyasına v0.4.0 bölümü eklendi; README.md indirme bağlantıları, sürüm rozetleri ve vitrin açıklamaları güncellendi; store/listing-en.md ve listing-tr.md mağaza öne çıkan özellikleri güncellendi. PR #98, PR #99 ve PR #100 GitHub Actions CI kontrolleri terminal success verdikten sonra main dalına birleştirildi. Annotated `v0.4.0` etiketi oluşturularak uzak repoya gönderildi. `scripts/release-pipeline.mjs` orkestrasyonu ile Chromium (`dist/bookmarkflow-bar-0.4.0.zip`, SHA-256: `811d2d02a38fe492060cb36359c326d79c09c5f736f6e91174b5c257e29b3eff`), Firefox (`dist/bookmarkflow-bar-0.4.0-firefox.zip`, SHA-256: `f60a77611df88a90e4833497c4b4e0eda858167e4939fa2a767f80d1b618f2a9`) ve Edge (`dist/bookmarkflow-bar-0.4.0-edge.zip`, SHA-256: `59a870f22e6814700e6400d6ee6194d83a76900d2b82b770213deafb771eea7b`) paketleri derlendi; GitHub Release `https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v0.4.0` adresinde 6 varlıkla eksiksiz yayımlandı. 1200x675 X ve 1200x627 LinkedIn tanıtım görselleri üretildi; çift bağlantılı (CWS + GitHub), 280 karaktere tam uyumlu ve iç yazılımsal bugfix jargonu arındırılmış son kullanıcı odaklı lansman metinleri hazırlandı.
 - Kabul kriteri: Güncel değişiklikler manifest 0.4.0 ile exact annotated v0.4.0 tag'ine, doğrulanmış GitHub Release ZIP/checksum varlıklarına (Chromium, Firefox, Edge) ve aynı sürümün Chrome Web Store dağıtım paketine taşınır; kaynak, paket ve mağaza sürümü birbiriyle eşleşir; tüm test ve doğrulama kapıları geçer.
 - Doğrulama kapısı: `npm run validate:all` ve `npm test` (150/150) temiz geçer; `git diff --check` sıfır hatadır; release:full ile v0.4.0 GitHub Release ve çapraz tarayıcı paketleri yayımlanır; `dist/bookmarkflow-bar-0.4.0.zip` Chrome Web Store Developer Console'a yüklenmeye hazır sunulur.
-- Sonraki adım: Chrome Web Store Developer Console üzerinden `dist/bookmarkflow-bar-0.4.0.zip` paketini yükle ve incelemeye gönder.
-- Son güncelleme: 2026-10-10.
+- Sonraki adım: Yok; v0.4.1 sürümü ile genişletilmiştir (`BF-REL-015`).
+- Son güncelleme: 2026-10-18.
+
+## BF-QA-008 - Bounding-Box Destekli Görsel Regresyon Hakemi ve Ham Ekran Görüntüsü Jev 1.14 Multimodal QA Mimarisini Kur (BF-QA-009, BF-GOV-027)
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Arayüz bileşenlerinin (`.bf-bar-container`, `.bf-spotlight-modal`, `.bf-filter-chip`, `.bf-toast`) sınırlayıcı kutularını, viewport sınır taşmalarını, asgari dokunma hedeflerini ve çakışmalarını piksel düzeyinde denetlemek ve sosyal medya tanıtım kartlarının en-boy oranını yayın öncesi doğrulamak gerekiyordu. (1) `scripts/inspect-visual-boxes.mjs` (`npm run inspect:boxes`) ve `scripts/visual-boxes-contract.test.mjs` oluşturuldu; (2) OpenRouter Decisions API üzerinden TypeSafe Jev 1.14 (`typesafe/jev-1.14-20261014`) modeline ham PNG/JPG ekran görüntüsü (`assets` + `TypeSafe-Danger-Zone-Images: true`) gönderilerek `{top, bottom, left, right}` kutu koordinatlarının çıkarılması sağlandı (`BF-QA-009`); (3) `scripts/publish-social.mjs` içerisine X (16:9) ve LinkedIn (1.91:1) görsellerini doğrulayan `assertSocialCardVisualQuality` ön-kontrol kapısı (`BF-GOV-027`) ve `scripts/publish-social.test.mjs` eklendi; (4) `AGENTS.md` P0-1 ve P0-20 kurallarında son kullanıcı runtime Zero-Cloud ile dev-time QA izolasyonu tescillendi (Karar 41, Karar 42).
+- Kabul kriteri: `npm run inspect:boxes` hem sentetik geometri hem ham ekran görüntüsü pikselleri üzerinde çalışır; `assertSocialCardVisualQuality` X ve LinkedIn kartlarını fail-closed doğrular; runtime sıfır-bulut sınırları korunur; tüm sözleşme testleri geçer.
+- Doğrulama kapısı: `node --test scripts/visual-boxes-contract.test.mjs scripts/publish-social.test.mjs` geçer; `npm test` (165/165) ve `npm run validate:all` temizdir.
+- Sonraki adım: Yok; görsel kutu hakemi ve sosyal kart lint kapısı aktif olarak devrededir.
+- Son güncelleme: 2026-10-18.
+
+## BF-UX-050 - Tam Ekran (`fullscreenchange`) / `visualViewport` Geçiş Koruması ve Chromium/Brave Yerleşik Alt Çubuk Güvenli Boşluğunu Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı geri bildiriminde tam ekran açılıp kapatıldığında çubuğun alt kenarda veya koordinatlarda takılı kalabildiği ve Chromium 138+ / Brave Yeni Sekme sayfasının en altındaki 36px'lik yerleşik özelleştirme çubuğu (`#ntp-footer` / `NewTabFooterView`) ile çakışma yaşanabildiği tespit edildi. (1) `src/content.js` içerisine `isDocumentFullscreen`, `syncLayoutAfterFullscreen` ve `handleFullscreenChange` eklendi; tam ekrana girildiğinde açık menü/modallar kapatılıp sayfa üst boşluğu sıfırlandı ve çubuk gizlendi (`host.hidden = true`); tam ekrandan çıkılırken anlık, `requestAnimationFrame` ve `140ms` kademeli yerleşim senkronizasyonu ile `visualViewport` resize dinleyicisi devreye alındı; (2) `src/newtab.css` ve `src/newtab.js` içerisine `--nt-native-footer-safe-offset: 44px` güvenli alt boşluğu tanımlandı; (3) `scripts/ui-behavior-contract.test.mjs` içerisine `BF-UX-050` sözleşme testi eklendi.
+- Kabul kriteri: Tam ekran modunda kayan çubuk otomatik gizlenir ve çıkışta koordinat kayması olmadan geri yüklenir; New Tab sayfası 44px alt güvenli boşluk bırakır; `BF-UX-050` sözleşme testi ve tüm testler geçer.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; `npm test` (165/165) ve `npm run validate:all` temizdir.
+- Sonraki adım: Yok; tam ekran geçiş koruması ve New Tab güvenli alt boşluğu devreye alınmıştır.
+- Son güncelleme: 2026-10-18.
+
+## BF-UX-047 - Klasör Menüsü Sıralama Değişiminde Ekran Okuyucu Canlı Duyurusunu (ARIA Live) Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Açılır klasör menüsündeki akıllı sıralama modu (`sortBtn`) değiştirildiğinde görsel ikon ve başlık güncelleniyor ancak ekran okuyucu kullanıcıları için `aria-live="polite"` sesli duyurusu üretilmiyordu. (1) `src/content.js` içerisinde `.bf-menu-header` içerisine `.bf-sr-only.sr-only.bf-menu-sort-live` (`role="status"`, `aria-live="polite"`, `aria-atomic="true"`) canlı bölgesi eklendi; (2) Sıralama butonu tıklandığında `sortLiveRegion.textContent = t("sortModeAnnounce", [modeText])` ile aktif sıralama düzeni sesli duyuruldu; (3) `_locales/en/messages.json` ve `_locales/tr/messages.json` dosyalarına `sortModeAnnounce` anahtarı eklenerek %100 dil paritesi sağlandı; (4) `PROJECT_STATE.md` proaktif backlog'undan tahliye edildi.
+- Kabul kriteri: Sıralama modu değiştiğinde `.bf-menu-sort-live` canlı bölgesi güncellenir; TR/EN dil paritesi %100 korunur; `BF-UX-047` sözleşme testi ve tüm 165 test geçer.
+- Doğrulama kapısı: `node --test scripts/ui-behavior-contract.test.mjs` geçer; `npm test` (165/165) ve `npm run validate:all` temizdir.
+- Sonraki adım: Yok; klasör sıralama değişiminde ekran okuyucu canlı duyurusu devreye alınmıştır.
+- Son güncelleme: 2026-10-18.
+
+## BF-REL-015 - v0.4.1 Sürümünü Hazırla, Çapraz Tarayıcı Paketlerini Üret, GitHub Release, Chrome Web Store ve Sosyal Medya Lansmanını Gerçekleştir
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: Kullanıcı 2026-10-18 tarihinde BF-UX-050 (Tam ekran geçiş koruması ve Chromium/Brave New Tab 44px güvenli alt boşluğu), BF-UX-047 (Klasör sıralama değişiminde ARIA Live ekran okuyucu duyurusu), BF-QA-008/009 (Jev 1.14 bounding-box & ham ekran görüntüsü multimodal QA hakemi) ve BF-GOV-027 (Sosyal medya görsel lint kapısı) geliştirmelerini içeren `v0.4.1` sürümünün GitHub, Chrome Web Store ve sosyal medya kanallarında yayımlanmasını istedi. `manifest.json` ve `package.json` sürümleri `0.4.1` olarak güncellendi; `CHANGELOG.md`, `README.md`, `store/listing-en.md`, `store/listing-tr.md` ve `docs/community/COMMUNITY_LAUNCH_KIT_v0.4.1.md` hazırlandı; `output/social-v0.4.1/` altında 16:9 X ve 1.91:1 LinkedIn tanıtım kartları üretilerek `assertSocialCardVisualQuality` ile doğrulandı.
+- Kabul kriteri: Güncel değişiklikler manifest `0.4.1` ile exact annotated `v0.4.1` tag'ine, doğrulanmış GitHub Release ZIP/checksum varlıklarına (Chromium, Firefox, Edge), Chrome Web Store dağıtım paketine ve görsel kartlı İngilizce X/LinkedIn lansman paylaşımlarına taşınır; tüm test ve doğrulama kapıları geçer.
+- Doğrulama kapısı: `npm run validate:all` ve `npm test` (165/165) temiz geçer; `git diff --check` sıfır hatadır; `release:full` ile `v0.4.1` GitHub Release yayımlanır; Chrome Web Store ve X/LinkedIn lansman adımları icra edilir.
+- Sonraki adım: Yok; v0.4.1 sürüm paketleme ve lansman hattı tamamlanmıştır.
+- Son güncelleme: 2026-10-18.
