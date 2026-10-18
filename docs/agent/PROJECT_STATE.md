@@ -40,6 +40,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 - **Açılır Klasör Menüsü & Akıllı Sıralama (`BF-UX-030`..`047`)**: Dinamik satır yüksekliği, tam klavye dolaşımı (`ArrowUp`/`ArrowDown`/`Enter`/`Escape`), 15+ öğeli klasörlerde canlı filtre (`.bf-menu-filter`) ve `×` hızlı temizleme, sağ tık (`BF_OPEN_INCOGNITO`, kopyala) ve orta tık (`BF_OPEN_BACKGROUND_TAB`), "Tümünü Sekmelerde Aç" (`BF_OPEN_BACKGROUND_TABS`), başlıkta `+` hızlı yer imi/alt klasör ekleme, kalıcı akıllı sıralama (`bfFolderSortModes`: Varsayılan, A-Z, En Yeni, Sık Kullanılan) ve `aria-live="polite"` ekran okuyucu duyurusu (`BF-UX-047`).
 - **Spotlight (`Alt+Shift+K`) & Yeni Sekme Arama (`BF-UX-017`, `BF-UX-036`..`045`)**: Sıfır gecikmeli yerel `BookmarkIntentRoutingEngine` ve `Smart Routing Badge`, XSS korumalı `<mark>` alt dizgi vurgulama, `#tag` etiket hapı parlama vurgusu ve W3C `role="tablist"` klavye destekli akıllı filtre çipleri ("Tümü", "Klasörler", "Etiketler", "Okuma Listesi").
 - **Tam Ekran (`fullscreenchange`) & Yerleşik Alt Çubuk Koruması (`BF-UX-050`)**: Tam ekrana girildiğinde çubuğun ve modalların otomatik gizlenmesi, çıkışta kademeli `syncLayoutAfterFullscreen` ve `visualViewport` senkronizasyonu; Chromium 138+ / Brave `NewTabFooterView` için `--nt-native-footer-safe-offset: 44px`.
+- **Mobil Yer İşaretleri (`folderType: 'mobile'`) Çift Yönlü Senkron Köprüsü & Rehberi (`BF-UX-051`)**: `BookmarkFlowConfig.collectFoldersWithMobileBridge` ve `selectMobileBookmarksNode` ile `folderType === "mobile"` (`id === "3"`) kök düğümünün Klasör Rayı (`📱 Mobil`), Hızlı Klasör Çipleri, Hedef Klasör `<select>` menüleri ve Omnibox (`bf <url>`) ile çift yönlü bağlanması; `.bf-mobile-sync-banner` / `.nt-mobile-sync-banner`, `mobileSyncSelectedHint` ve `#tipMobileSync` ile telefona eklenti kurmadan otomatik senkronizasyon rehberi.
 - **Otonom Geliştirici Araçları, Terminal-First GitHub CLI & CWS/Sosyal Yayın Hattı (`BF-GOV-010`, `BF-GOV-011`, `BF-GOV-016`, `BF-GOV-017`, `BF-GOV-018`, `BF-GOV-019`, `BF-GOV-020`, `BF-GOV-021`, `BF-GOV-022`, `BF-GOV-023`, `BF-GOV-024`, `BF-GOV-025`, `BF-GOV-026`, `BF-GOV-027`, `BF-GOV-028`, `BF-QA-004`..`010`, `BF-WIN-002`, `BF-REL-016`)**: `AGENTS.md` işletim çekirdeği, `gh` CLI otonom PR/auto-merge/release (`release:full`), `chrome_auto_allow_daemon.py` + `DevToolsActivePort` WebSocket CDP bağlantısı, tek komutla Chrome Web Store paket yükleme (`npm run publish:cws` — dinamik `resolveCwsUrls`) ve sosyal medya öncesi zorunlu sıra kapısı (`assertPreSocialReleaseGate` + `assertSocialCardVisualQuality`).
 
 ---
@@ -48,7 +49,7 @@ BookmarkFlow Bar, modern tarayıcılar ve Windows masaüstü için geliştirilmi
 
 - **Chrome Omnibox Bildirimi**: Chrome adres çubuğundan `bf <url>` ile ekleme yapıldığında sayfa DOM'una erişilemediği için aktif sekmeye hafif runtime mesajı iletimi ilerleyen fazda genişletilebilir.
 - **Masaüstü Companion Kurulumu**: Windows Companion kullanıcı tarafından `tools/windows-companion/install-companion.ps1` ile tek seferlik kayıt gerektirir.
-- **Büyük Kaynak Dosyaları (`check-architecture-guard.mjs`)**: `src/content.js` (~6.147 satır) ve `src/newtab.js` (~3.692 satır) dosyalarına yeni özellik eklenirken monolitik büyümeyi önlemek için yeni mantığın modüler yardımcılara ayrıştırılması esastır.
+- **Büyük Kaynak Dosyaları (`check-architecture-guard.mjs`)**: `src/content.js` (~6.144 satır) ve `src/newtab.js` (~3.689 satır) dosyalarına yeni özellik eklenirken monolitik büyümeyi önlemek için yeni mantığın modüler yardımcılara ayrıştırılması esastır.
 
 ---
 
@@ -60,6 +61,7 @@ Aşağıdaki liste, önceki oturumlarda önerilmiş ancak henüz uygulanmamış 
 |---|---|---|---|---|
 | **BF-UX-048** | HIGH | Açılır Menü Yer İmlerinde Ziyaret Sayaç Rozeti Gösterimi | "Sık Kullanılanlar" modunda listelenen yer imlerinin sağ tarafında ziyaret sayısını gösteren kompakt mikro rozet (`.bf-visit-badge`). (Menü satırına 20px mikro badge ekler; sık kullanılanların neden en üstte olduğunu görselleştirir). | BEKLİYOR |
 | **BF-UX-049** | HIGH | Klasör Menüsü Sıralama Modunu Tek Tıkla Sıfırlama / Sağ Tık Eylemi | Sıralama butonuna sağ tıklandığında veya Shift+Tık yapıldığında modu doğrudan "Varsayılan"a sıfırlayabilme desteği. (Buton tıklama dinleyicisine Shift/contextmenu kontrolü ekler; 4 mod arasında tekrar tekrar tıklama sürtünmesini azaltır). | BEKLİYOR |
+| **BF-UX-052** | HIGH | Spotlight (`Alt+Shift+K`) ve Yeni Sekme Arama Filtrelerine "📱 Mobil" Hızlı Sekmesi Ekleme | Spotlight ve Yeni Sekme arama çubuğunun altındaki `role="tablist"` akıllı filtre çiplerine ("Tümü", "Klasörler", "Etiketler", "Okuma Listesi") ek olarak doğrudan `folderType: 'mobile'` altındaki öğeleri süzen `"📱 Mobil"` filtre çipi eklenmesi. (Filtre sekme çubuğuna 1 adet sekme ekler; telefonda kaydedilen bağlantılara klavyeden tek tuşla ulaşmayı hızlandırır). | BEKLİYOR |
 
 ---
 

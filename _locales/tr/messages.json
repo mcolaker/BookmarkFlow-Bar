@@ -548,5 +548,13 @@
         "content": "$1"
       }
     }
-  }
+  },
+  "mobileBookmarksFolder": { "message": "Mobil Yer İşaretleri" },
+  "mobileBookmarksShort": { "message": "Mobil" },
+  "mobileSyncTooltip": { "message": "📱 Mobil Yer İşaretleri — Telefona ek eklenti gerekmez; telefon tarayıcınızla otomatik senkronize olur" },
+  "mobileSyncBannerText": { "message": "Telefon tarayıcınızla otomatik senkronize olur — telefona eklenti kurmanız gerekmez." },
+  "mobileBookmarksEmptyHint": { "message": "Telefonunuzdaki tarayıcıdan yıldızladığınız sayfalar otomatik olarak buraya düşer; buraya ekledikleriniz de telefonunuzda görünür (telefona eklenti kurmanız gerekmez)." },
+  "mobileSyncSelectedHint": { "message": "📱 Telefonunuzun Mobil Yer İşaretleri klasörüne otomatik senkronize edilecek (eklenti gerekmez)." },
+  "tipMobileSyncTitle": { "message": "Telefonla Otomatik Senkronizasyon" },
+  "tipMobileSyncDesc": { "message": "Telefona eklenti kurmanıza gerek yok! Telefon tarayıcınızda yıldızladığınız sayfalar 📱 Mobil Yer İşaretleri ile PC'nize otomatik yansır." }
 }

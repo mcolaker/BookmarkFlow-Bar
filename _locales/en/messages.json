@@ -548,5 +548,13 @@
         "content": "$1"
       }
     }
-  }
+  },
+  "mobileBookmarksFolder": { "message": "Mobile Bookmarks" },
+  "mobileBookmarksShort": { "message": "Mobile" },
+  "mobileSyncTooltip": { "message": "📱 Mobile Bookmarks — No mobile extension needed; syncs automatically with your phone's browser" },
+  "mobileSyncBannerText": { "message": "Syncs automatically with your phone's browser — no mobile extension required." },
+  "mobileBookmarksEmptyHint": { "message": "Pages you bookmark on your phone's browser appear here automatically, and links saved here sync directly to your phone (no mobile extension required)." },
+  "mobileSyncSelectedHint": { "message": "📱 Will sync directly to your phone's Mobile Bookmarks (no mobile extension needed)." },
+  "tipMobileSyncTitle": { "message": "Automatic Phone Sync" },
+  "tipMobileSyncDesc": { "message": "No phone extension needed! Pages bookmarked on your phone browser sync automatically via 📱 Mobile Bookmarks." }
 }

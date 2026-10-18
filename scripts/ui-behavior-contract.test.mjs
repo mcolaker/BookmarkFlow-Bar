@@ -2010,3 +2010,45 @@ test("folder menu sort mode change screen reader ARIA live announcement contract
   // 3. Visually hidden utility class in content.css
   assert.match(contentCss, /\.bf-sr-only,\s*\.sr-only\s*\{/u, "content.css must define .bf-sr-only, .sr-only");
 });
+
+test("mobile bookmarks bidirectional sync bridge and zero-extension discovery guidance contract (BF-UX-051)", () => {
+  const settingsJs = readFileSync(path.join(root, "src/settings.js"), "utf8");
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  // 1. TR/EN locale parity for mobile sync keys
+  for (const key of [
+    "mobileBookmarksFolder",
+    "mobileBookmarksShort",
+    "mobileSyncTooltip",
+    "mobileSyncBannerText",
+    "mobileBookmarksEmptyHint",
+    "mobileSyncSelectedHint",
+    "tipMobileSyncTitle",
+    "tipMobileSyncDesc"
+  ]) {
+    assert.ok(enLocales[key]?.message, `en messages must define ${key}`);
+    assert.ok(trLocales[key]?.message, `tr messages must define ${key}`);
+  }
+
+  // 2. Shared helpers in settings.js and background.js bridge
+  assert.match(settingsJs, /function isMobileBookmarksFolder\s*\(/u, "settings.js must define isMobileBookmarksFolder");
+  assert.match(settingsJs, /function selectMobileBookmarksNode\s*\(/u, "settings.js must define selectMobileBookmarksNode");
+  assert.match(settingsJs, /function collectFoldersWithMobileBridge\s*\(/u, "settings.js must define collectFoldersWithMobileBridge");
+  assert.match(backgroundJs, /mobileBookmarks:\s*mobileBookmarks\s*\?\s*sanitizeNode\(mobileBookmarks\)\s*:\s*null/u, "background.js must expose mobileBookmarks in state");
+
+  // 3. Content & NewTab UI discovery (chips, rail item, sync banner, quick tips)
+  assert.match(contentJs, /is-mobile-chip/u, "content.js must render .is-mobile-chip in quick folder chips");
+  assert.match(contentJs, /bf-mobile-sync-banner/u, "content.js must render .bf-mobile-sync-banner in mobile folder menu");
+  assert.match(newtabJs, /is-mobile-chip/u, "newtab.js must render .is-mobile-chip in quick folder chips");
+  assert.match(newtabJs, /nt-mobile-sync-banner/u, "newtab.js must render .nt-mobile-sync-banner in mobile folder menu");
+  assert.match(newtabHtml, /id="tipMobileSync"/u, "newtab.html quick tips must include #tipMobileSync");
+  assert.match(contentCss, /\.bf-mobile-sync-banner/u, "content.css must style .bf-mobile-sync-banner");
+  assert.match(newtabCss, /\.nt-mobile-sync-banner/u, "newtab.css must style .nt-mobile-sync-banner");
+});

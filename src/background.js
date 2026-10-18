@@ -15,7 +15,11 @@ const {
   normalizeFolderColors,
   normalizeHosts,
   normalizeSettings,
-  normalizeSyncedSettings
+  normalizeSyncedSettings,
+  isMobileBookmarksFolder,
+  selectMobileBookmarksNode,
+  getMobileFolderDisplayTitle,
+  collectFoldersWithMobileBridge
 } = BookmarkFlowConfig;
 const { getLanguage, t } = BookmarkFlowI18n;
 
@@ -244,6 +248,7 @@ async function getState() {
     ok: true,
     settings,
     bookmarkBar: bookmarks.bookmarkBar,
+    mobileBookmarks: bookmarks.mobileBookmarks,
     folderRailFolders: bookmarks.folderRailFolders,
     bookmarkTree: bookmarks.bookmarkTree
   };
@@ -573,8 +578,10 @@ async function getBookmarkData() {
     chrome.storage.local.get(FOLDER_RAIL_PINNED_STORAGE_KEY)
   ]);
   const bookmarkBar = selectBookmarkBarNode(root);
+  const mobileBookmarks = selectMobileBookmarksNode(root);
   return {
     bookmarkBar: sanitizeNode(bookmarkBar),
+    mobileBookmarks: mobileBookmarks ? sanitizeNode(mobileBookmarks) : null,
     folderRailFolders: getFolderRailFolders(
       root,
       normalizePinnedFolderIds(localState[FOLDER_RAIL_PINNED_STORAGE_KEY])
@@ -611,11 +618,11 @@ function getFolderRailFolders(root, pinnedFolderIds = []) {
 
   pinnedFolderIds.forEach((folderId) => {
     const node = findBookmarkNodeById(root, folderId);
-    if (!node || node.url || node.folderType) {
+    if (!node || node.url || (node.folderType && !isMobileBookmarksFolder(node))) {
       return;
     }
 
-    const titleKey = normalizeFolderTitle(node.title);
+    const titleKey = normalizeFolderTitle(node.title || (isMobileBookmarksFolder(node) ? getMobileFolderDisplayTitle(node) : ""));
     if (!titleKey || pinnedTitleKeys.has(titleKey)) {
       return;
     }
@@ -627,6 +634,11 @@ function getFolderRailFolders(root, pinnedFolderIds = []) {
   collectSyncedFolderRailCandidates(root).forEach((node) => {
     addFolderRailCandidate(foldersByTitle, node, pinnedTitleKeys);
   });
+
+  const mobileRoot = selectMobileBookmarksNode(root);
+  if (mobileRoot && (mobileRoot.children || []).length > 0) {
+    addFolderRailCandidate(foldersByTitle, mobileRoot, pinnedTitleKeys);
+  }
 
   sourceBars.forEach((bar) => {
     (bar?.children || []).forEach((node) => {
@@ -677,9 +689,10 @@ function collectSyncedFolderRailCandidates(root) {
     }
 
     const children = node.children || [];
-    const isUserFolder = Boolean(node.parentId && !node.folderType && node.title);
+    const isMobileRoot = isMobileBookmarksFolder(node);
+    const isUserFolder = Boolean(node.parentId && (!node.folderType || isMobileRoot) && (node.title || isMobileRoot));
     const hasDirectBookmark = children.some((child) => Boolean(child.url));
-    if (isUserFolder && node.syncing === true && hasDirectBookmark) {
+    if (isUserFolder && (node.syncing === true || isMobileRoot) && hasDirectBookmark) {
       folders.push(node);
     }
 
@@ -691,7 +704,8 @@ function collectSyncedFolderRailCandidates(root) {
 }
 
 function addFolderRailCandidate(foldersByTitle, node, protectedTitleKeys = new Set()) {
-  const titleKey = normalizeFolderTitle(node?.title);
+  const rawTitle = node?.title || (isMobileBookmarksFolder(node) ? getMobileFolderDisplayTitle(node) : "");
+  const titleKey = normalizeFolderTitle(rawTitle);
   if (!titleKey || protectedTitleKeys.has(titleKey)) {
     return;
   }
@@ -1370,7 +1384,7 @@ function sanitizeNode(node) {
   return {
     id: node.id,
     parentId: node.parentId || "",
-    title: node.title || "",
+    title: node.title || (isMobileBookmarksFolder(node) ? getMobileFolderDisplayTitle(node) : ""),
     url: node.url || "",
     syncing: node.syncing === true,
     folderType: node.folderType || "",
@@ -1483,40 +1497,17 @@ function initOmniboxIntegration() {
     try {
       const root = await getBookmarkTreeRoot();
       const bookmarkBar = selectBookmarkBarNode(root);
-      const folders = [];
-      const walk = (node, path = "") => {
-        if (!node) return;
-        if (Array.isArray(node.children)) {
-          const isRootBar = node.id === bookmarkBar?.id;
-          const title = node.title || (isRootBar ? (t("bookmarksBar") || "Bookmarks Bar") : "");
-          const currentPath = path ? (title ? `${path} / ${title}` : path) : title;
-          if (node.id && node.id !== "0") {
-            folders.push({
-              id: node.id,
-              title: title || (t("bookmarksBar") || "Bookmarks Bar"),
-              path: currentPath,
-              isBar: isRootBar
-            });
-          }
-          for (const child of node.children) {
-            if (Array.isArray(child.children)) {
-              walk(child, currentPath);
-            }
-          }
-        }
-      };
-      walk(bookmarkBar);
-
-      const suggestions = [];
-      suggestions.push({
+      const folders = collectFoldersWithMobileBridge(bookmarkBar, selectMobileBookmarksNode(root));
+      const suggestions = [{
         content: JSON.stringify({ url: directTarget, parentId: bookmarkBar?.id || "" }),
         description: `⭐ ${escapeOmniboxXml(t("omniboxAddToBar") || "Add to Bookmarks Bar")}: <url>${escapeOmniboxXml(directTarget)}</url>`
-      });
+      }];
 
       folders.filter(f => !f.isBar).slice(0, 5).forEach((f) => {
+        const icon = f.isMobile ? "📱" : "📁";
         suggestions.push({
           content: JSON.stringify({ url: directTarget, parentId: f.id }),
-          description: `📁 <match>${escapeOmniboxXml(f.path || f.title)}</match> ${escapeOmniboxXml(t("omniboxAddToFolder") || "Add to folder")}: <url>${escapeOmniboxXml(directTarget)}</url>`
+          description: `${icon} <match>${escapeOmniboxXml(f.path || f.title)}</match> ${escapeOmniboxXml(t("omniboxAddToFolder") || "Add to folder")}: <url>${escapeOmniboxXml(directTarget)}</url>`
         });
       });
 
