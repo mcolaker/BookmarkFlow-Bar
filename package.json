@@ -26,8 +26,10 @@
     "publish:cws": "node scripts/publish-cws.mjs",
     "publish:social": "node scripts/publish-social.mjs",
     "guard:console": "node scripts/live-console-guard.mjs",
+    "guard:arch": "node scripts/check-architecture-guard.mjs",
     "inspect:dom": "node scripts/inspect-extension-dom.mjs",
     "inspect:boxes": "node scripts/inspect-visual-boxes.mjs",
+    "inspect:360": "node scripts/inspect-visual-boxes.mjs --360",
     "validate:all": "node scripts/validate-open-source.mjs && node --test scripts/*.test.mjs && node scripts/validate-project.mjs && node scripts/verify-public-tree.mjs && node scripts/validate-backlog.mjs && node scripts/validate-governance.mjs && node scripts/validate-media-qa.mjs --offline"
   }
 }

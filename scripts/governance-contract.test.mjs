@@ -114,7 +114,44 @@ test("agentic motion & media QA scripts contract (BF-QA-002, BF-QA-003, BF-QA-00
   assert.ok(pkg.scripts?.["qa:media"], "package.json must declare qa:media script");
   assert.ok(pkg.scripts?.["pilot:chrome"], "package.json must declare pilot:chrome script");
   assert.ok(pkg.scripts?.["test:mv3"], "package.json must declare test:mv3 script");
+  assert.ok(pkg.scripts?.["guard:arch"], "package.json must declare guard:arch script");
+  assert.ok(pkg.scripts?.["inspect:360"], "package.json must declare inspect:360 script");
   assert.ok(existsSync(path.join(root, "scripts/live-chrome-pilot.mjs")), "scripts/live-chrome-pilot.mjs must exist");
   assert.ok(existsSync(path.join(root, "scripts/mv3-api-audit.test.mjs")), "scripts/mv3-api-audit.test.mjs must exist");
   assert.match(pkg.scripts?.["validate:all"], /validate-media-qa\.mjs --offline/u, "validate:all must run validate-media-qa.mjs in offline mode");
+});
+
+test("JaponiGo context diet, history archive, pre-commit hook, and architecture guard contract (BF-GOV-028)", async () => {
+  const agentsBuf = readFileSync(path.join(root, "AGENTS.md"));
+  const stateBuf = readFileSync(path.join(root, "docs/agent/PROJECT_STATE.md"));
+  assert.ok(agentsBuf.length <= 16384, `AGENTS.md (${agentsBuf.length} bytes) must stay <= 16 KB`);
+  assert.ok(stateBuf.length <= 16384, `PROJECT_STATE.md (${stateBuf.length} bytes) must stay <= 16 KB`);
+
+  assert.ok(existsSync(path.join(root, "docs/agent/history/PROJECT_STATE_HISTORY_2026.md")), "PROJECT_STATE_HISTORY_2026.md must exist");
+  assert.ok(existsSync(path.join(root, "docs/agent-playbooks/mcp_plugin_orchestration.md")), "mcp_plugin_orchestration.md must exist");
+  assert.ok(existsSync(path.join(root, ".githooks/pre-commit")), ".githooks/pre-commit must exist");
+
+  const { evaluateArchitectureGuard, parseAddedLines } = await import("./check-architecture-guard.mjs");
+
+  const diffSample = [
+    "+++ b/src/content.js",
+    "+try { doSomething(); } catch {}",
+    "+chrome.browserAction.setBadgeText({ text: '1' });",
+  ].join("\n");
+  const addedLines = parseAddedLines(diffSample);
+  assert.equal(addedLines["src/content.js"].length, 2);
+
+  const report = evaluateArchitectureGuard({
+    numstat: { "src/content.js": { added: 25, removed: 5 } },
+    addedLines,
+    lineCounts: { "src/content.js": 6150 },
+    maxLines: 1500,
+  });
+
+  assert.equal(report.valid, false, "Forbidden MV2 API in runtime src/ must fail validation");
+  assert.equal(report.errorCount, 1);
+  assert.equal(report.errors[0].rule, "forbidden-runtime-api");
+  assert.equal(report.warningCount, 2);
+  assert.ok(report.warnings.some((w) => w.rule === "silent-catch-block"));
+  assert.ok(report.warnings.some((w) => w.rule === "large-file-growth"));
 });

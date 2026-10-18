@@ -4,18 +4,27 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 
+const requiredplaybooks = [
+  "docs/agent-playbooks/browser_extension.md",
+  "docs/agent-playbooks/windows_companion.md",
+  "docs/agent-playbooks/ui_accessibility.md",
+  "docs/agent-playbooks/mcp_plugin_orchestration.md",
+  "docs/agent-playbooks/security_privacy.md",
+  "docs/agent-playbooks/release_distribution.md",
+  "docs/agent-playbooks/rule_governance.md",
+];
+
 const requiredFiles = [
   "AGENTS.md",
   "docs/agent/DECISION_INDEX.md",
   "docs/agent/PROJECT_STATE.md",
   "docs/agent/RULE_CHANGELOG.md",
-  "docs/agent-playbooks/browser_extension.md",
-  "docs/agent-playbooks/windows_companion.md",
-  "docs/agent-playbooks/ui_accessibility.md",
-  "docs/agent-playbooks/security_privacy.md",
-  "docs/agent-playbooks/release_distribution.md",
-  "docs/agent-playbooks/rule_governance.md",
+  "docs/agent/history/PROJECT_STATE_HISTORY_2026.md",
+  ...requiredplaybooks,
   "AGENT_RULE_COMPLIANCE_BENCHMARK.md",
+  ".githooks/pre-commit",
+  ".githooks/pre-push",
+  "scripts/check-architecture-guard.mjs",
 ];
 
 for (const relPath of requiredFiles) {
@@ -30,13 +39,34 @@ for (const relPath of requiredFiles) {
   }
 }
 
-const MAX_AGENTS_BYTES = 20480; // 20 KB soft ceiling budget
+const MAX_AGENTS_BYTES = 16384; // 16 KB ceiling budget (BF-GOV-028 context diet)
 const agentsBuffer = readFileSync(join(root, "AGENTS.md"));
 if (agentsBuffer.length > MAX_AGENTS_BYTES) {
   throw new Error(`Governance contract violation: AGENTS.md exceeds context ceiling budget (${agentsBuffer.length} bytes > ${MAX_AGENTS_BYTES} bytes). Refactor domain details into playbooks.`);
 }
 
+const MAX_PROJECT_STATE_BYTES = 16384; // 16 KB working memory ceiling (BF-GOV-028)
+const stateBuffer = readFileSync(join(root, "docs/agent/PROJECT_STATE.md"));
+if (stateBuffer.length > MAX_PROJECT_STATE_BYTES) {
+  throw new Error(`Governance contract violation: docs/agent/PROJECT_STATE.md exceeds working memory ceiling (${stateBuffer.length} bytes > ${MAX_PROJECT_STATE_BYTES} bytes). Archive completed items to docs/agent/history/PROJECT_STATE_HISTORY_2026.md.`);
+}
+
 const agentsContent = agentsBuffer.toString("utf8");
+const MAX_PLAYBOOK_TOTAL_BYTES = 120000;
+let totalPlaybookBytes = 0;
+
+for (const pb of requiredplaybooks) {
+  const pbBuf = readFileSync(join(root, pb));
+  totalPlaybookBytes += pbBuf.length;
+  if (!agentsContent.includes(pb)) {
+    throw new Error(`Governance contract violation: AGENTS.md Task Router does not reference playbook: ${pb}`);
+  }
+}
+
+if (totalPlaybookBytes > MAX_PLAYBOOK_TOTAL_BYTES) {
+  throw new Error(`Governance contract violation: Total playbook byte size (${totalPlaybookBytes} bytes) exceeds ceiling (${MAX_PLAYBOOK_TOTAL_BYTES} bytes).`);
+}
+
 const mandatoryPatterns = [
   "DECISION_INDEX.md",
   "PROJECT_STATE.md",
@@ -47,11 +77,32 @@ const mandatoryPatterns = [
   "Bütünsel İkincil İyileştirme Standardı",
   "Task Router",
   "Zorunlu Nihai Rapor Şablonu",
+  "check-architecture-guard.mjs",
 ];
 
 for (const pattern of mandatoryPatterns) {
   if (!agentsContent.includes(pattern)) {
     throw new Error(`Governance contract violation: AGENTS.md missing mandatory pattern: "${pattern}"`);
+  }
+}
+
+const stateContent = stateBuffer.toString("utf8");
+for (const statePattern of [
+  "PROJECT_STATE_HISTORY_2026.md",
+  "Ürün Kapsam Dışı İlkeleri (Product Non-Goals",
+  "Aktif Proaktif Backlog",
+]) {
+  if (!stateContent.includes(statePattern)) {
+    throw new Error(`Governance contract violation: PROJECT_STATE.md missing mandatory section/reference: "${statePattern}"`);
+  }
+}
+
+// Stale reference scan across playbooks and governance docs
+const stalePattern = /https:\/\/(?:github\.com\/09mc|09mc\.github\.io)|\/webstore\/devconsole\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/iu;
+for (const docPath of ["AGENTS.md", "docs/agent/PROJECT_STATE.md", "docs/agent/DECISION_INDEX.md", ...requiredplaybooks]) {
+  const txt = readFileSync(join(root, docPath), "utf8");
+  if (stalePattern.test(txt)) {
+    throw new Error(`Governance contract violation: Stale reference or hardcoded UUID found in ${docPath}`);
   }
 }
 

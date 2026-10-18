@@ -36,6 +36,8 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
 - **Sosyal Medya Medya Kartı Ön-Kontrol Kapısı (Pre-Publish Visual Lint - Karar 41 - BF-GOV-027)**:
   - Paylaşım öncesinde `scripts/publish-social.mjs` içerisindeki `assertSocialCardVisualQuality(imagePath, platform)` fonksiyonu çalıştırılır.
   - X kartları için 16:9 (~1.777) en-boy oranı, LinkedIn kartları için 1.91:1 (~1.913) en-boy oranı, asgari çözünürlük (min 600x300, standart 1200x675 / 1200x627 veya 4x Retina 4800px) ve geçerli PNG dosya yapısı fail-closed doğrulanır; hatalı veya orantısız görseller yayınlanamaz.
+- **Görsel Arayüz Dili Paritesi (UI Language Parity in Promo Assets - BF-GOV-028)**:
+  - Kamuya açık İngilizce duyurularda (X, LinkedIn, mağaza vitrin görselleri) kullanılan ekran görüntülerinin ve görsel kartların içindeki eklenti arayüz dili de mutlaka paylaşım diliyle eşleşmeli (**İngilizce / `en`**) olmalıdır. İngilizce bir duyuru görselinin içinde Türkçe veya farklı dilde arayüz ekran görüntüsü kullanılması kural ihlalidir.
 - **Lansman Metinleri & Çift Bağlantı Standardı**:
   - Kullanıcıya kopyalanıp paylaşılabilecek veya otonom yayınlanacak X duyuru metni, LinkedIn bülteni ve iki dilli (Türkçe & İngilizce) Chrome Web Store sürüm notları hazır bir paket olarak sunulur.
   - **Çift Bağlantı Zorunluluğu (Dual-Link Mandate)**: X (Twitter) ve sosyal medya duyurularında hem resmi **Chrome Web Store** bağlantısı (`https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf`) hem de **GitHub Sürüm/Release** bağlantısı istisnasız birlikte bulunmalıdır.

@@ -9,6 +9,10 @@ import {
   denormalizeJevBox,
   buildJevMultimodalPayload,
   evaluateVisualScreenshotWithJev,
+  computeDesignGeometryMetrics,
+  evaluateProactiveStitchBananaGate,
+  buildJev360UnifiedPayload,
+  evaluate360MultimodalWithJevOrClef,
 } from "./inspect-visual-boxes.mjs";
 
 test("normalizeBoundingBox correctly normalizes standard coordinates and calculates right/bottom", () => {
@@ -191,4 +195,95 @@ test("evaluateVisualScreenshotWithJev parses simulated API response accurately",
     bottom: 600,
     visible: true,
   });
+});
+
+test("evaluateProactiveStitchBananaGate certifies studio_grade_glass_bento and triggers on plain vertical stack or asymmetry (BF-QA-010)", () => {
+  const studioBoxes = [
+    { id: "spotlight-modal", role: "dialog", x: 340, y: 150, width: 600, height: 420 },
+    { id: "filter-chip-all", role: "tab", parentId: "spotlight-modal", x: 360, y: 220, width: 64, height: 28 },
+    { id: "filter-chip-folders", role: "tab", parentId: "spotlight-modal", x: 432, y: 220, width: 84, height: 28 },
+  ];
+  const cleanGate = evaluateProactiveStitchBananaGate(studioBoxes, { viewport: { width: 1280, height: 800 } });
+  assert.equal(cleanGate.triggerActive, false);
+  assert.equal(cleanGate.studioGradeReady, true);
+  assert.match(cleanGate.banner, /STUDIO_GRADE_GLASS_BENTO/u);
+
+  const plainStackBoxes = [
+    { id: "spotlight-modal", role: "dialog", x: 300, y: 100, width: 600, height: 500 }, // left=300, right=380 -> 80px asymmetry
+    { id: "item-1", role: "button", parentId: "spotlight-modal", x: 320, y: 140, width: 200, height: 32 },
+    { id: "item-2", role: "button", parentId: "spotlight-modal", x: 320, y: 180, width: 200, height: 32 },
+    { id: "item-3", role: "button", parentId: "spotlight-modal", x: 320, y: 220, width: 200, height: 32 },
+    { id: "item-4", role: "button", parentId: "spotlight-modal", x: 320, y: 260, width: 200, height: 32 },
+  ];
+  const triggeredGate = evaluateProactiveStitchBananaGate(plainStackBoxes, {
+    viewport: { width: 1280, height: 800 },
+    designScore: 1.9,
+  });
+  assert.equal(triggeredGate.triggerActive, true);
+  assert.equal(triggeredGate.studioGradeReady, false);
+  assert.ok(triggeredGate.reasons.length >= 3);
+  assert.match(triggeredGate.banner, /GOOGLE STITCH \+ NANO BANANA PRO TETİKLEYİCİSİ: AKTİF/u);
+});
+
+test("evaluate360MultimodalWithJevOrClef executes single-pass 8-question inspection and automatically fails over to Clef (BF-QA-010)", async () => {
+  const boxes = [
+    { id: "spotlight-modal", role: "dialog", x: 340, y: 150, width: 600, height: 420 },
+    { id: "filter-chip-all", role: "tab", parentId: "spotlight-modal", x: 360, y: 220, width: 64, height: 28 },
+    { id: "filter-chip-folders", role: "tab", parentId: "spotlight-modal", x: 432, y: 220, width: 84, height: 28 },
+  ];
+
+  const payloadReq = buildJev360UnifiedPayload({
+    imageBase64: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB",
+    boxes,
+    activeLocale: "tr",
+  });
+  assert.equal(Object.keys(payloadReq.payload.questions).length, 8);
+  assert.equal(payloadReq.payload.questions.visual_design_score.type, "score");
+  assert.equal(payloadReq.payload.questions.screen_state.type, "choice");
+
+  // Simulate primary JEV 1.14 HTTP 503 failure followed by successful Clef failover
+  let callCount = 0;
+  const mockFailoverFetch = async (_url, opts) => {
+    callCount += 1;
+    const body = JSON.parse(opts.body);
+    if (callCount === 1) {
+      assert.equal(body.model, "~typesafe/jev-latest");
+      return { ok: false, status: 503, text: async () => "Service Unavailable" };
+    }
+    assert.equal(body.model, "microsoft/decision-1");
+    return {
+      ok: true,
+      json: async () => ({
+        model: "microsoft/decision-1",
+        provider: "Clef-Failover",
+        answers: {
+          screen_state: { choice: "ready" },
+          visual_design_score: { score: 3.85 },
+          design_layout_harmony: { noul: 0.96 },
+          design_color_contrast: { noul: 0.98 },
+          design_primary_observation: { choice: "clean_balanced" },
+          design_glass_bento_richness: { noul: 0.94 },
+          animation_motion_health: { noul: 0.99 },
+          i18n_raw_key_integrity: { noul: 0.99 },
+        },
+      }),
+    };
+  };
+
+  const res = await evaluate360MultimodalWithJevOrClef({
+    imageBase64: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB",
+    boxes,
+    apiKey: "test-key",
+    fetchFn: mockFailoverFetch,
+  });
+
+  assert.equal(callCount, 2);
+  assert.equal(res.success, true);
+  assert.equal(res.failoverUsed, true);
+  assert.equal(res.model, "microsoft/decision-1");
+  assert.equal(res.screenState, "ready");
+  assert.equal(res.visualDesignScore, 3.85);
+  assert.equal(res.layoutHarmony, true);
+  assert.equal(res.colorContrast, true);
+  assert.equal(res.stitchBananaGate.studioGradeReady, true);
 });
