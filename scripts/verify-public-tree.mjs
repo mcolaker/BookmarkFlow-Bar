@@ -61,6 +61,14 @@ const scanPatterns = [
   { label: "private key", value: /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/u },
   { label: "GitHub access token", value: /\b(?:ghp|github_pat)_[A-Za-z0-9_]{20,}\b/u },
   { label: "AWS access key", value: /\bAKIA[0-9A-Z]{16}\b/u },
+  {
+    label: "hardcoded publisher or token UUIDv4",
+    value: /\b(?:PUBLISHER_ID|ACCESS_TOKEN|API_TOKEN|OPENVSX_TOKEN)\s*=\s*["'][0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}["']/iu,
+  },
+  {
+    label: "hardcoded CWS devconsole account UUID",
+    value: /\/webstore\/devconsole\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/iu,
+  },
 ];
 
 const extensionlessTextFiles = new Set(["DCO", "NOTICE", ".imgbotconfig", ".githooks/pre-push"]);

@@ -7,11 +7,28 @@ import { ensureAutoAllowDaemon, triggerFastUiaAutoConfirm } from "./live-chrome-
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 
-export const CWS_PUBLISHER_ID = "91a2622b-7094-42c1-9605-adfb34bcd8d2";
+export const CWS_BASE_URL = "https://chrome.google.com/webstore/devconsole";
 export const CWS_ITEM_ID = "iaikobkolclhhpcogacjkenijlfaibpf";
-export const CWS_DASHBOARD_URL = `https://chrome.google.com/webstore/devconsole/${CWS_PUBLISHER_ID}`;
-export const CWS_EDIT_URL = `${CWS_DASHBOARD_URL}/${CWS_ITEM_ID}/edit`;
-export const CWS_PACKAGE_URL = `${CWS_EDIT_URL}/package`;
+
+export function resolveCwsUrls(currentUrl = "", envAccountId = process.env.BOOKMARKFLOW_CWS_ACCOUNT_ID) {
+  const match = String(currentUrl || "").match(/\/webstore\/devconsole\/([0-9a-f-]{36})/iu);
+  const accountSegment = match ? match[1] : (envAccountId || "").trim();
+  if (!accountSegment) {
+    return {
+      hasAccountSegment: false,
+      dashboardUrl: CWS_BASE_URL,
+      editUrl: `${CWS_BASE_URL}/${CWS_ITEM_ID}/edit`,
+      packageUrl: `${CWS_BASE_URL}/${CWS_ITEM_ID}/edit/package`,
+    };
+  }
+  const dashboardUrl = `${CWS_BASE_URL}/${accountSegment}`;
+  return {
+    hasAccountSegment: true,
+    dashboardUrl,
+    editUrl: `${dashboardUrl}/${CWS_ITEM_ID}/edit`,
+    packageUrl: `${dashboardUrl}/${CWS_ITEM_ID}/edit/package`,
+  };
+}
 
 export function getManifestVersion(manifestPath = path.join(root, "manifest.json")) {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
@@ -308,7 +325,7 @@ export async function verifyCwsReleaseStatus(version = getManifestVersion(), opt
       dryRun: true,
       version: cleanVersion,
       status: "pending_review",
-      url: CWS_DASHBOARD_URL,
+      url: CWS_BASE_URL,
     };
   }
 
@@ -326,9 +343,9 @@ export async function verifyCwsReleaseStatus(version = getManifestVersion(), opt
     );
 
     if (!cwsPage) {
-      const created = await client.send("Target.createTarget", { url: CWS_PACKAGE_URL });
+      const created = await client.send("Target.createTarget", { url: CWS_BASE_URL });
       await new Promise((r) => setTimeout(r, 4500));
-      cwsPage = { targetId: created.targetId, url: CWS_PACKAGE_URL };
+      cwsPage = { targetId: created.targetId, url: CWS_BASE_URL };
     }
 
     const { sessionId } = await client.send("Target.attachToTarget", {
@@ -346,9 +363,17 @@ export async function verifyCwsReleaseStatus(version = getManifestVersion(), opt
       );
     }
 
+    let cwsUrls = resolveCwsUrls(snap.url);
+    if (!cwsUrls.hasAccountSegment) {
+      await client.send("Page.navigate", { url: CWS_BASE_URL }, sessionId);
+      await new Promise((r) => setTimeout(r, 4000));
+      snap = await getPageSnapshot(client, sessionId);
+      cwsUrls = resolveCwsUrls(snap.url);
+    }
+
     // If current page doesn't show the status clearly, check package page and dashboard page
     if (!parsed.isPendingReview && !parsed.isPublished) {
-      await client.send("Page.navigate", { url: CWS_PACKAGE_URL }, sessionId);
+      await client.send("Page.navigate", { url: cwsUrls.packageUrl }, sessionId);
       await new Promise((r) => setTimeout(r, 4000));
       snap = await getPageSnapshot(client, sessionId);
       parsed = parseCwsStatusFromText(snap.text, cleanVersion, snap.url);
@@ -362,7 +387,7 @@ export async function verifyCwsReleaseStatus(version = getManifestVersion(), opt
     }
 
     if (!parsed.isPendingReview && !parsed.isPublished) {
-      await client.send("Page.navigate", { url: CWS_DASHBOARD_URL }, sessionId);
+      await client.send("Page.navigate", { url: cwsUrls.dashboardUrl }, sessionId);
       await new Promise((r) => setTimeout(r, 4000));
       snap = await getPageSnapshot(client, sessionId);
       const dashParsed = parseCwsStatusFromText(snap.text, cleanVersion, snap.url);
@@ -442,9 +467,9 @@ export async function publishToChromeWebStore(options = {}) {
     );
 
     if (!cwsPage) {
-      const created = await client.send("Target.createTarget", { url: CWS_PACKAGE_URL });
+      const created = await client.send("Target.createTarget", { url: CWS_BASE_URL });
       await new Promise((r) => setTimeout(r, 4500));
-      cwsPage = { targetId: created.targetId, url: CWS_PACKAGE_URL };
+      cwsPage = { targetId: created.targetId, url: CWS_BASE_URL };
     }
 
     const { sessionId } = await client.send("Target.attachToTarget", {
@@ -452,11 +477,20 @@ export async function publishToChromeWebStore(options = {}) {
       flatten: true,
     });
 
+    let snap = await getPageSnapshot(client, sessionId);
+    let cwsUrls = resolveCwsUrls(snap.url);
+    if (!cwsUrls.hasAccountSegment) {
+      await client.send("Page.navigate", { url: CWS_BASE_URL }, sessionId);
+      await new Promise((r) => setTimeout(r, 4000));
+      snap = await getPageSnapshot(client, sessionId);
+      cwsUrls = resolveCwsUrls(snap.url);
+    }
+
     console.log(`[CWS] Navigating to package console for v${version}...`);
-    await client.send("Page.navigate", { url: CWS_PACKAGE_URL }, sessionId);
+    await client.send("Page.navigate", { url: cwsUrls.packageUrl }, sessionId);
     await new Promise((r) => setTimeout(r, 4500));
 
-    let snap = await getPageSnapshot(client, sessionId);
+    snap = await getPageSnapshot(client, sessionId);
     let parsed = parseCwsStatusFromText(snap.text, version, snap.url);
 
     if (parsed.reauthRequired) {
@@ -584,7 +618,7 @@ export async function publishToChromeWebStore(options = {}) {
 
     // Navigate to /edit and click "İnceleme için gönder" / "Submit for review"
     console.log(`[CWS] Navigating to Store Listing (/edit) to submit v${version} for review...`);
-    await client.send("Page.navigate", { url: CWS_EDIT_URL }, sessionId);
+    await client.send("Page.navigate", { url: cwsUrls.editUrl }, sessionId);
     await new Promise((r) => setTimeout(r, 4000));
 
     let submitClicked = false;
@@ -657,7 +691,7 @@ export async function publishToChromeWebStore(options = {}) {
     await new Promise((r) => setTimeout(r, 5000));
 
     // Final verification on CWS Dashboard
-    await client.send("Page.navigate", { url: CWS_DASHBOARD_URL }, sessionId);
+    await client.send("Page.navigate", { url: cwsUrls.dashboardUrl }, sessionId);
     await new Promise((r) => setTimeout(r, 4000));
     snap = await getPageSnapshot(client, sessionId);
     parsed = parseCwsStatusFromText(snap.text, version, snap.url);
@@ -673,12 +707,13 @@ export async function publishToChromeWebStore(options = {}) {
       success: true,
       version,
       status: parsed.status,
-      url: CWS_DASHBOARD_URL,
+      url: cwsUrls.dashboardUrl,
     };
   } finally {
     client.close();
   }
 }
+
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
   const options = parseCwsArgs(process.argv.slice(2));
