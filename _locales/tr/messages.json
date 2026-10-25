@@ -498,7 +498,7 @@
     "message": "BookmarkFlow Chrome'un kendi arayüzünü değiştiremez. Yerel yer imleri çubuğu görünüyorsa sağ tıklayıp “Yer imleri çubuğunu göster” seçeneğini kapatın veya <kbd>Ctrl + Shift + B</kbd> kullanın."
   },
   "braveNativeBarDescription": {
-    "message": "Brave'de kısayol yeterli olmazsa Ayarlar &gt; Görünüm &gt; Yer imlerini göster bölümünden <strong>Asla</strong> seçeneğini seçin. “Yalnızca yeni sekme sayfasında” seçeneği yerel çubuğu yeni sekmelerde görünür tutar."
+    "message": "Brave'de kısayol yeterli olmazsa Ayarlar &gt; Görünüm &gt; Yer imlerini göster bölümünden <strong>Asla</strong> seçeneğini seçin. Yeni Sekme'nin en altında “Brave'i özelleştir” alt çubuğu görünürse üzerine sağ tıklayıp <strong>Yeni Sekme sayfasında alt bilgiyi gizle</strong> seçeneğine tıklayın."
   },
   "nativeBarSafeDescription": {
     "message": "Bu işlem yer imlerini silmez. BookmarkFlow aynı Yer İmleri Çubuğu verisini okumaya devam eder."
@@ -1488,6 +1488,25 @@
   },
   "visitCountBadgeTitle": {
     "message": "$COUNT$ ziyaret",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "openAllInTabsTitle": {
+    "message": "Tümünü sekmelerde aç (Sağ tık: Tümünü gizli pencerede aç)"
+  },
+  "openAllIncognitoConfirm": {
+    "message": "Gizli pencerede $COUNT$ sekme açılsın mı?",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "openAllIncognitoToast": {
+    "message": "✓ $COUNT$ sekme gizli pencerede açıldı",
     "placeholders": {
       "count": {
         "content": "$1"

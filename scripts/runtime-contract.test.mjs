@@ -270,6 +270,72 @@ test("extension update opens consent setup only when the current consent version
   assert.deepEqual(accepted.calls.tabsCreated, []);
 });
 
+test("fullscreen helpers, BF_SYNC_FULLSCREEN_EXIT recovery, and BF_OPEN_INCOGNITO_TABS batch opening work accurately", async () => {
+  const runtime = createRuntime({ tree: emptyTree(), consent: true });
+  const { isBrowserOrDomFullscreen, isValidFixedTopNavbarCandidate } = runtime.context.BookmarkFlowConfig;
+
+  assert.equal(
+    isBrowserOrDomFullscreen({ outerWidth: 1920, outerHeight: 1080, innerHeight: 1080, screen: { width: 1920, height: 1080 } }, {}),
+    true,
+    "F11 window fullscreen must be detected when innerHeight matches screen height"
+  );
+  assert.equal(
+    isBrowserOrDomFullscreen({ outerWidth: 1920, outerHeight: 1032, innerHeight: 940, screen: { width: 1920, height: 1080 } }, {}),
+    false,
+    "Maximized normal window with browser toolbar and taskbar must not be treated as fullscreen"
+  );
+  assert.equal(
+    isValidFixedTopNavbarCandidate(
+      { matches: (sel) => sel.includes("html5-video-player"), closest: () => null },
+      { top: 0, bottom: 1080, left: 0, right: 1920, width: 1920, height: 1080 },
+      1920,
+      1080
+    ),
+    false,
+    "Fullscreen video player must never be mistaken for a fixed top navbar"
+  );
+  assert.equal(
+    isValidFixedTopNavbarCandidate(
+      { matches: () => false, closest: () => null },
+      { top: 0, bottom: 64, left: 0, right: 1920, width: 1920, height: 64 },
+      1920,
+      1080
+    ),
+    true,
+    "Standard 64px top navbar must be accepted"
+  );
+
+  const windowsCreated = [];
+  const windowsUpdated = [];
+  runtime.context.chrome.windows = {
+    create: async (opts) => {
+      windowsCreated.push(opts);
+      return { id: 99 };
+    },
+    get: async (id) => ({ id, state: "fullscreen" }),
+    update: async (id, opts) => {
+      windowsUpdated.push({ id, ...opts });
+      return { id, ...opts };
+    }
+  };
+
+  const incogRes = plain(await runtime.context.routeMessage({
+    type: "BF_OPEN_INCOGNITO_TABS",
+    urls: ["https://one.example/a", "javascript:alert(1)", "https://two.example/b"]
+  }, {}));
+  assert.equal(incogRes.ok, true);
+  assert.equal(incogRes.count, 2);
+  assert.equal(windowsCreated.length, 1);
+  assert.equal(windowsCreated[0].incognito, true);
+  assert.deepEqual(plain(windowsCreated[0].url), ["https://one.example/a", "https://two.example/b"]);
+
+  const fsExitRes = plain(await runtime.context.routeMessage({
+    type: "BF_SYNC_FULLSCREEN_EXIT"
+  }, { tab: { id: 7, windowId: 42 } }));
+  assert.equal(fsExitRes.ok, true);
+  assert.deepEqual(windowsUpdated, [{ id: 42, state: "maximized" }]);
+});
+
 function createRuntime({
   tree,
   sync = {},
