@@ -1,436 +1,1287 @@
 {
-  "appName": { "message": "BookmarkFlow Bar" },
-  "appDescription": { "message": "Turn Chrome bookmarks into a customizable multi-row bar, search palette, and focused new-tab workspace." },
-  "commandOpenSearch": { "message": "Open the BookmarkFlow search palette" },
-  "commandToggleBar": { "message": "Expand or collapse the BookmarkFlow bar" },
-  "commandHideRestore": { "message": "Hide or restore BookmarkFlow" },
-  "commandStreamerMode": { "message": "Turn BookmarkFlow streamer mode on or off" },
-
-  "close": { "message": "Close" },
-  "cancel": { "message": "Cancel" },
-  "add": { "message": "Add" },
-  "save": { "message": "Save" },
-  "edit": { "message": "Edit" },
-  "search": { "message": "Search" },
-  "title": { "message": "Title" },
-  "address": { "message": "Address" },
-  "bookmarks": { "message": "Bookmarks" },
-  "folders": { "message": "Folders" },
-  "folder": { "message": "Folder" },
-  "profile": { "message": "Profile" },
-  "recommended": { "message": "Recommended" },
-  "exampleFolder": { "message": "Example: FAVORITES" },
-
-  "popupSubtitle": { "message": "Your bookmark workspace" },
-  "toggleExtensionTitle": { "message": "Turn BookmarkFlow on or off" },
-  "setupGuide": { "message": "Setup guide" },
-  "showOnSites": { "message": "Show on websites" },
-  "showOnSitesTitle": { "message": "Show the compact BF panel on regular websites without changing the new-tab page" },
-  "rows": { "message": "Rows" },
-  "rowsAria": { "message": "Number of bookmark rows" },
-  "compactView": { "message": "Compact view" },
-  "compactViewTitle": { "message": "Fit more bookmarks into less space" },
-  "offsetPage": { "message": "Move page content down" },
-  "persistentSearch": { "message": "Persistent search" },
-  "hideEmptySuggestions": { "message": "Hide suggestions before typing" },
-  "hideEmptySuggestionsTitle": { "message": "Keep bookmarks hidden while the search palette is empty" },
-  "streamerMode": { "message": "Streamer mode" },
-  "streamerModeTitle": { "message": "Replace bookmark names with icons during streams and presentations" },
-  "theme": { "message": "Theme" },
-  "themeAria": { "message": "Color theme" },
-  "themeGold": { "message": "Gold" },
-  "themeOled": { "message": "OLED" },
-  "themeEmerald": { "message": "Emerald" },
-  "themeIndigo": { "message": "Indigo" },
-  "themeTurquoise": { "message": "Turquoise" },
-  "folderRail": { "message": "Folder rail" },
-  "folderRailPosition": { "message": "Folder rail position" },
-  "off": { "message": "Off" },
-  "left": { "message": "Left" },
-  "right": { "message": "Right" },
-  "autoHideSensitive": { "message": "Hide on sign-in and payment pages" },
-  "autoHideSensitiveTitle": { "message": "Optionally hide BookmarkFlow on sign-in, checkout, and banking pages" },
-  "avoidAppTopBars": { "message": "Move below conflicting app bars" },
-  "avoidAppTopBarsTitle": { "message": "Dock BookmarkFlow at the bottom on apps with fixed top navigation, such as WordPress or TradingView" },
-  "thisSite": { "message": "This site" },
-  "hideOnThisSite": { "message": "Hide on this site" },
-  "showOnThisSite": { "message": "Show on this site" },
-  "websitesDisabled": { "message": "Websites are disabled" },
-  "shortcuts": { "message": "Shortcuts" },
-  "searchPalette": { "message": "Search palette" },
-  "expandCollapseBar": { "message": "Expand / collapse bar" },
-  "hideRestore": { "message": "Hide / restore" },
-  "chromeBookmarks": { "message": "Chrome bookmarks" },
-  "mergeDuplicateFolders": { "message": "Merge duplicate folders" },
-  "resetPosition": { "message": "Reset panel position" },
-  "siteStatusWebsitesHidden": { "message": "Hidden on regular websites; the new-tab page is unaffected." },
-  "siteStatusManuallyHidden": { "message": "BookmarkFlow is manually hidden on this site." },
-  "siteStatusSensitiveHidden": { "message": "Automatically hidden by the sign-in/payment protection rule." },
-  "siteStatusDockedBottom": { "message": "An app-style top bar was detected, so BookmarkFlow is shown at the bottom." },
-  "siteStatusVisible": { "message": "BookmarkFlow is visible on this site." },
-
-  "webSearch": { "message": "Web Search" },
-  "newTabSearchPlaceholder": { "message": "Search the web or type a URL" },
-  "webSearchUnavailable": { "message": "The default search provider is currently unavailable." },
-  "addBookmark": { "message": "Add bookmark" },
-  "addFolder": { "message": "Add folder" },
-  "scrollLeft": { "message": "Scroll left" },
-  "scrollRight": { "message": "Scroll right" },
-  "bookmarkSearch": { "message": "Bookmark search" },
-  "bookmarkSearchPlaceholder": { "message": "Search bookmarks or type a URL" },
-  "bookmarkSearchShortPlaceholder": { "message": "Search bookmarks" },
-  "dragOrOpen": { "message": "Drag / Click: Restore (Alt+Shift+H) | Right-click: Menu" },
-  "dragOrExpand": { "message": "Drag / Click: Toggle (Alt+Shift+B) | Right-click: Menu" },
-  "collapse": { "message": "Collapse" },
-  "noFolders": { "message": "No folders yet." },
-  "noBookmarksInFolder": { "message": "This folder has no bookmarks." },
-  "filterInFolderPlaceholder": { "message": "Filter bookmarks…" },
-  "noMatchingBookmarksInFolder": { "message": "No matching bookmarks found." },
-  "noResults": { "message": "No results." },
-  "searchEmptyPrivacy": { "message": "Start typing to search. Bookmarks stay hidden while the field is empty." },
-  "enterAddressToAdd": { "message": "Enter the address you want to add." },
-  "pageAddressUnavailable": { "message": "This page cannot be added automatically; enter an address manually." },
-  "adding": { "message": "Adding…" },
-  "saving": { "message": "Saving…" },
-  "addAnyway": { "message": "Add anyway" },
-  "duplicateBookmarkPrompt": { "message": "This address already exists in the selected folder. Select Add again to create a duplicate." },
-  "validUrlRequired": { "message": "Enter a valid http, https, or mailto address." },
-  "bookmarkAdded": { "message": "Bookmark added." },
-  "bookmarkAddedToFolder": { "message": "Bookmark added to the folder." },
-  "bookmarkAddFailed": { "message": "The bookmark could not be added." },
-  "bookmarkMoveFailed": { "message": "The bookmark could not be moved." },
-  "bookmarkDeleteFailed": { "message": "The bookmark could not be deleted." },
-  "bookmarkRenameFailed": { "message": "The name could not be updated." },
-  "folderCreateFailed": { "message": "The folder could not be created." },
-  "folderColorFailed": { "message": "The folder color could not be saved." },
-  "folderName": { "message": "Folder name" },
-  "bookmarkName": { "message": "Bookmark name" },
-  "childFolderName": { "message": "Child folder name" },
-  "newFolderName": { "message": "New folder name" },
-  "newFolderDefault": { "message": "New folder" },
-  "nameRequired": { "message": "The name cannot be empty." },
-  "folderNameRequired": { "message": "The folder name cannot be empty." },
-  "folderCreated": { "message": "Folder created." },
-  "confirmDeleteFolder": { "message": "Delete the folder “$1” and everything inside it?" },
-  "confirmDeleteBookmark": { "message": "Delete the bookmark “$1”?" },
-  "openInNewTab": { "message": "Open in new tab" },
-  "copyAddress": { "message": "Copy address" },
-  "renameBookmark": { "message": "Rename bookmark" },
-  "addBookmarkToFolder": { "message": "Add bookmark to this folder" },
-  "createChildFolder": { "message": "Create child folder" },
-  "renameFolder": { "message": "Rename folder" },
-  "movePrevious": { "message": "Move earlier" },
-  "moveNext": { "message": "Move later" },
-  "moveFirst": { "message": "Move to beginning" },
-  "moveLast": { "message": "Move to end" },
-  "deleteFolder": { "message": "Delete folder" },
-  "deleteBookmark": { "message": "Delete bookmark" },
-  "color": { "message": "Color" },
-  "clearColor": { "message": "Default color" },
-  "colorYellow": { "message": "Yellow" },
-  "colorBlue": { "message": "Blue" },
-  "colorGreen": { "message": "Green" },
-  "colorPurple": { "message": "Purple" },
-  "colorRed": { "message": "Red" },
-  "colorOrange": { "message": "Orange" },
-  "colorCyan": { "message": "Cyan" },
-  "colorGray": { "message": "Gray" },
-
-  "onboardingTitle": { "message": "BookmarkFlow Setup" },
-  "onboardingHeading": { "message": "Set up your workspace in one minute" },
-  "onboardingLead": { "message": "BookmarkFlow reads your own Chrome Bookmark Bar. Bookmark content never leaves your browser." },
-  "dataConsentEyebrow": { "message": "Privacy choice" },
-  "dataConsentHeading": { "message": "Choose whether to enable bookmark and page access" },
-  "dataConsentIntro": { "message": "BookmarkFlow stays off until you agree. If enabled, it handles the following data only to provide its bookmark workspace:" },
-  "dataConsentBookmarks": { "message": "Bookmark titles, URLs, folders, and favicons are read from Chrome and changed only after your actions." },
-  "dataConsentPageContext": { "message": "On regular websites, the current URL, title, and limited layout context are processed locally for matching, visibility, and non-overlapping placement." },
-  "dataConsentStorage": { "message": "Display settings may use Chrome Sync; per-site, pinned-folder, and folder-color choices stay in local Chrome storage." },
-  "dataConsentSearch": { "message": "A new-tab search is sent by Chrome to your selected default search provider only after you submit it." },
-  "dataConsentNoDeveloperCollection": { "message": "Maprins Games does not receive bookmark, page, preference, or search data. There are no analytics, ads, or data sales." },
-  "dataConsentAgree": { "message": "I agree — enable bookmark and page access" },
-  "dataConsentAccepted": { "message": "Privacy choice saved. Bookmark and page access is now enabled." },
-  "dataConsentDeclined": { "message": "Bookmark and page access remains off. You can return to this setup guide later." },
-  "dataConsentRequired": { "message": "Bookmark and page access is off until the first-run privacy choice is accepted." },
-  "dataConsentRequiredHeading": { "message": "Review privacy choices to enable BookmarkFlow" },
-  "dataConsentRequiredDescription": { "message": "Bookmark and page access remains off until you review the first-run disclosure and agree." },
-  "dataConsentUpdateDenied": { "message": "Only BookmarkFlow's setup page can change this privacy choice." },
-  "reviewPrivacySetup": { "message": "Review privacy setup" },
-  "privacyPolicy": { "message": "Read the privacy policy" },
-  "notNow": { "message": "Not now" },
-  "source": { "message": "Source" },
-  "bookmarkBarLoading": { "message": "Reading Bookmark Bar" },
-  "bookmarkBarNoImport": { "message": "No separate import is needed; BookmarkFlow uses your existing Chrome bookmarks." },
-  "privacy": { "message": "Privacy" },
-  "localSettings": { "message": "Local settings" },
-  "localSettingsDescription": { "message": "Display, color, and per-site visibility settings stay in Chrome storage." },
-  "control": { "message": "Control" },
-  "keyboardReady": { "message": "Keyboard ready" },
-  "keyboardReadyDescription": { "message": "Search, visibility, and streamer mode are available from keyboard shortcuts." },
-  "browserBar": { "message": "Browser bar" },
-  "disableNativeBar": { "message": "Hide Chrome’s native bookmarks bar" },
-  "disableNativeBarDescription": { "message": "BookmarkFlow cannot change Chrome’s own interface. If the native bookmarks bar is visible, right-click it and turn off “Show bookmarks bar,” or use <kbd>Ctrl + Shift + B</kbd>." },
-  "braveNativeBarDescription": { "message": "In Brave, if the shortcut is not enough, open Settings &gt; Appearance &gt; Show bookmarks and choose <strong>Never</strong>. “Only on new tab page” keeps the native bar visible on new tabs." },
-  "nativeBarSafeDescription": { "message": "This does not delete bookmarks. BookmarkFlow continues reading the same Bookmark Bar data." },
-  "chooseProfile": { "message": "Choose your workflow" },
-  "profileHint": { "message": "You can change these settings later from the popup." },
-  "quickStart": { "message": "Quick start" },
-  "editShortcuts": { "message": "Edit shortcuts" },
-  "featureTour": { "message": "Feature tour" },
-  "bookmarkFlowInMotion": { "message": "BookmarkFlow in motion" },
-  "syntheticDemoHint": { "message": "Demos use synthetic test bookmarks." },
-  "tourBarAlt": { "message": "Opening and collapsing BookmarkFlow with the BF control" },
-  "tourBarDescription": { "message": "Open the bookmark bar only when you need it, using BF or the shortcut." },
-  "tourSearchAlt": { "message": "Searching bookmarks and selecting a result with the keyboard" },
-  "tourSearchDescription": { "message": "Start typing, move with the arrow keys, and press Enter to open a result." },
-  "tourRailAlt": { "message": "Opening a folder from the left folder rail" },
-  "tourRailDescription": { "message": "Keep folders in a dedicated rail while direct bookmarks stay in the horizontal strip." },
-  "tourStreamerAlt": { "message": "Bookmark names hidden in streamer mode" },
-  "tourStreamerDescription": { "message": "Switch to icon mode during videos, presentations, and client calls." },
-  "tourContextAlt": { "message": "Editing, moving, and deleting a bookmark from its context menu" },
-  "contextActions": { "message": "Context actions" },
-  "tourContextDescription": { "message": "Rename, reorder, move, or delete bookmarks without leaving BookmarkFlow." },
-  "applySelectedProfile": { "message": "Apply selected profile" },
-  "finish": { "message": "Finish" },
-  "profileBalanced": { "message": "Balanced" },
-  "profileBalancedDescription": { "message": "A calm, readable two-row default for everyday browsing." },
-  "profilePrivacy": { "message": "Streamer / privacy" },
-  "profilePrivacyDescription": { "message": "An icon-first profile that reduces visible bookmark names during recordings and calls." },
-  "profileKeyboard": { "message": "Keyboard-first" },
-  "profileKeyboardDescription": { "message": "Persistent search and fast keyboard navigation stay front and center." },
-  "profileOrganized": { "message": "Folder rail" },
-  "profileOrganizedDescription": { "message": "Direct bookmarks stay horizontal while folders move into a dedicated rail." },
-  "factTwoRows": { "message": "2 rows" },
-  "factOneRow": { "message": "1 row" },
-  "factCompact": { "message": "Compact" },
-  "factNamesVisible": { "message": "Names visible" },
-  "factIconFocused": { "message": "Icon focused" },
-  "factEmptySearchHidden": { "message": "Empty search hidden" },
-  "factPersistentSearch": { "message": "Persistent search" },
-  "factShortcutFocused": { "message": "Shortcut focused" },
-  "factLeftFolderRail": { "message": "Left folder rail" },
-  "factFolderFocused": { "message": "Folder focused" },
-  "profileSelected": { "message": "$1 profile selected." },
-  "profileApplied": { "message": "$1 profile applied." },
-  "setupComplete": { "message": "Setup complete." },
-  "onboardingFailed": { "message": "The setup page could not be opened." },
-  "bookmarkSourceSummary": { "message": "Bookmark Bar: $1 bookmarks, $2 folders" },
-
-  "maintenanceTitle": { "message": "BookmarkFlow — Folder Maintenance" },
-  "maintenanceEyebrow": { "message": "BOOKMARKFLOW MAINTENANCE" },
-  "maintenanceHeading": { "message": "Merge duplicate folders" },
-  "maintenanceLead": { "message": "Move the contents of device-only folders into same-named folders in your Google account." },
-  "safetyInformation": { "message": "Safety information" },
-  "dataLossProtection": { "message": "Data-loss protection" },
-  "dataLossProtectionDescription": { "message": "Bookmarks are never deleted. A local folder is removed only after every item is moved and the folder is confirmed empty." },
-  "pinnedFolderHeading": { "message": "Additional folders shown in the rail" },
-  "pinnedFolderDescription": { "message": "Pin a folder to the left or right rail regardless of its location in Chrome." },
-  "saveRailSelection": { "message": "Save rail selection" },
-  "searchFolders": { "message": "Search folders" },
-  "bookmarkFolders": { "message": "Bookmark folders" },
-  "mergeActions": { "message": "Merge actions" },
-  "rescan": { "message": "Scan again" },
-  "mergeSelected": { "message": "Merge selected folders into Google account" },
-  "scanningFolders": { "message": "Scanning bookmark folders…" },
-  "duplicateFolderGroups": { "message": "Duplicate folder groups" },
-  "googleAccount": { "message": "Google account" },
-  "thisDevice": { "message": "This device" },
-  "noMatchingFolders": { "message": "No folders match this search." },
-  "savingRailSelection": { "message": "Saving rail selection…" },
-  "railSelectionSaved": { "message": "Saved. Open new-tab pages will refresh within a few seconds." },
-  "duplicateGroupsFound": { "message": "$1 matching Google-account/device folder groups found." },
-  "noDuplicateGroups": { "message": "No matching Google-account/device folders are available to merge." },
-  "noCrossStorageFolders": { "message": "No same-named folders were found across both storage areas in this Chrome profile." },
-  "localFolderItemCount": { "message": "$1 local folders, $2 items" },
-  "targetGoogleFolder": { "message": "Target Google account folder" },
-  "itemCount": { "message": "$1 items" },
-  "mergeConfirmation": { "message": "Move $1 items from $2 local folders into their selected Google account folders?" },
-  "mergingFolders": { "message": "Merging folders…" },
-  "mergeComplete": { "message": "Merge complete. $1 items moved and $2 empty local folders removed." },
-  "genericOperationFailed": { "message": "The operation could not be completed." },
-  "extensionContextUnavailable": { "message": "Extension context unavailable." },
-  "bookmarkMoveInvalid": { "message": "The bookmark move target is invalid." },
-  "bookmarkParentInvalid": { "message": "The bookmark parent is invalid." },
-  "bookmarkIndexInvalid": { "message": "The bookmark position is invalid." },
-  "bookmarkDeleteTargetMissing": { "message": "The bookmark to delete was not found." },
-  "bookmarkTargetFolderMissing": { "message": "The bookmark destination folder was not found." },
-  "folderTargetMissing": { "message": "The folder destination was not found." },
-  "renameTargetMissing": { "message": "The item to rename was not found." },
-  "folderColorTargetMissing": { "message": "The folder to color was not found." },
-  "bookmarkFlowUnavailable": { "message": "BookmarkFlow is not available on this page." },
-  "unknownCommand": { "message": "Unknown BookmarkFlow command." },
-  "selectFolderGroup": { "message": "Select the $1 folder group" },
-  "inGoogleAccount": { "message": "In Google account" },
-  "onThisDeviceOnly": { "message": "On this device only" },
-  "partialMergeFailed": { "message": "Some folders could not be completed: $1" },
-  "mergeTargetMissing": { "message": "The Google account destination folder is no longer available." },
-  "mergeSourceChanged": { "message": "A source or destination folder changed after the scan." },
-  "mergeTargetInsideSource": { "message": "The destination folder cannot be inside a source folder." },
-  "mergeSourceNotEmpty": { "message": "The local folder was not removed because it is not empty." },
-  "directBookmarksEmpty": { "message": "No direct bookmarks; folders are available in the rail." },
-  "bookmarkBarEmpty": { "message": "Your Bookmark Bar is empty." },
-  "folderColorAria": { "message": "$1 folder color" },
-  "willAddToFolder": { "message": "Will be added to $1." },
-  "greetingMorning": { "message": "Good morning" },
-  "greetingAfternoon": { "message": "Good afternoon" },
-  "greetingEvening": { "message": "Good evening" },
-  "quickShortcuts": { "message": "Shortcuts" },
-  "bookmarkHealthHeading": { "message": "Bookmark health & dead link inspector" },
-  "bookmarkHealthDescription": { "message": "Check your bookmarks locally for dead links, unreachable domains, and duplicate URLs." },
-  "startHealthCheck": { "message": "Check bookmark health" },
-  "stopHealthCheck": { "message": "Stop scan" },
-  "healthMetricTotal": { "message": "Total checked" },
-  "healthMetricHealthy": { "message": "Reachable" },
-  "healthMetricDead": { "message": "Dead links" },
-  "healthMetricDuplicates": { "message": "Duplicates" },
-  "healthScanningStatus": { "message": "Checking link $1 of $2…" },
-  "healthScanComplete": { "message": "Health check complete. $1 links checked." },
-  "healthAllClean": { "message": "All checked bookmarks are reachable and healthy!" },
-  "healthIssueDead": { "message": "Unreachable" },
-  "healthIssueDuplicate": { "message": "Duplicate bookmark" },
-  "healthIssueInsecure": { "message": "Insecure HTTP" },
-  "deleteBookmark": { "message": "Delete" },
-  "bookmarkDeleted": { "message": "Bookmark deleted." },
-  "tags": { "message": "Tags" },
-  "editTags": { "message": "Edit tags" },
-  "saveTags": { "message": "Save tags" },
-  "tagPlaceholder": { "message": "Add tags (e.g. dev, work, docs)" },
-  "tagsUpdated": { "message": "Tags updated." },
-  "filterByTag": { "message": "Filter by tag" },
-  "smartTags": { "message": "Smart tags" },
-  "editTagsPrompt": { "message": "Enter tags separated by space or comma (e.g. dev, github, tools):" },
-  "tagFilterHelp": { "message": "Tip: Type #tag in search to filter bookmarks" },
-  "openHealthInspector": { "message": "🩺 Bookmark health & dead link inspector" },
-  "openHealthInspectorTitle": { "message": "Audit dead links, 404s, and duplicate bookmarks" },
-  "testLink": { "message": "↗ Open" },
-  "testLinkTitle": { "message": "Open link in a new tab to test" },
-  "filterAll": { "message": "All issues" },
-  "filterDead": { "message": "Dead links" },
-  "filterDuplicates": { "message": "Duplicates" },
-  "quickActionOpenHealth": { "message": "🩺 Open Bookmark Health Inspector" },
-  "quickActionOpenHealthDesc": { "message": "Audit dead links, unreachable hosts, and duplicate bookmarks" },
-  "maintenanceCenterHeading": { "message": "Bookmark Maintenance & Health Center" },
-  "maintenanceCenterLead": { "message": "Audit broken links, merge duplicate folders, and customize your pinned rail." },
-  "navHealth": { "message": "Link Health" },
-  "navFolders": { "message": "Folder Merger" },
-  "navRail": { "message": "Pinned Rail" },
-  "saveOpenTabs": { "message": "Save open tabs" },
-  "saveOpenTabsPrompt": { "message": "Save open tabs to a new folder? Folder name:" },
-  "saveOpenTabsSuccess": { "message": "$1 open tabs saved to folder." },
-  "saveOpenTabsFailed": { "message": "Could not save open tabs." },
-  "readingList": { "message": "Reading List" },
-  "readingListEmpty": { "message": "Your reading list is empty." },
-  "markDone": { "message": "Done" },
-  "removeFromReadingList": { "message": "Remove from reading list" },
-  "addToReadingList": { "message": "Add to Reading List" },
-  "addedToReadingList": { "message": "Added to reading list." },
-  "backupAndRestore": { "message": "Backup & Restore" },
-  "exportBackup": { "message": "Export backup" },
-  "importBackup": { "message": "Restore" },
-  "backupExportSuccess": { "message": "Backup exported successfully." },
-  "backupExportFailed": { "message": "Could not export backup." },
-  "backupImportSuccess": { "message": "Backup restored successfully." },
-  "backupImportConfirm": { "message": "Restoring from backup will merge bookmarks, tags, and settings. Do you wish to proceed?" },
-  "backupImportInvalid": { "message": "Invalid backup file." },
-  "autoTagging": { "message": "Automatic smart tagging" },
-  "autoTaggingTitle": { "message": "Automatically suggest tags like #dev, #video, #social based on domain and URL" },
-  "newTabBackground": { "message": "New tab background" },
-  "newTabBackgroundAria": { "message": "New tab background" },
-  "bgObsidian": { "message": "Obsidian" },
-  "bgMidnight": { "message": "Midnight" },
-  "bgEmerald": { "message": "Emerald" },
-  "bgTurquoise": { "message": "Turquoise" },
-  "bgCustom": { "message": "Custom" },
-  "uploadWallpaper": { "message": "Upload wallpaper" },
-  "clearWallpaper": { "message": "Clear wallpaper" },
-  "quickActionSaveTabs": { "message": "📥 Save Open Tabs to Folder" },
-  "quickActionSaveTabsDesc": { "message": "Stash all open tabs in current window into a new bookmark folder" },
-  "quickActionAddReadingList": { "message": "📖 Add Current Page to Reading List" },
-  "quickActionAddReadingListDesc": { "message": "Save this page to your local reading list for later" },
-  "quickActionReadingList": { "message": "📖 Open Reading List" },
-  "quickActionReadingListDesc": { "message": "View and manage saved articles in your reading list" },
-  "quickActionBackup": { "message": "💾 Export Backup" },
-  "quickActionBackupDesc": { "message": "Download a complete offline JSON backup of your bookmarks and settings" },
-  "session": { "message": "Session" },
-  "invalidBackupFile": { "message": "Invalid backup file." },
-  "noSaveableTabsFound": { "message": "No saveable tabs found." },
-  "restoredBookmarks": { "message": "Restored Bookmarks" },
-  "sandboxBadge": { "message": "Interactive Muscle Memory" },
-  "sandboxHeading": { "message": "Try your superpower right now" },
-  "sandboxPrompt": { "message": "Press Alt + Shift + K (or click the terminal) to test the Spotlight Command Palette:" },
-  "sandboxSuccess": { "message": "✨ Perfect! Alt + Shift + K opens this instantly anywhere on the web." },
-  "sandboxTryAction": { "message": "Click to test" },
-  "firstRunTooltipText": { "message": "Click or Alt + Shift + B to toggle bar" },
-  "quickTips": { "message": "Quick tips" },
-  "quickTipsTitle": { "message": "Quick Tips" },
-  "quickTipsSubtitle": { "message": "Your BookmarkFlow superpowers" },
-  "tipSpotlightTitle": { "message": "Spotlight Palette" },
-  "tipSpotlightDesc": { "message": "Press Alt+Shift+K on any website to search or run #tag commands." },
-  "tipStashTitle": { "message": "Stash Open Tabs" },
-  "tipStashDesc": { "message": "Click 📥 or Alt+Shift+S to save all window tabs into a session folder." },
-  "tipReadingTitle": { "message": "Reading List" },
-  "tipReadingDesc": { "message": "Click 📖 to open the Read Later drawer and check off articles." },
-  "tipHealthTitle": { "message": "Health Inspector" },
-  "tipHealthDesc": { "message": "Type #health in Spotlight to audit broken or duplicate links." },
-  "quickGuide": { "message": "Quick guide" },
-  "dismiss": { "message": "Dismiss" },
-  "quickMenuHideBar": { "message": "Hide Bar (Alt + Shift + H)" },
-  "quickMenuRestoreBar": { "message": "Restore Bar (Alt + Shift + H)" },
-  "quickMenuDisableSite": { "message": "Disable on this site" },
-  "quickMenuSettings": { "message": "Settings" },
-  "barHiddenToast": { "message": "✓ BookmarkFlow hidden (To restore: Alt + Shift + H)" },
-  "barRestoredToast": { "message": "✓ BookmarkFlow restored" },
-  "siteStatusSnoozed": { "message": "Hidden in this tab (Alt+Shift+H)" },
-  "restoreBar": { "message": "Show Bar" },
-  "pageControlsTip": { "message": "Tip: Right-click the BF button on any page to open quick actions or toggle with Alt+Shift+B." },
-  "navDesktop": { "message": "💻 Desktop & Hotkeys" },
-  "desktopIntegrationHeading": { "message": "Windows Desktop Companion & Global Hotkeys" },
-  "desktopIntegrationLead": { "message": "Trigger BookmarkFlow Bar and Spotlight from anywhere in Windows, even when Chrome is unfocused." },
-  "companionStatusActive": { "message": "🟢 Windows Companion Connected (Native Messaging Active)" },
-  "companionStatusInactive": { "message": "⚪ Companion Not Detected (Optional Desktop Helper)" },
-  "hotkeyToggleBarLabel": { "message": "Toggle Bar Shortcut:" },
-  "hotkeySpotlightLabel": { "message": "Spotlight Palette Shortcut:" },
-  "hotkeyStashTabsLabel": { "message": "Stash Tabs Shortcut:" },
-  "saveDesktopHotkeys": { "message": "Save & Apply to Desktop" },
-  "resetDesktopHotkeys": { "message": "Reset to Defaults" },
-  "desktopHotkeysSaved": { "message": "Global desktop hotkeys updated successfully!" },
-  "addBookmarkToTarget": { "message": "Add to Bookmarks" },
-  "addBookmarkToTargetDesc": { "message": "Press Enter to choose a folder and save" },
-  "openInBrowser": { "message": "Open Web Page" },
-  "openInBrowserDesc": { "message": "Navigate directly to this address" },
-  "targetFolder": { "message": "Target Folder" },
-  "selectFolder": { "message": "Select Folder" },
-  "omniboxDefaultSuggestion": { "message": "BookmarkFlow Bar: Press Enter to save link to bookmarks" },
-  "omniboxAddToBar": { "message": "Add to Bookmarks Bar" },
-  "omniboxAddToFolder": { "message": "Add to folder" },
-  "bookmarkAddedNotification": { "message": "Bookmark saved successfully!" },
-  "bookmarksBar": { "message": "Bookmarks Bar" },
-  "quickFolders": { "message": "Quick Folders" },
-  "saveToBar": { "message": "Add to Bar" },
-  "saveToFolder": { "message": "Add to Folder" },
-  "bookmarkSavedToBarToast": { "message": "✓ Saved to Bookmarks Bar" },
-  "bookmarkSavedToFolderToast": { "message": "✓ Saved to $1", "placeholders": { "title": { "content": "$1" } } },
-  "intentLinkMode": { "message": "Link Mode" },
-  "intentCommandMode": { "message": "Command Mode" },
-  "intentTagMode": { "message": "Tag Mode" },
-  "intentFolderMode": { "message": "Folder Mode" },
-  "intentTabMode": { "message": "Tab Switch" },
-  "intentSearchMode": { "message": "Smart Search" },
-  "siteDisabledToast": { "message": "BookmarkFlow disabled on this site. Re-enable anytime from the popup or Settings." },
-  "navSites": { "message": "🌐 Disabled Sites" },
-  "disabledSitesHeading": { "message": "Disabled Websites & Site Exceptions" },
-  "disabledSitesDescription": { "message": "Websites where BookmarkFlow is hidden. Remove a domain anytime to restore BookmarkFlow on that site." },
-  "addDisabledHost": { "message": "Add Site" },
-  "addSitePlaceholder": { "message": "example.com" },
-  "disabledSitesEmpty": { "message": "No websites are disabled. BookmarkFlow is active on all supported sites." },
-  "removeDisabledHost": { "message": "Enable on Site" },
-  "hostAddedSuccess": { "message": "Site added to disabled list." },
-  "hostRemovedSuccess": { "message": "Site re-enabled." },
-  "invalidHostError": { "message": "Please enter a valid domain name (e.g. github.com)." },
-  "disabledWebsitesAria": { "message": "Disabled websites list" },
-  "undo": { "message": "Undo" },
-  "bookmarkDeletedToast": { "message": "✓ Bookmark removed" },
-  "quickSaveBookmark": { "message": "Save to Bookmarks" },
-  "quickSaveToBar": { "message": "Save to Bookmarks Bar (Ctrl+S)" },
+  "appName": {
+    "message": "BookmarkFlow Bar"
+  },
+  "appDescription": {
+    "message": "Turn Chrome bookmarks into a customizable multi-row bar, search palette, and focused new-tab workspace."
+  },
+  "commandOpenSearch": {
+    "message": "Open the BookmarkFlow search palette"
+  },
+  "commandToggleBar": {
+    "message": "Expand or collapse the BookmarkFlow bar"
+  },
+  "commandHideRestore": {
+    "message": "Hide or restore BookmarkFlow"
+  },
+  "commandStreamerMode": {
+    "message": "Turn BookmarkFlow streamer mode on or off"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "add": {
+    "message": "Add"
+  },
+  "save": {
+    "message": "Save"
+  },
+  "edit": {
+    "message": "Edit"
+  },
+  "search": {
+    "message": "Search"
+  },
+  "title": {
+    "message": "Title"
+  },
+  "address": {
+    "message": "Address"
+  },
+  "bookmarks": {
+    "message": "Bookmarks"
+  },
+  "folders": {
+    "message": "Folders"
+  },
+  "folder": {
+    "message": "Folder"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "recommended": {
+    "message": "Recommended"
+  },
+  "exampleFolder": {
+    "message": "Example: FAVORITES"
+  },
+  "popupSubtitle": {
+    "message": "Your bookmark workspace"
+  },
+  "toggleExtensionTitle": {
+    "message": "Turn BookmarkFlow on or off"
+  },
+  "setupGuide": {
+    "message": "Setup guide"
+  },
+  "showOnSites": {
+    "message": "Show on websites"
+  },
+  "showOnSitesTitle": {
+    "message": "Show the compact BF panel on regular websites without changing the new-tab page"
+  },
+  "rows": {
+    "message": "Rows"
+  },
+  "rowsAria": {
+    "message": "Number of bookmark rows"
+  },
+  "compactView": {
+    "message": "Compact view"
+  },
+  "compactViewTitle": {
+    "message": "Fit more bookmarks into less space"
+  },
+  "offsetPage": {
+    "message": "Move page content down"
+  },
+  "persistentSearch": {
+    "message": "Persistent search"
+  },
+  "hideEmptySuggestions": {
+    "message": "Hide suggestions before typing"
+  },
+  "hideEmptySuggestionsTitle": {
+    "message": "Keep bookmarks hidden while the search palette is empty"
+  },
+  "streamerMode": {
+    "message": "Streamer mode"
+  },
+  "streamerModeTitle": {
+    "message": "Replace bookmark names with icons during streams and presentations"
+  },
+  "theme": {
+    "message": "Theme"
+  },
+  "themeAria": {
+    "message": "Color theme"
+  },
+  "themeGold": {
+    "message": "Gold"
+  },
+  "themeOled": {
+    "message": "OLED"
+  },
+  "themeEmerald": {
+    "message": "Emerald"
+  },
+  "themeIndigo": {
+    "message": "Indigo"
+  },
+  "themeTurquoise": {
+    "message": "Turquoise"
+  },
+  "folderRail": {
+    "message": "Folder rail"
+  },
+  "folderRailPosition": {
+    "message": "Folder rail position"
+  },
+  "off": {
+    "message": "Off"
+  },
+  "left": {
+    "message": "Left"
+  },
+  "right": {
+    "message": "Right"
+  },
+  "autoHideSensitive": {
+    "message": "Hide on sign-in and payment pages"
+  },
+  "autoHideSensitiveTitle": {
+    "message": "Optionally hide BookmarkFlow on sign-in, checkout, and banking pages"
+  },
+  "avoidAppTopBars": {
+    "message": "Move below conflicting app bars"
+  },
+  "avoidAppTopBarsTitle": {
+    "message": "Dock BookmarkFlow at the bottom on apps with fixed top navigation, such as WordPress or TradingView"
+  },
+  "thisSite": {
+    "message": "This site"
+  },
+  "hideOnThisSite": {
+    "message": "Hide on this site"
+  },
+  "showOnThisSite": {
+    "message": "Show on this site"
+  },
+  "websitesDisabled": {
+    "message": "Websites are disabled"
+  },
+  "shortcuts": {
+    "message": "Shortcuts"
+  },
+  "searchPalette": {
+    "message": "Search palette"
+  },
+  "expandCollapseBar": {
+    "message": "Expand / collapse bar"
+  },
+  "hideRestore": {
+    "message": "Hide / restore"
+  },
+  "chromeBookmarks": {
+    "message": "Chrome bookmarks"
+  },
+  "mergeDuplicateFolders": {
+    "message": "Merge duplicate folders"
+  },
+  "resetPosition": {
+    "message": "Reset panel position"
+  },
+  "siteStatusWebsitesHidden": {
+    "message": "Hidden on regular websites; the new-tab page is unaffected."
+  },
+  "siteStatusManuallyHidden": {
+    "message": "BookmarkFlow is manually hidden on this site."
+  },
+  "siteStatusSensitiveHidden": {
+    "message": "Automatically hidden by the sign-in/payment protection rule."
+  },
+  "siteStatusDockedBottom": {
+    "message": "An app-style top bar was detected, so BookmarkFlow is shown at the bottom."
+  },
+  "siteStatusVisible": {
+    "message": "BookmarkFlow is visible on this site."
+  },
+  "webSearch": {
+    "message": "Web Search"
+  },
+  "newTabSearchPlaceholder": {
+    "message": "Search the web or type a URL"
+  },
+  "webSearchUnavailable": {
+    "message": "The default search provider is currently unavailable."
+  },
+  "addBookmark": {
+    "message": "Add bookmark"
+  },
+  "addFolder": {
+    "message": "Add folder"
+  },
+  "scrollLeft": {
+    "message": "Scroll left"
+  },
+  "scrollRight": {
+    "message": "Scroll right"
+  },
+  "bookmarkSearch": {
+    "message": "Bookmark search"
+  },
+  "bookmarkSearchPlaceholder": {
+    "message": "Search bookmarks or type a URL"
+  },
+  "bookmarkSearchShortPlaceholder": {
+    "message": "Search bookmarks"
+  },
+  "dragOrOpen": {
+    "message": "Drag / Click: Restore (Alt+Shift+H) | Right-click: Menu"
+  },
+  "dragOrExpand": {
+    "message": "Drag / Click: Toggle (Alt+Shift+B) | Right-click: Menu"
+  },
+  "collapse": {
+    "message": "Collapse"
+  },
+  "noFolders": {
+    "message": "No folders yet."
+  },
+  "noBookmarksInFolder": {
+    "message": "This folder has no bookmarks."
+  },
+  "filterInFolderPlaceholder": {
+    "message": "Filter bookmarks…"
+  },
+  "noMatchingBookmarksInFolder": {
+    "message": "No matching bookmarks found."
+  },
+  "noResults": {
+    "message": "No results."
+  },
+  "searchEmptyPrivacy": {
+    "message": "Start typing to search. Bookmarks stay hidden while the field is empty."
+  },
+  "enterAddressToAdd": {
+    "message": "Enter the address you want to add."
+  },
+  "pageAddressUnavailable": {
+    "message": "This page cannot be added automatically; enter an address manually."
+  },
+  "adding": {
+    "message": "Adding…"
+  },
+  "saving": {
+    "message": "Saving…"
+  },
+  "addAnyway": {
+    "message": "Add anyway"
+  },
+  "duplicateBookmarkPrompt": {
+    "message": "This address already exists in the selected folder. Select Add again to create a duplicate."
+  },
+  "validUrlRequired": {
+    "message": "Enter a valid http, https, or mailto address."
+  },
+  "bookmarkAdded": {
+    "message": "Bookmark added."
+  },
+  "bookmarkAddedToFolder": {
+    "message": "Bookmark added to the folder."
+  },
+  "bookmarkAddFailed": {
+    "message": "The bookmark could not be added."
+  },
+  "bookmarkMoveFailed": {
+    "message": "The bookmark could not be moved."
+  },
+  "bookmarkDeleteFailed": {
+    "message": "The bookmark could not be deleted."
+  },
+  "bookmarkRenameFailed": {
+    "message": "The name could not be updated."
+  },
+  "folderCreateFailed": {
+    "message": "The folder could not be created."
+  },
+  "folderColorFailed": {
+    "message": "The folder color could not be saved."
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "bookmarkName": {
+    "message": "Bookmark name"
+  },
+  "childFolderName": {
+    "message": "Child folder name"
+  },
+  "newFolderName": {
+    "message": "New folder name"
+  },
+  "newFolderDefault": {
+    "message": "New folder"
+  },
+  "nameRequired": {
+    "message": "The name cannot be empty."
+  },
+  "folderNameRequired": {
+    "message": "The folder name cannot be empty."
+  },
+  "folderCreated": {
+    "message": "Folder created."
+  },
+  "confirmDeleteFolder": {
+    "message": "Delete the folder “$1” and everything inside it?"
+  },
+  "confirmDeleteBookmark": {
+    "message": "Delete the bookmark “$1”?"
+  },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "renameBookmark": {
+    "message": "Rename bookmark"
+  },
+  "addBookmarkToFolder": {
+    "message": "Add bookmark to this folder"
+  },
+  "createChildFolder": {
+    "message": "Create child folder"
+  },
+  "renameFolder": {
+    "message": "Rename folder"
+  },
+  "movePrevious": {
+    "message": "Move earlier"
+  },
+  "moveNext": {
+    "message": "Move later"
+  },
+  "moveFirst": {
+    "message": "Move to beginning"
+  },
+  "moveLast": {
+    "message": "Move to end"
+  },
+  "deleteFolder": {
+    "message": "Delete folder"
+  },
+  "deleteBookmark": {
+    "message": "Delete"
+  },
+  "color": {
+    "message": "Color"
+  },
+  "clearColor": {
+    "message": "Default color"
+  },
+  "colorYellow": {
+    "message": "Yellow"
+  },
+  "colorBlue": {
+    "message": "Blue"
+  },
+  "colorGreen": {
+    "message": "Green"
+  },
+  "colorPurple": {
+    "message": "Purple"
+  },
+  "colorRed": {
+    "message": "Red"
+  },
+  "colorOrange": {
+    "message": "Orange"
+  },
+  "colorCyan": {
+    "message": "Cyan"
+  },
+  "colorGray": {
+    "message": "Gray"
+  },
+  "onboardingTitle": {
+    "message": "BookmarkFlow Setup"
+  },
+  "onboardingHeading": {
+    "message": "Set up your workspace in one minute"
+  },
+  "onboardingLead": {
+    "message": "BookmarkFlow reads your own Chrome Bookmark Bar. Bookmark content never leaves your browser."
+  },
+  "dataConsentEyebrow": {
+    "message": "Privacy choice"
+  },
+  "dataConsentHeading": {
+    "message": "Choose whether to enable bookmark and page access"
+  },
+  "dataConsentIntro": {
+    "message": "BookmarkFlow stays off until you agree. If enabled, it handles the following data only to provide its bookmark workspace:"
+  },
+  "dataConsentBookmarks": {
+    "message": "Bookmark titles, URLs, folders, and favicons are read from Chrome and changed only after your actions."
+  },
+  "dataConsentPageContext": {
+    "message": "On regular websites, the current URL, title, and limited layout context are processed locally for matching, visibility, and non-overlapping placement."
+  },
+  "dataConsentStorage": {
+    "message": "Display settings may use Chrome Sync; per-site, pinned-folder, and folder-color choices stay in local Chrome storage."
+  },
+  "dataConsentSearch": {
+    "message": "A new-tab search is sent by Chrome to your selected default search provider only after you submit it."
+  },
+  "dataConsentNoDeveloperCollection": {
+    "message": "Maprins Games does not receive bookmark, page, preference, or search data. There are no analytics, ads, or data sales."
+  },
+  "dataConsentAgree": {
+    "message": "I agree — enable bookmark and page access"
+  },
+  "dataConsentAccepted": {
+    "message": "Privacy choice saved. Bookmark and page access is now enabled."
+  },
+  "dataConsentDeclined": {
+    "message": "Bookmark and page access remains off. You can return to this setup guide later."
+  },
+  "dataConsentRequired": {
+    "message": "Bookmark and page access is off until the first-run privacy choice is accepted."
+  },
+  "dataConsentRequiredHeading": {
+    "message": "Review privacy choices to enable BookmarkFlow"
+  },
+  "dataConsentRequiredDescription": {
+    "message": "Bookmark and page access remains off until you review the first-run disclosure and agree."
+  },
+  "dataConsentUpdateDenied": {
+    "message": "Only BookmarkFlow's setup page can change this privacy choice."
+  },
+  "reviewPrivacySetup": {
+    "message": "Review privacy setup"
+  },
+  "privacyPolicy": {
+    "message": "Read the privacy policy"
+  },
+  "notNow": {
+    "message": "Not now"
+  },
+  "source": {
+    "message": "Source"
+  },
+  "bookmarkBarLoading": {
+    "message": "Reading Bookmark Bar"
+  },
+  "bookmarkBarNoImport": {
+    "message": "No separate import is needed; BookmarkFlow uses your existing Chrome bookmarks."
+  },
+  "privacy": {
+    "message": "Privacy"
+  },
+  "localSettings": {
+    "message": "Local settings"
+  },
+  "localSettingsDescription": {
+    "message": "Display, color, and per-site visibility settings stay in Chrome storage."
+  },
+  "control": {
+    "message": "Control"
+  },
+  "keyboardReady": {
+    "message": "Keyboard ready"
+  },
+  "keyboardReadyDescription": {
+    "message": "Search, visibility, and streamer mode are available from keyboard shortcuts."
+  },
+  "browserBar": {
+    "message": "Browser bar"
+  },
+  "disableNativeBar": {
+    "message": "Hide Chrome’s native bookmarks bar"
+  },
+  "disableNativeBarDescription": {
+    "message": "BookmarkFlow cannot change Chrome’s own interface. If the native bookmarks bar is visible, right-click it and turn off “Show bookmarks bar,” or use <kbd>Ctrl + Shift + B</kbd>."
+  },
+  "braveNativeBarDescription": {
+    "message": "In Brave, if the shortcut is not enough, open Settings &gt; Appearance &gt; Show bookmarks and choose <strong>Never</strong>. “Only on new tab page” keeps the native bar visible on new tabs."
+  },
+  "nativeBarSafeDescription": {
+    "message": "This does not delete bookmarks. BookmarkFlow continues reading the same Bookmark Bar data."
+  },
+  "chooseProfile": {
+    "message": "Choose your workflow"
+  },
+  "profileHint": {
+    "message": "You can change these settings later from the popup."
+  },
+  "quickStart": {
+    "message": "Quick start"
+  },
+  "editShortcuts": {
+    "message": "Edit shortcuts"
+  },
+  "featureTour": {
+    "message": "Feature tour"
+  },
+  "bookmarkFlowInMotion": {
+    "message": "BookmarkFlow in motion"
+  },
+  "syntheticDemoHint": {
+    "message": "Demos use synthetic test bookmarks."
+  },
+  "tourBarAlt": {
+    "message": "Opening and collapsing BookmarkFlow with the BF control"
+  },
+  "tourBarDescription": {
+    "message": "Open the bookmark bar only when you need it, using BF or the shortcut."
+  },
+  "tourSearchAlt": {
+    "message": "Searching bookmarks and selecting a result with the keyboard"
+  },
+  "tourSearchDescription": {
+    "message": "Start typing, move with the arrow keys, and press Enter to open a result."
+  },
+  "tourRailAlt": {
+    "message": "Opening a folder from the left folder rail"
+  },
+  "tourRailDescription": {
+    "message": "Keep folders in a dedicated rail while direct bookmarks stay in the horizontal strip."
+  },
+  "tourStreamerAlt": {
+    "message": "Bookmark names hidden in streamer mode"
+  },
+  "tourStreamerDescription": {
+    "message": "Switch to icon mode during videos, presentations, and client calls."
+  },
+  "tourContextAlt": {
+    "message": "Editing, moving, and deleting a bookmark from its context menu"
+  },
+  "contextActions": {
+    "message": "Context actions"
+  },
+  "tourContextDescription": {
+    "message": "Rename, reorder, move, or delete bookmarks without leaving BookmarkFlow."
+  },
+  "applySelectedProfile": {
+    "message": "Apply selected profile"
+  },
+  "finish": {
+    "message": "Finish"
+  },
+  "profileBalanced": {
+    "message": "Balanced"
+  },
+  "profileBalancedDescription": {
+    "message": "A calm, readable two-row default for everyday browsing."
+  },
+  "profilePrivacy": {
+    "message": "Streamer / privacy"
+  },
+  "profilePrivacyDescription": {
+    "message": "An icon-first profile that reduces visible bookmark names during recordings and calls."
+  },
+  "profileKeyboard": {
+    "message": "Keyboard-first"
+  },
+  "profileKeyboardDescription": {
+    "message": "Persistent search and fast keyboard navigation stay front and center."
+  },
+  "profileOrganized": {
+    "message": "Folder rail"
+  },
+  "profileOrganizedDescription": {
+    "message": "Direct bookmarks stay horizontal while folders move into a dedicated rail."
+  },
+  "factTwoRows": {
+    "message": "2 rows"
+  },
+  "factOneRow": {
+    "message": "1 row"
+  },
+  "factCompact": {
+    "message": "Compact"
+  },
+  "factNamesVisible": {
+    "message": "Names visible"
+  },
+  "factIconFocused": {
+    "message": "Icon focused"
+  },
+  "factEmptySearchHidden": {
+    "message": "Empty search hidden"
+  },
+  "factPersistentSearch": {
+    "message": "Persistent search"
+  },
+  "factShortcutFocused": {
+    "message": "Shortcut focused"
+  },
+  "factLeftFolderRail": {
+    "message": "Left folder rail"
+  },
+  "factFolderFocused": {
+    "message": "Folder focused"
+  },
+  "profileSelected": {
+    "message": "$1 profile selected."
+  },
+  "profileApplied": {
+    "message": "$1 profile applied."
+  },
+  "setupComplete": {
+    "message": "Setup complete."
+  },
+  "onboardingFailed": {
+    "message": "The setup page could not be opened."
+  },
+  "bookmarkSourceSummary": {
+    "message": "Bookmark Bar: $1 bookmarks, $2 folders"
+  },
+  "maintenanceTitle": {
+    "message": "BookmarkFlow — Folder Maintenance"
+  },
+  "maintenanceEyebrow": {
+    "message": "BOOKMARKFLOW MAINTENANCE"
+  },
+  "maintenanceHeading": {
+    "message": "Merge duplicate folders"
+  },
+  "maintenanceLead": {
+    "message": "Move the contents of device-only folders into same-named folders in your Google account."
+  },
+  "safetyInformation": {
+    "message": "Safety information"
+  },
+  "dataLossProtection": {
+    "message": "Data-loss protection"
+  },
+  "dataLossProtectionDescription": {
+    "message": "Bookmarks are never deleted. A local folder is removed only after every item is moved and the folder is confirmed empty."
+  },
+  "pinnedFolderHeading": {
+    "message": "Additional folders shown in the rail"
+  },
+  "pinnedFolderDescription": {
+    "message": "Pin a folder to the left or right rail regardless of its location in Chrome."
+  },
+  "saveRailSelection": {
+    "message": "Save rail selection"
+  },
+  "searchFolders": {
+    "message": "Search folders"
+  },
+  "bookmarkFolders": {
+    "message": "Bookmark folders"
+  },
+  "mergeActions": {
+    "message": "Merge actions"
+  },
+  "rescan": {
+    "message": "Scan again"
+  },
+  "mergeSelected": {
+    "message": "Merge selected folders into Google account"
+  },
+  "scanningFolders": {
+    "message": "Scanning bookmark folders…"
+  },
+  "duplicateFolderGroups": {
+    "message": "Duplicate folder groups"
+  },
+  "googleAccount": {
+    "message": "Google account"
+  },
+  "thisDevice": {
+    "message": "This device"
+  },
+  "noMatchingFolders": {
+    "message": "No folders match this search."
+  },
+  "savingRailSelection": {
+    "message": "Saving rail selection…"
+  },
+  "railSelectionSaved": {
+    "message": "Saved. Open new-tab pages will refresh within a few seconds."
+  },
+  "duplicateGroupsFound": {
+    "message": "$1 matching Google-account/device folder groups found."
+  },
+  "noDuplicateGroups": {
+    "message": "No matching Google-account/device folders are available to merge."
+  },
+  "noCrossStorageFolders": {
+    "message": "No same-named folders were found across both storage areas in this Chrome profile."
+  },
+  "localFolderItemCount": {
+    "message": "$1 local folders, $2 items"
+  },
+  "targetGoogleFolder": {
+    "message": "Target Google account folder"
+  },
+  "itemCount": {
+    "message": "$1 items"
+  },
+  "mergeConfirmation": {
+    "message": "Move $1 items from $2 local folders into their selected Google account folders?"
+  },
+  "mergingFolders": {
+    "message": "Merging folders…"
+  },
+  "mergeComplete": {
+    "message": "Merge complete. $1 items moved and $2 empty local folders removed."
+  },
+  "genericOperationFailed": {
+    "message": "The operation could not be completed."
+  },
+  "extensionContextUnavailable": {
+    "message": "Extension context unavailable."
+  },
+  "bookmarkMoveInvalid": {
+    "message": "The bookmark move target is invalid."
+  },
+  "bookmarkParentInvalid": {
+    "message": "The bookmark parent is invalid."
+  },
+  "bookmarkIndexInvalid": {
+    "message": "The bookmark position is invalid."
+  },
+  "bookmarkDeleteTargetMissing": {
+    "message": "The bookmark to delete was not found."
+  },
+  "bookmarkTargetFolderMissing": {
+    "message": "The bookmark destination folder was not found."
+  },
+  "folderTargetMissing": {
+    "message": "The folder destination was not found."
+  },
+  "renameTargetMissing": {
+    "message": "The item to rename was not found."
+  },
+  "folderColorTargetMissing": {
+    "message": "The folder to color was not found."
+  },
+  "bookmarkFlowUnavailable": {
+    "message": "BookmarkFlow is not available on this page."
+  },
+  "unknownCommand": {
+    "message": "Unknown BookmarkFlow command."
+  },
+  "selectFolderGroup": {
+    "message": "Select the $1 folder group"
+  },
+  "inGoogleAccount": {
+    "message": "In Google account"
+  },
+  "onThisDeviceOnly": {
+    "message": "On this device only"
+  },
+  "partialMergeFailed": {
+    "message": "Some folders could not be completed: $1"
+  },
+  "mergeTargetMissing": {
+    "message": "The Google account destination folder is no longer available."
+  },
+  "mergeSourceChanged": {
+    "message": "A source or destination folder changed after the scan."
+  },
+  "mergeTargetInsideSource": {
+    "message": "The destination folder cannot be inside a source folder."
+  },
+  "mergeSourceNotEmpty": {
+    "message": "The local folder was not removed because it is not empty."
+  },
+  "directBookmarksEmpty": {
+    "message": "No direct bookmarks; folders are available in the rail."
+  },
+  "bookmarkBarEmpty": {
+    "message": "Your Bookmark Bar is empty."
+  },
+  "folderColorAria": {
+    "message": "$1 folder color"
+  },
+  "willAddToFolder": {
+    "message": "Will be added to $1."
+  },
+  "greetingMorning": {
+    "message": "Good morning"
+  },
+  "greetingAfternoon": {
+    "message": "Good afternoon"
+  },
+  "greetingEvening": {
+    "message": "Good evening"
+  },
+  "quickShortcuts": {
+    "message": "Shortcuts"
+  },
+  "bookmarkHealthHeading": {
+    "message": "Bookmark health & dead link inspector"
+  },
+  "bookmarkHealthDescription": {
+    "message": "Check your bookmarks locally for dead links, unreachable domains, and duplicate URLs."
+  },
+  "startHealthCheck": {
+    "message": "Check bookmark health"
+  },
+  "stopHealthCheck": {
+    "message": "Stop scan"
+  },
+  "healthMetricTotal": {
+    "message": "Total checked"
+  },
+  "healthMetricHealthy": {
+    "message": "Reachable"
+  },
+  "healthMetricDead": {
+    "message": "Dead links"
+  },
+  "healthMetricDuplicates": {
+    "message": "Duplicates"
+  },
+  "healthScanningStatus": {
+    "message": "Checking link $1 of $2…"
+  },
+  "healthScanComplete": {
+    "message": "Health check complete. $1 links checked."
+  },
+  "healthAllClean": {
+    "message": "All checked bookmarks are reachable and healthy!"
+  },
+  "healthIssueDead": {
+    "message": "Unreachable"
+  },
+  "healthIssueDuplicate": {
+    "message": "Duplicate bookmark"
+  },
+  "healthIssueInsecure": {
+    "message": "Insecure HTTP"
+  },
+  "bookmarkDeleted": {
+    "message": "Bookmark deleted."
+  },
+  "tags": {
+    "message": "Tags"
+  },
+  "editTags": {
+    "message": "Edit tags"
+  },
+  "saveTags": {
+    "message": "Save tags"
+  },
+  "tagPlaceholder": {
+    "message": "Add tags (e.g. dev, work, docs)"
+  },
+  "tagsUpdated": {
+    "message": "Tags updated."
+  },
+  "filterByTag": {
+    "message": "Filter by tag"
+  },
+  "smartTags": {
+    "message": "Smart tags"
+  },
+  "editTagsPrompt": {
+    "message": "Enter tags separated by space or comma (e.g. dev, github, tools):"
+  },
+  "tagFilterHelp": {
+    "message": "Tip: Type #tag in search to filter bookmarks"
+  },
+  "openHealthInspector": {
+    "message": "🩺 Bookmark health & dead link inspector"
+  },
+  "openHealthInspectorTitle": {
+    "message": "Audit dead links, 404s, and duplicate bookmarks"
+  },
+  "testLink": {
+    "message": "↗ Open"
+  },
+  "testLinkTitle": {
+    "message": "Open link in a new tab to test"
+  },
+  "filterAll": {
+    "message": "All issues"
+  },
+  "filterDead": {
+    "message": "Dead links"
+  },
+  "filterDuplicates": {
+    "message": "Duplicates"
+  },
+  "quickActionOpenHealth": {
+    "message": "🩺 Open Bookmark Health Inspector"
+  },
+  "quickActionOpenHealthDesc": {
+    "message": "Audit dead links, unreachable hosts, and duplicate bookmarks"
+  },
+  "maintenanceCenterHeading": {
+    "message": "Bookmark Maintenance & Health Center"
+  },
+  "maintenanceCenterLead": {
+    "message": "Audit broken links, merge duplicate folders, and customize your pinned rail."
+  },
+  "navHealth": {
+    "message": "Link Health"
+  },
+  "navFolders": {
+    "message": "Folder Merger"
+  },
+  "navRail": {
+    "message": "Pinned Rail"
+  },
+  "saveOpenTabs": {
+    "message": "Save open tabs"
+  },
+  "saveOpenTabsPrompt": {
+    "message": "Save open tabs to a new folder? Folder name:"
+  },
+  "saveOpenTabsSuccess": {
+    "message": "$1 open tabs saved to folder."
+  },
+  "saveOpenTabsFailed": {
+    "message": "Could not save open tabs."
+  },
+  "readingList": {
+    "message": "Reading List"
+  },
+  "readingListEmpty": {
+    "message": "Your reading list is empty."
+  },
+  "markDone": {
+    "message": "Done"
+  },
+  "removeFromReadingList": {
+    "message": "Remove from reading list"
+  },
+  "addToReadingList": {
+    "message": "Add to Reading List"
+  },
+  "addedToReadingList": {
+    "message": "Added to reading list."
+  },
+  "backupAndRestore": {
+    "message": "Backup & Restore"
+  },
+  "exportBackup": {
+    "message": "Export backup"
+  },
+  "importBackup": {
+    "message": "Restore"
+  },
+  "backupExportSuccess": {
+    "message": "Backup exported successfully."
+  },
+  "backupExportFailed": {
+    "message": "Could not export backup."
+  },
+  "backupImportSuccess": {
+    "message": "Backup restored successfully."
+  },
+  "backupImportConfirm": {
+    "message": "Restoring from backup will merge bookmarks, tags, and settings. Do you wish to proceed?"
+  },
+  "backupImportInvalid": {
+    "message": "Invalid backup file."
+  },
+  "autoTagging": {
+    "message": "Automatic smart tagging"
+  },
+  "autoTaggingTitle": {
+    "message": "Automatically suggest tags like #dev, #video, #social based on domain and URL"
+  },
+  "newTabBackground": {
+    "message": "New tab background"
+  },
+  "newTabBackgroundAria": {
+    "message": "New tab background"
+  },
+  "bgObsidian": {
+    "message": "Obsidian"
+  },
+  "bgMidnight": {
+    "message": "Midnight"
+  },
+  "bgEmerald": {
+    "message": "Emerald"
+  },
+  "bgTurquoise": {
+    "message": "Turquoise"
+  },
+  "bgCustom": {
+    "message": "Custom"
+  },
+  "uploadWallpaper": {
+    "message": "Upload wallpaper"
+  },
+  "clearWallpaper": {
+    "message": "Clear wallpaper"
+  },
+  "quickActionSaveTabs": {
+    "message": "📥 Save Open Tabs to Folder"
+  },
+  "quickActionSaveTabsDesc": {
+    "message": "Stash all open tabs in current window into a new bookmark folder"
+  },
+  "quickActionAddReadingList": {
+    "message": "📖 Add Current Page to Reading List"
+  },
+  "quickActionAddReadingListDesc": {
+    "message": "Save this page to your local reading list for later"
+  },
+  "quickActionReadingList": {
+    "message": "📖 Open Reading List"
+  },
+  "quickActionReadingListDesc": {
+    "message": "View and manage saved articles in your reading list"
+  },
+  "quickActionBackup": {
+    "message": "💾 Export Backup"
+  },
+  "quickActionBackupDesc": {
+    "message": "Download a complete offline JSON backup of your bookmarks and settings"
+  },
+  "session": {
+    "message": "Session"
+  },
+  "invalidBackupFile": {
+    "message": "Invalid backup file."
+  },
+  "noSaveableTabsFound": {
+    "message": "No saveable tabs found."
+  },
+  "restoredBookmarks": {
+    "message": "Restored Bookmarks"
+  },
+  "sandboxBadge": {
+    "message": "Interactive Muscle Memory"
+  },
+  "sandboxHeading": {
+    "message": "Try your superpower right now"
+  },
+  "sandboxPrompt": {
+    "message": "Press Alt + Shift + K (or click the terminal) to test the Spotlight Command Palette:"
+  },
+  "sandboxSuccess": {
+    "message": "✨ Perfect! Alt + Shift + K opens this instantly anywhere on the web."
+  },
+  "sandboxTryAction": {
+    "message": "Click to test"
+  },
+  "firstRunTooltipText": {
+    "message": "Click or Alt + Shift + B to toggle bar"
+  },
+  "quickTips": {
+    "message": "Quick tips"
+  },
+  "quickTipsTitle": {
+    "message": "Quick Tips"
+  },
+  "quickTipsSubtitle": {
+    "message": "Your BookmarkFlow superpowers"
+  },
+  "tipSpotlightTitle": {
+    "message": "Spotlight Palette"
+  },
+  "tipSpotlightDesc": {
+    "message": "Press Alt+Shift+K on any website to search or run #tag commands."
+  },
+  "tipStashTitle": {
+    "message": "Stash Open Tabs"
+  },
+  "tipStashDesc": {
+    "message": "Click 📥 or Alt+Shift+S to save all window tabs into a session folder."
+  },
+  "tipReadingTitle": {
+    "message": "Reading List"
+  },
+  "tipReadingDesc": {
+    "message": "Click 📖 to open the Read Later drawer and check off articles."
+  },
+  "tipHealthTitle": {
+    "message": "Health Inspector"
+  },
+  "tipHealthDesc": {
+    "message": "Type #health in Spotlight to audit broken or duplicate links."
+  },
+  "quickGuide": {
+    "message": "Quick guide"
+  },
+  "dismiss": {
+    "message": "Dismiss"
+  },
+  "quickMenuHideBar": {
+    "message": "Hide Bar (Alt + Shift + H)"
+  },
+  "quickMenuRestoreBar": {
+    "message": "Restore Bar (Alt + Shift + H)"
+  },
+  "quickMenuDisableSite": {
+    "message": "Disable on this site"
+  },
+  "quickMenuSettings": {
+    "message": "Settings"
+  },
+  "barHiddenToast": {
+    "message": "✓ BookmarkFlow hidden (To restore: Alt + Shift + H)"
+  },
+  "barRestoredToast": {
+    "message": "✓ BookmarkFlow restored"
+  },
+  "siteStatusSnoozed": {
+    "message": "Hidden in this tab (Alt+Shift+H)"
+  },
+  "restoreBar": {
+    "message": "Show Bar"
+  },
+  "pageControlsTip": {
+    "message": "Tip: Right-click the BF button on any page to open quick actions or toggle with Alt+Shift+B."
+  },
+  "navDesktop": {
+    "message": "💻 Desktop & Hotkeys"
+  },
+  "desktopIntegrationHeading": {
+    "message": "Windows Desktop Companion & Global Hotkeys"
+  },
+  "desktopIntegrationLead": {
+    "message": "Trigger BookmarkFlow Bar and Spotlight from anywhere in Windows, even when Chrome is unfocused."
+  },
+  "companionStatusActive": {
+    "message": "🟢 Windows Companion Connected (Native Messaging Active)"
+  },
+  "companionStatusInactive": {
+    "message": "⚪ Companion Not Detected (Optional Desktop Helper)"
+  },
+  "hotkeyToggleBarLabel": {
+    "message": "Toggle Bar Shortcut:"
+  },
+  "hotkeySpotlightLabel": {
+    "message": "Spotlight Palette Shortcut:"
+  },
+  "hotkeyStashTabsLabel": {
+    "message": "Stash Tabs Shortcut:"
+  },
+  "saveDesktopHotkeys": {
+    "message": "Save & Apply to Desktop"
+  },
+  "resetDesktopHotkeys": {
+    "message": "Reset to Defaults"
+  },
+  "desktopHotkeysSaved": {
+    "message": "Global desktop hotkeys updated successfully!"
+  },
+  "addBookmarkToTarget": {
+    "message": "Add to Bookmarks"
+  },
+  "addBookmarkToTargetDesc": {
+    "message": "Press Enter to choose a folder and save"
+  },
+  "openInBrowser": {
+    "message": "Open Web Page"
+  },
+  "openInBrowserDesc": {
+    "message": "Navigate directly to this address"
+  },
+  "targetFolder": {
+    "message": "Target Folder"
+  },
+  "selectFolder": {
+    "message": "Select Folder"
+  },
+  "omniboxDefaultSuggestion": {
+    "message": "BookmarkFlow Bar: Press Enter to save link to bookmarks"
+  },
+  "omniboxAddToBar": {
+    "message": "Add to Bookmarks Bar"
+  },
+  "omniboxAddToFolder": {
+    "message": "Add to folder"
+  },
+  "bookmarkAddedNotification": {
+    "message": "Bookmark saved successfully!"
+  },
+  "bookmarksBar": {
+    "message": "Bookmarks Bar"
+  },
+  "quickFolders": {
+    "message": "Quick Folders"
+  },
+  "saveToBar": {
+    "message": "Add to Bar"
+  },
+  "saveToFolder": {
+    "message": "Add to Folder"
+  },
+  "bookmarkSavedToBarToast": {
+    "message": "✓ Saved to Bookmarks Bar"
+  },
+  "bookmarkSavedToFolderToast": {
+    "message": "✓ Saved to $1",
+    "placeholders": {
+      "title": {
+        "content": "$1"
+      }
+    }
+  },
+  "intentLinkMode": {
+    "message": "Link Mode"
+  },
+  "intentCommandMode": {
+    "message": "Command Mode"
+  },
+  "intentTagMode": {
+    "message": "Tag Mode"
+  },
+  "intentFolderMode": {
+    "message": "Folder Mode"
+  },
+  "intentTabMode": {
+    "message": "Tab Switch"
+  },
+  "intentSearchMode": {
+    "message": "Smart Search"
+  },
+  "siteDisabledToast": {
+    "message": "BookmarkFlow disabled on this site. Re-enable anytime from the popup or Settings."
+  },
+  "navSites": {
+    "message": "🌐 Disabled Sites"
+  },
+  "disabledSitesHeading": {
+    "message": "Disabled Websites & Site Exceptions"
+  },
+  "disabledSitesDescription": {
+    "message": "Websites where BookmarkFlow is hidden. Remove a domain anytime to restore BookmarkFlow on that site."
+  },
+  "addDisabledHost": {
+    "message": "Add Site"
+  },
+  "addSitePlaceholder": {
+    "message": "example.com"
+  },
+  "disabledSitesEmpty": {
+    "message": "No websites are disabled. BookmarkFlow is active on all supported sites."
+  },
+  "removeDisabledHost": {
+    "message": "Enable on Site"
+  },
+  "hostAddedSuccess": {
+    "message": "Site added to disabled list."
+  },
+  "hostRemovedSuccess": {
+    "message": "Site re-enabled."
+  },
+  "invalidHostError": {
+    "message": "Please enter a valid domain name (e.g. github.com)."
+  },
+  "disabledWebsitesAria": {
+    "message": "Disabled websites list"
+  },
+  "undo": {
+    "message": "Undo"
+  },
+  "bookmarkDeletedToast": {
+    "message": "✓ Bookmark removed"
+  },
+  "quickSaveBookmark": {
+    "message": "Save to Bookmarks"
+  },
+  "quickSaveToBar": {
+    "message": "Save to Bookmarks Bar (Ctrl+S)"
+  },
   "quickSaveToFolder": {
     "message": "Save to '$FOLDER$' (Ctrl+S)",
     "placeholders": {
@@ -440,8 +1291,12 @@
       }
     }
   },
-  "undoWithShortcut": { "message": "Undo (Ctrl+Z)" },
-  "queryRestoredToast": { "message": "✓ Text restored" },
+  "undoWithShortcut": {
+    "message": "Undo (Ctrl+Z)"
+  },
+  "queryRestoredToast": {
+    "message": "✓ Text restored"
+  },
   "existingBookmarkNotice": {
     "message": "Already in bookmarks: $TITLE$",
     "placeholders": {
@@ -451,7 +1306,9 @@
       }
     }
   },
-  "editBookmark": { "message": "Edit Bookmark" },
+  "editBookmark": {
+    "message": "Edit Bookmark"
+  },
   "quickEditExistingBookmark": {
     "message": "Edit Bookmark '$TITLE$' (Ctrl+S)",
     "placeholders": {
@@ -461,10 +1318,18 @@
       }
     }
   },
-  "bookmarkUpdatedToast": { "message": "✓ Bookmark updated" },
-  "unlockUrl": { "message": "Unlock address to edit" },
-  "lockUrl": { "message": "Lock address" },
-  "moveToBar": { "message": "Move to Bar" },
+  "bookmarkUpdatedToast": {
+    "message": "✓ Bookmark updated"
+  },
+  "unlockUrl": {
+    "message": "Unlock address to edit"
+  },
+  "lockUrl": {
+    "message": "Lock address"
+  },
+  "moveToBar": {
+    "message": "Move to Bar"
+  },
   "moveToFolder": {
     "message": "Move to '$FOLDER$'",
     "placeholders": {
@@ -483,7 +1348,9 @@
       }
     }
   },
-  "bookmarkMovedBackToast": { "message": "✓ Bookmark moved back to previous location" },
+  "bookmarkMovedBackToast": {
+    "message": "✓ Bookmark moved back to previous location"
+  },
   "existingBookmarkWithFolderNotice": {
     "message": "Already in bookmarks: $TITLE$ ($FOLDER$)",
     "placeholders": {
@@ -497,16 +1364,36 @@
       }
     }
   },
-  "otherFolders": { "message": "Other Folders…" },
-  "chooseFolderToMove": { "message": "Choose Folder to Move" },
-  "currentFolderTag": { "message": "(current)" },
-  "urlAutoCompletedHttps": { "message": "Protocol auto-completed (https://)" },
-  "actionTitleSnoozed": { "message": "BookmarkFlow Bar is hidden on this tab (Click to open or press Alt+Shift+H)" },
-  "clearText": { "message": "Clear text" },
-  "openInIncognitoWindow": { "message": "Open in incognito window" },
-  "addressCopiedToast": { "message": "✓ Address copied to clipboard" },
-  "openAllInTabs": { "message": "Open all in tabs" },
-  "openAll": { "message": "Open all" },
+  "otherFolders": {
+    "message": "Other Folders…"
+  },
+  "chooseFolderToMove": {
+    "message": "Choose Folder to Move"
+  },
+  "currentFolderTag": {
+    "message": "(current)"
+  },
+  "urlAutoCompletedHttps": {
+    "message": "Protocol auto-completed (https://)"
+  },
+  "actionTitleSnoozed": {
+    "message": "BookmarkFlow Bar is hidden on this tab (Click to open or press Alt+Shift+H)"
+  },
+  "clearText": {
+    "message": "Clear text"
+  },
+  "openInIncognitoWindow": {
+    "message": "Open in incognito window"
+  },
+  "addressCopiedToast": {
+    "message": "✓ Address copied to clipboard"
+  },
+  "openAllInTabs": {
+    "message": "Open all in tabs"
+  },
+  "openAll": {
+    "message": "Open all"
+  },
   "openAllConfirm": {
     "message": "Open $COUNT$ tabs at once? This may affect browser performance.",
     "placeholders": {
@@ -523,18 +1410,38 @@
       }
     }
   },
-  "addBookmarkOrFolder": { "message": "Add bookmark or folder" },
-  "filterChipAll": { "message": "All" },
-  "filterChipFolders": { "message": "Folders" },
-  "filterChipTags": { "message": "Tags" },
-  "filterChipReadingList": { "message": "Reading List" },
-  "filterChipsAria": { "message": "Search filter categories" },
-  "sortModeDefault": { "message": "Default" },
-  "sortModeAz": { "message": "A-Z" },
-  "sortModeNewest": { "message": "Newest" },
-  "sortModeFrequent": { "message": "Most Frequent" },
+  "addBookmarkOrFolder": {
+    "message": "Add bookmark or folder"
+  },
+  "filterChipAll": {
+    "message": "All"
+  },
+  "filterChipFolders": {
+    "message": "Folders"
+  },
+  "filterChipTags": {
+    "message": "Tags"
+  },
+  "filterChipReadingList": {
+    "message": "Reading List"
+  },
+  "filterChipsAria": {
+    "message": "Search filter categories"
+  },
+  "sortModeDefault": {
+    "message": "Default"
+  },
+  "sortModeAz": {
+    "message": "A-Z"
+  },
+  "sortModeNewest": {
+    "message": "Newest"
+  },
+  "sortModeFrequent": {
+    "message": "Most Frequent"
+  },
   "sortModeCycleTooltip": {
-    "message": "Sort: $MODE$ (click to change)",
+    "message": "Sort: $MODE$ (Click to change, Right-click or Shift+Click to reset)",
     "placeholders": {
       "mode": {
         "content": "$1"
@@ -549,12 +1456,42 @@
       }
     }
   },
-  "mobileBookmarksFolder": { "message": "Mobile Bookmarks" },
-  "mobileBookmarksShort": { "message": "Mobile" },
-  "mobileSyncTooltip": { "message": "📱 Mobile Bookmarks — No mobile extension needed; syncs automatically with your phone's browser" },
-  "mobileSyncBannerText": { "message": "Syncs automatically with your phone's browser — no mobile extension required." },
-  "mobileBookmarksEmptyHint": { "message": "Pages you bookmark on your phone's browser appear here automatically, and links saved here sync directly to your phone (no mobile extension required)." },
-  "mobileSyncSelectedHint": { "message": "📱 Will sync directly to your phone's Mobile Bookmarks (no mobile extension needed)." },
-  "tipMobileSyncTitle": { "message": "Automatic Phone Sync" },
-  "tipMobileSyncDesc": { "message": "No phone extension needed! Pages bookmarked on your phone browser sync automatically via 📱 Mobile Bookmarks." }
+  "mobileBookmarksFolder": {
+    "message": "Mobile Bookmarks"
+  },
+  "mobileBookmarksShort": {
+    "message": "Mobile"
+  },
+  "mobileSyncTooltip": {
+    "message": "📱 Mobile Bookmarks — No mobile extension needed; syncs automatically with your phone's browser"
+  },
+  "mobileSyncBannerText": {
+    "message": "Syncs automatically with your phone's browser — no mobile extension required."
+  },
+  "mobileBookmarksEmptyHint": {
+    "message": "Pages you bookmark on your phone's browser appear here automatically, and links saved here sync directly to your phone (no mobile extension required)."
+  },
+  "mobileSyncSelectedHint": {
+    "message": "📱 Will sync directly to your phone's Mobile Bookmarks (no mobile extension needed)."
+  },
+  "tipMobileSyncTitle": {
+    "message": "Automatic Phone Sync"
+  },
+  "tipMobileSyncDesc": {
+    "message": "No phone extension needed! Pages bookmarked on your phone browser sync automatically via 📱 Mobile Bookmarks."
+  },
+  "filterChipMobile": {
+    "message": "Mobile"
+  },
+  "sortModeResetToast": {
+    "message": "✓ Folder sort reset to Default"
+  },
+  "visitCountBadgeTitle": {
+    "message": "$COUNT$ visits",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  }
 }

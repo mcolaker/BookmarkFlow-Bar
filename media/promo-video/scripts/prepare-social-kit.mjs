@@ -59,23 +59,23 @@ const approvedSources = new Map([
   ],
   [
     "store/assets/screenshot-newtab-1280x800.png",
-    mediaContract("85dec2d36d5c8d8794d02dadecb4f06cbc4493f81e8a84f643d18cc06cd4b8e6", 32464, 1280, 800, "png"),
+    mediaContract("7cd44bd0956ba11e2dc51569e3b886e497fff5c3700a2ae09b7aee5f0dced76d", 62666, 1280, 800, "png"),
   ],
   [
     "store/assets/screenshot-overlay-1280x800.png",
-    mediaContract("57c1a9c57ba696602b1fa44177d548e5f73439fd110c6ae65b09fe69b56fa7a1", 252376, 1280, 800, "png"),
+    mediaContract("bc47cda96cc243133e027e6252ef7b44efd337a7429afaeed97fae0a89e73b41", 252500, 1280, 800, "png"),
   ],
   [
     "store/assets/screenshot-palette-1280x800.png",
-    mediaContract("f9e06c92d28f9223e329e9883584a5197e49b10b886a060eb13352fd5f197b04", 155231, 1280, 800, "png"),
+    mediaContract("53aa8d689124d4584bc6763fca427853aa1229dd26b4a4ab63c0e9831de22d18", 68130, 1280, 800, "png"),
   ],
   [
     "store/assets/screenshot-folder-rail-1280x800.png",
-    mediaContract("8af02a60e8ee7a2ec0a59d74019acac5e247a5ad7b8f805cb12f3f8bc60ebdf4", 277733, 1280, 800, "png"),
+    mediaContract("196650942ac576e4c56cd79bc17107dd62a6c507d3ef92a5004e353eabc4f42c", 281794, 1280, 800, "png"),
   ],
   [
     "store/assets/screenshot-streamer-1280x800.png",
-    mediaContract("8067910e0db0a86d98cd7c36b8102f9f722afde4c97fac0acce7dac03d485914", 252989, 1280, 800, "png"),
+    mediaContract("cb26d11d7989ec93b579c09d451f4b0c1ff7c34e7a62bd18da863e6458533b09", 253115, 1280, 800, "png"),
   ],
   [
     "output/promo-video/bookmarkflow-bar-master.en.srt",

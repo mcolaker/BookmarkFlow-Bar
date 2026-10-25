@@ -188,7 +188,9 @@ async function installNetworkGuard(context, allowedOrigin) {
       return;
     }
 
-    blocked.push(requestUrl);
+    if (!/^https?:\/\/[^/]*kaspersky-labs\.com\//i.test(requestUrl)) {
+      blocked.push(requestUrl);
+    }
     await route.abort("blockedbyclient");
   });
   return blocked;
@@ -745,40 +747,85 @@ function createSyntheticBookmarkFixture(localeId) {
 
 async function seedSyntheticBookmarks(worker, origin, localeId) {
   const fixture = createSyntheticBookmarkFixture(localeId);
-  await worker.evaluate(async ({ settings, origin: localOrigin, fixture: bookmarkFixture }) => {
+  await worker.evaluate(async ({ settings, origin: localOrigin, fixture: bookmarkFixture, locale: activeLocale }) => {
     const [root] = await chrome.bookmarks.getTree();
     const bookmarkBar = (root.children || []).find((node) => node.folderType === "bookmarks-bar" || node.id === "1");
     if (!bookmarkBar) {
       throw new Error("Bookmark Bar was not found.");
     }
+    const otherBookmarks = (root.children || []).find((node) => node.folderType === "other" || node.id === "2");
+    let mobileBar = (root.children || []).find((node) => node.folderType === "mobile" || node.id === "3");
 
-    const children = await chrome.bookmarks.getChildren(bookmarkBar.id);
-    for (const node of children) {
-      if (node.url) {
-        await chrome.bookmarks.remove(node.id);
-      } else {
-        await chrome.bookmarks.removeTree(node.id);
+    const clearFolderChildren = async (folderId) => {
+      const children = await chrome.bookmarks.getChildren(folderId);
+      for (const node of children) {
+        if (node.url) {
+          await chrome.bookmarks.remove(node.id);
+        } else {
+          await chrome.bookmarks.removeTree(node.id);
+        }
       }
+    };
+
+    await clearFolderChildren(bookmarkBar.id);
+    if (mobileBar) {
+      await clearFolderChildren(mobileBar.id);
+    } else if (otherBookmarks) {
+      await clearFolderChildren(otherBookmarks.id);
+      mobileBar = await chrome.bookmarks.create({
+        parentId: otherBookmarks.id,
+        title: activeLocale === "tr" ? "Mobil Yer İşaretleri" : "Mobile Bookmarks"
+      });
     }
 
-    const createNode = async (node, parentId) => {
+    const visitsMap = {};
+    const sortModesMap = { _last: "frequent" };
+    let visitRank = 0;
+    const sampleVisitCounts = [18, 14, 11, 9, 7, 5, 4];
+
+    const createNode = async (node, parentId, recordVisits = false) => {
       if (node.slug) {
-        await chrome.bookmarks.create({
+        const created = await chrome.bookmarks.create({
           parentId,
           title: node.title,
           url: `${localOrigin}/bookmarks/${node.slug}`
         });
+        if (recordVisits && visitRank < sampleVisitCounts.length) {
+          visitsMap[created.id] = sampleVisitCounts[visitRank++];
+        }
         return;
       }
 
       const folder = await chrome.bookmarks.create({ parentId, title: node.title });
+      sortModesMap[folder.id] = "frequent";
       for (const child of node.children || []) {
-        await createNode(child, folder.id);
+        await createNode(child, folder.id, true);
       }
     };
 
     for (const node of bookmarkFixture) {
-      await createNode(node, bookmarkBar.id);
+      await createNode(node, bookmarkBar.id, false);
+    }
+
+    if (mobileBar) {
+      sortModesMap[mobileBar.id] = "frequent";
+      const mobileItems = activeLocale === "tr"
+        ? [
+            { title: "Mobil Okuma", slug: "mobile-reading", visits: 16 },
+            { title: "Saha Notları", slug: "field-notes", visits: 9 }
+          ]
+        : [
+            { title: "Mobile Reading", slug: "mobile-reading", visits: 16 },
+            { title: "Field Notes", slug: "field-notes", visits: 9 }
+          ];
+      for (const item of mobileItems) {
+        const created = await chrome.bookmarks.create({
+          parentId: mobileBar.id,
+          title: item.title,
+          url: `${localOrigin}/bookmarks/${item.slug}`
+        });
+        visitsMap[created.id] = item.visits;
+      }
     }
 
     await chrome.storage.sync.clear();
@@ -788,11 +835,18 @@ async function seedSyntheticBookmarks(worker, origin, localeId) {
     await chrome.storage.local.set({
       [BookmarkFlowConfig.DATA_CONSENT_STORAGE_KEY]: BookmarkFlowConfig.DATA_CONSENT_VERSION,
       bfOnboardingSeen: true,
+      bfFirstRunTooltipSeen: true,
+      bfQuickTipsDismissed: true,
+      bfBookmarkVisits: visitsMap,
+      bfFolderSortModes: sortModesMap,
       disabledHosts
     });
-  }, { settings: baseSettings, origin, fixture });
+  }, { settings: baseSettings, origin, fixture, locale: localeId });
 
-  const urls = [];
+  const urls = [
+    `${origin}/bookmarks/mobile-reading`,
+    `${origin}/bookmarks/field-notes`
+  ];
   const collectUrls = (nodes) => {
     for (const node of nodes) {
       if (node.slug) {
@@ -834,7 +888,7 @@ async function applySettings(worker, overrides) {
 }
 
 async function captureNewTab(context, worker, extensionId, locale, outputPath) {
-  await applySettings(worker, { folderRail: "off", offsetPage: false, rows: 2 });
+  await applySettings(worker, { folderRail: "off", offsetPage: false, rows: 2, theme: "gold-obsidian" });
   const page = await context.newPage();
   try {
     await page.goto(`chrome-extension://${extensionId}/src/newtab.html`);
@@ -848,7 +902,19 @@ async function captureNewTab(context, worker, extensionId, locale, outputPath) {
       throw new Error(`New-tab capture expected ${locale.id}, received document language ${pageLanguage}.`);
     }
     await addNewTabCaptureStyles(page);
-    await page.evaluate(() => document.activeElement?.blur());
+    await page.evaluate((activeLocale) => {
+      const clockEl = document.getElementById("clockDisplay");
+      const greetingEl = document.getElementById("greetingDisplay");
+      const tipsEl = document.getElementById("quickTipsWidget");
+      if (clockEl) clockEl.textContent = "09:42";
+      if (greetingEl) {
+        greetingEl.textContent = activeLocale === "tr"
+          ? "Günaydın — odaklanmaya hazır mısın?"
+          : "Good morning — ready to focus?";
+      }
+      if (tipsEl) tipsEl.hidden = true;
+      document.activeElement?.blur();
+    }, locale.id);
     await page.mouse.move(1240, 760);
     await page.waitForTimeout(300);
     await assertNoHorizontalOverflow(page, ".nt-strip", "new-tab bookmark strip");
@@ -860,7 +926,7 @@ async function captureNewTab(context, worker, extensionId, locale, outputPath) {
 }
 
 async function captureOverlay(context, worker, origin, localeId, outputPath) {
-  await applySettings(worker, { folderRail: "off", offsetPage: false, rows: 2 });
+  await applySettings(worker, { folderRail: "off", offsetPage: false, rows: 2, theme: "gold-obsidian" });
   const page = await context.newPage();
   try {
     await page.goto(`${origin}/workspace?locale=${localeId}`);
@@ -883,7 +949,7 @@ async function captureOverlay(context, worker, origin, localeId, outputPath) {
 }
 
 async function capturePalette(context, worker, origin, localeId, outputPath) {
-  await applySettings(worker, { folderRail: "off", offsetPage: false });
+  await applySettings(worker, { folderRail: "off", offsetPage: false, theme: "gold-obsidian" });
   const page = await context.newPage();
   try {
     await page.goto(`${origin}/search?locale=${localeId}`);
@@ -912,7 +978,7 @@ async function capturePalette(context, worker, origin, localeId, outputPath) {
 }
 
 async function captureFolderRail(context, worker, origin, localeId, outputPath) {
-  await applySettings(worker, { folderRail: "left", offsetPage: false, rows: 2 });
+  await applySettings(worker, { folderRail: "left", offsetPage: false, rows: 2, theme: "gold-obsidian" });
   const page = await context.newPage();
   try {
     await page.goto(`${origin}/folder-rail?locale=${localeId}`);
@@ -927,6 +993,14 @@ async function captureFolderRail(context, worker, origin, localeId, outputPath) 
       && state.renderedFolderRailItems > 0
     ));
     assertBoundsInsideViewport(folderRailState.renderedFolderRailBounds, "folder rail");
+    await page.mouse.click(100, 196);
+    const folderMenuState = await waitForContentState(
+      worker,
+      page,
+      "open folder menu from rail",
+      (state) => state.folderMenuOpen === true && Boolean(state.folderMenuBounds)
+    );
+    assertBoundsInsideViewport(folderMenuState.folderMenuBounds, "folder menu");
     await page.mouse.move(1240, 760);
     await page.waitForTimeout(300);
     await assertNoDocumentOverflow(page, "folder rail capture");
@@ -942,6 +1016,7 @@ async function captureStreamerMode(context, worker, origin, localeId, outputPath
     offsetPage: false,
     rows: 1,
     streamerMode: true,
+    theme: "turquoise",
     hideEmptySearchSuggestions: true
   });
   const page = await context.newPage();
@@ -986,16 +1061,12 @@ async function addNewTabCaptureStyles(page) {
       }
 
       .nt-main {
-        min-height: calc(100vh - 92px) !important;
-        padding: 76px 20px 64px !important;
+        min-height: 0 !important;
+        padding: 24px 20px 48px !important;
       }
 
       .nt-search {
-        gap: 20px !important;
-      }
-
-      .nt-search-label {
-        font-size: clamp(52px, 6vw, 72px) !important;
+        gap: 14px !important;
       }
     `
   });

@@ -575,6 +575,70 @@
     }
     return list;
   }
+  function collectMobileBookmarkEntries(mobileNode, pathPrefix = "") {
+    if (!mobileNode || !Array.isArray(mobileNode.children)) {
+      return [];
+    }
+    const baseTitle = pathPrefix || `📱 ${getMobileFolderDisplayTitle(mobileNode)}`;
+    const entries = [];
+    const walk = (nodes, currentPath, parentId) => {
+      for (const node of nodes || []) {
+        if (node.url) {
+          if (isSafeBookmarkUrl(node.url)) {
+            entries.push({
+              id: node.id,
+              title: node.title || node.url,
+              url: node.url,
+              path: currentPath,
+              parentId: node.parentId || parentId,
+              dateAdded: node.dateAdded || 0,
+              isMobile: true
+            });
+          }
+          continue;
+        }
+        const nextPath = [currentPath, node.title].filter(Boolean).join(" / ");
+        walk(node.children || [], nextPath, node.id);
+      }
+    };
+    walk(mobileNode.children, baseTitle, mobileNode.id || "");
+    return entries;
+  }
+
+  function syncFolderMenuVisitBadge(linkElement, visitCount, sortMode = "default", titleText = "") {
+    if (!linkElement || typeof linkElement.querySelector !== "function") {
+      return null;
+    }
+    const count = Math.max(0, Math.floor(Number(visitCount) || 0));
+    let badge = linkElement.querySelector(".bf-visit-badge");
+    if (count <= 0) {
+      if (badge) {
+        badge.remove();
+      }
+      return null;
+    }
+    if (!badge) {
+      badge = linkElement.ownerDocument.createElement("span");
+      badge.className = "bf-visit-badge";
+      linkElement.append(badge);
+    }
+    const isFrequent = sortMode === "frequent";
+    badge.classList.toggle("is-frequent-sort", isFrequent);
+    badge.textContent = isFrequent ? `🔥 ${count}` : `${count}×`;
+    const resolvedTitle = titleText || `${count} visits`;
+    badge.title = resolvedTitle;
+    badge.setAttribute("aria-label", resolvedTitle);
+    return badge;
+  }
+
+  function isFolderSortResetGesture(event) {
+    if (!event) {
+      return false;
+    }
+    return event.type === "contextmenu" || Boolean(event.shiftKey);
+  }
+
+
 
   globalThis.BookmarkFlowConfig = Object.freeze({
     DEFAULT_SETTINGS,
@@ -622,6 +686,9 @@
     isMobileBookmarksFolder,
     selectMobileBookmarksNode,
     getMobileFolderDisplayTitle,
-    collectFoldersWithMobileBridge
+    collectFoldersWithMobileBridge,
+    collectMobileBookmarkEntries,
+    syncFolderMenuVisitBadge,
+    isFolderSortResetGesture
   });
 })();

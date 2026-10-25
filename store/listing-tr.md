@@ -6,59 +6,62 @@ BookmarkFlow Bar
 
 ## Kısa açıklama
 
-Chrome yer imlerini çok satırlı bir çubuğa, aranabilir komut paletine ve düzenli yeni sekme alanına dönüştürün.
+Chrome yer imlerini çok satırlı çubuğa, aranabilir komut paletine, mobil senkron köprüsüne ve düzenli yeni sekme alanına dönüştürün.
 
 ## Ayrıntılı açıklama
 
-Yer imleriniz, her gün kullandığınız araçları, kaynakları ve hedefleri zaten içeriyor. BookmarkFlow Bar, yer imlerinizi başka bir hizmete taşımadan onlara daha hızlı ulaşmanızı sağlar.
+Yer imleriniz, her gün kullandığınız araçları, kaynakları ve hedefleri zaten içeriyor. BookmarkFlow Bar, yer imlerinizi başka bir hizmete taşımadan onlara her sayfadan ve her cihazdan daha hızlı ulaşmanızı sağlar.
 
-Normal web sayfalarına özelleştirilebilir, çok satırlı bir yer imi çubuğu ekleyin; yer imi kitaplığınızı klavyeyle arayın; önemli klasörleri yan raya sabitleyin ve odaklanmış BookmarkFlow yeni sekme çalışma alanını kullanın.
+Normal web sayfalarına özelleştirilebilir, çok satırlı bir yer imi çubuğu ekleyin; yer imi kitaplığınızı klavyeyle arayın; telefonunuzdaki Mobil Yer İşaretleri klasörüyle anında senkron çalışın; önemli klasörleri yan raya sabitleyin ve odaklanmış BookmarkFlow yeni sekme çalışma alanını kullanın.
 
 ÖNE ÇIKAN ÖZELLİKLER
 
-• Kesintisiz tam ekran odak modu (video ve oyunlarda otomatik gizlenir, çıkışta yerleşimi korur)
-• Chromium ve Brave yerleşik alt çubuğuyla çakışmayı önleyen 44px Yeni Sekme güvenli alanı
-• Akıllı süzme çipleri (Tümü, Klasörler, Etiketler, Okuma Listesi) ve akıcı klavye dolaşımı
-• Dinamik klasör sıralama (A-Z, En Yeni, En Sık Kullanılan), kalıcı hafıza ve ekran okuyucu sesli duyurusu
-• Modern klasör menüsü başlığı: Tek tıkla "Yer İmi/Klasör Ekle" ve "↗ Tümünü Sekmelerde Aç"
-• Kalabalık klasörlerde canlı arama, anlık karakter vurgusu ve hızlı temizleme (×) butonu
-• Orta tıkla arka planda hızlı sekme açma ve sağ tıkla gizli pencere eylemleri
-• 5 büyüleyici koyu tema (Altın Obsidyen, Saf OLED Siyah, Zümrüt Matrisi, Siber İndigo, Turkuaz Işıltı)
-• Arama çubuğundan doğrudan bağlantı yakalama ve tek tıkla klasör çipleri (aramadan ayrılmadan kayıt)
-• Canlı akıllı rozetlere sahip sıfır gecikmeli yerel niyet yönlendirme motoru (URL, komut, etiket, klasör, sekme)
-• Sayfa içi çubuğu tam gizleme (Alt+Shift+H), ekran kenarı minimalist geri getirme tutamacı ve araç çubuğu rozetleri
-• Görsel ilerleme çubuklu evrensel geri alma (Ctrl+Z) ve anlık bildirim rozetleri
-• Merkezi obsidyen tasarım token'ları ve Windows yüksek kontrast (forced-colors) erişilebilirliği
-• İsteğe bağlı Windows Masaüstü Companion ve küresel sistem kısayolları (Win+Shift+B)
-• Tek tıkla veya klavye komutuyla tüm açık sekmeleri klasöre kaydetme (#stash)
+• Bilgisayar ve Telefon Arasında Mobil Yer İşaretleri Köprüsü: Telefonunuzdaki tarayıcıda kaydettiğiniz yer imlerine sol klasör rayındaki ve hızlı kayıt penceresindeki "📱 Mobil" klasörüyle anında çift yönlü erişim
+• Spotlight Komut Paleti (Alt + Shift + K) ve Yeni Sekme arama çubuğunda tek tıkla "📱 Mobil" yer imlerini süzen özel arama sekmesi
+• Açılır klasör menülerinde en sık kullandığınız bağlantıları tek bakışta gösteren ziyaret sayaç rozetleri (14×, 🔥)
+• Dinamik klasör sıralama (A-Z, En Yeni, En Sık Kullanılan), kalıcı sıralama hafızası ve tek tıkla varsayılana sıfırlama (Shift+Tık veya Sağ Tık)
+• Kesintisiz tam ekran odak modu (tam ekran video ve oyunlarda otomatik gizlenir, çıkışta yerleşimi korur)
+• Chrome ve Brave alt özelleştirme çubuğuyla çakışmayı önleyen uyarlanabilir Yeni Sekme alt yerleşimi
+• Akıllı süzme sekmeleri (Tümü, Klasörler, Etiketler, Okuma Listesi, Mobil) ve akıcı yön tuşu dolaşımı
+• Modern klasör menüsü başlığı: Tek tıkla "+ Yer İmi/Klasör Ekle" ve "↗ Tümünü Sekmelerde Aç"
+• Kalabalık klasörlerde canlı arama, anlık karakter vurgusu ve hızlı temizleme (×) düğmesi
+• Orta tıkla arka planda hızlı sekme açma ve sağ tıkla gizli pencerede açma eylemleri
+• 5 seçkin koyu tema (Altın Obsidyen, Saf OLED Siyah, Zümrüt Matrisi, Siber İndigo, Turkuaz Işıltı)
+• Arama çubuğundan doğrudan bağlantı yakalama ve tek tıkla klasör çipleriyle aramadan ayrılmadan kayıt
+• Bağlantı, komut, etiket, klasör ve açık sekmeleri anında tanıyan yerel akıllı yönlendirme rozetleri
+• Sayfa içi çubuğu tam gizleme (Alt + Shift + H), ekran kenarı zarif geri getirme tutamacı ve araç çubuğu durum rozeti
+• Görsel ilerleme çubuklu evrensel geri alma (Ctrl + Z) ve anlık bildirim mesajları
+• Yüksek kontrastlı net görünüm ve tüm menülerde eksiksiz klavye erişilebilirliği
+• İsteğe bağlı Windows Masaüstü Companion uygulaması ve küresel sistem kısayolları (Win + Shift + B)
+• Tek tıkla veya klavye komutuyla tüm açık sekmeleri tarihli klasöre kaydetme (#stash)
 • Yer imleri, ayarlar, etiketler ve okuma listesi için çevrimdışı JSON yedekleme ve geri yükleme
-• Sıfır-bulut akıllı otomatik etiketleme (#tag) ve Spotlight etiket filtreleme
-• Yeni Sekme sayfasında yerleşik çevrimdışı okuma listesi çekmecesi
-• Sıfır telemetrili yerel Yer İmi Sağlık ve Kırık Bağlantı Denetleyicisi
+• Yerel akıllı otomatik etiketleme (#etiket) ve anlık etiket filtreleme
+• Yeni Sekme sayfasında yerleşik çevrimdışı Okuma Listesi çekmecesi
+• Kopya veya çalışmayan bağlantıları cihazınızda yerel olarak bulan Yer İmi Sağlık ve Kırık Bağlantı Denetleyicisi
 • Klavye ile döngüsel gezinilebilen Spotlight / Raycast tarzı gerçek zamanlı arama paleti
-• Dijital saat, selamlama ve Hızlı Kısayollar ızgarası içeren odaklanmış Yeni Sekme
+• Dijital saat, selamlama, Hızlı Kısayollar ızgarası ve klavye ipuçları içeren odaklanmış Yeni Sekme
 • Favicon, başlık, kompakt yoğunluk ve yatay kaydırma desteğine sahip çok satırlı yer imi çubuğu
-• Cihazda yerel tutulan sabitlenmiş klasörlerle isteğe bağlı sol veya sağ klasör rayı
-• Açma, kopyalama, yeniden adlandırma, ekleme, silme, renklendirme ve sıralama işlemleri
-• Ekran paylaşımı sırasında daha temiz, ikon odaklı sunum için yayıncı modu
-• Site bazlı görünürlük denetimleri ve giriş, ödeme veya banka sayfalarında isteğe bağlı gizleme
-• Yerleşik başlangıç profilleri, etkileşimli deneme alanı ve 3 katmanlı yaşayan keşif
-• Yer imi veya sayfa erişimi başlamadan önce belirgin ilk kullanım gizlilik seçimi
-• BookmarkFlow hesabı, analiz sistemi, reklam SDK'sı veya harici yer imi sunucusu yok
+• Cihazda yerel tutulan sabitlenmiş klasörler ve klasör renklendirme seçenekleriyle sol veya sağ klasör rayı
+• Açma, kopyalama, yeniden adlandırma, ekleme, silme, renklendirme ve sürükle-bırak ile sıralama işlemleri
+• Ekran paylaşımı ve yayın sırasında sade, ikon odaklı sunum sağlayan Yayıncı Modu
+• Site bazlı görünürlük denetimleri ve giriş, ödeme veya bankacılık sayfalarında otomatik gizleme
+• Yerleşik başlangıç profilleri ve etkileşimli kurulum turu
+• Yer imi veya sayfa erişimi başlamadan önce açık ve net ilk kullanım gizlilik onayı
+• BookmarkFlow hesabı, izleme sistemi, reklam veya harici yer imi sunucusu yok
 
 TASARIMDAN İTİBAREN GİZLİLİK
 
-BookmarkFlow, Chrome tarafından yönetilen mevcut yer imi verileriyle çalışır. Yer imi kitaplığınızı bir BookmarkFlow sunucusuna yüklemez. Genel görünüm tercihleri, kullanılabiliyorsa Chrome Sync üzerinden eşitlenebilir; site bazlı istisnalar, sabitlenmiş klasör seçimleri ve klasör başına renkler ise yalnızca mevcut cihazda tutulur.
+BookmarkFlow, doğrudan tarayıcınız tarafından yönetilen mevcut yer imi kitaplığıyla çalışır. Yer imlerinizi, arama sorgularınızı veya gezinme geçmişinizi hiçbir harici sunucuya göndermez. Genel görünüm tercihleri tarayıcı eşitlemesi açıksa eşitlenebilir; site bazlı istisnalar, sabitlenmiş klasör seçimleri, ziyaret sayaçları ve klasör renkleri ise yalnızca cihazınızda tutulur.
 
-Yalnızca HTTP, HTTPS ve mailto hedefleri gösterilir veya açılır. Web sitelerinde görüntülenen arayüz, sayfa betikleri ve stilleriyle etkileşimi azaltmak için eklentiye ait kapalı Shadow DOM içinde çalışır.
+Yalnızca HTTP, HTTPS ve mailto bağlantıları gösterilir veya açılır. Web sitelerinde görüntülenen çubuk, sayfa stilleriyle çakışmamak için tam yalıtımlı eklenti katmanında çalışır.
 
 NASIL ÇALIŞIR?
 
-Kurulumdan sonra yerleşik kurulum turunu izleyin, başlangıç düzeninizi seçin ve isterseniz Chrome'un kendi yer imleri çubuğunu gizleyin. Kompakt BF denetimiyle BookmarkFlow'u genişletin; arama düğmesiyle veya yeniden atanabilir eklenti komutuyla (önerilen varsayılan: Alt + Shift + K) arama paletini açın. Kısayolları `chrome://extensions/shortcuts` sayfasından kişiselleştirebilirsiniz.
+Kurulumdan sonra yerleşik kurulum turunu izleyin, başlangıç düzeninizi seçin ve isterseniz tarayıcının varsayılan yer imleri çubuğunu gizleyin. Kompakt BF düğmesiyle BookmarkFlow'u genişletin; arama düğmesiyle veya yeniden atanabilir klavye kısayoluyla (varsayılan: Alt + Shift + K) arama paletini açın. Kısayolları dilediğiniz zaman `chrome://extensions/shortcuts` sayfasından kişiselleştirebilirsiniz.
 
 ÖNEMLİ SINIRLAMALAR
 
-Chrome, eklentilerin `chrome://` sayfaları veya Chrome Web Mağazası gibi korumalı sayfalara içerik betiği yerleştirmesine izin vermez. BookmarkFlow, yeni sekme deneyimi için eklentiye ait yerel sayfayı kullanır.
+Tarayıcı güvenlik kuralları gereği eklentiler `chrome://` ayar sayfaları veya Chrome Web Mağazası gibi sistem sayfalarında sayfa içi çubuk gösteremez. BookmarkFlow, tüm özelliklerin her zaman hazır olduğu özel Yeni Sekme çalışma alanıyla bu sayfaları tamamlar.
 
 ## Önerilen kategori
 
