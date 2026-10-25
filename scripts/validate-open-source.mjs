@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { extname, relative, resolve } from "node:path";
@@ -29,7 +30,7 @@ const requiredFiles = [
 ];
 
 const ignoredDirectories = new Set([".git", "dist", "node_modules", "output"]);
-const historicalFiles = new Set(["CHANGELOG.md", "docs/backlog/OPEN_TASKS.md"]);
+const historicalFiles = new Set(["CHANGELOG.md"]);
 const publicTextExtensions = new Set([".html", ".md", ".txt", ".yml", ".yaml"]);
 
 const retiredRestrictionPatterns = [
@@ -45,24 +46,21 @@ function toRepositoryPath(root, absolutePath) {
   return relative(root, absolutePath).replaceAll("\\", "/");
 }
 
-function collectTextPaths(root, directory = root, paths = []) {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    if (entry.isDirectory() && ignoredDirectories.has(entry.name)) continue;
+function collectTextPaths(root) {
+  const safeRoot = root.replaceAll("\\", "/").replace(/\/$/u, "");
+  const tracked = execFileSync(
+    "git",
+    ["-c", `safe.directory=${safeRoot}`, "ls-files", "--cached", "--others", "--exclude-standard"],
+    { cwd: root, encoding: "utf8" }
+  )
+    .split(/\r?\n/u)
+    .filter(Boolean);
 
-    const absolutePath = resolve(directory, entry.name);
-    if (entry.isDirectory()) {
-      collectTextPaths(root, absolutePath, paths);
-      continue;
-    }
-    if (!entry.isFile()) continue;
-
-    const repositoryPath = toRepositoryPath(root, absolutePath);
-    if (historicalFiles.has(repositoryPath)) continue;
-    if (publicTextExtensions.has(extname(entry.name).toLowerCase()) || entry.name === "DCO" || entry.name === "NOTICE") {
-      paths.push(repositoryPath);
-    }
-  }
-  return paths;
+  return tracked.filter((repositoryPath) => {
+    if (historicalFiles.has(repositoryPath)) return false;
+    const base = repositoryPath.split("/").pop() || "";
+    return publicTextExtensions.has(extname(base).toLowerCase()) || base === "DCO" || base === "NOTICE";
+  });
 }
 
 export function normalizeOfficialText(text) {

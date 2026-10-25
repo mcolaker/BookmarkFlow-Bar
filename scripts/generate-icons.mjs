@@ -104,8 +104,7 @@ async function loadPlaywright() {
   } catch (error) {
     const candidates = [
       process.env.PLAYWRIGHT_MODULE_PATH,
-      await findCachedPlaywrightModule(),
-      await findCodexPlaywrightModule()
+      await findCachedPlaywrightModule()
     ].filter(Boolean);
 
     for (const candidate of candidates) {
@@ -127,13 +126,6 @@ async function findCachedPlaywrightModule() {
   return findNewestFile(root, ["node_modules", "playwright", "index.mjs"]);
 }
 
-async function findCodexPlaywrightModule() {
-  const userProfile = process.env.USERPROFILE || "";
-  const root = userProfile
-    ? path.join(userProfile, ".cache", "codex-runtimes")
-    : "";
-  return findNewestFile(root, ["dependencies", "node", "node_modules", "playwright", "index.mjs"]);
-}
 
 async function findNewestFile(root, suffixParts) {
   if (!root) {

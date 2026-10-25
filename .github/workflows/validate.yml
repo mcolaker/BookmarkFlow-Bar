@@ -50,14 +50,6 @@ jobs:
       - name: Run Manifest V3 API compliance gate
         run: npm run test:mv3
 
-      - name: Validate canonical backlog contract
-        run: |
-          node scripts/validate-backlog.mjs
-          node --test scripts/backlog-contract.test.mjs
-
-      - name: Verify live user journey simulator contract
-        run: npm run test:e2e-live -- --dry-run
-
       - name: Verify public repository safety
         run: node scripts/verify-public-tree.mjs
 

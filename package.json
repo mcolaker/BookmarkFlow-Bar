@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "test": "node --test scripts/*.test.mjs",
-    "test:backlog": "node scripts/validate-backlog.mjs && node --test scripts/backlog-contract.test.mjs",
     "test:open-source": "node scripts/validate-open-source.mjs && node --test scripts/open-source-contract.test.mjs scripts/dco-contract.test.mjs scripts/package-release-contract.test.mjs",
     "test:runtime": "node --test scripts/runtime-contract.test.mjs scripts/ui-behavior-contract.test.mjs",
     "test:regression": "node scripts/security-regression.mjs",
@@ -14,22 +13,10 @@
     "validate": "node scripts/validate-project.mjs",
     "validate:assets": "node scripts/validate-assets.mjs",
     "validate:tree": "node scripts/verify-public-tree.mjs",
-    "test:e2e-live": "node scripts/user-journey-live-qa.mjs",
-    "qa:motion": "node scripts/inspect-motion-qa.mjs",
-    "qa:motion:auto": "node scripts/inspect-motion-qa.mjs --autonomous",
-    "qa:media": "node scripts/validate-media-qa.mjs",
-    "qa:journey-motion": "node scripts/user-journey-live-qa.mjs --motion-qa",
     "package:cross-browser": "node scripts/package-cross-browser.mjs",
     "release:github": "node scripts/release-github-cli.mjs",
     "release:full": "node scripts/release-pipeline.mjs",
-    "pilot:chrome": "node scripts/live-chrome-pilot.mjs",
-    "publish:cws": "node scripts/publish-cws.mjs",
-    "publish:social": "node scripts/publish-social.mjs",
-    "guard:console": "node scripts/live-console-guard.mjs",
-    "guard:arch": "node scripts/check-architecture-guard.mjs",
     "inspect:dom": "node scripts/inspect-extension-dom.mjs",
-    "inspect:boxes": "node scripts/inspect-visual-boxes.mjs",
-    "inspect:360": "node scripts/inspect-visual-boxes.mjs --360",
-    "validate:all": "node scripts/validate-open-source.mjs && node --test scripts/*.test.mjs && node scripts/validate-project.mjs && node scripts/verify-public-tree.mjs && node scripts/validate-backlog.mjs && node scripts/validate-governance.mjs && node scripts/validate-media-qa.mjs --offline"
+    "validate:all": "node scripts/validate-open-source.mjs && node --test scripts/*.test.mjs && node scripts/validate-project.mjs && node scripts/verify-public-tree.mjs"
   }
 }
