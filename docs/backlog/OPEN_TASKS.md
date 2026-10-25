@@ -1,6 +1,6 @@
 # BookmarkFlow Bar Açık İşler
 
-Son güncelleme: 2026-10-18
+Son güncelleme: 2026-10-25
 
 Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kuralları için [AGENTS.md](../../AGENTS.md) otoritedir.
 
@@ -1048,3 +1048,21 @@ Otorite: Bu dosya kanonik durum ve kanıt kaydıdır. Proje çalışma kurallar�
 - Doğrulama kapısı: `node --test scripts/runtime-contract.test.mjs scripts/ui-behavior-contract.test.mjs` ve `npm run guard:arch` sıfır hatayla geçer; `npm test` ve `npm run validate:all` temizdir; `git diff --check` sıfır hatadır.
 - Sonraki adım: Yok; Mobil Yer İşaretleri çift yönlü senkron köprüsü ve arayüz içi kullanıcı rehberi devreye alınmıştır.
 - Son güncelleme: 2026-10-18.
+
+## BF-GOV-029 - Proje İçi Uzman Alt Ajanları (`.agents/agents/*.md`), Proaktif Kural Yönlendiricisini (`bookmarkflow-rule-router`), `codebase-memory` Tüm Çağrıcılar Denetimini, Sürüm Kayması Bekçisini ve Sıfır Teknik Jargon Kapısını Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: JaponiGo Karar #106, #111, #113, #114 ve #125 mimarilerinin incelenmesi sonucunda ana bağlamı kirletmeden uzmanlaşmış işleri yürütecek proje içi alt ajan tanımlarına, otomatik kural yönlendiricisine, sürüm kayması bekçisine ve kamuya açık duyurularda mühendislik jargonunu engelleyen otomatik linter kapısına ihtiyaç duyulduğu belirlendi. (1) `.agents/agents/bookmarkflow_modular_refactor_agent.md`, `.agents/agents/bookmarkflow_live_qa_agent.md` ve `.agents/agents/bookmarkflow_i18n_release_agent.md` ile `.agents/skills/bookmarkflow-rule-router/SKILL.md` oluşturuldu; (2) `AGENTS.md` P0-5 (`codebase-memory` All-Callers Graph Audit & Multi-Entry-Point Tests), P0-16 (`assertZeroTechnicalJargonInPublicCopy`) ve Bölüm 2 Task Router tablosu `<=16 KB` bütçesi korunarak güncellendi; (3) `scripts/validate-governance.mjs` içerisine `validateVersionDriftGuard` (`manifest.json` === `package.json` === `PROJECT_STATE.md`) ve `.agents/` frontmatter/BOM doğrulaması eklendi; (4) `scripts/publish-social.mjs` içerisine `assertZeroTechnicalJargonInPublicCopy` entegre edildi (Karar 46).
+- Kabul kriteri: `.agents/agents/*.md` ve `.agents/skills/*/SKILL.md` dosyaları BOM-suz UTF-8 ve `MANDATORY & PROACTIVE:` önekli frontmatter ile doğrulanır; `validateVersionDriftGuard` sürüm uyuşmazlıklarını yakalar; `assertZeroTechnicalJargonInPublicCopy` yasaklı mühendislik/AI terimlerini reddeder; tüm sözleşme testleri geçer.
+- Doğrulama kapısı: `node scripts/validate-governance.mjs` ve `node --test scripts/governance-contract.test.mjs scripts/publish-social.test.mjs` geçer; `npm test` ve `npm run validate:all` temizdir.
+- Sonraki adım: Yok; uzman alt ajanlar, kural yönlendiricisi, sürüm kayması bekçisi ve sıfır teknik jargon kapısı devreye alınmıştır.
+- Son güncelleme: 2026-10-25.
+
+## BF-QA-011 - 6 Sütunlu & 7 Boyutlu Kalite Matrisini, Durum Deltası ve Kalıcılık Kapısını (`t0 -> t1 -> t2`), PNG İkili Başlık Bekçisini, Sıfır Kesik Etiket (`'...'` = 0) ve Boşta Titreme Dedektörünü Kur
+
+- Öncelik ve durum: P1, DONE.
+- Kök neden ve kanıt: JaponiGo Karar #117, #119, #120 ve #123 incelemesinde etkileşimli değişikliklerin tek statik ekran görüntüsüyle doğrulanmasının yetersiz kaldığı, PowerShell `>` yönlendirmesinin PNG başlığına UTF-8 BOM (`EF BB BF`) ekleyerek multimodal API'leri bozabildiği ve buton/çip etiketlerindeki `'...'` kesilmelerinin matematiksel olarak yakalanması gerektiği tespit edildi. `scripts/inspect-visual-boxes.mjs` içerisine: (1) `validateImageMagicBytes` PNG/JPEG ikili başlık ve UTF-8 BOM bekçisi; (2) `computeDesignGeometryMetrics` ve `evaluateProactiveStitchBananaGate` içinde `truncatedLabelsCount` (`'...'`/`'…'` = 0) ve `STUDIO_GRADE_GLASS_BENTO` için `designScore >= 3.50` şartı; (3) `scanI18nSuspiciousPatterns` (ham anahtar, çözülmemiş yer tutucu ve İngilizce arayüzde Türkçe karakter sızıntısı taraması); (4) `evaluateIdleBlinkAndRebuildLoop` (boşta titreme `changedRatio > 0.035` ve sonsuz `BF_STATE_CHANGED` döngüsü dedektörü); (5) `extractStateSignature`, `saveUiBaseline` ve `verifyUiDelta` (`--save-baseline`, `--verify-delta`, `--expect-changed`, `--expect-persisted` ile `Önce t0 -> Eylem t1 -> Yeniden Giriş t2`) eklendi ve `scripts/visual-boxes-contract.test.mjs` ile test altına alındı (Karar 47).
+- Kabul kriteri: `inspect-visual-boxes.mjs` PNG/JPEG sihirli baytlarını, kesik etiketleri, çapraz dil sızıntılarını, boşta titremeyi ve `t0 -> t1 -> t2` durum deltasını eksiksiz doğrular; `visual-boxes-contract.test.mjs` testleri %100 geçer.
+- Doğrulama kapısı: `node --test scripts/visual-boxes-contract.test.mjs` ve `npm run inspect:360` sıfır hatayla geçer; `npm test` ve `npm run validate:all` temizdir.
+- Sonraki adım: Yok; 6 sütunlu ve 7 boyutlu kalite matrisi ile `t0 -> t1 -> t2` durum deltası kapısı devreye alınmıştır.
+- Son güncelleme: 2026-10-25.

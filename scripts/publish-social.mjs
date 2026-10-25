@@ -62,6 +62,52 @@ export async function assertPreSocialReleaseGate(version = getManifestVersion(),
   };
 }
 
+const FORBIDDEN_PUBLIC_JARGON_PATTERNS = [
+  { label: "<1ms", regex: /<\s*1\s*ms\b/iu },
+  { label: "60fps", regex: /\b60\s*fps\b/iu },
+  { label: "O(1)", regex: /\bO\(1\)/u },
+  { label: "Shadow DOM", regex: /\bShadow\s+DOM\b/iu },
+  { label: "Manifest V3", regex: /\bManifest\s+V3\b/iu },
+  { label: "Service Worker", regex: /\bService\s+Worker\b/iu },
+  { label: "DOM insertBefore", regex: /\binsertBefore\b/u },
+  { label: "stopImmediatePropagation", regex: /\bstopImmediatePropagation\b/u },
+  { label: "Map-based state", regex: /\bMap-based\s+state\b/iu },
+  { label: "regression", regex: /\bregressions?\b/iu },
+  { label: "refactor", regex: /\brefactor(?:ing|ed|s)?\b/iu },
+  { label: "AST", regex: /\bAST\b/u },
+  { label: "linter", regex: /\blinters?\b/iu },
+  { label: "IPC", regex: /\bIPC\b/u },
+  { label: "internal task ID (BF-*)", regex: /\bBF-(?:UX|GOV|QA|REL|WIN|SEC)-\d+\b/u },
+  { label: "AI", regex: /\bAI\b/u },
+  { label: "LLM", regex: /\bLLMs?\b/u },
+  { label: "yapay zeka", regex: /\byapay\s+zeka\b/iu },
+];
+
+export function assertZeroTechnicalJargonInPublicCopy(text) {
+  const input = String(text || "");
+  if (!input.trim()) {
+    throw new Error("[Zero-Technical-Jargon Gate Blocked] Public social/store copy cannot be empty.");
+  }
+
+  const matched = [];
+  for (const item of FORBIDDEN_PUBLIC_JARGON_PATTERNS) {
+    if (item.regex.test(input)) {
+      matched.push(item.label);
+    }
+  }
+
+  if (matched.length > 0) {
+    throw new Error(
+      `[Zero-Technical-Jargon Gate Blocked] Public copy contains forbidden engineering or AI jargon (${matched.join(", ")}). Rewrite using Benefit-First end-user language (P0-13 & P0-16 / BF-GOV-029).`
+    );
+  }
+
+  return {
+    valid: true,
+    matched: [],
+  };
+}
+
 export function parsePngDimensions(buffer) {
   if (!Buffer.isBuffer(buffer) || buffer.length < 24) {
     throw new Error("Invalid buffer: not enough bytes for PNG header");
@@ -197,8 +243,24 @@ export async function prepareXPost(options = {}) {
   const visualLint = assertSocialCardVisualQuality(imagePath, "x");
   console.log("[Pre-Publish Visual Lint] X Promo Card Verified:", visualLint);
 
+  const postText =
+    options.customText ||
+    `Browse without interruption. 🎬⚡
+
+BookmarkFlow Bar v${version} is live!
+• Fullscreen auto-hide & layout sync
+• Adaptive New Tab footer safe-area
+• Voice-guided smart folder sorting
+
+Chrome: https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf
+GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v${version}
+
+#Chrome #Productivity`;
+
+  const copyLint = assertZeroTechnicalJargonInPublicCopy(postText);
+
   if (options.dryRun) {
-    return { dryRun: true, platform: "x", version, gateResult, visualLint };
+    return { dryRun: true, platform: "x", version, gateResult, visualLint, copyLint };
   }
 
   const wsUrl = await getActiveChromeWsUrl();
@@ -223,18 +285,6 @@ export async function prepareXPost(options = {}) {
 
   console.log("Waiting for compose box...");
   await new Promise((r) => setTimeout(r, 4000));
-
-  const postText = `Browse without interruption. 🎬⚡
-
-BookmarkFlow Bar v${version} is live!
-• Fullscreen auto-hide & layout sync
-• Adaptive New Tab footer safe-area
-• Voice-guided smart folder sorting
-
-Chrome: https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf
-GitHub: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v${version}
-
-#Chrome #Productivity`;
 
 
   const evalResult = await client.send("Runtime.evaluate", {
@@ -326,8 +376,29 @@ export async function prepareLinkedInPost(options = {}) {
   const visualLint = assertSocialCardVisualQuality(imagePath, "linkedin");
   console.log("[Pre-Publish Visual Lint] LinkedIn Promo Card Verified:", visualLint);
 
+  const postText =
+    options.customText ||
+    `Browse without interruption. 🎬⚡
+
+We are thrilled to introduce BookmarkFlow Bar v${version}!
+
+Built for focused daily workflows, v${version} refines how your bookmark workspace adapts to fullscreen media, modern browser layouts, and assistive technologies:
+
+🎬 Uninterrupted Fullscreen Focus: Automatically conceals the floating bar and open menus when watching fullscreen videos, gaming, or presenting, and seamlessly restores your exact layout when you exit
+🛡️ Adaptive New Tab Safe-Area: Intelligently reserves a 44px bottom safe zone so your bookmark cards and quick actions never overlap with native browser customize footers on Chromium and Brave
+🔊 Voice-Guided Smart Sorting: Screen readers now politely announce your active folder sort order ("Default", "A-Z", "Newest", "Frequently Used") as you cycle through modes
+🔒 100% Local & Privacy-First: Zero cloud tracking, everything stays in your browser
+
+Get it now:
+🌐 Chrome Web Store: https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf
+📦 GitHub Release: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v${version}
+
+#Chrome #Productivity #OpenSource #WebDevelopment #Accessibility #SoftwareEngineering`;
+
+  const copyLint = assertZeroTechnicalJargonInPublicCopy(postText);
+
   if (options.dryRun) {
-    return { dryRun: true, platform: "linkedin", version, gateResult, visualLint };
+    return { dryRun: true, platform: "linkedin", version, gateResult, visualLint, copyLint };
   }
 
   const wsUrl = await getActiveChromeWsUrl();
@@ -473,23 +544,6 @@ export async function prepareLinkedInPost(options = {}) {
       }
     }
   }
-
-  const postText = `Browse without interruption. 🎬⚡
-
-We are thrilled to introduce BookmarkFlow Bar v${version}!
-
-Built for focused daily workflows, v${version} refines how your bookmark workspace adapts to fullscreen media, modern browser layouts, and assistive technologies:
-
-🎬 Uninterrupted Fullscreen Focus: Automatically conceals the floating bar and open menus when watching fullscreen videos, gaming, or presenting, and seamlessly restores your exact layout when you exit
-🛡️ Adaptive New Tab Safe-Area: Intelligently reserves a 44px bottom safe zone so your bookmark cards and quick actions never overlap with native browser customize footers on Chromium and Brave
-🔊 Voice-Guided Smart Sorting: Screen readers now politely announce your active folder sort order ("Default", "A-Z", "Newest", "Frequently Used") as you cycle through modes
-🔒 100% Local & Privacy-First: Zero cloud tracking, everything stays in your browser
-
-Get it now:
-🌐 Chrome Web Store: https://chromewebstore.google.com/detail/bookmarkflow-bar/iaikobkolclhhpcogacjkenijlfaibpf
-📦 GitHub Release: https://github.com/mcolaker/BookmarkFlow-Bar/releases/tag/v${version}
-
-#Chrome #Productivity #OpenSource #WebDevelopment #Accessibility #SoftwareEngineering`;
 
   // Poll for editor and insert text
   console.log("Waiting for editor in LinkedIn modal...");

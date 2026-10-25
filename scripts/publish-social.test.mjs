@@ -5,6 +5,7 @@ import path from "node:path";
 import {
   assertPreSocialReleaseGate,
   assertSocialCardVisualQuality,
+  assertZeroTechnicalJargonInPublicCopy,
   parsePngDimensions,
   parseSocialArgs,
 } from "./publish-social.mjs";
@@ -126,5 +127,28 @@ test("assertPreSocialReleaseGate fails closed when CWS release is still draft or
         verifyCwsFn: mockVerifyCwsNotReady,
       }),
     /\[Pre-Social Release Gate Blocked\].*status: draft/
+  );
+});
+
+test("assertZeroTechnicalJargonInPublicCopy passes Benefit-First copy and blocks internal engineering/AI jargon (BF-GOV-029)", () => {
+  const cleanCopy = `Browse without interruption. 🎬⚡
+BookmarkFlow Bar v0.4.1 is live!
+• Instant mobile bookmark sync across desktop and phone
+• Adaptive New Tab safe-area & voice-guided smart sorting`;
+
+  const res = assertZeroTechnicalJargonInPublicCopy(cleanCopy);
+  assert.equal(res.valid, true);
+
+  assert.throws(
+    () =>
+      assertZeroTechnicalJargonInPublicCopy(
+        "New update with <1ms O(1) lookup inside closed Shadow DOM and Manifest V3 Service Worker (BF-UX-051)!"
+      ),
+    /\[Zero-Technical-Jargon Gate Blocked\]/u
+  );
+
+  assert.throws(
+    () => assertZeroTechnicalJargonInPublicCopy("Powered by AI and LLM smart routing!"),
+    /\[Zero-Technical-Jargon Gate Blocked\]/u
   );
 });
