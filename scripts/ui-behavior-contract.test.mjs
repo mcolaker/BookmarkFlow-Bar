@@ -1999,3 +1999,32 @@ test("mobile bookmarks bidirectional sync bridge and zero-extension discovery gu
   assert.match(contentCss, /\.bf-mobile-sync-banner/u, "content.css must style .bf-mobile-sync-banner");
   assert.match(newtabCss, /\.nt-mobile-sync-banner/u, "newtab.css must style .nt-mobile-sync-banner");
 });
+
+test("mobile search filter chip, visit count badge, and sort mode reset gesture contract", () => {
+  const settingsJs = readFileSync(path.join(root, "src/settings.js"), "utf8");
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
+  const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
+  const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
+  const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  for (const key of ["filterChipMobile", "sortModeResetToast", "visitCountBadgeTitle"]) {
+    assert.ok(enLocales[key]?.message, `en messages must define ${key}`);
+    assert.ok(trLocales[key]?.message, `tr messages must define ${key}`);
+  }
+
+  assert.match(settingsJs, /function collectMobileBookmarkEntries\s*\(/u, "settings.js must define collectMobileBookmarkEntries");
+  assert.match(settingsJs, /function syncFolderMenuVisitBadge\s*\(/u, "settings.js must define syncFolderMenuVisitBadge");
+  assert.match(settingsJs, /function isFolderSortResetGesture\s*\(/u, "settings.js must define isFolderSortResetGesture");
+
+  assert.match(contentJs, /data-chip="mobile"/u, "content.js must render mobile filter chip");
+  assert.match(contentJs, /commandFilterCategory\s*===\s*["']mobile["']/u, "content.js must filter mobile category");
+  assert.match(newtabHtml, /data-chip="mobile"/u, "newtab.html must render mobile filter chip");
+  assert.match(newtabJs, /newtabFilterCategory\s*===\s*["']mobile["']/u, "newtab.js must filter mobile category");
+
+  assert.match(contentJs, /syncFolderMenuVisitBadge\s*\(/u, "content.js must sync folder menu visit badge");
+  assert.match(contentCss, /\.bf-visit-badge\s*\{/u, "content.css must style .bf-visit-badge");
+  assert.match(contentJs, /isFolderSortResetGesture\s*\(/u, "content.js must support sort mode reset gesture");
+  assert.match(contentJs, /sortBtn\.addEventListener\("contextmenu"/u, "content.js must bind contextmenu reset on sortBtn");
+});

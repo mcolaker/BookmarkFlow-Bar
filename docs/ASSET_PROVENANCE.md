@@ -68,7 +68,7 @@ Browser and font rasterization can differ between operating systems or browser r
 
 | Path | Origin | Bytes | Dimensions | SHA-256 |
 | --- | --- | ---: | ---: | --- |
-| `docs/assets/bookmarkflow-hero.jpg` | Local English marketing generator | 69419 | 1280x640 | `09b64dbb36fb21c04dc3efafabacc70d0afa25eb640c45249af9f31275c503d4` |
+| `docs/assets/bookmarkflow-hero.jpg` | Local English marketing generator | 79957 | 1280x640 | `6fc26934ab9c8baaa616e36fec49677ff359e103fc68e94dacaf3e739d83979a` |
 | `docs/assets/promo-video/bookmarkflow-bar-poster-1920x1080.jpg` | Reviewed Remotion product-film poster, converted locally with FFmpeg | 127399 | 1920x1080 | `54ed70aece14899308a83a2056fb9f811509efdd6281cbf25c0b2f647363a649` |
 | `docs/assets/promo-video/bookmarkflow-bar-preview-960x540.gif` | Reviewed one-play product-film preview, synthetic bookmarks | 1225748 | 960x540 | `81eb19948e96572ca4cb3ec88aad0586aa27a0022b48be1a7adbb890115d3c9e` |
 | `icons/icon16.png` | Canonical production BF mark generator | 268 | 16x16 | `ddbe6ecad48d757e336a8e80464c84e424d8aa2404829a72e0fe2832c37ceae7` |
@@ -81,20 +81,20 @@ Browser and font rasterization can differ between operating systems or browser r
 | `src/assets/tour/folder-rail.gif` | Real extension tour generator, en-US | 58175 | 720x420 | `3b640d85f523040ccc5dae320f6ca3c9757e1f5f69ddf2b1a9e410d456c543b4` |
 | `src/assets/tour/search-palette.gif` | Real extension tour generator, en-US | 143129 | 720x420 | `9b518683c581a94848a6d2e08ba5a7b9cf56df6644f11c10a7310be5a7a73fa8` |
 | `src/assets/tour/streamer-mode.gif` | Real extension tour generator, en-US | 28385 | 720x135 | `3ca049fc8b248afbaae2e58c1d02930063eb4a6a8d0d7f1d965ee95b12729752` |
-| `store/assets/promo-440x280.png` | Local English marketing generator | 63321 | 440x280 | `1453f417af2cb7d278a5085382cfa72624e1f44aa93bf8ca8f244825754466f5` |
-| `store/assets/marquee-1400x560.png` | Local English marketing generator | 193469 | 1400x560 | `1be167bce628a04b64aaf5b59ef1a552b70aee734e009f1b6231e391de25ff83` |
-| `store/assets/screenshot-newtab-1280x800.png` | Real extension capture, en-US | 32464 | 1280x800 | `85dec2d36d5c8d8794d02dadecb4f06cbc4493f81e8a84f643d18cc06cd4b8e6` |
-| `store/assets/screenshot-overlay-1280x800.png` | Real extension capture, en-US | 252376 | 1280x800 | `57c1a9c57ba696602b1fa44177d548e5f73439fd110c6ae65b09fe69b56fa7a1` |
-| `store/assets/screenshot-palette-1280x800.png` | Real extension capture, en-US | 155231 | 1280x800 | `f9e06c92d28f9223e329e9883584a5197e49b10b886a060eb13352fd5f197b04` |
-| `store/assets/screenshot-folder-rail-1280x800.png` | Real extension capture, en-US | 277733 | 1280x800 | `8af02a60e8ee7a2ec0a59d74019acac5e247a5ad7b8f805cb12f3f8bc60ebdf4` |
-| `store/assets/screenshot-streamer-1280x800.png` | Real extension capture, en-US | 252989 | 1280x800 | `8067910e0db0a86d98cd7c36b8102f9f722afde4c97fac0acce7dac03d485914` |
-| `store/assets/tr/promo-440x280.png` | Local Turkish marketing generator | 65531 | 440x280 | `f7f6bd70eae85aefb4287433caef71a4a2424a422e794f2f5751b60471ca7a7a` |
-| `store/assets/tr/marquee-1400x560.png` | Local Turkish marketing generator | 190772 | 1400x560 | `9e317696bf9098a4f03815191f9e2d04ebceecd2280b07ffd171ff1172a9b60d` |
-| `store/assets/tr/screenshot-newtab-1280x800.png` | Real extension capture, tr-TR | 33259 | 1280x800 | `f7fc88bb54280d567867e7a4847da369451737d5ba15b36a73220a90e260d597` |
-| `store/assets/tr/screenshot-overlay-1280x800.png` | Real extension capture, tr-TR | 263864 | 1280x800 | `945b8389e3d21a9473be309e5630d07900715305e00d34e43bb7d2f5121d5053` |
-| `store/assets/tr/screenshot-palette-1280x800.png` | Real extension capture, tr-TR | 155412 | 1280x800 | `0ae6a03f6885018ba2f6aa7df486849ec09209d676747665e25f43f9f950e9b8` |
-| `store/assets/tr/screenshot-folder-rail-1280x800.png` | Real extension capture, tr-TR | 289309 | 1280x800 | `132c0be7652e9b087d373e2bfd44511a7f597b42ba0585725dfc95bbc422efec` |
-| `store/assets/tr/screenshot-streamer-1280x800.png` | Real extension capture, tr-TR | 264063 | 1280x800 | `f1cabf13499f9f08ad364d819890ec579186af0d8225b05cb7f313c76732885d` |
+| `store/assets/promo-440x280.png` | Local English marketing generator | 63418 | 440x280 | `ec485268742accf958e3cc43669c21b3637152db8a87c79cc49e33d924659924` |
+| `store/assets/marquee-1400x560.png` | Local English marketing generator | 218280 | 1400x560 | `d7d202ea41ac26c9c9888e1ca357039d18ad30d47e518d36ea7d226525984bc7` |
+| `store/assets/screenshot-newtab-1280x800.png` | Real extension capture, en-US | 62666 | 1280x800 | `7cd44bd0956ba11e2dc51569e3b886e497fff5c3700a2ae09b7aee5f0dced76d` |
+| `store/assets/screenshot-overlay-1280x800.png` | Real extension capture, en-US | 252500 | 1280x800 | `bc47cda96cc243133e027e6252ef7b44efd337a7429afaeed97fae0a89e73b41` |
+| `store/assets/screenshot-palette-1280x800.png` | Real extension capture, en-US | 68130 | 1280x800 | `53aa8d689124d4584bc6763fca427853aa1229dd26b4a4ab63c0e9831de22d18` |
+| `store/assets/screenshot-folder-rail-1280x800.png` | Real extension capture, en-US | 281794 | 1280x800 | `196650942ac576e4c56cd79bc17107dd62a6c507d3ef92a5004e353eabc4f42c` |
+| `store/assets/screenshot-streamer-1280x800.png` | Real extension capture, en-US | 253115 | 1280x800 | `cb26d11d7989ec93b579c09d451f4b0c1ff7c34e7a62bd18da863e6458533b09` |
+| `store/assets/tr/promo-440x280.png` | Local Turkish marketing generator | 65589 | 440x280 | `be7c312b0756c3ebcaa0f6e3a4ac3fcfa1e001706c2a0f0d523bf96b100b0b79` |
+| `store/assets/tr/marquee-1400x560.png` | Local Turkish marketing generator | 217023 | 1400x560 | `a24274dffb8cf28cc5b82e499232695e592c7fc4b1511207de6c869428d94191` |
+| `store/assets/tr/screenshot-newtab-1280x800.png` | Real extension capture, tr-TR | 63827 | 1280x800 | `18cf32a0c7bb132745cb97111ee84fbc5c006ee318a9484e8ecc263e385b64a8` |
+| `store/assets/tr/screenshot-overlay-1280x800.png` | Real extension capture, tr-TR | 263921 | 1280x800 | `31ce579e1317406e88d6f814ae679e40dd841260d9f00c04a4d77d1860cbf7be` |
+| `store/assets/tr/screenshot-palette-1280x800.png` | Real extension capture, tr-TR | 68739 | 1280x800 | `62b96edf86e18d2dde17b5f743600dd6a01a9f7a10eb467c049c51bc6c3b3551` |
+| `store/assets/tr/screenshot-folder-rail-1280x800.png` | Real extension capture, tr-TR | 295723 | 1280x800 | `a7cdecc03b69aa01888b81ee92807a1a7bcd992eddab07d2aad697b0a95181ae` |
+| `store/assets/tr/screenshot-streamer-1280x800.png` | Real extension capture, tr-TR | 264079 | 1280x800 | `cd23e5a5ca508c9fbf6abb40a5cd5fe313f6ae84ce4be28c76170d022306d298` |
 
 ## Promo delivery and publication
 

@@ -15,7 +15,7 @@ const {
   isMobileBookmarksFolder,
   selectMobileBookmarksNode,
   getMobileFolderDisplayTitle,
-  collectFoldersWithMobileBridge
+  collectFoldersWithMobileBridge, collectMobileBookmarkEntries
 } = BookmarkFlowConfig;
 const { getLanguage, t } = BookmarkFlowI18n;
 
@@ -707,14 +707,11 @@ function getSearchIndex() {
 
   lastIndexedBookmarkBar = appState?.bookmarkBar;
   lastIndexedTagsMap = bookmarkTagsMap;
-  const rawBookmarks = collectSearchableBookmarks(appState?.bookmarkBar);
+  const mobileNodeForIndex = appState?.mobileBookmarks || selectMobileBookmarksNode(getBookmarkTreeRoot());
+  const rawBookmarks = [...collectSearchableBookmarks(appState?.bookmarkBar), ...collectMobileBookmarkEntries(mobileNodeForIndex)];
 
   cachedSearchIndex = rawBookmarks.map((b) => ({
-    id: b.id,
-    title: b.title,
-    url: b.url,
-    path: b.path,
-    parentId: b.parentId,
+    id: b.id, title: b.title, url: b.url, path: b.path, parentId: b.parentId, isMobile: Boolean(b.isMobile),
     tags: resolveItemTags(b, bookmarkTagsMap)
   }));
 
@@ -926,21 +923,9 @@ function handleSearchInput() {
     const tagged = allBookmarks.filter(b => Array.isArray(b.tags) && b.tags.length > 0);
     if (query) {
       const matched = tagged.filter(b => matchesTagFilter(query, b.tags, b, textLocale));
-      results = matched.slice(0, 30).map(b => ({
-        type: "bookmark",
-        id: b.id,
-        title: b.title,
-        url: b.url,
-        path: b.path
-      }));
+      results = matched.slice(0, 30).map((b) => ({ type: "bookmark", id: b.id, title: b.title, url: b.url, path: b.path }));
     } else {
-      results = tagged.slice(0, 30).map(b => ({
-        type: "bookmark",
-        id: b.id,
-        title: b.title,
-        url: b.url,
-        path: b.path
-      }));
+      results = tagged.slice(0, 30).map((b) => ({ type: "bookmark", id: b.id, title: b.title, url: b.url, path: b.path }));
     }
   } else if (newtabFilterCategory === "reading_list") {
     const listItems = Array.isArray(cachedReadingList) ? cachedReadingList : [];
@@ -949,13 +934,12 @@ function handleSearchInput() {
       ? listItems.filter(item => (item.title || "").toLocaleLowerCase(textLocale).includes(qLower) || (item.url || "").toLocaleLowerCase(textLocale).includes(qLower))
       : listItems;
     results = filtered.slice(0, 30).map(item => ({
-      type: "bookmark",
-      id: `reading-${item.id || item.url}`,
-      title: item.title || item.url,
-      url: item.url,
-      path: t("readingList") || "Reading List",
-      icon: "📖"
+      type: "bookmark", id: `reading-${item.id || item.url}`, title: item.title || item.url,
+      url: item.url, path: t("readingList") || "Reading List", icon: "📖"
     }));
+  } else if (newtabFilterCategory === "mobile") {
+    const mobileList = allBookmarks.filter(b => b.isMobile && (!query || matchesTagFilter(query, b.tags, b, textLocale)));
+    results = mobileList.slice(0, 30).map((b) => ({ type: "bookmark", id: b.id, title: b.title, url: b.url, path: b.path }));
   } else {
     const matchedBookmarks = [];
 

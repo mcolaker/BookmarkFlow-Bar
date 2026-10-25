@@ -64,7 +64,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     isMobileBookmarksFolder,
     selectMobileBookmarksNode,
     getMobileFolderDisplayTitle,
-    collectFoldersWithMobileBridge
+    collectFoldersWithMobileBridge, collectMobileBookmarkEntries, syncFolderMenuVisitBadge, isFolderSortResetGesture
   } = BookmarkFlowConfig;
   const { getLanguage, t } = BookmarkFlowI18n;
 
@@ -1188,6 +1188,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
             <button type="button" class="bf-filter-chip" data-chip="folders" role="tab" aria-selected="false" tabindex="-1">📁 ${escapeHtml(t("filterChipFolders"))}</button>
             <button type="button" class="bf-filter-chip" data-chip="tags" role="tab" aria-selected="false" tabindex="-1">🏷️ ${escapeHtml(t("filterChipTags"))}</button>
             <button type="button" class="bf-filter-chip" data-chip="reading_list" role="tab" aria-selected="false" tabindex="-1">📖 ${escapeHtml(t("filterChipReadingList"))}</button>
+            <button type="button" class="bf-filter-chip" data-chip="mobile" role="tab" aria-selected="false" tabindex="-1">📱 ${escapeHtml(t("filterChipMobile"))}</button>
           </div>
           <div class="bf-command-list" id="bf-command-list" role="listbox" aria-label="${escapeAttribute(t("bookmarkSearch"))}"></div>
         </div>
@@ -3063,19 +3064,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const barNode = appState?.bookmarkBar;
       let toastMsg = "";
       if (parentId && parentId !== barNode?.id) {
-        const folders = [];
-        const walk = (node) => {
-          if (!node) return;
-          if (Array.isArray(node.children)) {
-            if (node.id && node.id !== "0") {
-              folders.push({ id: node.id, title: node.title || "" });
-            }
-            for (const c of node.children) {
-              if (Array.isArray(c.children)) walk(c);
-            }
-          }
-        };
-        walk(barNode);
+        const folders = collectAllFolders(barNode);
         const targetFolder = folders.find(f => f.id === parentId);
         const folderName = targetFolder?.title || "";
         toastMsg = t("bookmarkSavedToFolderToast", folderName) || `✓ ${folderName} klasörüne kaydedildi`;
@@ -3860,15 +3849,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       });
       const emptyFilter = menu.querySelector(".bf-menu-filter-empty");
       sorted.slice(0, 120).forEach((entry) => {
-        let el = existingResults.get(entry.id);
-        if (!el) {
-          el = createFolderMenuLink(entry);
-        }
-        if (emptyFilter) {
-          menu.insertBefore(el, emptyFilter);
-        } else {
-          menu.append(el);
-        }
+        const el = existingResults.get(entry.id) || createFolderMenuLink(entry);
+        const visits = bookmarkVisitsMap[entry.id] || 0;
+        syncFolderMenuVisitBadge(el, visits, folderSortMode, t("visitCountBadgeTitle", String(visits)));
+        emptyFilter ? menu.insertBefore(el, emptyFilter) : menu.append(el);
       });
       if (typeof updateFilter === "function") {
         updateFilter();
@@ -3919,16 +3903,19 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
       updateSortBtnDisplay(false);
 
-      sortBtn.addEventListener("click", (e) => {
+      const handleSortBtnGesture = (e) => {
+        e.preventDefault();
         e.stopPropagation();
+        const isReset = isFolderSortResetGesture(e);
         const currentIdx = FOLDER_SORT_MODES.indexOf(folderSortMode);
-        folderSortMode = FOLDER_SORT_MODES[(currentIdx + 1) % FOLDER_SORT_MODES.length];
-        if (folder?.id) {
-          saveFolderSortMode(folder.id, folderSortMode);
-        }
+        folderSortMode = isReset ? "default" : FOLDER_SORT_MODES[(currentIdx + 1) % FOLDER_SORT_MODES.length];
+        if (folder?.id) saveFolderSortMode(folder.id, folderSortMode);
         updateSortBtnDisplay(true);
         applySorting();
-      });
+        if (isReset) showContentToastNotification(t("sortModeResetToast") || "✓ Default sort", 1500);
+      };
+      sortBtn.addEventListener("click", handleSortBtnGesture);
+      sortBtn.addEventListener("contextmenu", handleSortBtnGesture);
 
       headerActions.append(sortBtn, sortLiveRegion);
     }
@@ -4114,7 +4101,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     } else {
       const initialSorted = getSortedEntries();
       initialSorted.slice(0, 120).forEach((entry) => {
-        menu.append(createFolderMenuLink(entry));
+        const el = createFolderMenuLink(entry);
+        const visits = bookmarkVisitsMap[entry.id] || 0;
+        syncFolderMenuVisitBadge(el, visits, folderSortMode, t("visitCountBadgeTitle", String(visits)));
+        menu.append(el);
       });
 
       if (entries.length >= 15) {
@@ -4534,7 +4524,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     if (!entries.length) {
       const empty = document.createElement("div");
       empty.className = "bf-empty";
-      empty.textContent = t("noResults");
+      empty.textContent = (commandFilterCategory === "mobile" && !query) ? (t("mobileBookmarksEmptyHint") || t("noResults")) : t("noResults");
       panel.append(empty);
     } else {
       entries.forEach((entry) => {
@@ -4861,6 +4851,10 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
           window.location.href = item.url;
         }
       }));
+    } else if (commandFilterCategory === "mobile") {
+      const mobileNode = appState?.mobileBookmarks || selectMobileBookmarksNode(getBookmarkTreeRoot());
+      const mobileEntries = collectMobileBookmarkEntries(mobileNode);
+      entries = (query ? mobileEntries.filter((entry) => matchesBookmarkSearch(entry, query)) : mobileEntries).slice(0, 40);
     } else {
       entries = getAllBookmarkEntries()
         .filter((entry) => {
@@ -4926,19 +4920,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
         if (existingBookmark.parentId === barNode?.id) {
           folderTitle = t("bookmarksBar") || "Yer İmleri Çubuğu";
         } else if (existingBookmark.parentId) {
-          const folders = [];
-          const walk = (node) => {
-            if (!node) return;
-            if (Array.isArray(node.children)) {
-              if (node.id && node.id !== "0") {
-                folders.push({ id: node.id, title: node.title || "" });
-              }
-              for (const c of node.children) {
-                if (Array.isArray(c.children)) walk(c);
-              }
-            }
-          };
-          walk(barNode);
+          const folders = collectAllFolders(barNode);
           folderTitle = folders.find(f => f.id === existingBookmark.parentId)?.title || "";
         }
         existingNotice = folderTitle
