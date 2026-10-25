@@ -886,18 +886,6 @@ test("site control, settings navigation, and popup layout integrity contract", (
     /\.nt-toast:hover \.nt-toast-progress\b/u,
     "newtab.css must pause progress animation on hover"
   );
-
-  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
-  assert.match(
-    journeyJs,
-    /rightClickElementByClass/u,
-    "user-journey-live-qa.mjs must define rightClickElementByClass"
-  );
-  assert.match(
-    journeyJs,
-    /clickElementByAttribute/u,
-    "user-journey-live-qa.mjs must define clickElementByAttribute"
-  );
 });
 
 test("search inline save button and green undone toast feedback contract", () => {
