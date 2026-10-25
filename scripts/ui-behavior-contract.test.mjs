@@ -2054,3 +2054,107 @@ test("fullscreen F11/DOM detection, video player fixed-bar guard, and right-clic
   assert.match(backgroundJs, /message\?\.type\s*===\s*["']BF_SYNC_FULLSCREEN_EXIT["']/u, "background.js must handle BF_SYNC_FULLSCREEN_EXIT");
   assert.match(newtabCss, /\.nt-workspace:not\(\[hidden\]\)\s*\{[\s\S]*?min-height:\s*100dvh/u, "newtab.css .nt-workspace must use 100dvh flex layout to avoid false vertical scrollbar");
 });
+
+test("cross-origin safe Shadow DOM inline stylesheet and data-URI favicon hydration contract", async () => {
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+
+  assert.deepEqual(
+    manifest.web_accessible_resources?.[0]?.extension_ids,
+    ["*"],
+    "manifest.json web_accessible_resources[0] must include extension_ids: ['*']"
+  );
+
+  // Static contract: content.js must never inject cross-scheme <link href='chrome-extension://...'> or direct _favicon img.src
+  assert.doesNotMatch(
+    contentJs,
+    /document\.createElement\(["']link["']\)/u,
+    "content.js must not create cross-scheme <link> stylesheet elements in web page frames"
+  );
+  assert.doesNotMatch(
+    contentJs,
+    /favicon\.src\s*=\s*faviconUrl\(/u,
+    "content.js must not assign chrome-extension:// _favicon URLs directly to img.src in web page frames"
+  );
+  assert.match(
+    contentJs,
+    /injectShadowStylesheet\(shadow,\s*appState\?\.contentCss,\s*getRuntimeUrl,\s*showHostAfterStyles\)/u,
+    "content.js ensureHost must delegate to injectShadowStylesheet"
+  );
+  assert.match(
+    contentJs,
+    /hydrateFaviconImage\(favicon,\s*node\.url,\s*faviconUrl\)/u,
+    "createBookmarkLink must use hydrateFaviconImage"
+  );
+  assert.match(
+    contentJs,
+    /hydrateFaviconImage\(favicon,\s*entry\.url,\s*faviconUrl\)/u,
+    "createResultLink must use hydrateFaviconImage"
+  );
+  assert.match(
+    backgroundJs,
+    /loadBundledContentCss\(\(p\)\s*=>\s*chrome\.runtime\.getURL\(p\)\)/u,
+    "background.js getState must bundle contentCss via loadBundledContentCss"
+  );
+
+  // Unit behavioral verification of BookmarkFlowConfig helpers
+  const vm = loadSettingsModule();
+  const {
+    DEFAULT_FAVICON_DATA_URI,
+    stripCssImports,
+    loadBundledContentCss,
+    injectShadowStylesheet,
+    hydrateFaviconImage
+  } = vm.BookmarkFlowConfig;
+
+  assert.ok(DEFAULT_FAVICON_DATA_URI.startsWith("data:image/svg+xml"), "DEFAULT_FAVICON_DATA_URI must be a data: SVG URI");
+  assert.equal(
+    stripCssImports('@import "./design-tokens.css";\n@import "./spotlight.css";\n:host { color: #fff; }'),
+    ":host { color: #fff; }"
+  );
+
+  const cssBundle = await loadBundledContentCss(
+    (p) => `chrome-extension://test/${p}`,
+    async (url) => ({
+      ok: true,
+      text: async () => `@import "./other.css";\n/* ${url} */\n.cls { display: block; }`
+    })
+  );
+  assert.ok(cssBundle.includes("chrome-extension://test/src/content.css"));
+  assert.doesNotMatch(cssBundle, /@import/u, "loadBundledContentCss must strip @import rules");
+
+  let readyCalled = false;
+  const appendedNodes = [];
+  const fakeShadow = {
+    ownerDocument: {
+      createElement: (tag) => ({ tagName: tag.toUpperCase(), dataset: {}, textContent: "" })
+    },
+    querySelector: () => appendedNodes[0] || null,
+    append: (node) => appendedNodes.push(node)
+  };
+  const injected = injectShadowStylesheet(fakeShadow, ":host { display: block; }", () => "chrome-extension://test/src/content.css", () => {
+    readyCalled = true;
+  });
+  assert.equal(injected, true);
+  assert.equal(readyCalled, true);
+  assert.equal(appendedNodes.length, 1);
+  assert.equal(appendedNodes[0].tagName, "STYLE");
+  assert.equal(appendedNodes[0].dataset.bfStyle, "true");
+  assert.equal(appendedNodes[0].textContent, ":host { display: block; }");
+
+  const fakeImg = { dataset: {}, src: "" };
+  hydrateFaviconImage(
+    fakeImg,
+    "https://music.youtube.com/watch?v=123",
+    (u) => `chrome-extension://test/_favicon/?pageUrl=${encodeURIComponent(u)}&size=32`,
+    async () => ({
+      ok: true,
+      headers: { get: () => "image/png" },
+      arrayBuffer: async () => new Uint8Array([137, 80, 78, 71]).buffer
+    })
+  );
+  assert.equal(fakeImg.src, DEFAULT_FAVICON_DATA_URI, "initial synchronous src must be fallback data: URI");
+  await new Promise((r) => setTimeout(r, 20));
+  assert.ok(fakeImg.src.startsWith("data:image/png;base64,"), "hydrated src must be a base64 data: URI, never chrome-extension://");
+});

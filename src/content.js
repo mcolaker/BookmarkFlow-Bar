@@ -64,7 +64,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     isMobileBookmarksFolder,
     selectMobileBookmarksNode,
     getMobileFolderDisplayTitle,
-    collectFoldersWithMobileBridge, collectMobileBookmarkEntries, syncFolderMenuVisitBadge, isFolderSortResetGesture, isBrowserOrDomFullscreen, isValidFixedTopNavbarCandidate
+    collectFoldersWithMobileBridge, collectMobileBookmarkEntries, syncFolderMenuVisitBadge, isFolderSortResetGesture, isBrowserOrDomFullscreen, isValidFixedTopNavbarCandidate, injectShadowStylesheet, hydrateFaviconImage
   } = BookmarkFlowConfig;
   const { getLanguage, t } = BookmarkFlowI18n;
 
@@ -353,9 +353,9 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       }
 
       if (message?.type === "BF_INSPECT_ISOLATION") {
-        const barEl = shadowRoot?.querySelector(".bf-bar");
-        const markEl = shadowRoot?.querySelector(".bf-mark");
-        const searchInput = shadowRoot?.querySelector(".bf-search-input");
+        const barEl = shadow?.querySelector(".bf-bar");
+        const markEl = shadow?.querySelector(".bf-mark");
+        const searchInput = shadow?.querySelector(".bf-search-input");
         const barComputed = barEl ? window.getComputedStyle(barEl) : null;
 
         let hasFocusRing = false;
@@ -831,21 +831,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     hideHostUntilStyles();
     applyPanelPlacement();
 
-    if (!shadow.querySelector("link[data-bf-style]")) {
-      const stylesheet = document.createElement("link");
-      stylesheet.dataset.bfStyle = "true";
-      stylesheet.rel = "stylesheet";
-      stylesheet.addEventListener("load", showHostAfterStyles, { once: true });
-      stylesheet.addEventListener("error", showHostAfterStyles, { once: true });
-      const stylesheetUrl = getRuntimeUrl("src/content.css");
-      if (!stylesheetUrl) {
-        showHostAfterStyles();
-        return;
-      }
-      stylesheet.href = stylesheetUrl;
-      shadow.append(stylesheet);
-    } else {
-      showHostAfterStyles();
+    if (!injectShadowStylesheet(shadow, appState?.contentCss, getRuntimeUrl, showHostAfterStyles)) {
+      return;
     }
 
     if (!host.isConnected) {
@@ -3506,8 +3493,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const favicon = document.createElement("img");
     favicon.className = "bf-favicon";
     favicon.alt = "";
-    favicon.loading = "lazy";
-    favicon.src = faviconUrl(node.url);
+    hydrateFaviconImage(favicon, node.url, faviconUrl);
 
     link.append(favicon, createTitle(node.title || getHostname(node.url)));
     link.addEventListener("click", () => {
@@ -5514,8 +5500,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     const favicon = document.createElement("img");
     favicon.className = "bf-favicon";
     favicon.alt = "";
-    favicon.loading = "lazy";
-    favicon.src = faviconUrl(entry.url);
+    hydrateFaviconImage(favicon, entry.url, faviconUrl);
 
     const copy = document.createElement("span");
     copy.className = "bf-result-copy";
