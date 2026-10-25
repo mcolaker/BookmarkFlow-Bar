@@ -45,9 +45,10 @@ Bu kılavuz, BookmarkFlow Bar sürüm yayını, paketleme, mağaza dağıtımı 
     - X algoritmasında her URL (`http`/`https`) t.co nedeniyle 23 karakter sayılır (2 URL = 46 karakter bütçe tüketir).
     - Emojiler (🌊, ✨, 💎 vb.) 2 karakter sayılır; satır sonları 1 karakterdir.
     - Metin taslakları her zaman 280 karakter sınırının altında güvenli marjla (en az 10-15 karakter boşluk) tasarlanmalı, asla sınır hatası vermemelidir.
-  - **Kullanıcı Odaklı İlham Verici Dil & İç Teknik Jargon Yasağı (User-Centric Inspiring Copy Mandate - BF-GOV-025)**:
-    - Kamuya açık sosyal medya (X/LinkedIn) paylaşımlarında ve Chrome Web Store mağaza bültenlerinde son kullanıcı deneyimini ve ürünün sağladığı doğrudan faydayı anlatan ilham verici, sıcak ve akıcı bir dil kullanılır.
-    - İç yazılımsal bugfix jargonu ve DOM manipülasyon detayları (`DOM insertBefore`, `Shadow DOM focus trap`, `event stopImmediatePropagation`, `Map-based state` vb.) kamuya açık duyurularda KESİNLİKLE YASAKTIR.
+  - **Kullanıcı Odaklı İlham Verici Dil & Sıfır Teknik Jargon Kapısı (`assertZeroTechnicalJargonInPublicCopy` - BF-GOV-025, BF-GOV-029)**:
+    - Kamuya açık sosyal medya (X/LinkedIn) paylaşımlarında ve Chrome Web Store mağaza bültenlerinde son kullanıcı deneyimini ve ürünün sağladığı doğrudan faydayı anlatan ilham verici, sıcak ve akıcı bir dil kullanılır (Benefit-First).
+    - İç yazılımsal bugfix jargonu, DOM/mimari terimler ve mühendislik metrikleri (`<1ms`, `60fps`, `O(1)`, `DOM insertBefore`, `Shadow DOM`, `Manifest V3`, `Service Worker`, `event stopImmediatePropagation`, `Map-based state`, `regression`, `refactor`, `AST`, `linter`, `IPC`, `BF-UX-*`, `BF-GOV-*`) kamuya açık duyurularda KESİNLİKLE YASAKTIR.
+    - `scripts/publish-social.mjs` içindeki `assertZeroTechnicalJargonInPublicCopy(text)` fonksiyonu paylaşım öncesinde metni otomatik denetler ve yasaklı teknik terim yakaladığında paylaşımı fail-closed durdurur.
     - Kullanıcıya daima "Işık hızında klavye dolaşımı", "Klasörlerinizde tek tıkla en çok ziyaret edilen sekmeler", "Göz yormayan okyanus ışıltısı ve akıllı kategori filtreleri" gibi değer odaklı ifadeler sunulur.
 - **README Güncelleme Kuralı**:
   - `README.md` dosyası yeni sürüm yetenekleri, indirme linkleri, sürüm rozetleri ve vitrin görselleriyle eksiksiz güncellenir; asla ertelenemez.

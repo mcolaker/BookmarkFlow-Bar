@@ -1,5 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   normalizeBoundingBox,
   isWithinViewport,
@@ -13,6 +16,12 @@ import {
   evaluateProactiveStitchBananaGate,
   buildJev360UnifiedPayload,
   evaluate360MultimodalWithJevOrClef,
+  validateImageMagicBytes,
+  scanI18nSuspiciousPatterns,
+  evaluateIdleBlinkAndRebuildLoop,
+  extractStateSignature,
+  saveUiBaseline,
+  verifyUiDelta,
 } from "./inspect-visual-boxes.mjs";
 
 test("normalizeBoundingBox correctly normalizes standard coordinates and calculates right/bottom", () => {
@@ -286,4 +295,134 @@ test("evaluate360MultimodalWithJevOrClef executes single-pass 8-question inspect
   assert.equal(res.layoutHarmony, true);
   assert.equal(res.colorContrast, true);
   assert.equal(res.stitchBananaGate.studioGradeReady, true);
+});
+
+test("validateImageMagicBytes accepts valid PNG/JPEG headers and rejects PowerShell UTF-8 BOM corruption (BF-QA-011)", () => {
+  const validPng = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00]);
+  const pngCheck = validateImageMagicBytes(validPng);
+  assert.equal(pngCheck.valid, true);
+  assert.equal(pngCheck.format, "png");
+
+  const validJpg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46]);
+  const jpgCheck = validateImageMagicBytes(validJpg);
+  assert.equal(jpgCheck.valid, true);
+  assert.equal(jpgCheck.format, "jpg");
+
+  const bomCorruptedPng = Buffer.from([0xef, 0xbb, 0xbf, 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]);
+  assert.throws(
+    () => validateImageMagicBytes(bomCorruptedPng),
+    /UTF-8 BOM \(EF BB BF\) detected/u
+  );
+});
+
+test("evaluateProactiveStitchBananaGate flags truncated '...' button/chip labels and enforces >= 3.50 for studio grade (BF-QA-011)", () => {
+  const truncatedBoxes = [
+    { id: "spotlight-modal", role: "dialog", x: 340, y: 150, width: 600, height: 420 },
+    { id: "filter-chip-all", role: "tab", parentId: "spotlight-modal", x: 360, y: 220, width: 64, height: 28, text: "All" },
+    { id: "filter-chip-reading", role: "tab", parentId: "spotlight-modal", x: 432, y: 220, width: 84, height: 28, text: "Reading Li..." },
+  ];
+
+  const gate = evaluateProactiveStitchBananaGate(truncatedBoxes, {
+    viewport: { width: 1280, height: 800 },
+    designScore: 3.9,
+  });
+  assert.equal(gate.triggerActive, true);
+  assert.equal(gate.studioGradeReady, false);
+  assert.equal(gate.geometry.truncatedLabelsCount, 1);
+  assert.ok(gate.reasons.some((r) => r.includes("Kesik buton/çip etiketi")));
+});
+
+test("scanI18nSuspiciousPatterns detects raw keys, unresolved placeholders, and Turkish leaks in English UI (BF-QA-011)", () => {
+  const cleanEn = scanI18nSuspiciousPatterns(
+    [
+      { id: "btn-save", text: "Save Bookmark" },
+      { id: "chip-mobile", text: "📱 Mobile" },
+    ],
+    "en"
+  );
+  assert.equal(cleanEn.valid, true);
+  assert.equal(cleanEn.issueCount, 0);
+
+  const leakyEn = scanI18nSuspiciousPatterns(
+    [
+      { id: "raw-item", text: "nt_quick_add_label" },
+      { id: "tpl-item", text: "Saved to {{folderName}} ($1)" },
+      { id: "tr-leak", text: "Klasör Ayarları" },
+    ],
+    "en"
+  );
+  assert.equal(leakyEn.valid, false);
+  assert.equal(leakyEn.issueCount, 3);
+  assert.ok(leakyEn.issues.some((i) => i.type === "RAW_TRANSLATION_KEY"));
+  assert.ok(leakyEn.issues.some((i) => i.type === "UNRESOLVED_PLACEHOLDER"));
+  assert.ok(leakyEn.issues.some((i) => i.type === "CROSS_LOCALE_TURKISH_LEAK"));
+});
+
+test("evaluateIdleBlinkAndRebuildLoop flags idle frame blinking (>3.5%) and infinite BF_STATE_CHANGED broadcast loops (BF-QA-011)", () => {
+  const stable = evaluateIdleBlinkAndRebuildLoop({
+    frameA: Buffer.alloc(100, 1),
+    frameB: Buffer.alloc(100, 1),
+    stateBroadcastCount: 1,
+    mutationBurstCount: 2,
+  });
+  assert.equal(stable.valid, true);
+  assert.equal(stable.changedRatio, 0);
+
+  const blinking = evaluateIdleBlinkAndRebuildLoop({
+    changedRatio: 0.08,
+    stateBroadcastCount: 9,
+  });
+  assert.equal(blinking.valid, false);
+  assert.equal(blinking.issues.length, 2);
+  assert.ok(blinking.issues.some((i) => i.type === "IDLE_FRAME_BLINK"));
+  assert.ok(blinking.issues.some((i) => i.type === "INFINITE_REBUILD_LOOP"));
+});
+
+test("saveUiBaseline and verifyUiDelta enforce t0 -> t1 -> t2 state delta and re-entry persistence (BF-QA-011)", () => {
+  const tempDir = mkdtempSync(join(tmpdir(), "bf-qa-delta-"));
+  try {
+    const t0Snapshot = {
+      activeTheme: "obsidian",
+      bookmarkCount: 4,
+      boxes: [{ id: "chip-all", role: "tab", x: 10, y: 10, width: 60, height: 28, text: "All (4)" }],
+    };
+    const saved = saveUiBaseline("mobile-bridge", t0Snapshot, { baselineDir: tempDir });
+    assert.ok(saved.signature.stateHash);
+
+    // t1: After adding a bookmark to Mobile Bookmarks
+    const t1Snapshot = {
+      activeTheme: "obsidian",
+      bookmarkCount: 5,
+      boxes: [
+        { id: "chip-all", role: "tab", x: 10, y: 10, width: 60, height: 28, text: "All (5)" },
+        { id: "chip-mobile", role: "tab", x: 80, y: 10, width: 90, height: 28, text: "📱 Mobile (1)" },
+      ],
+    };
+    const deltaT1 = verifyUiDelta("mobile-bridge", t1Snapshot, {
+      baselineDir: tempDir,
+      expectChanged: "📱 Mobile (1)",
+    });
+    assert.equal(deltaT1.valid, true);
+    assert.equal(deltaT1.signatureChanged, true);
+    assert.equal(deltaT1.expectedValueFound, true);
+
+    // t2: After reload/re-entry, state persists
+    const deltaT2 = verifyUiDelta("mobile-bridge", t1Snapshot, {
+      baselineDir: tempDir,
+      expectChanged: "📱 Mobile (1)",
+      expectPersisted: true,
+    });
+    assert.equal(deltaT2.valid, true);
+    assert.equal(deltaT2.persisted, true);
+
+    // Simulate persistence regression where t2 reverts back to t0
+    const revertedT2 = verifyUiDelta("mobile-bridge", t0Snapshot, {
+      baselineDir: tempDir,
+      expectPersisted: true,
+    });
+    assert.equal(revertedT2.valid, false);
+    assert.equal(revertedT2.persisted, false);
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
 });

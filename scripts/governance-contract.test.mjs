@@ -155,3 +155,39 @@ test("JaponiGo context diet, history archive, pre-commit hook, and architecture 
   assert.ok(report.warnings.some((w) => w.rule === "silent-catch-block"));
   assert.ok(report.warnings.some((w) => w.rule === "large-file-growth"));
 });
+
+test("specialist subagents, rule router skill, and version drift guard contract (BF-GOV-029)", async () => {
+  const requiredAgentFiles = [
+    ".agents/agents/bookmarkflow_modular_refactor_agent.md",
+    ".agents/agents/bookmarkflow_live_qa_agent.md",
+    ".agents/agents/bookmarkflow_i18n_release_agent.md",
+    ".agents/skills/bookmarkflow-rule-router/SKILL.md",
+    ".agents/skills/bookmarkflow-browser-qa/SKILL.md",
+    ".agents/skills/bookmarkflow-release/SKILL.md",
+  ];
+
+  for (const relPath of requiredAgentFiles) {
+    const fullPath = path.join(root, relPath);
+    assert.ok(existsSync(fullPath), `Missing required specialist agent/skill file: ${relPath}`);
+    const buf = readFileSync(fullPath);
+    const hasBom = buf.length >= 3 && buf[0] === 0xef && buf[1] === 0xbb && buf[2] === 0xbf;
+    assert.strictEqual(hasBom, false, `${relPath} must not contain UTF-8 BOM`);
+    const text = buf.toString("utf8");
+    assert.match(text, /^---\r?\nname:/u, `${relPath} must start with YAML frontmatter`);
+    assert.match(text, /MANDATORY & PROACTIVE:/u, `${relPath} must declare MANDATORY & PROACTIVE trigger prefix`);
+  }
+
+  const { validateVersionDriftGuard } = await import("./validate-governance.mjs");
+  const validDrift = validateVersionDriftGuard();
+  assert.equal(validDrift.valid, true);
+
+  assert.throws(
+    () =>
+      validateVersionDriftGuard({
+        manifestVersion: "0.4.2",
+        packageVersion: "0.4.1",
+        projectStateText: "Aktif Sürüm: `0.4.1`",
+      }),
+    /Version mismatch detected/u
+  );
+});

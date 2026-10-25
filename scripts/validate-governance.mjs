@@ -14,6 +14,15 @@ const requiredplaybooks = [
   "docs/agent-playbooks/rule_governance.md",
 ];
 
+const requiredAgentDefinitions = [
+  ".agents/agents/bookmarkflow_modular_refactor_agent.md",
+  ".agents/agents/bookmarkflow_live_qa_agent.md",
+  ".agents/agents/bookmarkflow_i18n_release_agent.md",
+  ".agents/skills/bookmarkflow-rule-router/SKILL.md",
+  ".agents/skills/bookmarkflow-browser-qa/SKILL.md",
+  ".agents/skills/bookmarkflow-release/SKILL.md",
+];
+
 const requiredFiles = [
   "AGENTS.md",
   "docs/agent/DECISION_INDEX.md",
@@ -21,11 +30,43 @@ const requiredFiles = [
   "docs/agent/RULE_CHANGELOG.md",
   "docs/agent/history/PROJECT_STATE_HISTORY_2026.md",
   ...requiredplaybooks,
+  ...requiredAgentDefinitions,
   "AGENT_RULE_COMPLIANCE_BENCHMARK.md",
   ".githooks/pre-commit",
   ".githooks/pre-push",
   "scripts/check-architecture-guard.mjs",
 ];
+
+export function validateVersionDriftGuard(options = {}) {
+  const manifestVersion =
+    options.manifestVersion ??
+    JSON.parse(readFileSync(join(root, "manifest.json"), "utf8")).version;
+  const packageVersion =
+    options.packageVersion ??
+    JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
+  const projectStateText =
+    options.projectStateText ??
+    readFileSync(join(root, "docs/agent/PROJECT_STATE.md"), "utf8");
+
+  const stateMatch = projectStateText.match(/Aktif Sürüm:\s*`v?(\d+\.\d+\.\d+)`/u);
+  if (!stateMatch) {
+    throw new Error(
+      "Governance contract violation (Version Drift Guard): docs/agent/PROJECT_STATE.md missing 'Aktif Sürüm: `vX.Y.Z`' declaration."
+    );
+  }
+  const stateVersion = stateMatch[1];
+
+  if (manifestVersion !== packageVersion || manifestVersion !== stateVersion) {
+    throw new Error(
+      `Governance contract violation (Version Drift Guard): Version mismatch detected across manifest.json (${manifestVersion}), package.json (${packageVersion}), and PROJECT_STATE.md (${stateVersion}).`
+    );
+  }
+
+  return {
+    valid: true,
+    version: manifestVersion,
+  };
+}
 
 for (const relPath of requiredFiles) {
   const fullPath = join(root, relPath);
@@ -119,4 +160,16 @@ if (!decisionContent.includes("| 1 |") || !decisionContent.includes("Manifest V3
   throw new Error("Governance contract violation: docs/agent/DECISION_INDEX.md missing valid decision entries.");
 }
 
-console.log("BookmarkFlow governance, decision index, and playbook contracts are valid.");
+for (const agentPath of requiredAgentDefinitions) {
+  const content = readFileSync(join(root, agentPath), "utf8");
+  if (!content.startsWith("---\n") && !content.startsWith("---\r\n")) {
+    throw new Error(`Governance contract violation: ${agentPath} must begin with YAML frontmatter (---).`);
+  }
+  if (!content.includes("MANDATORY & PROACTIVE:")) {
+    throw new Error(`Governance contract violation: ${agentPath} frontmatter description must include 'MANDATORY & PROACTIVE:'.`);
+  }
+}
+
+validateVersionDriftGuard();
+
+console.log("BookmarkFlow governance, decision index, version drift guard, subagents, and playbook contracts are valid.");

@@ -78,21 +78,30 @@ Bu kılavuz, BookmarkFlow Bar kullanıcı arayüzü, tasarım sistemi, erişileb
 
 ---
 
-## 6. Eklenti Kusursuz Kalite Dörtgeni (Web Extension Quality Quadrumvirate - Karar 31 & Karar 34 - BF-QA-006)
+## 6. 6 Sütunlu & 7 Boyutlu Kalite Matrisi, Durum Deltası (`t0 -> t1 -> t2`) ve Çok Aşamalı Akış Denetimi (Karar 31, 34, 45, 47 - BF-QA-006, BF-QA-010, BF-QA-011)
 
-Eklenti arayüzlerinde (Sayfa İçi Çubuk, Spotlight Paleti, Yeni Sekme Paneli, Popup ve Ayarlar) yapılan görsel veya etkileşimli değişikliklerde yalnızca kodun derlenmesi veya sözleşme testlerinin geçmesi nihai yeterlilik sayılamaz. Tam kalite onayı için aşağıdaki 4 hakemli denetim çemberi uygulanır:
+Eklenti arayüzlerinde (Sayfa İçi Çubuk, Spotlight Paleti, Yeni Sekme Paneli, Popup ve Ayarlar) yapılan görsel veya etkileşimli değişikliklerde yalnızca kodun derlenmesi veya tek bir statik ekran görüntüsü alınması nihai yeterlilik sayılamaz. Tam kalite onayı için **6 Sütunlu ve 7 Boyutlu Denetim Çemberi** uygulanır:
 
-1. **Gören Göz (Görsel & Hareket Hakemi - Visual & Motion Arbiter)**:
-   - **Araçlar**: Playwright + Gemini Agentic Video (`npm run qa:motion`) + `scripts/validate-media-qa.mjs`.
-   - **Kapsam**: Sayfa içi çubuk (`Alt+Shift+B`), Spotlight (`Alt+Shift+K`) ve New Tab geçişlerinde 60 FPS akıcılık, yay fiziği, sıfır jank ve sıfır layout taşması denetimi. Jank şüphesinde kullanıcı komutu beklemeden otonom tetiklenir (P0-19).
-2. **Düşünen Hakem (Shadow DOM & Karar Hakemi - State & Arbiter)**:
+1. **1. Sütun — Gören Göz (Görsel, PNG Magic-Byte & Hareket Hakemi - Visual & Motion Arbiter)**:
+   - **Araçlar**: Playwright + TypeSafe Jev 1.14 (`npm run inspect:360`) + Gemini Agentic Video (`npm run qa:motion`) + `validateImageMagicBytes` + `evaluateIdleBlinkAndRebuildLoop`.
+   - **Kapsam**:
+     - **PNG / JPEG İkili Başlık Koruması (`validateImageMagicBytes`)**: PowerShell `>` yönlendirmesiyle eklenen UTF-8 BOM (`EF BB BF`) bozulmasını önlemek için her görsel okunmadan önce PNG (`89 50 4E 47 0D 0A 1A 0A`) veya JPEG (`FF D8 FF`) sihirli baytları fail-closed doğrulanır.
+     - **Boşta Titreme & Sonsuz Yeniden Çizim Dedektörü (`evaluateIdleBlinkAndRebuildLoop`)**: 1 saniyelik boşta bekleme arasında kare farkı (`changedRatio > 0.035`) veya `BF_STATE_CHANGED` mesaj fırtınası (`stateBroadcastCount >= 6`) varsa `IDLE_BLINK_OR_REBUILD_LOOP` hatası fırlatılır.
+2. **2. Sütun — Düşünen Hakem (Shadow DOM & Karar Hakemi - State & Arbiter)**:
    - **Araçlar**: Cloudflare Clef & Microsoft Decision-1 çift hakem ve failover (`clef` MCP / OpenRouter Decisions API) + `scripts/inspect-extension-dom.mjs` (`npm run inspect:dom` - BF-QA-007).
-   - **Kapsam**: Sayfa içi çubuğun kapalı Shadow DOM (`attachShadow({ mode: "closed" })`) sızıntısızlığı, barındırıcı sayfanın CSS değişkenlerinden veya global sıfırlamalarından etkilenmeme garantisi, modal durum geçişlerinin (<50ms) sıfır-token tescili.
-3. **Standartlar & MV3 Hakemi (A11y, W3C Tablist & Zero-Deprecation Arbiter)**:
-   - **Araçlar**: `npm run test:mv3` + `scripts/ui-behavior-contract.test.mjs` + WCAG 2.1 AA kuralları + W3C WAI-ARIA Tablist deseni.
+   - **Kapsam**: Sayfa içi çubuğun kapalı Shadow DOM (`attachShadow({ mode: "closed" })`) sızıntısızlığı, barındırıcı sayfanın CSS değişkenlerinden etkilenmeme garantisi ve Jev 1.14 erişilemezse `microsoft/decision-1` modeline sıfır kesintili otomatik failover.
+3. **3. Sütun — Standartlar & MV3 Hakemi (A11y, W3C Tablist & Zero-Deprecation Arbiter)**:
+   - **Araçlar**: `npm run test:mv3` + `npm run guard:console` (`0` hata) + `scripts/ui-behavior-contract.test.mjs` + WCAG 2.1 AA kuralları + W3C WAI-ARIA Tablist deseni.
    - **Kapsam**: Çiplerde yatay klavye dolaşımı (`ArrowLeft`/`ArrowRight`/`Home`/`End`) ve roving tabindex (`tabindex="0"` ve `-1`), çift yönlü döngüsel odak tuzağı (`focus trap`), `Escape` ile deterministik kapanma, ekran okuyucu semantikleri (`role="status"`, `aria-live="polite"`), eski MV2 senkron metotlarının bulunmaması.
-4. **Tasarım ve Estetik Hakemi (Design Tokens, Stitch/Banana Gate & High Contrast Arbiter - BF-QA-010)**:
+4. **4. Sütun — Tasarım ve Estetik Hakemi (Design Tokens, Stitch/Banana Gate & Zero Truncation Arbiter - BF-QA-010, BF-QA-011)**:
    - **Araçlar**: Google Stitch (`stitch` MCP) + Google Nano Banana Pro (`image-generator`) + `evaluateProactiveStitchBananaGate` (`scripts/inspect-visual-boxes.mjs --360`) + Global Design Tokens (`src/content.css`, `spotlight.css`, `newtab.css`).
-   - **Kapsam**: Glassmorphic zeminler, 5 resmi tema (`sakura`, `ocean`, `emerald`, `obsidian`, `turquoise`), minimum 4.5:1 / 7:1 kontrast oranı ve Windows Yüksek Kontrast modu (`forced-colors: active`) sistem renk uyumu (`ButtonBorder`, `Highlight`).
-   - **Otonom Tasarım Yükseltme Kapısı (`[1C]` Stitch + Nano Banana Pro Trigger)**: `inspect-visual-boxes.mjs` her kutu/ekran denetiminde yerel geometriyi sıfır gecikmeyle ölçer (`marginAsymmetryPx >= 8`, `overlapCount > 0`, `crowdedGapsCount > 2`, `plain_vertical_stack` veya `visualDesignScore < 2.25`). Eşik tetiklendiğinde kullanıcı sormadan `✨ [1C. OTONOM TASARIM ÖNERİSİ — GOOGLE STITCH + NANO BANANA PRO TETİKLEYİCİSİ: AKTİF]` uyarısı üretir; model ilgili yüzeyi yerinde `STUDIO_GRADE_GLASS_BENTO` seviyesine yükseltir veya `[HIGH]` proaktif öneri olarak sunar.
-   - **Tek Geçişli 360° Multimodal Denetim (`npm run inspect:360`)**: Tek spekülatif HTTP fan-out çağrısıyla ekran durumu (`choice`), görsel tasarım puanı (`score 0..4`), yerleşim uyumu (`noul`), renk kontrastı (`noul`), birincil gözlem (`choice`), Bento/Glass zenginliği (`noul`), animasyon sağlığı (`noul`) ve i18n raw-key bütünlüğünü (`noul`) Jev 1.14 ile denetler; Jev 1.14 erişilemezse sıfır kesintiyle Cloudflare Clef (`microsoft-decision-1`) hakemine otomatik failover yapar.
+   - **Kapsam**: Glassmorphic zeminler, 5 resmi tema (`sakura`, `ocean`, `emerald`, `obsidian`, `turquoise`), minimum 4.5:1 / 7:1 kontrast oranı, Windows Yüksek Kontrast modu (`forced-colors: active`) ve **Sıfır Kesik Etiket (`truncatedLabelsCount === 0` — buton/çip metinlerinde `'...'` veya `'…'` bulunmaması)**.
+   - **Otonom Tasarım Yükseltme Kapısı (`[1C]` Stitch + Nano Banana Pro Trigger)**: `inspect-visual-boxes.mjs` her kutu/ekran denetiminde yerel geometriyi sıfır gecikmeyle ölçer (`marginAsymmetryPx > 24`, `overlapCount > 0`, `crowdedGapsCount > 2`, `truncatedLabelsCount > 0`, `plain_vertical_stack` veya `visualDesignScore < 2.25`). `STUDIO_GRADE_GLASS_BENTO` sertifikası için `visualDesignScore >= 3.50` ve `truncatedLabelsCount === 0` zorunludur.
+5. **5. Sütun — Dil ve Çapraz Sızıntı Hakemi (3-Tier Localization & Cross-Locale Purity Arbiter - BF-QA-011)**:
+   - **Araçlar**: `npm run test:raw-keys` + `scanI18nSuspiciousPatterns(elementsOrStrings, activeLocale)`.
+   - **Kapsam**: Ham çeviri anahtarları (`nt_*`, `bar_*`, `quick_*`, `app_*`), çözülmemiş yer tutucular (`{{var}}`, `{name}`, `%s`, `$1`, `undefined`, `NaN`) ve İngilizce (`en`) arayüzde sızmış Türkçe kelimeler/karakterler (`Kaydet`, `İptal`, `Klasör`, `Ayarlar`, `Yeni Sekme`, `[ğüşöçıİĞÜŞÖÇ]`) sıfır toleransla taranır.
+6. **6. Sütun — Durum Deltası (`t0 -> t1 -> t2`), Kalıcılık ve Çok Aşamalı Akış Hakemi (State Delta & Re-Entry Persistence Gate - BF-QA-011)**:
+   - **Araçlar**: `scripts/inspect-visual-boxes.mjs` (`--save-baseline <tag>`, `--verify-delta <tag>`, `--expect-changed "<val>"`, `--expect-persisted`) ve `.agents/agents/bookmarkflow_live_qa_agent.md`.
+   - **Kapsam**:
+     - Etkileşimli hiçbir değişiklik tek kare fotoğrafla "çalışıyor" kabul edilmez; mekanik olarak **Önce (`t0`, `--save-baseline`) -> Eylem Sonrası (`t1`, `--verify-delta --expect-changed`) -> Yeniden Yükleme / Kalıcılık (`t2`, `--verify-delta --expect-persisted`)** üçlüsüyle doğrulanır.
+     - **Çok Aşamalı Akış Denetimi (Multi-Step Flow Verification)**: `Popup -> Yeni Sekme -> Spotlight (Alt+Shift+K) -> Sayfa İçi Çubuk (Alt+Shift+B) -> Native Host Senkronu` zinciri uçtan uca test edilir.
