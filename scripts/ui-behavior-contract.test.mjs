@@ -2028,3 +2028,29 @@ test("mobile search filter chip, visit count badge, and sort mode reset gesture 
   assert.match(contentJs, /isFolderSortResetGesture\s*\(/u, "content.js must support sort mode reset gesture");
   assert.match(contentJs, /sortBtn\.addEventListener\("contextmenu"/u, "content.js must bind contextmenu reset on sortBtn");
 });
+
+test("fullscreen F11/DOM detection, video player fixed-bar guard, and right-click Open All in Incognito contract", () => {
+  const settingsJs = readFileSync(path.join(root, "src/settings.js"), "utf8");
+  const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
+  const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
+  const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
+  const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
+  const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
+
+  for (const key of ["openAllInTabsTitle", "openAllIncognitoConfirm", "openAllIncognitoToast"]) {
+    assert.ok(enLocales[key]?.message, `en messages must define ${key}`);
+    assert.ok(trLocales[key]?.message, `tr messages must define ${key}`);
+  }
+
+  assert.match(settingsJs, /function isBrowserOrDomFullscreen\s*\(/u, "settings.js must define isBrowserOrDomFullscreen");
+  assert.match(settingsJs, /function isValidFixedTopNavbarCandidate\s*\(/u, "settings.js must define isValidFixedTopNavbarCandidate");
+
+  assert.match(contentJs, /isBrowserOrDomFullscreen\(window,\s*document\)/u, "content.js isFullscreenActive must delegate to isBrowserOrDomFullscreen");
+  assert.match(contentJs, /isValidFixedTopNavbarCandidate\(node,\s*rect,\s*window\.innerWidth,\s*window\.innerHeight\)/u, "detectLikelyFixedTopSurface must validate navbar candidate height and exclude video players");
+  assert.match(contentJs, /type:\s*["']BF_SYNC_FULLSCREEN_EXIT["']/u, "handleFullscreenChange must notify background on fullscreen exit");
+  assert.match(contentJs, /openAllBtn\.addEventListener\("contextmenu"/u, "openAllBtn must support right-click contextmenu for incognito batch open");
+  assert.match(contentJs, /type:\s*msgType,\s*urls:\s*targetUrls/u, "openFolderBookmarksInTabs must dispatch batch tab message");
+  assert.match(backgroundJs, /message\?\.type\s*===\s*["']BF_OPEN_INCOGNITO_TABS["']/u, "background.js must handle BF_OPEN_INCOGNITO_TABS");
+  assert.match(backgroundJs, /message\?\.type\s*===\s*["']BF_SYNC_FULLSCREEN_EXIT["']/u, "background.js must handle BF_SYNC_FULLSCREEN_EXIT");
+  assert.match(newtabCss, /\.nt-workspace:not\(\[hidden\]\)\s*\{[\s\S]*?min-height:\s*100dvh/u, "newtab.css .nt-workspace must use 100dvh flex layout to avoid false vertical scrollbar");
+});

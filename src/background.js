@@ -263,55 +263,37 @@ function routeMessage(message, sender) {
     return setDataConsent(message, sender);
   }
 
-  if (message?.type === "BF_GET_COMPANION_STATUS") {
-    return Promise.resolve({ ok: true, connected: !!nativeCompanionPort });
+  if (message?.type === "BF_GET_COMPANION_STATUS") return Promise.resolve({ ok: true, connected: !!nativeCompanionPort });
+  if (message?.type === "BF_UPDATE_COMPANION_HOTKEYS") return updateCompanionHotkeys(message.hotkeys);
+  if (message?.type === "BF_SWITCH_TO_TAB") return switchToMatchingTab(message.query);
+  if (message?.type === "BF_SYNC_FULLSCREEN_EXIT") {
+    const winId = sender?.tab?.windowId;
+    if (!winId || !chrome.windows?.get) return Promise.resolve({ ok: true });
+    return chrome.windows.get(winId).then((w) => (w?.state === "fullscreen" ? chrome.windows.update(winId, { state: "maximized" }) : null)).then(() => ({ ok: true })).catch(() => ({ ok: true }));
   }
-
-  if (message?.type === "BF_UPDATE_COMPANION_HOTKEYS") {
-    return updateCompanionHotkeys(message.hotkeys);
-  }
-
-  if (message?.type === "BF_SWITCH_TO_TAB") {
-    return switchToMatchingTab(message.query);
-  }
-
   if (message?.type === "BF_OPEN_INCOGNITO") {
     const url = message?.url;
-    if (!url || !isSafeBookmarkUrl(url)) {
-      return Promise.resolve({ ok: false, error: "Invalid URL" });
-    }
+    if (!url || !isSafeBookmarkUrl(url)) return Promise.resolve({ ok: false, error: "Invalid URL" });
     return chrome.windows.create({ incognito: true, url })
       .then(() => ({ ok: true }))
-      .catch(() => {
-        return chrome.tabs.create({ url })
-          .then(() => ({ ok: true, fallback: true }))
-          .catch((tabErr) => ({ ok: false, error: tabErr?.message || String(tabErr) }));
-      });
+      .catch(() => chrome.tabs.create({ url }).then(() => ({ ok: true, fallback: true })).catch((tabErr) => ({ ok: false, error: tabErr?.message || String(tabErr) })));
   }
-
+  if (message?.type === "BF_OPEN_INCOGNITO_TABS") {
+    const validUrls = (Array.isArray(message?.urls) ? message.urls : []).filter((u) => typeof u === "string" && isSafeBookmarkUrl(u));
+    if (!validUrls.length) return Promise.resolve({ ok: false, error: "No valid URLs to open" });
+    return chrome.windows.create({ incognito: true, url: validUrls })
+      .then(() => ({ ok: true, count: validUrls.length }))
+      .catch(() => Promise.all(validUrls.map((url) => chrome.tabs.create({ url, active: false }).catch(() => null))).then((r) => ({ ok: true, fallback: true, count: r.filter(Boolean).length })));
+  }
   if (message?.type === "BF_OPEN_BACKGROUND_TAB") {
     const url = message?.url;
-    if (!url || !isSafeBookmarkUrl(url)) {
-      return Promise.resolve({ ok: false, error: "Invalid URL" });
-    }
-    return chrome.tabs.create({ url, active: false })
-      .then(() => ({ ok: true }))
-      .catch((err) => ({ ok: false, error: err?.message || String(err) }));
+    if (!url || !isSafeBookmarkUrl(url)) return Promise.resolve({ ok: false, error: "Invalid URL" });
+    return chrome.tabs.create({ url, active: false }).then(() => ({ ok: true })).catch((err) => ({ ok: false, error: err?.message || String(err) }));
   }
-
   if (message?.type === "BF_OPEN_BACKGROUND_TABS") {
-    const rawUrls = Array.isArray(message?.urls) ? message.urls : [];
-    const validUrls = rawUrls.filter((url) => typeof url === "string" && isSafeBookmarkUrl(url));
-    if (validUrls.length === 0) {
-      return Promise.resolve({ ok: false, error: "No valid URLs to open" });
-    }
-    const promises = validUrls.map((url) =>
-      chrome.tabs.create({ url, active: false }).catch(() => null)
-    );
-    return Promise.all(promises).then((results) => {
-      const openedCount = results.filter(Boolean).length;
-      return { ok: true, count: openedCount };
-    });
+    const validUrls = (Array.isArray(message?.urls) ? message.urls : []).filter((url) => typeof url === "string" && isSafeBookmarkUrl(url));
+    if (!validUrls.length) return Promise.resolve({ ok: false, error: "No valid URLs to open" });
+    return Promise.all(validUrls.map((url) => chrome.tabs.create({ url, active: false }).catch(() => null))).then((results) => ({ ok: true, count: results.filter(Boolean).length }));
   }
 
   if (message?.type === MESSAGE_OPEN_SETTINGS || message?.type === "OPEN_SETTINGS_REQUESTED") {

@@ -64,7 +64,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     isMobileBookmarksFolder,
     selectMobileBookmarksNode,
     getMobileFolderDisplayTitle,
-    collectFoldersWithMobileBridge, collectMobileBookmarkEntries, syncFolderMenuVisitBadge, isFolderSortResetGesture
+    collectFoldersWithMobileBridge, collectMobileBookmarkEntries, syncFolderMenuVisitBadge, isFolderSortResetGesture, isBrowserOrDomFullscreen, isValidFixedTopNavbarCandidate
   } = BookmarkFlowConfig;
   const { getLanguage, t } = BookmarkFlowI18n;
 
@@ -634,11 +634,23 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     updatePageOffsetSoon();
   }
 
+  let lastFullscreenState = false;
+
   function isFullscreenActive() {
-    return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+    return isBrowserOrDomFullscreen(window, document);
   }
 
   function handleWindowResize() {
+    const nowFs = isFullscreenActive();
+    if (nowFs !== lastFullscreenState) {
+      handleFullscreenChange();
+      return;
+    }
+    if (nowFs) {
+      if (host) host.hidden = true;
+      clearPageOffset();
+      return;
+    }
     invalidateTopSurfaceCache();
     applyPanelPlacement();
     scheduleTightenBookmarkRows();
@@ -650,29 +662,26 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       clearTimeout(fullscreenSettleTimer);
       fullscreenSettleTimer = null;
     }
-
+    lastFullscreenState = isFullscreenActive();
     invalidateTopSurfaceCache();
     closeFolderMenu();
     closeContextMenu();
 
-    if (isFullscreenActive()) {
+    if (lastFullscreenState) {
       closeCommandPalette({ restoreFocus: false });
       closeAddBookmarkDialog({ restoreFocus: false });
       clearPageOffset();
-      if (host) {
-        host.hidden = true;
-      }
+      if (host) host.hidden = true;
       return;
     }
 
-    if (host && !isSnoozed) {
-      host.hidden = false;
+    if (host) host.hidden = false;
+    if (hasExtensionContext()) {
+      sendMessage({ type: "BF_SYNC_FULLSCREEN_EXIT" }).catch(() => null);
     }
 
     const syncLayoutAfterFullscreen = () => {
-      if (!host || isFullscreenActive()) {
-        return;
-      }
+      if (!host || isFullscreenActive()) return;
       invalidateTopSurfaceCache();
       applyPanelPlacement();
       scheduleTightenBookmarkRows();
@@ -681,10 +690,11 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     syncLayoutAfterFullscreen();
     requestAnimationFrame(syncLayoutAfterFullscreen);
+    window.setTimeout(syncLayoutAfterFullscreen, 140);
     fullscreenSettleTimer = window.setTimeout(() => {
       fullscreenSettleTimer = null;
       syncLayoutAfterFullscreen();
-    }, 140);
+    }, 340);
   }
 
   function handleOutsidePointerDown(event) {
@@ -710,6 +720,7 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     }
 
     ensureHost();
+    host.hidden = isFullscreenActive();
     if (isSnoozed) {
       clearPageOffset();
       shadow.querySelector(".bf-app")?.remove();
@@ -722,7 +733,6 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     removeEdgeRestoreStrip();
     host.classList.remove("is-snoozed");
-    host.hidden = isFullscreenActive();
     notifyTabSnoozeState(false);
     render();
     if (isFullscreenActive()) {
@@ -3683,58 +3693,29 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
     });
   }
 
-  function openFolderBookmarksInTabs(folder, menuElement) {
+  function openFolderBookmarksInTabs(folder, menuElement, incognito = false) {
     if (!folder) return;
     const entries = getFolderMenuEntries(folder);
-    let targetUrls = [];
-
     const filterInput = menuElement?.querySelector(".bf-menu-filter");
-    if (filterInput && filterInput.value.trim() && menuElement) {
-      const visibleItems = Array.from(menuElement.querySelectorAll(".bf-result:not([hidden])"));
-      targetUrls = visibleItems
-        .map((el) => el.href)
-        .filter((url) => typeof url === "string" && isSafeBookmarkUrl(url));
-    } else {
-      targetUrls = entries
-        .map((entry) => entry.url)
-        .filter((url) => typeof url === "string" && isSafeBookmarkUrl(url));
+    const targetUrls = (filterInput && filterInput.value.trim() && menuElement)
+      ? Array.from(menuElement.querySelectorAll(".bf-result:not([hidden])")).map((el) => el.href).filter((url) => typeof url === "string" && isSafeBookmarkUrl(url))
+      : entries.map((entry) => entry.url).filter((url) => typeof url === "string" && isSafeBookmarkUrl(url));
+    if (!targetUrls.length) return;
+    if (incognito ? targetUrls.length > 10 : targetUrls.length > 15) {
+      const confirmKey = incognito ? "openAllIncognitoConfirm" : "openAllConfirm";
+      if (!window.confirm(t(confirmKey, [String(targetUrls.length)]) || `Open ${targetUrls.length} tabs at once?`)) return;
     }
-
-    if (targetUrls.length === 0) {
-      return;
-    }
-
-    if (targetUrls.length > 15) {
-      const confirmed = window.confirm(
-        t("openAllConfirm", [String(targetUrls.length)]) ||
-        `Open ${targetUrls.length} tabs at once? This may affect browser performance.`
-      );
-      if (!confirmed) {
-        return;
-      }
-    }
-
     if (hasExtensionContext()) {
-      try {
-        chrome.runtime.sendMessage(
-          { type: "BF_OPEN_BACKGROUND_TABS", urls: targetUrls },
-          (response) => {
-            if (chrome.runtime.lastError || !response?.ok) {
-              return;
-            }
-            const count = response.count || targetUrls.length;
-            showContentToastNotification(
-              t("openAllSuccessToast", [String(count)]) || `✓ Opened ${count} tabs in background`
-            );
-          }
-        );
-      } catch {
-        targetUrls.forEach((url) => window.open(url, "_blank", "noopener,noreferrer"));
-      }
+      const msgType = incognito ? "BF_OPEN_INCOGNITO_TABS" : "BF_OPEN_BACKGROUND_TABS";
+      const toastKey = incognito ? "openAllIncognitoToast" : "openAllSuccessToast";
+      sendMessage({ type: msgType, urls: targetUrls }).then((response) => {
+        if (!response?.ok) return;
+        const count = response.count || targetUrls.length;
+        showContentToastNotification(t(toastKey, [String(count)]) || `✓ Opened ${count} tabs`);
+      }).catch(() => targetUrls.forEach((url) => window.open(url, "_blank", "noopener,noreferrer")));
     } else {
       targetUrls.forEach((url) => window.open(url, "_blank", "noopener,noreferrer"));
     }
-
     closeFolderMenu();
   }
 
@@ -3791,12 +3772,18 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
       const openAllBtn = document.createElement("button");
       openAllBtn.type = "button";
       openAllBtn.className = "bf-menu-open-all-btn";
-      openAllBtn.title = t("openAllInTabs") || "Open all in tabs";
-      openAllBtn.setAttribute("aria-label", t("openAllInTabs") || "Open all in tabs");
+      const openAllHint = t("openAllInTabsTitle") || t("openAllInTabs") || "Open all in tabs";
+      openAllBtn.title = openAllHint;
+      openAllBtn.setAttribute("aria-label", openAllHint);
       openAllBtn.textContent = `↗ ${t("openAll") || "Open all"}`;
       openAllBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        openFolderBookmarksInTabs(folder, menu);
+        openFolderBookmarksInTabs(folder, menu, false);
+      });
+      openAllBtn.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openFolderBookmarksInTabs(folder, menu, true);
       });
       headerActions.append(openAllBtn);
     }
@@ -5910,9 +5897,8 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
   }
 
   function detectLikelyFixedTopSurface() {
-    if (!document.body) return false;
+    if (!document.body || isFullscreenActive()) return false;
 
-    // ev-ultrafast: Query semantic top bars, banners, and navigation containers first
     const candidates = document.body.querySelectorAll(
       "header, nav, [role='banner'], [role='navigation'], [class*='header' i], [class*='nav' i], [class*='top' i], [id*='header' i], [id*='nav' i]"
     );
@@ -5921,35 +5907,14 @@ const MESSAGE_RUN_COMMAND = "BF_RUN_COMMAND";
 
     for (let index = 0; index < max; index += 1) {
       const node = nodes[index];
-      if (!(node instanceof Element) || node === host || host?.contains(node)) {
-        continue;
-      }
+      if (!(node instanceof Element) || node === host || host?.contains(node)) continue;
 
-      // ev-ultrafast: check computed style position FIRST before triggering layout recalculation
       const style = window.getComputedStyle(node);
-      if (style.position !== "fixed" && style.position !== "sticky") {
-        continue;
-      }
+      if (style.position !== "fixed" && style.position !== "sticky") continue;
+      if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) continue;
 
-      if (
-        style.display === "none" ||
-        style.visibility === "hidden" ||
-        Number(style.opacity) === 0
-      ) {
-        continue;
-      }
-
-      // Only perform geometry check for confirmed fixed/sticky candidates
       const rect = node.getBoundingClientRect();
-      if (
-        rect.width < TOP_SURFACE_MIN_WIDTH ||
-        rect.bottom < TOP_SURFACE_MIN_BOTTOM ||
-        rect.top > TOP_SURFACE_MAX_TOP ||
-        rect.right <= 0 ||
-        rect.left >= window.innerWidth
-      ) {
-        continue;
-      }
+      if (!isValidFixedTopNavbarCandidate(node, rect, window.innerWidth, window.innerHeight)) continue;
 
       return true;
     }

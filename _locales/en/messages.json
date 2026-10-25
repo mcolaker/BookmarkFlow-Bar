@@ -498,7 +498,7 @@
     "message": "BookmarkFlow cannot change Chrome’s own interface. If the native bookmarks bar is visible, right-click it and turn off “Show bookmarks bar,” or use <kbd>Ctrl + Shift + B</kbd>."
   },
   "braveNativeBarDescription": {
-    "message": "In Brave, if the shortcut is not enough, open Settings &gt; Appearance &gt; Show bookmarks and choose <strong>Never</strong>. “Only on new tab page” keeps the native bar visible on new tabs."
+    "message": "In Brave, if the shortcut is not enough, open Settings &gt; Appearance &gt; Show bookmarks and choose <strong>Never</strong>. If a bottom attribution bar (“Customize Brave”) appears on New Tab, right-click that bottom bar and choose <strong>Hide footer on New Tab page</strong>."
   },
   "nativeBarSafeDescription": {
     "message": "This does not delete bookmarks. BookmarkFlow continues reading the same Bookmark Bar data."
@@ -1488,6 +1488,25 @@
   },
   "visitCountBadgeTitle": {
     "message": "$COUNT$ visits",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "openAllInTabsTitle": {
+    "message": "Open all in tabs (Right-click: Open all in incognito window)"
+  },
+  "openAllIncognitoConfirm": {
+    "message": "Open $COUNT$ tabs in an incognito window?",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "openAllIncognitoToast": {
+    "message": "✓ Opened $COUNT$ tabs in incognito window",
     "placeholders": {
       "count": {
         "content": "$1"

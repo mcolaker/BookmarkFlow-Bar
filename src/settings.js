@@ -638,6 +638,71 @@
     return event.type === "contextmenu" || Boolean(event.shiftKey);
   }
 
+  function isBrowserOrDomFullscreen(win = globalThis.window, doc = globalThis.document) {
+    if (doc?.fullscreenElement || doc?.webkitFullscreenElement || doc?.msFullscreenElement) {
+      return true;
+    }
+    try {
+      if (win?.matchMedia?.("(display-mode: fullscreen)")?.matches) {
+        return true;
+      }
+    } catch (err) {
+      void err;
+    }
+    const screenW = Number(win?.screen?.width) || 0;
+    const screenH = Number(win?.screen?.height) || 0;
+    const outerW = Number(win?.outerWidth) || 0;
+    const outerH = Number(win?.outerHeight) || 0;
+    const innerH = Number(win?.innerHeight) || 0;
+    if (
+      screenW >= 640 &&
+      screenH >= 480 &&
+      outerW >= screenW - 2 &&
+      outerH >= screenH - 2 &&
+      innerH >= screenH - 6 &&
+      Math.abs(outerH - innerH) <= 16
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  function isValidFixedTopNavbarCandidate(node, rect, viewportWidth = 1280, viewportHeight = 800) {
+    if (!node || !rect) {
+      return false;
+    }
+    if (
+      rect.width < 220 ||
+      rect.bottom < 34 ||
+      rect.top > 96 ||
+      rect.right <= 0 ||
+      rect.left >= viewportWidth ||
+      rect.height > 160 ||
+      (viewportHeight > 0 && rect.height >= viewportHeight * 0.32)
+    ) {
+      return false;
+    }
+    if (typeof node.matches === "function") {
+      if (
+        node.matches(
+          "video, iframe, canvas, dialog, [role='dialog'], [aria-modal='true'], [fullscreen], .html5-video-player, .ytp-chrome-top, [class*='player' i], [class*='fullscreen' i], [class*='modal' i], [class*='overlay' i]"
+        )
+      ) {
+        return false;
+      }
+    }
+    if (typeof node.closest === "function") {
+      if (
+        node.closest(
+          "video, dialog, [role='dialog'], [aria-modal='true'], [fullscreen], .html5-video-player, [class*='video-player' i]"
+        )
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
 
 
   globalThis.BookmarkFlowConfig = Object.freeze({
@@ -689,6 +754,8 @@
     collectFoldersWithMobileBridge,
     collectMobileBookmarkEntries,
     syncFolderMenuVisitBadge,
-    isFolderSortResetGesture
+    isFolderSortResetGesture,
+    isBrowserOrDomFullscreen,
+    isValidFixedTopNavbarCandidate
   });
 })();
