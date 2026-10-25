@@ -376,7 +376,7 @@
   }
 }
 
-/* Spotlight Eşleşen Karakter Vurgusu (BF-UX-037) */
+/* Spotlight Eşleşen Karakter Vurgusu */
 .bf-highlight {
   background: var(--bf-spotlight-glow, var(--bf-theme-accent-glow, rgba(34, 211, 238, 0.25)));
   color: var(--bf-spotlight-accent, var(--bf-theme-accent, #22d3ee));
@@ -385,7 +385,7 @@
   padding: 0 2px;
 }
 
-/* Spotlight Eşleşen Etiket Hapı Vurgusu (BF-UX-040) */
+/* Spotlight Eşleşen Etiket Hapı Vurgusu */
 .bf-tag-pill.is-tag-matched {
   background: var(--bf-spotlight-accent, var(--bf-theme-accent, #22d3ee));
   color: #0b1120;
@@ -394,7 +394,7 @@
   font-weight: 700;
 }
 
-/* Spotlight Süzme Çipleri (BF-UX-042) */
+/* Spotlight Süzme Çipleri */
 .bf-command-chips {
   display: flex;
   align-items: center;

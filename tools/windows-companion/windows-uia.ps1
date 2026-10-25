@@ -1,6 +1,5 @@
 # BookmarkFlow Bar — Fast Windows UIA Automation Engine
 # High-speed UI Automation & Auto-Confirm Engine for Windows Controls & Chromium Dialogs
-# Reference: BF-WIN-002 / Decision 39
 
 param(
     [Parameter(Mandatory=$false)][string]$Action = "list",

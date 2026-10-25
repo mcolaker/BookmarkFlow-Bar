@@ -13,7 +13,7 @@ import {
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 
-test("release-github-cli contract (BF-GOV-018)", () => {
+test("release-github-cli contract", () => {
   assert.strictEqual(getGhCommand(), "gh");
 
   // Test assertGhCliInstalled with mock commands

@@ -2,9 +2,9 @@
 /**
  * scripts/inspect-extension-dom.mjs
  * 
- * Fast Shadow DOM Tree Inspector (BF-QA-007)
+ * Fast Shadow DOM Tree Inspector
  * Sub-200ms structured extraction and assertion of closed Shadow DOM hierarchy,
- * ARIA roles, tabindex, and focus traps without consuming multimodal vision tokens.
+ * ARIA roles, tabindex, and focus traps.
  */
 
 import http from "node:http";

@@ -258,8 +258,7 @@ async function loadPlaywright() {
   } catch (error) {
     const candidates = [
       process.env.PLAYWRIGHT_MODULE_PATH,
-      await findCachedPlaywrightModule(),
-      await findBundledPlaywrightModule()
+      await findCachedPlaywrightModule()
     ].filter(Boolean);
 
     for (const candidate of candidates) {
@@ -281,12 +280,6 @@ async function findCachedPlaywrightModule() {
   return findNewestFile(npxRoot, ["node_modules", "playwright", "index.mjs"]);
 }
 
-async function findBundledPlaywrightModule() {
-  const runtimeRoot = process.env.LOCALAPPDATA
-    ? path.join(process.env.LOCALAPPDATA, "OpenAI", "Codex", "runtimes", "cua_node")
-    : "";
-  return findNewestFile(runtimeRoot, ["bin", "node_modules", "playwright", "index.mjs"]);
-}
 
 async function findNewestFile(root, suffixParts) {
   if (!root) {

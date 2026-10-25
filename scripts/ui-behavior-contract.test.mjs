@@ -500,7 +500,7 @@ test("dynamic tab injection on consent and onboarding completion workspace trans
   assert.match(reviewerNotes, /`scripting`/u, "reviewer-notes.md must document scripting permission");
 });
 
-test("launcher quick context menu and adaptive discovery contract (BF-UX-012)", () => {
+test("launcher quick context menu and adaptive discovery contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   assert.match(contentJs, /function openLauncherContextMenu\(/u, "content.js must define openLauncherContextMenu");
   assert.match(contentJs, /closest\("\.bf-mark, \.bf-restore"\)/u, "content.js must handle contextmenu on launcher mark and restore");
@@ -519,7 +519,7 @@ test("launcher quick context menu and adaptive discovery contract (BF-UX-012)", 
   assert.match(popupHtml, /data-i18n="pageControlsTip"/u, "popup.html must reference pageControlsTip translation");
 });
 
-test("link capture and quick folder selector contract (BF-UX-013)", () => {
+test("link capture and quick folder selector contract", () => {
   const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
   assert.equal(manifest.omnibox?.keyword, "bf", "manifest must configure omnibox keyword 'bf'");
 
@@ -554,7 +554,7 @@ test("link capture and quick folder selector contract (BF-UX-013)", () => {
   }
 });
 
-test("quick folder chips contract (BF-UX-014)", () => {
+test("quick folder chips contract", () => {
   const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
   assert.match(newtabHtml, /id="addFolderChips"/u, "newtab.html must contain addFolderChips container");
 
@@ -581,7 +581,7 @@ test("quick folder chips contract (BF-UX-014)", () => {
   assert.ok(tr.quickFolders?.message, "Missing tr quickFolders message");
 });
 
-test("search live card instant folder chips contract (BF-UX-015)", () => {
+test("search live card instant folder chips contract", () => {
   const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
   assert.match(newtabCss, /\.nt-search-action-chips/u, "newtab.css must style .nt-search-action-chips");
   assert.match(newtabCss, /\.nt-search-action-chip/u, "newtab.css must style .nt-search-action-chip");
@@ -606,7 +606,7 @@ test("search live card instant folder chips contract (BF-UX-015)", () => {
   assert.ok(tr.saveToFolder?.message, "Missing tr saveToFolder message");
 });
 
-test("instant toast feedback contract (BF-UX-016)", () => {
+test("instant toast feedback contract", () => {
   const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
   assert.match(newtabHtml, /id="toastNotification"/u, "newtab.html must contain toastNotification element");
   assert.match(newtabHtml, /class="nt-toast"/u, "newtab.html must contain nt-toast class");
@@ -636,7 +636,7 @@ test("instant toast feedback contract (BF-UX-016)", () => {
   assert.ok(tr.bookmarkSavedToFolderToast?.message, "Missing tr bookmarkSavedToFolderToast message");
 });
 
-test("smart intent router and routing badges contract (BF-UX-017)", () => {
+test("smart intent router and routing badges contract", () => {
   const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
   assert.ok(
     manifest.content_scripts?.[0]?.js?.includes("src/intent-router.js"),
@@ -684,7 +684,7 @@ test("smart intent router and routing badges contract (BF-UX-017)", () => {
   }
 });
 
-test("site control, settings navigation, and popup layout integrity contract (BF-UX-018)", () => {
+test("site control, settings navigation, and popup layout integrity contract", () => {
   const root = path.resolve(".");
 
   // 1. content.js & background.js MV3 settings navigation contract
@@ -886,21 +886,9 @@ test("site control, settings navigation, and popup layout integrity contract (BF
     /\.nt-toast:hover \.nt-toast-progress\b/u,
     "newtab.css must pause progress animation on hover"
   );
-
-  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
-  assert.match(
-    journeyJs,
-    /rightClickElementByClass/u,
-    "user-journey-live-qa.mjs must define rightClickElementByClass"
-  );
-  assert.match(
-    journeyJs,
-    /clickElementByAttribute/u,
-    "user-journey-live-qa.mjs must define clickElementByAttribute"
-  );
 });
 
-test("search inline save button and green undone toast feedback contract (BF-UX-018)", () => {
+test("search inline save button and green undone toast feedback contract", () => {
   const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
   const trLocales = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
   assert.ok(enLocales.quickSaveBookmark, "en messages must have quickSaveBookmark");
@@ -1123,7 +1111,7 @@ test("search inline save button and green undone toast feedback contract (BF-UX-
   );
 });
 
-test("text restore toast and live existing bookmark title preview contract (BF-UX-018)", () => {
+test("text restore toast and live existing bookmark title preview contract", () => {
   const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
   const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
 
@@ -1177,7 +1165,7 @@ test("text restore toast and live existing bookmark title preview contract (BF-U
   );
 });
 
-test("existing bookmark edit mode and smooth toast switching contract (BF-UX-018)", () => {
+test("existing bookmark edit mode and smooth toast switching contract", () => {
   const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
   const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
 
@@ -1209,7 +1197,7 @@ test("existing bookmark edit mode and smooth toast switching contract (BF-UX-018
   assert.match(contentJs, /quickEditExistingBookmark/u, "content.js must use quickEditExistingBookmark key");
 });
 
-test("edit mode url unlock and live folder move chips contract (BF-UX-018)", () => {
+test("edit mode url unlock and live folder move chips contract", () => {
   const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
   const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
 
@@ -1262,7 +1250,7 @@ test("edit mode url unlock and live folder move chips contract (BF-UX-018)", () 
   assert.match(bgJs, /function\s+moveBookmarkToFolder\s*\(/u, "background.js must define moveBookmarkToFolder");
 });
 
-test("url auto-complete https and folder picker dropdown chip contract (BF-UX-018)", () => {
+test("url auto-complete https and folder picker dropdown chip contract", () => {
   const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
   const trMessages = JSON.parse(readFileSync(path.join(root, "_locales/tr/messages.json"), "utf8"));
 
@@ -1298,36 +1286,8 @@ test("url auto-complete https and folder picker dropdown chip contract (BF-UX-01
   assert.match(contentJs, /closeContentFolderPickerMenu/u, "content.js must define closeContentFolderPickerMenu");
 });
 
-test("autonomous video trigger authority and lifecycle contract (BF-QA-004)", () => {
-  const inspectMotion = readFileSync(path.join(root, "scripts/inspect-motion-qa.mjs"), "utf8");
-  assert.match(inspectMotion, /function getArtifactDirectory/u, "inspect-motion-qa.mjs must define getArtifactDirectory");
-  assert.match(inspectMotion, /function detectAutonomousSurfaces/u, "inspect-motion-qa.mjs must define detectAutonomousSurfaces");
-  assert.match(inspectMotion, /inspectSingleSurface/u, "inspect-motion-qa.mjs must define inspectSingleSurface");
-  assert.match(inspectMotion, /--autonomous/u, "inspect-motion-qa.mjs must support autonomous flag");
-  assert.match(inspectMotion, /_issue\.webm/u, "inspect-motion-qa.mjs must auto-preserve issue video with _issue suffix");
-  assert.match(inspectMotion, /\[ARTIFACT:\s+/u, "inspect-motion-qa.mjs must emit ARTIFACT token on issue or trace");
-  assert.match(inspectMotion, /Auto-Purge/u, "inspect-motion-qa.mjs must declare Auto-Purge lifecycle");
 
-  const agents = readFileSync(path.join(root, "AGENTS.md"), "utf8");
-  assert.match(agents, /Otonom Video İnisiyatifi/u, "AGENTS.md must declare Autonomous Video Trigger Authority");
-
-  const uiPlaybook = readFileSync(path.join(root, "docs/agent-playbooks/ui_accessibility.md"), "utf8");
-  assert.match(uiPlaybook, /Yapay Zeka Otonom İnisiyatifi/u, "ui_accessibility.md must detail autonomous video authority");
-  assert.match(uiPlaybook, /Statik Yüzeyler/u, "ui_accessibility.md must separate static surfaces");
-  assert.match(uiPlaybook, /Dinamik \/ Hareketli Yüzeyler/u, "ui_accessibility.md must separate dynamic surfaces");
-  assert.match(uiPlaybook, /Otomatik Kusur Saklama/u, "ui_accessibility.md must define auto artifact preservation");
-  assert.match(uiPlaybook, /Otomatik Yaşam Döngüsü/u, "ui_accessibility.md must define auto-purge lifecycle");
-
-  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
-  assert.match(journeyJs, /startFpsTracker/u, "user-journey-live-qa.mjs must define startFpsTracker");
-  assert.match(journeyJs, /stopFpsTracker/u, "user-journey-live-qa.mjs must define stopFpsTracker");
-  assert.match(journeyJs, /evaluateAndTriggerMotionQa/u, "user-journey-live-qa.mjs must define evaluateAndTriggerMotionQa");
-  assert.match(journeyJs, /jankThreshold/u, "user-journey-live-qa.mjs must support jankThreshold option");
-  assert.match(journeyJs, /Performance\.enable/u, "user-journey-live-qa.mjs must enable Performance domain");
-  assert.match(journeyJs, /Animation\.enable/u, "user-journey-live-qa.mjs must enable Animation domain");
-});
-
-test("autonomous devtools shadow DOM isolation, a11y focus ring and design tokens contract (BF-GOV-011)", () => {
+test("shadow DOM isolation, a11y focus ring and design tokens contract", () => {
   const designTokensPath = path.join(root, "src/design-tokens.css");
   assert.ok(existsSync(designTokensPath), "src/design-tokens.css must exist");
 
@@ -1347,14 +1307,9 @@ test("autonomous devtools shadow DOM isolation, a11y focus ring and design token
   assert.match(contentJs, /BF_INSPECT_ISOLATION/u, "content.js must handle BF_INSPECT_ISOLATION message");
   assert.match(contentJs, /shadowModeClosed/u, "content.js must verify shadowModeClosed in isolation check");
   assert.match(contentJs, /hasFocusRing/u, "content.js must verify a11y focus ring in isolation check");
-
-  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
-  assert.match(journeyJs, /BF_INSPECT_ISOLATION/u, "user-journey-live-qa.mjs must trigger BF_INSPECT_ISOLATION");
-  assert.match(journeyJs, /aggressive-host-styles/u, "user-journey-live-qa.mjs must inject aggressive styles to test isolation");
-  assert.match(journeyJs, /Comic Sans MS/u, "user-journey-live-qa.mjs must test font isolation against Comic Sans");
 });
 
-test("high contrast forced-colors mode and global design tokens propagation contract across spotlight and settings (BF-GOV-012)", () => {
+test("high contrast forced-colors mode and global design tokens propagation contract across spotlight and settings", () => {
   const designTokensPath = path.join(root, "src/design-tokens.css");
   const designTokens = readFileSync(designTokensPath, "utf8");
   assert.match(designTokens, /forced-colors:\s*active/u, "design-tokens.css must support forced-colors high contrast");
@@ -1403,7 +1358,7 @@ test("high contrast forced-colors mode and global design tokens propagation cont
   assert.match(onboardingHtml, /href="design-tokens\.css"/u, "onboarding.html must link design-tokens.css");
 });
 
-test("bar hide and restore full concealment lifecycle contract (BF-UX-019)", () => {
+test("bar hide and restore full concealment lifecycle contract", () => {
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   assert.match(contentCss, /:host\(\[hidden\]\)/u, "content.css must define :host([hidden]) display none");
   assert.match(contentCss, /:host\(\.is-snoozed/u, "content.css must define :host(.is-snoozed) display none");
@@ -1428,7 +1383,7 @@ test("bar hide and restore full concealment lifecycle contract (BF-UX-019)", () 
   assert.ok(enMessages.siteStatusSnoozed?.message, "en messages must define siteStatusSnoozed");
 });
 
-test("popup site control restore bar button contract (BF-UX-020)", () => {
+test("popup site control restore bar button contract", () => {
   const popupHtml = readFileSync(path.join(root, "src/popup.html"), "utf8");
   assert.match(popupHtml, /id="restoreBarBtn"/u, "popup.html must define restoreBarBtn");
   assert.match(popupHtml, /class="[^"]*site-restore-btn[^"]*"/u, "popup.html must style restoreBarBtn with site-restore-btn");
@@ -1452,7 +1407,7 @@ test("popup site control restore bar button contract (BF-UX-020)", () => {
   assert.ok(enMessages.restoreBar?.message, "en messages must define restoreBar");
 });
 
-test("edge peek restore strip contract (BF-UX-021)", () => {
+test("edge peek restore strip contract", () => {
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   assert.match(contentCss, /\.bf-edge-restore\b/u, "content.css must define .bf-edge-restore");
   assert.match(contentCss, /:host\(\.is-snoozed\)\s+\.bf-edge-restore/u, "content.css must enable pointer-events for .bf-edge-restore under snoozed host");
@@ -1467,7 +1422,7 @@ test("edge peek restore strip contract (BF-UX-021)", () => {
   assert.match(contentJs, /edgeRestoreActive:/u, "getPageInfo must expose edgeRestoreActive state");
 });
 
-test("snooze badge indicator contract (BF-UX-022)", () => {
+test("snooze badge indicator contract", () => {
   const bgJs = readFileSync(path.join(root, "src/background.js"), "utf8");
   assert.match(bgJs, /MESSAGE_SET_TAB_SNOOZED/u, "background.js must define MESSAGE_SET_TAB_SNOOZED constant");
   assert.match(bgJs, /chrome\.action\.setBadgeText\(\{\s*text:\s*"off"/u, "background.js must set badge text to off on snooze");
@@ -1482,13 +1437,9 @@ test("snooze badge indicator contract (BF-UX-022)", () => {
 
   const popupJs = readFileSync(path.join(root, "src/popup.js"), "utf8");
   assert.match(popupJs, /BF_SET_TAB_SNOOZED/u, "popup.js must send BF_SET_TAB_SNOOZED on restore click");
-
-  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
-  assert.match(journeyJs, /chrome\.action\.getBadgeText/u, "user-journey-live-qa.mjs must inspect badge text via getBadgeText");
-  assert.match(journeyJs, /BF-UX-022/u, "user-journey-live-qa.mjs must reference BF-UX-022");
 });
 
-test("snooze action tooltip and tabs synchronization contract (BF-UX-023)", () => {
+test("snooze action tooltip and tabs synchronization contract", () => {
   const bgJs = readFileSync(path.join(root, "src/background.js"), "utf8");
   assert.match(bgJs, /const\s+snoozedTabIds\s*=\s*new\s+Set\(\)/u, "background.js must maintain snoozedTabIds Set");
   assert.match(bgJs, /chrome\.action\.setTitle\(\{\s*title:\s*snoozedTitle/u, "background.js must set snoozed title via chrome.action.setTitle");
@@ -1503,13 +1454,9 @@ test("snooze action tooltip and tabs synchronization contract (BF-UX-023)", () =
   assert.ok(trMessages.actionTitleSnoozed?.message, "tr messages must define actionTitleSnoozed");
   assert.match(enMessages.actionTitleSnoozed.message, /Alt\+Shift\+H/u, "en actionTitleSnoozed must mention Alt+Shift+H");
   assert.match(trMessages.actionTitleSnoozed.message, /Alt\+Shift\+H/u, "tr actionTitleSnoozed must mention Alt+Shift+H");
-
-  const journeyJs = readFileSync(path.join(root, "scripts/user-journey-live-qa.mjs"), "utf8");
-  assert.match(journeyJs, /chrome\.action\.getTitle/u, "user-journey-live-qa.mjs must inspect tooltip title via getTitle");
-  assert.match(journeyJs, /BF-UX-023/u, "user-journey-live-qa.mjs must reference BF-UX-023");
 });
 
-test("turquoise glow edge peek and search action accents contract (BF-UX-026)", () => {
+test("turquoise glow edge peek and search action accents contract", () => {
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   const spotlightCss = readFileSync(path.join(root, "src/spotlight.css"), "utf8");
   const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
@@ -1529,7 +1476,7 @@ test("turquoise glow edge peek and search action accents contract (BF-UX-026)", 
   assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-inline-save-btn:hover/u, "newtab.css must style inline save button for turquoise-glow");
 });
 
-test("turquoise glow toast progress and search focus ring contract (BF-UX-027)", () => {
+test("turquoise glow toast progress and search focus ring contract", () => {
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   const spotlightCss = readFileSync(path.join(root, "src/spotlight.css"), "utf8");
   const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
@@ -1546,7 +1493,7 @@ test("turquoise glow toast progress and search focus ring contract (BF-UX-027)",
   assert.match(newTabCss, /\[data-theme="turquoise-glow"\]\s+\.nt-toast:not\(\.is-undone\)\s+\.nt-toast-progress/u, "newtab.css must style turquoise toast progress");
 });
 
-test("turquoise glow shortcuts grid and health inspector metrics contract (BF-UX-028)", () => {
+test("turquoise glow shortcuts grid and health inspector metrics contract", () => {
   const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
   const maintCss = readFileSync(path.join(root, "src/bookmark-maintenance.css"), "utf8");
   const maintJs = readFileSync(path.join(root, "src/bookmark-maintenance.js"), "utf8");
@@ -1566,7 +1513,7 @@ test("turquoise glow shortcuts grid and health inspector metrics contract (BF-UX
   assert.match(maintJs, /document\.documentElement\.dataset\.theme\s*=\s*settings\.theme/u, "bookmark-maintenance.js must sync theme from settings");
 });
 
-test("turquoise glow clock greeting and folder merge button contract (BF-UX-029)", () => {
+test("turquoise glow clock greeting and folder merge button contract", () => {
   const newTabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
   const maintCss = readFileSync(path.join(root, "src/bookmark-maintenance.css"), "utf8");
 
@@ -1583,7 +1530,7 @@ test("turquoise glow clock greeting and folder merge button contract (BF-UX-029)
   assert.match(maintCss, /\[data-theme="turquoise-glow"\]\s+button:focus-visible/u, "bookmark-maintenance.css must style button:focus-visible for turquoise-glow");
 });
 
-test("folder menu keyboard navigation, escape restore focus, and in-menu filter contract (BF-UX-031)", () => {
+test("folder menu keyboard navigation, escape restore focus, and in-menu filter contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
 
   // Keyboard navigation handler and keys
@@ -1606,7 +1553,7 @@ test("folder menu keyboard navigation, escape restore focus, and in-menu filter 
   assert.match(contentJs, /el\.classList\.remove\("is-keyboard-active"\)/u, "createFolderMenuLink must clear keyboard active on mouseenter");
 });
 
-test("folder menu spring physics motion and appearance keyframes contract (BF-UX-032)", () => {
+test("folder menu spring physics motion and appearance keyframes contract", () => {
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
 
   // Spring physics keyframes and cubic-bezier motion
@@ -1626,7 +1573,7 @@ test("folder menu spring physics motion and appearance keyframes contract (BF-UX
   assert.match(contentCss, /\.bf-menu\s+\.bf-result\.is-keyboard-active\b/u, "content.css must style .is-keyboard-active");
 });
 
-test("folder menu quick clear filter micro action contract (BF-UX-033)", () => {
+test("folder menu quick clear filter micro action contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
@@ -1653,7 +1600,7 @@ test("folder menu quick clear filter micro action contract (BF-UX-033)", () => {
   assert.match(contentCss, /\.bf-menu-filter-clear:focus-visible/u, "content.css must provide visible focus outline for .bf-menu-filter-clear");
 });
 
-test("folder menu item right click context menu and incognito/copy action contract (BF-UX-034)", () => {
+test("folder menu item right click context menu and incognito/copy action contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
   const enMessages = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
@@ -1683,7 +1630,7 @@ test("folder menu item right click context menu and incognito/copy action contra
   assert.match(contentJs, /showContentToastNotification\(t\("addressCopiedToast"\)/u, "copyContextBookmarkUrl must show addressCopiedToast notification");
 });
 
-test("folder menu auxclick middle-click background tab contract (BF-UX-035)", () => {
+test("folder menu auxclick middle-click background tab contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
 
@@ -1697,7 +1644,7 @@ test("folder menu auxclick middle-click background tab contract (BF-UX-035)", ()
   assert.match(backgroundJs, /chrome\.tabs\.create\(\{\s*url,\s*active:\s*false\s*\}\)/u, "background.js must create tab with active: false for background opening");
 });
 
-test("folder menu filter matching substring highlight contract (BF-UX-036)", () => {
+test("folder menu filter matching substring highlight contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
 
@@ -1716,7 +1663,7 @@ test("folder menu filter matching substring highlight contract (BF-UX-036)", () 
   assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-highlight\s*\{[^}]*background:\s*Highlight/u, "content.css must style .bf-highlight in forced-colors mode");
 });
 
-test("spotlight command palette and new tab search substring highlight contract (BF-UX-037)", () => {
+test("spotlight command palette and new tab search substring highlight contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const spotlightCss = readFileSync(path.join(root, "src/spotlight.css"), "utf8");
   const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
@@ -1739,7 +1686,7 @@ test("spotlight command palette and new tab search substring highlight contract 
   assert.match(newtabCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.nt-highlight,\s*\.bf-highlight\s*\{[^}]*background:\s*Highlight/u, "newtab.css must style highlight in forced-colors mode");
 });
 
-test("folder menu live filter smart tag filtering and pill glow contract (BF-UX-038)", () => {
+test("folder menu live filter smart tag filtering and pill glow contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
 
@@ -1754,7 +1701,7 @@ test("folder menu live filter smart tag filtering and pill glow contract (BF-UX-
   assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-tag-pill\.is-tag-matched/u, "content.css must support forced-colors for .is-tag-matched");
 });
 
-test("folder menu and context menu open all in tabs batch action contract (BF-UX-039)", () => {
+test("folder menu and context menu open all in tabs batch action contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
@@ -1784,7 +1731,7 @@ test("folder menu and context menu open all in tabs batch action contract (BF-UX
   assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-menu-open-all-btn/u, "content.css must define forced-colors for .bf-menu-open-all-btn");
 });
 
-test("spotlight and new tab search results tag pill match highlight contract (BF-UX-040)", () => {
+test("spotlight and new tab search results tag pill match highlight contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const spotlightCss = readFileSync(path.join(root, "src/spotlight.css"), "utf8");
   const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
@@ -1805,7 +1752,7 @@ test("spotlight and new tab search results tag pill match highlight contract (BF
   assert.match(newtabCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.nt-tag-pill\.is-tag-matched/u, "newtab.css must style .nt-tag-pill.is-tag-matched in forced-colors mode");
 });
 
-test("folder menu header quick add bookmark and child folder popover contract (BF-UX-041)", () => {
+test("folder menu header quick add bookmark and child folder popover contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
@@ -1829,7 +1776,7 @@ test("folder menu header quick add bookmark and child folder popover contract (B
   assert.match(contentCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.bf-menu-add-popover/u, "content.css must define forced-colors for .bf-menu-add-popover");
 });
 
-test("spotlight and new tab search smart filter chips contract (BF-UX-042)", () => {
+test("spotlight and new tab search smart filter chips contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const spotlightCss = readFileSync(path.join(root, "src/spotlight.css"), "utf8");
   const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
@@ -1875,7 +1822,7 @@ test("spotlight and new tab search smart filter chips contract (BF-UX-042)", () 
   assert.match(newtabCss, /@media\s*\(forced-colors:\s*active\)[\s\S]*?\.nt-filter-chip/u, "newtab.css must support forced-colors for .nt-filter-chip");
 });
 
-test("folder menu sort modes contract (BF-UX-043)", () => {
+test("folder menu sort modes contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
@@ -1913,7 +1860,7 @@ test("folder menu sort modes contract (BF-UX-043)", () => {
   assert.match(newtabJs, /dateAdded:\s*node\.dateAdded\s*\|\|\s*0/u, "newtab.js flattenBookmarks must pass dateAdded");
 });
 
-test("spotlight and new tab filter chips W3C tablist keyboard navigation contract (BF-UX-045)", () => {
+test("spotlight and new tab filter chips W3C tablist keyboard navigation contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
   const newtabHtml = readFileSync(path.join(root, "src/newtab.html"), "utf8");
@@ -1939,7 +1886,7 @@ test("spotlight and new tab filter chips W3C tablist keyboard navigation contrac
   assert.match(newtabHtml, /tabindex="-1"/u, "newtab.html must assign tabindex=-1 to inactive chips");
 });
 
-test("folder menu persistent sort preferences contract (BF-UX-046)", () => {
+test("folder menu persistent sort preferences contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
 
   // 1. Storage key and constant declaration
@@ -1961,7 +1908,7 @@ test("folder menu persistent sort preferences contract (BF-UX-046)", () => {
   assert.match(contentJs, /const initialSorted = getSortedEntries\(\)/u, "openFolderMenu must render initial items pre-sorted");
 });
 
-test("fullscreen state transition, visualViewport resize, and native NewTabFooter clearance contract (BF-UX-050)", () => {
+test("fullscreen state transition, visualViewport resize, and native NewTabFooter clearance contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const newtabJs = readFileSync(path.join(root, "src/newtab.js"), "utf8");
   const newtabCss = readFileSync(path.join(root, "src/newtab.css"), "utf8");
@@ -1990,7 +1937,7 @@ test("fullscreen state transition, visualViewport resize, and native NewTabFoote
   assert.match(newtabCss, /\.nt-quick-tips\s*\{[\s\S]*?bottom:\s*var\(--nt-native-footer-safe-offset,\s*44px\)/u, "newtab.css .nt-quick-tips must clear native NewTabFooterView");
 });
 
-test("folder menu sort mode change screen reader ARIA live announcement contract (BF-UX-047)", () => {
+test("folder menu sort mode change screen reader ARIA live announcement contract", () => {
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");
   const contentCss = readFileSync(path.join(root, "src/content.css"), "utf8");
   const enLocales = JSON.parse(readFileSync(path.join(root, "_locales/en/messages.json"), "utf8"));
@@ -2011,7 +1958,7 @@ test("folder menu sort mode change screen reader ARIA live announcement contract
   assert.match(contentCss, /\.bf-sr-only,\s*\.sr-only\s*\{/u, "content.css must define .bf-sr-only, .sr-only");
 });
 
-test("mobile bookmarks bidirectional sync bridge and zero-extension discovery guidance contract (BF-UX-051)", () => {
+test("mobile bookmarks bidirectional sync bridge and zero-extension discovery guidance contract", () => {
   const settingsJs = readFileSync(path.join(root, "src/settings.js"), "utf8");
   const backgroundJs = readFileSync(path.join(root, "src/background.js"), "utf8");
   const contentJs = readFileSync(path.join(root, "src/content.js"), "utf8");

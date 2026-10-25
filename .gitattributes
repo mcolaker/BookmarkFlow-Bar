@@ -4,10 +4,7 @@
 /.gitignore export-ignore
 /.imgbotconfig export-ignore
 /.githooks export-ignore
-/.agents export-ignore
-/AGENT_RULE_COMPLIANCE_BENCHMARK.md export-ignore
 /package.json export-ignore
-/AGENTS.md export-ignore
 /CHANGELOG.md export-ignore
 /CODE_OF_CONDUCT.md export-ignore
 /CONTRIBUTING.md export-ignore

@@ -85,7 +85,7 @@ test("bookmark bar selection falls back to the first local bar", async () => {
   assert.equal(state.bookmarkBar.id, "local-first");
 });
 
-test("mobile bookmarks folder (folderType: 'mobile') is bridged into state, folder rail, and target folder list (BF-UX-051)", async () => {
+test("mobile bookmarks folder (folderType: 'mobile') is bridged into state, folder rail, and target folder list", async () => {
   const tree = {
     id: "0",
     title: "",

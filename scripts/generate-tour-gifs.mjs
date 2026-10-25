@@ -273,9 +273,6 @@ async function loadPlaywright() {
   const cacheEntry = await findCachedPlaywrightModule();
   if (cacheEntry) candidates.push(cacheEntry);
 
-  const codexEntry = await findCodexPlaywrightModule();
-  if (codexEntry) candidates.push(codexEntry);
-
   const failures = [];
   for (const modulePath of [...new Set(candidates)]) {
     if (!await isExactPlaywrightModule(modulePath)) {
@@ -304,47 +301,6 @@ async function isExactPlaywrightModule(modulePath) {
   }
 }
 
-async function findCodexPlaywrightModule() {
-  const runtimeRoot = process.env.USERPROFILE
-    ? path.join(process.env.USERPROFILE, ".cache", "codex-runtimes")
-    : "";
-  if (!runtimeRoot) {
-    return "";
-  }
-
-  let entries = [];
-  try {
-    entries = await fs.readdir(runtimeRoot, { withFileTypes: true });
-  } catch {
-    return "";
-  }
-
-  const candidates = [];
-  for (const entry of entries) {
-    if (!entry.isDirectory()) {
-      continue;
-    }
-
-    const modulePath = path.join(
-      runtimeRoot,
-      entry.name,
-      "dependencies",
-      "node",
-      "node_modules",
-      "playwright",
-      "index.mjs"
-    );
-    try {
-      if (await isExactPlaywrightModule(modulePath)) {
-        const stats = await fs.stat(modulePath);
-        candidates.push({ path: modulePath, mtimeMs: stats.mtimeMs });
-      }
-    } catch {}
-  }
-
-  candidates.sort((left, right) => right.mtimeMs - left.mtimeMs);
-  return candidates[0]?.path || "";
-}
 
 async function findBrowserExecutable() {
   const explicitPath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;

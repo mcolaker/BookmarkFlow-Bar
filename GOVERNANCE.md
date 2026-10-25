@@ -28,9 +28,6 @@ Maintainers are expected to:
 
 Maintainer access may be offered after a sustained record of constructive contributions, reliable reviews, respectful community participation, and sound security judgment. There is no contribution-count shortcut or paid path to repository access. Access is scoped to current project needs and may be reduced when responsibilities change.
 
-## Agent workflow delegation
-
-On 2026-08-09 the primary maintainer delegated routine GitHub workflow operations and Chrome Web Store dashboard operations to project agents: branch creation and push, pull request creation and updates, merging pull requests whose validation gates are green, and Chrome Web Store dashboard updates and review submissions, without a per-operation confirmation. Operations with lasting external effect — release tags and GitHub Releases, external platform publications, direct or force pushes to `main`, remote branch or repository deletion, and license or trademark policy changes — still require explicit maintainer approval. The delegation is recorded in [AGENTS.md](AGENTS.md) and the canonical backlog under `BF-GOV-007`.
 
 ## Releases
 
