@@ -19,7 +19,7 @@ const {
   isMobileBookmarksFolder,
   selectMobileBookmarksNode,
   getMobileFolderDisplayTitle,
-  collectFoldersWithMobileBridge
+  collectFoldersWithMobileBridge, loadBundledContentCss
 } = BookmarkFlowConfig;
 const { getLanguage, t } = BookmarkFlowI18n;
 
@@ -239,14 +239,11 @@ async function broadcastState() {
 }
 
 async function getState() {
-  const [settings, bookmarks] = await Promise.all([
-    getSettings(),
-    getBookmarkData()
-  ]);
-
+  const [settings, bookmarks, contentCss] = await Promise.all([getSettings(), getBookmarkData(), loadBundledContentCss((p) => chrome.runtime.getURL(p))]);
   return {
     ok: true,
     settings,
+    contentCss,
     bookmarkBar: bookmarks.bookmarkBar,
     mobileBookmarks: bookmarks.mobileBookmarks,
     folderRailFolders: bookmarks.folderRailFolders,
